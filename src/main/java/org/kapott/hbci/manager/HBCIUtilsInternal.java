@@ -42,8 +42,6 @@ public class HBCIUtilsInternal {
     public static Properties blzs;
     public static Map<String, BankInfo> banks = null;
 
-    private static InfoPointConnector infoPointConnector;
-
     public static String bigDecimal2String(BigDecimal value) {
         DecimalFormat format = new DecimalFormat("0.##");
         DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
@@ -51,51 +49,6 @@ public class HBCIUtilsInternal {
         format.setDecimalFormatSymbols(symbols);
         format.setDecimalSeparatorAlwaysShown(false);
         return format.format(value);
-    }
-
-    /**
-     * Liefert die Zeile aus der blz.properties mit der angegebenen BLZ.
-     *
-     * @param blz die BLZ.
-     * @return die Zeile aus der blz.properties
-     * @deprecated Bitte {@link HBCIUtils#getBankInfo(String)} verwenden.
-     */
-    public static String getBLZData(String blz) {
-        return blz != null ? blzs.getProperty(blz, "|||||") : "|||||";
-    }
-
-    /**
-     * Liefert den n-ten Datensatz (beginnend bei 1) aus der Zeile.
-     *
-     * @param st  die Zeile.
-     * @param idx der Index, beginnend bei 1.
-     * @return der Wert oder Leerstring.
-     * @deprecated Bitte {@link HBCIUtils#getBankInfo(String)} verwenden.
-     */
-    public static String getNthToken(String st, int idx) {
-        String[] parts = st.split("\\|");
-        String ret = null;
-
-        if ((idx - 1) < parts.length) {
-            ret = parts[idx - 1];
-        } else {
-            ret = "";
-        }
-
-        return ret;
-    }
-
-    /**
-     * Liefert das Pruefziffern-Verfahren fuer diese Bank.
-     *
-     * @param blz die BLZ.
-     * @return das Pruefziffern-Verfahren fuer diese Bank.
-     */
-    public static String getAlgForBLZ(String blz) {
-        BankInfo info = banks.get(blz);
-        if (info == null)
-            return "";
-        return info.getChecksumMethod() != null ? info.getChecksumMethod() : "";
     }
 
     public static String getLocMsg(String key) {
@@ -127,18 +80,6 @@ public class HBCIUtilsInternal {
             LoggerFactory.getLogger(HBCIUtilsInternal.class).info(msg, HBCIUtils.LOG_ERR);
             LoggerFactory.getLogger(HBCIUtilsInternal.class).info("ignoring error because param " + paramName + "=yes", HBCIUtils.LOG_ERR);
             ret = true;
-        } else if (paramValue.equals("callback")) {
-            StringBuffer sb = new StringBuffer();
-            getCallback().callback(passport,
-                    HBCICallback.HAVE_ERROR,
-                    msg,
-                    HBCICallback.TYPE_BOOLEAN,
-                    sb);
-            if (sb.length() == 0) {
-                LoggerFactory.getLogger(HBCIUtilsInternal.class).info(msg, HBCIUtils.LOG_ERR);
-                LoggerFactory.getLogger(HBCIUtilsInternal.class).info("ignoring error because param " + paramName + "=callback", HBCIUtils.LOG_ERR);
-                ret = true;
-            }
         }
 
         return ret;
@@ -152,32 +93,6 @@ public class HBCIUtilsInternal {
 
     public static String withCounter(String st, int idx) {
         return st + ((idx != 0) ? "_" + Integer.toString(idx + 1) : "");
-    }
-
-    public static String[] getNextRelativePathElem(String currentPath, String targetPath) {
-        String[] ret = null;
-
-        if (targetPath.startsWith(currentPath + ".")) {
-            ret = new String[2];
-
-            String subPath = targetPath.substring(currentPath.length() + 1);
-            int dotPosi = subPath.indexOf('.');
-            if (dotPosi == -1) {
-                dotPosi = subPath.length();
-            }
-            String nextPath = subPath.substring(0, dotPosi);
-
-            String nextName = nextPath;
-            int underscorePosi = nextPath.lastIndexOf('_');
-            if (underscorePosi != -1) {
-                nextName = nextPath.substring(0, underscorePosi);
-            }
-
-            ret[0] = nextName;
-            ret[1] = nextPath;
-        }
-
-        return ret;
     }
 
     public static int getPosiOfNextDelimiter(String st, int posi) {
@@ -208,25 +123,6 @@ public class HBCIUtilsInternal {
         return posi;
     }
 
-    public static String ba2string(byte[] ba) {
-        StringBuffer ret = new StringBuffer();
-
-        for (int i = 0; i < ba.length; i++) {
-            int x = ba[i];
-            if (x < 0) {
-                x += 256;
-            }
-            String st = Integer.toString(x, 16);
-            if (st.length() == 1) {
-                st = "0" + st;
-            }
-            ret.append(st + " ");
-        }
-
-        return ret.toString();
-
-    }
-
     public static String stripLeadingZeroes(String st) {
         String ret = null;
 
@@ -240,28 +136,5 @@ public class HBCIUtilsInternal {
         }
 
         return ret;
-    }
-
-    private static InfoPointConnector getInfoPointConnector() {
-        if (infoPointConnector == null) {
-            infoPointConnector = new InfoPointConnector();
-        }
-        return infoPointConnector;
-    }
-
-    public static void infoPointSendBPD(HBCIPassportInternal passport, Properties msgData) {
-        if (HBCIUtils.getParam("infoPoint.enabled", "0").equals("1")) {
-            getInfoPointConnector().sendBPD(passport, msgData);
-        }
-    }
-
-    public static void infoPointSendPublicKeys(HBCIPassportInternal passport, Properties msgData) {
-        if (HBCIUtils.getParam("infoPoint.enabled", "0").equals("1")) {
-            getInfoPointConnector().sendPublicKeys(passport, msgData);
-        }
-    }
-
-    public static HBCICallback getCallback() {
-        return null;
     }
 }

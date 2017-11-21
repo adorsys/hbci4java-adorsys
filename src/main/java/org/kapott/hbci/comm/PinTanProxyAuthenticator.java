@@ -47,7 +47,7 @@ extends Authenticator
         
         String       user=passport.getProxyUser();
         String       pass=passport.getProxyPass();
-        HBCICallback callback=HBCIUtilsInternal.getCallback();
+        HBCICallback callback=passport.getCallback();
         
         if (user.length()==0) {
             StringBuffer retData=new StringBuffer();

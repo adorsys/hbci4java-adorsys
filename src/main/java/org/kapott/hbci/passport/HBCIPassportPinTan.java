@@ -308,7 +308,7 @@ public class HBCIPassportPinTan extends AbstractPinTanPassport {
             if (getPIN() == null) {
                 StringBuffer s = new StringBuffer();
 
-                HBCIUtilsInternal.getCallback().callback(this,
+                getCallback().callback(this,
                         HBCICallback.NEED_PT_PIN,
                         HBCIUtilsInternal.getLocMsg("CALLB_NEED_PTPIN"),
                         HBCICallback.TYPE_SECRET,
