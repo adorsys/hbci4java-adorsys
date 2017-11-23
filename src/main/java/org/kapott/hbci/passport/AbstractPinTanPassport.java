@@ -154,10 +154,8 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    private void searchFor3920s(HBCIRetVal[] rets) {
-        int l = rets.length;
-        for (int i = 0; i < l; i++) {
-            HBCIRetVal ret = rets[i];
+    private void searchFor3920s(List<HBCIRetVal> rets) {
+        for (HBCIRetVal ret : rets) {
             if (ret.code.equals("3920")) {
                 this.allowedTwostepMechanisms.clear();
 
@@ -171,10 +169,8 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    private boolean searchFor3072s(HBCIRetVal[] rets) {
-        int l = rets.length;
-        for (int i = 0; i < l; i++) {
-            HBCIRetVal ret = rets[i];
+    private boolean searchFor3072s(List<HBCIRetVal> rets) {
+        for (HBCIRetVal ret : rets) {
             if (ret.code.equals("3072")) {
                 String newCustomerId = "";
                 String newUserId = "";
@@ -230,7 +226,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         String oldTANMethod = currentTANMethod;
         String updatedTANMethod = getCurrentTANMethod(true);
 
-        if (!oldTANMethod.equals(updatedTANMethod)) {
+        if (oldTANMethod != null && !oldTANMethod.equals(updatedTANMethod)) {
             // wenn sich das ausgewÃ¤hlte secmech geÃ¤ndert hat, mÃ¼ssen wir
             // einen dialog-restart fordern, weil wÃ¤hrend eines dialoges
             // das secmech nicht gewechselt werden darf

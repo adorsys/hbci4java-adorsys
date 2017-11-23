@@ -147,10 +147,7 @@ public final class MSG
     public void log(int logLevel) {
         if (isValid())
             for (Iterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
-                MultipleSyntaxElements list = i.next();
-
-                if (list != null)
-                    HBCIUtils.log(list.toString(0), logLevel);
+                i.next().log(logLevel);
             }
     }
 

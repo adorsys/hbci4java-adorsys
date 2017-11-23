@@ -140,7 +140,7 @@ public final class CommPinTan extends Comm {
             conn.connect();
             OutputStream out = conn.getOutputStream();
 
-            HBCIUtils.log("POST data to output stream", HBCIUtils.LOG_INFO);
+            HBCIUtils.log("POST data to output stream", HBCIUtils.LOG_DEBUG);
             out.write(b);
             out.flush();
 
@@ -158,7 +158,7 @@ public final class CommPinTan extends Comm {
             byte[] b = new byte[1024];
             StringBuffer ret = new StringBuffer();
 
-            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("STATUS_MSG_RECV"), HBCIUtils.LOG_INFO);
+            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("STATUS_MSG_RECV"), HBCIUtils.LOG_DEBUG);
 
             int msgsize = conn.getContentLength();
             int num;

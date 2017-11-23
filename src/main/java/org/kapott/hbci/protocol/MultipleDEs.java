@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.HBCIUtilsInternal;
 import org.kapott.hbci.protocol.factory.DEFactory;
 import org.w3c.dom.Document;
@@ -100,6 +101,15 @@ public final class MultipleDEs
         }
 
         return ret.toString();
+    }
+
+    public void log(int logLevel) {
+        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
+            DE de = (DE)(i.next());
+            if (de != null)
+                HBCIUtils.log(de.toString(0), logLevel);
+
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------

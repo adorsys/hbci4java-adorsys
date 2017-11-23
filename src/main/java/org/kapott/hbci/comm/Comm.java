@@ -63,8 +63,8 @@ public abstract class Comm {
         IHandlerData handler = getPassport().getParentHandlerData();
         MsgGen gen = handler.getMsgGen();
 
-        HBCIUtils.log("---------------- request ----------------", HBCIUtils.LOG_INTERN);
-        msg.log(HBCIUtils.LOG_INTERN);
+        HBCIUtils.log("---------------- request ----------------", HBCIUtils.LOG_DEBUG);
+        msg.log(HBCIUtils.LOG_DEBUG);
 
         // ausgehende nachricht versenden
         getPassport().getCallback().status(getPassport(), HBCICallback.STATUS_MSG_SEND, null);
@@ -76,10 +76,10 @@ public abstract class Comm {
         String st = pong(gen).toString();
         getPassport().getCallback().status(getPassport(), HBCICallback.STATUS_MSG_RAW_RECV, st);
 
-        HBCIUtils.log("---------------- response ----------------", HBCIUtils.LOG_INTERN);
+        HBCIUtils.log("---------------- response ----------------", HBCIUtils.LOG_DEBUG);
         String[] split = st.split("'");
         for (int i = 0; i < split.length; i++) {
-            HBCIUtils.log(split[i], HBCIUtils.LOG_INTERN);
+            HBCIUtils.log(split[i], HBCIUtils.LOG_DEBUG);
         }
 
 

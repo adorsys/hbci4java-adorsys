@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.factory.SEGFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -62,6 +63,14 @@ public final class MultipleSEGs
         }
 
         return ret.toString();
+    }
+
+    public void log(int logLevel) {
+        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
+            SEG seg = (SEG)(i.next());
+            if (seg != null)
+                HBCIUtils.log(seg.toString(0), logLevel);
+        }
     }
 
     // ---------------------------------------------------------------------------------------------------------------

@@ -29,6 +29,7 @@ import java.util.Properties;
 
 import org.kapott.hbci.exceptions.InvalidSegSeqException;
 import org.kapott.hbci.exceptions.NoSuchPathException;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.HBCIUtilsInternal;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.factory.MultipleDEGsFactory;
@@ -97,6 +98,14 @@ public final class SEG
         }
 
         return ret.toString();
+    }
+
+    public void log(int loglevel) {
+        for (ListIterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
+            MultipleSyntaxElements dataList = i.next();
+            if (dataList != null)
+                dataList.log(loglevel);
+        }
     }
 
     public void setSeq(int idx,boolean allowOverwrite)

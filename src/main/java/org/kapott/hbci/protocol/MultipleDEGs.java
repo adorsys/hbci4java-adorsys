@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.factory.DEGFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -77,6 +78,14 @@ public final class MultipleDEGs
         }
 
         return ret.toString();
+    }
+
+    public void log(int logLevel) {
+        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
+            DEG deg = (DEG)(i.next());
+            if (deg != null)
+                HBCIUtils.log(deg.toString(0), logLevel);
+        }
     }
 
     // --------------------------------------------------------------------------------------------------------------

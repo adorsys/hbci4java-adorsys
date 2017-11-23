@@ -90,7 +90,7 @@ public final class HBCIDialog {
             boolean s = passport.isSupported();
             HBCIUtils.log("passport supported: " + s, HBCIUtils.LOG_DEBUG);
 
-            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_INIT"), HBCIUtils.LOG_INFO);
+            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_INIT"), HBCIUtils.LOG_DEBUG);
             passport.getCallback().status(passport, HBCICallback.STATUS_DIALOG_INIT, null);
             String country = passport.getCountry();
             String blz = passport.getBLZ();
@@ -336,7 +336,7 @@ public final class HBCIDialog {
         HBCIMsgStatus ret = new HBCIMsgStatus();
 
         try {
-            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("LOG_DIALOG_END"), HBCIUtils.LOG_INFO);
+            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("LOG_DIALOG_END"), HBCIUtils.LOG_DEBUG);
             passport.getCallback().status(passport, HBCICallback.STATUS_DIALOG_END, null);
 
             kernel.rawNewMsg("DialogEnd");
@@ -507,7 +507,7 @@ public final class HBCIDialog {
         }
     }
 
-    public List getAllTasks() {
+    public List<HBCIJobImpl> getAllTasks() {
         List tasks = new ArrayList();
 
         for (Iterator i = msgs.iterator(); i.hasNext(); ) {

@@ -288,10 +288,12 @@ public final class HBCIInstitute
                 updateBPD(result);
                 passport.saveChanges();
 
-                try {
-                    doDialogEnd(result.getProperty("MsgHead.dialogid"), HBCIKernelImpl.DONT_NEED_SIG);
-                } catch (Exception ex) {
-                    HBCIUtils.log(ex);
+                if (!status.isDialogClosed()) {
+                    try {
+                        doDialogEnd(result.getProperty("MsgHead.dialogid"), HBCIKernelImpl.DONT_NEED_SIG);
+                    } catch (Exception ex) {
+                        HBCIUtils.log(ex);
+                    }
                 }
 
                 if (!status.isOK()) {
@@ -304,7 +306,7 @@ public final class HBCIInstitute
                     if (he.isFatal())
                         throw he;
                 }
-                HBCIUtils.log(e);
+//                HBCIUtils.log(e);
                 // Viele Kreditinstitute unterstützen den anonymen Login nicht. Dass sollte nicht als Fehler den Anwender beunruhigen
                 HBCIUtils.log("FAILED! - maybe this institute does not support anonymous logins", HBCIUtils.LOG_INFO);
                 HBCIUtils.log("we will nevertheless go on", HBCIUtils.LOG_INFO);
