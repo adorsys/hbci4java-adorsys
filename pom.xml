@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.adorsys</groupId>
     <artifactId>hbci4j-adorsys</artifactId>
-    <version>3.0.16</version>
+    <version>3.0.17-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>HBCI4j - Home Banking Computer Interface for Java - Clone from https://github.com/hbci4j/hbci4java</description>
@@ -35,7 +35,7 @@
         <url>scm:git:git@github.com:adorsys/hbci4java-adorsys.git</url>
         <connection>scm:git:git@github.com:adorsys/hbci4java-adorsys.git</connection>
         <developerConnection>scm:git:git@github.com:adorsys/hbci4java-adorsys.git</developerConnection>
-        <tag>hbci4j-adorsys-3.0.16</tag>
+        <tag>HEAD</tag>
     </scm>
     <properties>
         <logback.version>1.1.2</logback.version>
