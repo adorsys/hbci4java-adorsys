@@ -100,7 +100,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV
         Properties result=msgstatus.getData();
         GVRDauerList.Dauer entry=new GVRDauerList.Dauer();
         
-        HBCIUtils.log("parsing SEPA standing orders from msg data [size: " + result.size() + "]",HBCIUtils.LOG_INFO);
+        HBCIUtils.log("parsing SEPA standing orders from msg data [size: " + result.size() + "]",HBCIUtils.LOG_DEBUG);
 
         entry.my=new Konto();
         entry.my.country=result.getProperty(header+".My.KIK.country");
@@ -124,7 +124,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV
             // Encoding siehe GVTermUebSEPAList
             HBCIUtils.log("  parsing sepa data: " + pain,HBCIUtils.LOG_DEBUG2);
             parser.parse(new ByteArrayInputStream(pain.getBytes(Comm.ENCODING)), sepaResults);
-            HBCIUtils.log("  parsed sepa data, entries: " + sepaResults.size(),HBCIUtils.LOG_INFO);
+            HBCIUtils.log("  parsed sepa data, entries: " + sepaResults.size(),HBCIUtils.LOG_DEBUG2);
         }
         catch (Exception e)
         {

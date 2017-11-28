@@ -27,9 +27,11 @@ import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.comm.Comm;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.*;
+import org.kapott.hbci.manager.ChallengeInfo;
+import org.kapott.hbci.manager.HBCIHandler;
+import org.kapott.hbci.manager.HBCIKey;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.SEG;
-import org.kapott.hbci.protocol.factory.SEGFactory;
 import org.kapott.hbci.security.Crypt;
 import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -962,7 +964,6 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
 
                                 digest.update(segdata.getBytes(Comm.ENCODING));
                                 byte[] hash = digest.digest();
-                                SEGFactory.getInstance().unuseObject(seg);
                                 hktan.setParam("orderhash", new String(hash, Comm.ENCODING));
                             } catch (Exception e) {
                                 throw new HBCI_Exception(e);

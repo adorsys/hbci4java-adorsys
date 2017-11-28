@@ -21,16 +21,14 @@
 
 package org.kapott.hbci.protocol;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
-
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.factory.SFFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Properties;
 
 public final class MultipleSFs
      extends MultipleSyntaxElements
@@ -38,7 +36,7 @@ public final class MultipleSFs
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document syntax)
     {
         SyntaxElement ret=null;
-        addElement((ret=SFFactory.getInstance().createSF(getType(), getName(), path, idx, syntax)));
+        addElement((ret=new SF(getType(), getName(), path, idx, syntax)));
         return ret;
     }
 
@@ -88,7 +86,7 @@ public final class MultipleSFs
     protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String,String> predefs,Hashtable<String,String> valids)
     {
         SyntaxElement ret=null;
-        addElement((ret=SFFactory.getInstance().createSF(getType(), getName(), path, predelim, idx, res, fullResLen, syntax, predefs,valids)));
+        addElement((ret=new SF(getType(), getName(), path, predelim, idx, res, fullResLen, syntax, predefs,valids)));
         return ret;
     }
 
@@ -100,10 +98,5 @@ public final class MultipleSFs
                 e.getElementPaths(p,segref,degref,deref);
             }
         }
-    }
-    
-    public void destroy()
-    {
-        super.destroy();
     }
 }

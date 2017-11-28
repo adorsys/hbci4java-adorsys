@@ -21,25 +21,15 @@
 
 package org.kapott.hbci.protocol;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
-
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.factory.MultipleDEGsFactory;
-import org.kapott.hbci.protocol.factory.MultipleDEsFactory;
-import org.kapott.hbci.protocol.factory.MultipleSEGsFactory;
-import org.kapott.hbci.protocol.factory.MultipleSFsFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.*;
 
 /* ein syntaxelement ist ein strukturelement einer hbci-nachricht (die nachricht
     selbst, eine segmentfolge, ein einzelnes segment, eine deg oder 
@@ -205,83 +195,67 @@ public abstract class SyntaxElement {
             if (requestTag != null && requestTag.equals("1"))
                 needsRequestTag = true;
 
-            try {
-                int syntaxIdx = 0;
-                for (Node ref = def.getFirstChild(); ref != null; ref = ref.getNextSibling()) {
-                    if (ref.getNodeType() == Node.ELEMENT_NODE) {
-                        MultipleSyntaxElements child = createAndAppendNewChildContainer(ref, syntax);
-                        if (child != null) {
-                            child.setParent(this);
-                            // TODO: Ã¼berprÃ¼fen, ob noch an anderen Stellen Container
-                            // erzeugt werden - diese mÃ¼ssten dann auch die richtige
-                            // syntaxIdx bekommen
-                            child.setSyntaxIdx(syntaxIdx);
+            int syntaxIdx = 0;
+            for (Node ref = def.getFirstChild(); ref != null; ref = ref.getNextSibling()) {
+                if (ref.getNodeType() == Node.ELEMENT_NODE) {
+                    MultipleSyntaxElements child = createAndAppendNewChildContainer(ref, syntax);
+                    if (child != null) {
+                        child.setParent(this);
+                        // TODO: Ã¼berprÃ¼fen, ob noch an anderen Stellen Container
+                        // erzeugt werden - diese mÃ¼ssten dann auch die richtige
+                        // syntaxIdx bekommen
+                        child.setSyntaxIdx(syntaxIdx);
 
-                            if (getElementTypeName().equals("MSG"))
-                                HBCIUtils.log("child container " + child.getPath() + " has syntaxIdx=" + child.getSyntaxIdx(), HBCIUtils.LOG_INTERN);
-                        }
-                        syntaxIdx++;
+                        if (getElementTypeName().equals("MSG"))
+                            HBCIUtils.log("child container " + child.getPath() + " has syntaxIdx=" + child.getSyntaxIdx(), HBCIUtils.LOG_INTERN);
                     }
+                    syntaxIdx++;
                 }
+            }
 
                 /* durchlaufen aller "value"-knoten und setzen der
                  werte der entsprechenden de */
-                // TODO: effizienter: das nicht hier machen, sondern spÃ¤ter,
-                // Wenn wir das *hier* machen, dann werden ja DOCH wieder
-                // alle "minnum=0"-Segmente
-                // erzeugt, weil fÃ¼r jedes Segment code und version gesetzt
-                // werden mÃ¼ssten. Am besten das immer in dem Moment machen,
-                // wo ein entsprechendes SyntaxDE erzeugt wird.
-                // --> nein, das geht hier. Grund: die optimierte Message-Engine
-                // wird nur fÃ¼r Segmentfolgen angewendet. Und in Segmentfolgen-
-                // Definitionen sind keine values oder valids angegeben, so dass
-                // dieser Code hier gar keine Relevanz fÃ¼r Segmentfolgen hat
-                NodeList valueNodes = ((Element) def).getElementsByTagName("value");
-                int len = valueNodes.getLength();
-                String dottedPath = this.path + ".";
-                for (int i = 0; i < len; i++) {
-                    Node valueNode = valueNodes.item(i);
-                    String valuePath = ((Element) valueNode).getAttribute("path");
-                    String value = (valueNode.getFirstChild()).getNodeValue();
-                    String destpath = dottedPath + valuePath;
+            // TODO: effizienter: das nicht hier machen, sondern spÃ¤ter,
+            // Wenn wir das *hier* machen, dann werden ja DOCH wieder
+            // alle "minnum=0"-Segmente
+            // erzeugt, weil fÃ¼r jedes Segment code und version gesetzt
+            // werden mÃ¼ssten. Am besten das immer in dem Moment machen,
+            // wo ein entsprechendes SyntaxDE erzeugt wird.
+            // --> nein, das geht hier. Grund: die optimierte Message-Engine
+            // wird nur fÃ¼r Segmentfolgen angewendet. Und in Segmentfolgen-
+            // Definitionen sind keine values oder valids angegeben, so dass
+            // dieser Code hier gar keine Relevanz fÃ¼r Segmentfolgen hat
+            NodeList valueNodes = ((Element) def).getElementsByTagName("value");
+            int len = valueNodes.getLength();
+            String dottedPath = this.path + ".";
+            for (int i = 0; i < len; i++) {
+                Node valueNode = valueNodes.item(i);
+                String valuePath = ((Element) valueNode).getAttribute("path");
+                String value = (valueNode.getFirstChild()).getNodeValue();
+                String destpath = dottedPath + valuePath;
 
-                    if (!propagateValue(destpath, value, TRY_TO_CREATE, DONT_ALLOW_OVERWRITE))
-                        throw new NoSuchPathException(destpath);
-                }
+                if (!propagateValue(destpath, value, TRY_TO_CREATE, DONT_ALLOW_OVERWRITE))
+                    throw new NoSuchPathException(destpath);
+            }
 
                 /* durchlaufen aller "valids"-knoten und speichern der valid-values */
-                // TODO: das hier ebenfalls spÃ¤ter machen, siehe "values"
-                NodeList validNodes = ((Element) def).getElementsByTagName("valids");
-                len = validNodes.getLength();
-                dottedPath = getPath() + ".";
-                for (int i = 0; i < len; i++) {
-                    Node validNode = validNodes.item(i);
-                    String valuePath = ((Element) (validNode)).getAttribute("path");
-                    String absPath = dottedPath + valuePath;
+            // TODO: das hier ebenfalls spÃ¤ter machen, siehe "values"
+            NodeList validNodes = ((Element) def).getElementsByTagName("valids");
+            len = validNodes.getLength();
+            dottedPath = getPath() + ".";
+            for (int i = 0; i < len; i++) {
+                Node validNode = validNodes.item(i);
+                String valuePath = ((Element) (validNode)).getAttribute("path");
+                String absPath = dottedPath + valuePath;
 
-                    NodeList validvalueNodes = ((Element) (validNode)).getElementsByTagName("validvalue");
-                    int len2 = validvalueNodes.getLength();
-                    for (int j = 0; j < len2; j++) {
-                        Node validvalue = validvalueNodes.item(j);
-                        String value = (validvalue.getFirstChild()).getNodeValue();
+                NodeList validvalueNodes = ((Element) (validNode)).getElementsByTagName("validvalue");
+                int len2 = validvalueNodes.getLength();
+                for (int j = 0; j < len2; j++) {
+                    Node validvalue = validvalueNodes.item(j);
+                    String value = (validvalue.getFirstChild()).getNodeValue();
 
-                        storeValidValueInDE(absPath, value);
-                    }
+                    storeValidValueInDE(absPath, value);
                 }
-            } catch (RuntimeException e) {
-                for (Iterator<MultipleSyntaxElements> i = getChildContainers().iterator(); i.hasNext(); ) {
-                    MultipleSyntaxElements o = i.next();
-                    if (o instanceof MultipleSFs) {
-                        MultipleSFsFactory.getInstance().unuseObject(o);
-                    } else if (o instanceof MultipleSEGs) {
-                        MultipleSEGsFactory.getInstance().unuseObject(o);
-                    } else if (o instanceof MultipleDEGs) {
-                        MultipleDEGsFactory.getInstance().unuseObject(o);
-                    } else {
-                        MultipleDEsFactory.getInstance().unuseObject(o);
-                    }
-                }
-                throw e;
             }
         }
     }
@@ -403,52 +377,36 @@ public abstract class SyntaxElement {
                 }
             }
 
-            try {
-                // anlegen der child-elemente
-                int counter = 0;
-                for (Node ref = def.getFirstChild(); ref != null; ref = ref.getNextSibling()) {
-                    if (ref.getNodeType() == Node.ELEMENT_NODE) {
-                        MultipleSyntaxElements child = parseAndAppendNewChildContainer(ref,
-                                ((counter++) == 0) ? predelim : getInDelim(),
-                                getInDelim(),
-                                res, fullResLen, syntax, predefs, valids);
+            // anlegen der child-elemente
+            int counter = 0;
+            for (Node ref = def.getFirstChild(); ref != null; ref = ref.getNextSibling()) {
+                if (ref.getNodeType() == Node.ELEMENT_NODE) {
+                    MultipleSyntaxElements child = parseAndAppendNewChildContainer(ref,
+                            ((counter++) == 0) ? predelim : getInDelim(),
+                            getInDelim(),
+                            res, fullResLen, syntax, predefs, valids);
 
-                        if (child != null) {
-                            child.setParent(this);
+                    if (child != null) {
+                        child.setParent(this);
 
-                            // TODO: this is a very very dirty hack to fix the problem with the params-template;
-                            // bei der SF "Params", die mit <SF type="Params" maxnum="0"/> referenziert wird,
-                            // soll nach jedem erfolgreich in die SF aufgenommenen Param-Segment eine neue
-                            // SF begonnen werden, damit das Problem mit dem am Ende der SF stehenden Template-
-                            // Param-Segment nicht mehr auftritt
-                            // dazu wird beim hinzufuegen von segmenten zur sf ueberprueft, ob diese evtl. bereits
-                            // segmente enthaelt (hasValidChilds()). falls das der fall ist, so wird
-                            // kein neues segment hinzugefuegt
-                            // analoges gilt fÃ¼r die SF "GVRes" - hier muss dafÃ¼r gesorgt werden, dass jede
-                            // antwort in ein eigenes GVRes kommt, damit die zuordnung reihenfolge-erkennung
-                            // der empfangenen GVRes-segmente funktioniert (in HBCIJobImpl.fillJobResult())
-                            if ((this instanceof SF) &&
-                                    (getName().equals("Params") || getName().equals("GVRes")) &&
-                                    ((MultipleSEGs) child).hasValidChilds()) {
-                                break;
-                            }
+                        // TODO: this is a very very dirty hack to fix the problem with the params-template;
+                        // bei der SF "Params", die mit <SF type="Params" maxnum="0"/> referenziert wird,
+                        // soll nach jedem erfolgreich in die SF aufgenommenen Param-Segment eine neue
+                        // SF begonnen werden, damit das Problem mit dem am Ende der SF stehenden Template-
+                        // Param-Segment nicht mehr auftritt
+                        // dazu wird beim hinzufuegen von segmenten zur sf ueberprueft, ob diese evtl. bereits
+                        // segmente enthaelt (hasValidChilds()). falls das der fall ist, so wird
+                        // kein neues segment hinzugefuegt
+                        // analoges gilt fÃ¼r die SF "GVRes" - hier muss dafÃ¼r gesorgt werden, dass jede
+                        // antwort in ein eigenes GVRes kommt, damit die zuordnung reihenfolge-erkennung
+                        // der empfangenen GVRes-segmente funktioniert (in HBCIJobImpl.fillJobResult())
+                        if ((this instanceof SF) &&
+                                (getName().equals("Params") || getName().equals("GVRes")) &&
+                                ((MultipleSEGs) child).hasValidChilds()) {
+                            break;
                         }
                     }
                 }
-            } catch (RuntimeException e) {
-                for (Iterator<MultipleSyntaxElements> i = getChildContainers().iterator(); i.hasNext(); ) {
-                    MultipleSyntaxElements o = i.next();
-                    if (o instanceof MultipleSFs) {
-                        MultipleSFsFactory.getInstance().unuseObject(o);
-                    } else if (o instanceof MultipleSEGs) {
-                        MultipleSEGsFactory.getInstance().unuseObject(o);
-                    } else if (o instanceof MultipleDEGs) {
-                        MultipleDEGsFactory.getInstance().unuseObject(o);
-                    } else {
-                        MultipleDEsFactory.getInstance().unuseObject(o);
-                    }
-                }
-                throw e;
             }
         }
 
@@ -526,7 +484,7 @@ public abstract class SyntaxElement {
                 throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVVALUE", new Object[]{destPath, value}));
             ret = true;
         } else {
-            // damit Ã¼berspringen wir gleich elemente, bei denen es mit 
+            // damit überspringen wir gleich elemente, bei denen es mit
             // sicherheit nicht funktionieren kann
             if (destPath.startsWith(getPath())) {
                 for (Iterator<MultipleSyntaxElements> i = childContainers.listIterator(); i.hasNext(); ) {

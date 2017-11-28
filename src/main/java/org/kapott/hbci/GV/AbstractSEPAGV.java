@@ -110,7 +110,7 @@ public abstract class AbstractSEPAGV extends HBCIJobImpl
             }
         }
         
-        HBCIUtils.log("searching for value of \"cannationalacc\" in HISPAS",HBCIUtils.LOG_INFO);
+        HBCIUtils.log("searching for value of \"cannationalacc\" in HISPAS",HBCIUtils.LOG_DEBUG);
         
         // Ansonsten suchen wir in HISPAS - aber nur, wenn wir die Daten schon haben
         if (handler.getSupportedLowlevelJobs().getProperty("SEPAInfo") == null)
@@ -123,7 +123,7 @@ public abstract class AbstractSEPAGV extends HBCIJobImpl
         // SEPAInfo laden und darüber iterieren
         Properties props = handler.getLowlevelJobRestrictions("SEPAInfo");
         String value = props.getProperty("cannationalacc");
-        HBCIUtils.log("cannationalacc=" + value,HBCIUtils.LOG_INFO);
+        HBCIUtils.log("cannationalacc=" + value,HBCIUtils.LOG_DEBUG);
         return value != null && value.equalsIgnoreCase("J");
     }
     

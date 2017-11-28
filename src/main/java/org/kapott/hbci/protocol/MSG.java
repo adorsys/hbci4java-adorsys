@@ -21,22 +21,14 @@
 
 package org.kapott.hbci.protocol;
 
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
-
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.factory.MultipleSEGsFactory;
-import org.kapott.hbci.protocol.factory.MultipleSFsFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.text.DecimalFormat;
+import java.util.*;
 
 public final class MSG
         extends SyntaxElement {
@@ -49,9 +41,9 @@ public final class MSG
         MultipleSyntaxElements ret = null;
 
         if ((ref.getNodeName()).equals("SEG"))
-            ret = MultipleSEGsFactory.getInstance().createMultipleSEGs(ref, getPath(), syntax);
+            ret = new MultipleSEGs(ref, getPath(), syntax);
         else if ((ref.getNodeName()).equals("SF"))
-            ret = MultipleSFsFactory.getInstance().createMultipleSFs(ref, getPath(), syntax);
+            ret = new MultipleSFs(ref, getPath(), syntax);
 
         return ret;
     }
@@ -112,15 +104,15 @@ public final class MSG
      */
     public MSG(String type, MsgGen gen, Hashtable<String, String> clientValues) {
         super(type, type, null, 0, gen.getSyntax());
-        initData(type, gen, clientValues);
+        initData(gen, clientValues);
     }
 
     public void init(String type, MsgGen gen, Hashtable<String, String> clientValues) {
         super.init(type, type, null, 0, gen.getSyntax());
-        initData(type, gen, clientValues);
+        initData(gen, clientValues);
     }
 
-    private void initData(String type, MsgGen gen, Hashtable<String, String> clientValues) {
+    private void initData(MsgGen gen, Hashtable<String, String> clientValues) {
         propagateUserData(getName(), clientValues);
 
         enumerateSegs(0, DONT_ALLOW_OVERWRITE);
@@ -181,9 +173,9 @@ public final class MSG
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG"))
-            ret = MultipleSEGsFactory.getInstance().createMultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
         else if ((segref.getNodeName()).equals("SF"))
-            ret = MultipleSFsFactory.getInstance().createMultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
 
         return ret;
     }
@@ -234,19 +226,5 @@ public final class MSG
                 l.getElementPaths(p, segref, null, null);
             }
         }
-    }
-
-    public void destroy() {
-        List<MultipleSyntaxElements> childContainers = getChildContainers();
-        for (Iterator<MultipleSyntaxElements> i = childContainers.iterator(); i.hasNext(); ) {
-            MultipleSyntaxElements child = i.next();
-            if (child instanceof MultipleSFs) {
-                MultipleSFsFactory.getInstance().unuseObject(child);
-            } else {
-                MultipleSEGsFactory.getInstance().unuseObject(child);
-            }
-        }
-
-        super.destroy();
     }
 }

@@ -21,18 +21,6 @@
 
 package org.kapott.hbci.GV;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.kapott.hbci.GV_Result.HBCIJobResult;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.callback.HBCICallback;
@@ -42,18 +30,20 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.JobNotSupportedException;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.HBCIPassportList;
 import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.protocol.SyntaxElement;
-import org.kapott.hbci.protocol.factory.SEGFactory;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class HBCIJobImpl
         implements HBCIJob {
@@ -478,10 +468,6 @@ public abstract class HBCIJobImpl
             seg.validate();
         } catch (Exception ex) {
             throw new HBCI_Exception("*** the job segment for this task can not be created", ex);
-        } finally {
-            if (seg != null) {
-                SEGFactory.getInstance().unuseObject(seg);
-            }
         }
     }
 
@@ -493,7 +479,7 @@ public abstract class HBCIJobImpl
         SEG seg = null;
         try {
             MsgGen gen = getParentHandler().getMsgGen();
-            seg = SEGFactory.getInstance().createSEG(getName(), getName(), null, 0, gen.getSyntax());
+            seg = new SEG(getName(), getName(), null, 0, gen.getSyntax());
             for (Enumeration e = getLowlevelParams().propertyNames(); e.hasMoreElements(); ) {
                 String key = (String) e.nextElement();
                 String value = getLowlevelParams().getProperty(key);

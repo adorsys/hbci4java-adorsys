@@ -21,16 +21,14 @@
 
 package org.kapott.hbci.protocol;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
-
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.factory.SEGFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Properties;
 
 public final class MultipleSEGs
      extends MultipleSyntaxElements
@@ -38,7 +36,7 @@ public final class MultipleSEGs
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document syntax)
     {
         SyntaxElement ret=null;
-        addElement((ret=SEGFactory.getInstance().createSEG(getType(), getName(), path, idx, syntax)));
+        addElement((ret=new SEG(getType(), getName(), path, idx, syntax)));
         return ret;
     }
 
@@ -88,7 +86,7 @@ public final class MultipleSEGs
     protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String,String> predefs,Hashtable<String,String> valids)
     {
         SyntaxElement ret=null;
-        addElement((ret=SEGFactory.getInstance().createSEG(getType(), getName(), path, predelim, idx, res, fullResLen, syntax, predefs,valids)));
+        addElement((ret=new SEG(getType(), getName(), path, predelim, idx, res, fullResLen, syntax, predefs,valids)));
         return ret;
     }
 
@@ -117,14 +115,5 @@ public final class MultipleSEGs
     {
         return (getElements().size()!=0);
     }
-    
-    public void destroy()
-    {
-        List<SyntaxElement> children=getElements();
-        for (Iterator<SyntaxElement> i=children.iterator();i.hasNext();) {
-            SEGFactory.getInstance().unuseObject(i.next());
-        }
-        
-        super.destroy();
-    }
+
 }

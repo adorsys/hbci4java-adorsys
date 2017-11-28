@@ -21,81 +21,60 @@
 
 package org.kapott.hbci.protocol;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
-
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.factory.DEFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public final class MultipleDEs
-     extends MultipleSyntaxElements
-{
+import java.util.*;
+
+public final class MultipleDEs extends MultipleSyntaxElements {
     private char delimiter;
     private List<String> valids;
 
-    protected SyntaxElement createAndAppendNewElement(Node deref, String path, int idx, Document syntax)
-    {
-        SyntaxElement ret=null;
-        addElement((ret=DEFactory.getInstance().createDE(deref, getName(), path, idx, syntax)));
+    protected SyntaxElement createAndAppendNewElement(Node deref, String path, int idx, Document syntax) {
+        SyntaxElement ret;
+        addElement(ret = new DE(deref, getName(), path, idx, syntax));
         return ret;
     }
-    
-    private void initData(Node dedef, char delimiter, String path, Document syntax)
-    {
-        this.delimiter = delimiter;
-        this.valids=new ArrayList<String>();
-    }
 
-    public MultipleDEs(Node dedef, char delimiter, String path, Document syntax)
-    {
+    public MultipleDEs(Node dedef, char delimiter, String path, Document syntax) {
         super(dedef, path, syntax);
-        initData(dedef,delimiter,path,syntax);
+        initData(delimiter);
     }
 
-    public void init(Node dedef, char delimiter, String path, Document syntax)
-    {
+    public void init(Node dedef, char delimiter, String path, Document syntax) {
         super.init(dedef, path, syntax);
-        initData(dedef,delimiter,path,syntax);
+        initData(delimiter);
     }
 
-    protected boolean storeValidValueInDE(String destPath,String value)
-    {
+    protected boolean storeValidValueInDE(String destPath, String value) {
         boolean ret = false;
 
         // wenn dieses de gemeint ist
         if (destPath.equals(getPath())) {
             valids.add(value);
-            ret=true;
+            ret = true;
         }
 
         return ret;
     }
 
-    protected void validateOneElement(SyntaxElement elem, int idx)
-    {
-        ((DE)elem).setValids(valids);
-        super.validateOneElement(elem,idx);
+    protected void validateOneElement(SyntaxElement elem, int idx) {
+        ((DE) elem).setValids(valids);
+        super.validateOneElement(elem, idx);
     }
 
-    public String toString(int zero)
-    {
+    @Override
+    public String toString(int zero) {
         StringBuffer ret = new StringBuffer(128);
-        boolean first=true;
+        boolean first = true;
 
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             if (!first)
                 ret.append(delimiter);
-            first=false;
+            first = false;
 
-            DE de = (DE)(i.next());
+            DE de = (DE) (i.next());
             if (de != null)
                 ret.append(de.toString(0));
         }
@@ -105,7 +84,7 @@ public final class MultipleDEs
 
     public void log(int logLevel) {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
-            DE de = (DE)(i.next());
+            DE de = (DE) (i.next());
             if (de != null)
                 HBCIUtils.log(de.toString(0), logLevel);
 
@@ -114,84 +93,74 @@ public final class MultipleDEs
 
     // -------------------------------------------------------------------------------------------------------
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen,Document syntax, Hashtable<String, String> predefs,Hashtable<String, String> valids)
-    {
-        SyntaxElement ret=null;
-        
-        if (idx!=0 && valids!=null) {
-            String header=getPath()+".value";
-            for (Enumeration<String> e=valids.keys();e.hasMoreElements();) {
-                String key=(e.nextElement());
-                
-                if (key.startsWith(header) &&    
-                        key.indexOf(".",header.length())==-1) {
-                    
-                    int dotPos=key.lastIndexOf('.');
-                    String newkey=key.substring(0,dotPos)+
-                                  HBCIUtils.withCounter("",idx)+
-                                  key.substring(dotPos);
-                    valids.put(newkey,valids.get(key));
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        SyntaxElement ret = null;
+
+        if (idx != 0 && valids != null) {
+            String header = getPath() + ".value";
+            for (Enumeration<String> e = valids.keys(); e.hasMoreElements(); ) {
+                String key = (e.nextElement());
+
+                if (key.startsWith(header) &&
+                        key.indexOf(".", header.length()) == -1) {
+
+                    int dotPos = key.lastIndexOf('.');
+                    String newkey = key.substring(0, dotPos) +
+                            HBCIUtils.withCounter("", idx) +
+                            key.substring(dotPos);
+                    valids.put(newkey, valids.get(key));
                 }
             }
         }
-        
-        addElement((ret=DEFactory.getInstance().createDE(ref, getName(), path, predelim, idx, res, fullResLen, syntax, predefs,valids)));
+
+        addElement(ret = new DE(ref, getName(), path, predelim, idx, res, fullResLen, syntax, predefs, valids));
         return ret;
     }
-    
-    private void initData(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen,Document syntax, Hashtable<?, ?> predefs,Hashtable<?, ?> valids)
-    {
-        this.delimiter=delimiter;
-        this.valids=new ArrayList<String>();
+
+    private void initData(char delimiter) {
+        this.delimiter = delimiter;
+        this.valids = new ArrayList<>();
     }
 
-    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs,Hashtable<String, String> valids)
-    {
-        super(deref, path, predelim0, predelim1, res, fullResLen, syntax, predefs,valids);
-        initData(deref,delimiter,path,predelim0,predelim1,res,fullResLen,syntax,predefs,valids);
+    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(deref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+        initData(delimiter);
     }
 
-    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs,Hashtable<String, String> valids)
-    {
-        super.init(deref, path, predelim0, predelim1, res, fullResLen, syntax, predefs,valids);
-        initData(deref,delimiter,path,predelim0,predelim1,res,fullResLen,syntax,predefs,valids);
+    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(deref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+        initData(delimiter);
     }
 
-    public void getElementPaths(Properties p,int[] segref,int[] degref,int[] deref)
-    {
-        if (getElements().size()!=0) {
-            for (Iterator<SyntaxElement> i=getElements().iterator();i.hasNext();) {
-                SyntaxElement e=i.next();
-                if (e!=null) {
-                    e.getElementPaths(p,segref,degref,deref);
+    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+        if (getElements().size() != 0) {
+            for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
+                SyntaxElement e = i.next();
+                if (e != null) {
+                    e.getElementPaths(p, segref, degref, deref);
                 }
             }
         } else {
-            if (deref==null) {
-                p.setProperty(Integer.toString(segref[0])+
-                              ":"+Integer.toString(degref[0]),getPath());
+            if (deref == null) {
+                p.setProperty(Integer.toString(segref[0]) +
+                        ":" + Integer.toString(degref[0]), getPath());
                 degref[0]++;
             } else {
-                p.setProperty(Integer.toString(segref[0])+
-                              ":"+
-                              Integer.toString(degref[0])+
-                              ","+
-                              Integer.toString(deref[0]),
-                              getPath());
+                p.setProperty(Integer.toString(segref[0]) +
+                                ":" +
+                                Integer.toString(degref[0]) +
+                                "," +
+                                Integer.toString(deref[0]),
+                        getPath());
                 deref[0]++;
             }
         }
     }
-    
-    public void destroy()
-    {
-        List<SyntaxElement> children=getElements();
-        for (Iterator<SyntaxElement> i=children.iterator();i.hasNext();) {
-            DEFactory.getInstance().unuseObject(i.next());
-        }
+
+    public void destroy() {
         valids.clear();
-        valids=null;
-        
+        valids = null;
+
         super.destroy();
     }
 }

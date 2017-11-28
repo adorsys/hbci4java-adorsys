@@ -280,10 +280,8 @@ public final class HBCIKernelImpl implements HBCIKernel {
                 mainPassport.getCallback().status(mainPassport, HBCICallback.STATUS_MSG_CRYPT, null);
 
                 // nachricht verschlüsseln
-                MSG old = msg;
                 Crypt crypt = new Crypt(getParentHandlerData(), msg);
                 msg = crypt.cryptIt("Crypted");
-
 
                 if (!msg.getName().equals("Crypted")) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTCRYPT");

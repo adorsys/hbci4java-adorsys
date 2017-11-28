@@ -21,25 +21,16 @@
 
 package org.kapott.hbci.protocol;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
-
 import org.kapott.hbci.exceptions.NoValueGivenException;
 import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.exceptions.PredelimErrorException;
 import org.kapott.hbci.exceptions.TooMuchElementsException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.factory.DEFactory;
-import org.kapott.hbci.protocol.factory.DEGFactory;
-import org.kapott.hbci.protocol.factory.SEGFactory;
-import org.kapott.hbci.protocol.factory.SFFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import java.util.*;
 
 /* die child-elemente von strukturierten syntaxelementen (msg, seg, sg, deg)
     werden nicht direkt als listenelemente der uebergeordneten

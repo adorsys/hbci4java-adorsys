@@ -70,7 +70,7 @@ public final class MsgGen {
     // XML-Document nochmal erzeugt, sondern das alte wiederbenutzt.
     public MsgGen(Document syntax) {
         this.syntax = syntax;
-        this.clientValues = new Hashtable<String, String>();
+        this.clientValues = new Hashtable<>();
     }
 
     /* Initialisieren eines Message-Generators. Der <syntaFileStream> ist ein
@@ -87,7 +87,7 @@ public final class MsgGen {
             syntax = db.parse(syntaxFileStream);
             syntaxFileStream.close();
 
-            clientValues = new Hashtable<String, String>();
+            clientValues = new Hashtable<>();
         } catch (FactoryConfigurationError e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_MSGGEN_DBFAC"), e);
         } catch (ParserConfigurationException e) {

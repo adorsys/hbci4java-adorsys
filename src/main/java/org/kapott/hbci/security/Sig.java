@@ -21,28 +21,22 @@
 
 package org.kapott.hbci.security;
 
-import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Random;
-
 import org.kapott.hbci.comm.Comm;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.IHandlerData;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.HBCIPassportList;
-import org.kapott.hbci.protocol.MSG;
-import org.kapott.hbci.protocol.MultipleSEGs;
-import org.kapott.hbci.protocol.MultipleSyntaxElements;
-import org.kapott.hbci.protocol.SEG;
-import org.kapott.hbci.protocol.SyntaxElement;
-import org.kapott.hbci.protocol.factory.SEGFactory;
+import org.kapott.hbci.protocol.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Random;
 
 public final class Sig {
     public final static String SECFUNC_HBCI_SIG_RDH = "1";
@@ -237,8 +231,8 @@ public final class Sig {
 
                     // create an empty sighead and sigtail segment for each required signature
                     for (int idx = 0; idx < numOfPassports; idx++) {
-                        SEG sighead = SEGFactory.getInstance().createSEG("SigHeadUser", "SigHead", msgName, numOfPassports - 1 - idx, gen.getSyntax());
-                        SEG sigtail = SEGFactory.getInstance().createSEG("SigTailUser", "SigTail", msgName, idx, gen.getSyntax());
+                        SEG sighead = new SEG("SigHeadUser", "SigHead", msgName, numOfPassports - 1 - idx, gen.getSyntax());
+                        SEG sigtail = new SEG("SigTailUser", "SigTail", msgName, idx, gen.getSyntax());
 
                         List<MultipleSyntaxElements> msgelements = msg.getChildContainers();
                         List<SyntaxElement> sigheads = ((MultipleSEGs) (msgelements.get(1))).getElements();
@@ -246,7 +240,6 @@ public final class Sig {
 
                         // insert sighead segment in msg
                         if ((numOfPassports - 1 - idx) < sigheads.size()) {
-                            SEGFactory.getInstance().unuseObject(sigheads.get(numOfPassports - 1 - idx));
                         } else {
                             for (int i = sigheads.size() - 1; i < numOfPassports - 1 - idx; i++) {
                                 sigheads.add(null);
@@ -256,7 +249,6 @@ public final class Sig {
 
                         // insert sigtail segment in message
                         if (idx < sigtails.size()) {
-                            SEGFactory.getInstance().unuseObject(sigtails.get(idx));
                         } else {
                             for (int i = sigtails.size() - 1; i < idx; i++) {
                                 sigtails.add(null);

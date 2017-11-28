@@ -297,7 +297,7 @@ public final class HBCIInstitute
                 }
 
                 if (!status.isOK()) {
-                    HBCIUtils.log("fetching BPD failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
+                    HBCIUtils.log("fetching BPD failed", HBCIUtils.LOG_ERR);
                     throw new ProcessException(HBCIUtils.getLocMsg("ERR_INST_BPDFAILED"), status);
                 }
             } catch (Exception e) {
