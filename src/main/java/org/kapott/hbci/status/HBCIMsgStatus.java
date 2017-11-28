@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /**
  * <p>Enthält alle Status-Informationen zu genau einem Nachrichtenaustausch.
@@ -94,7 +94,7 @@ public final class HBCIMsgStatus {
             HBCIRetVal rv = null;
             try {
                 rv = new HBCIRetVal(data,
-                        HBCIUtilsInternal.withCounter("RetGlob.RetVal", i));
+                        HBCIUtils.withCounter("RetGlob.RetVal", i));
             } catch (Exception e) {
                 break;
             }
@@ -104,7 +104,7 @@ public final class HBCIMsgStatus {
 
         // segment-codes extrahieren
         for (int i = 0; true; i++) {
-            String segheader = HBCIUtilsInternal.withCounter("RetSeg", i);
+            String segheader = HBCIUtils.withCounter("RetSeg", i);
             String segref = data.getProperty(segheader + ".SegHead.ref");
             if (segref == null) {
                 break;
@@ -114,7 +114,7 @@ public final class HBCIMsgStatus {
                 HBCIRetVal rv = null;
                 try {
                     rv = new HBCIRetVal(data,
-                            HBCIUtilsInternal.withCounter(segheader + ".RetVal", j),
+                            HBCIUtils.withCounter(segheader + ".RetVal", j),
                             segref);
                 } catch (Exception e) {
                     break;

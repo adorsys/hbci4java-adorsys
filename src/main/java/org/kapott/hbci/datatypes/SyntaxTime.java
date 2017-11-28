@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* a class for the datatype "time" */
 // interne Speicherung im HBCI-MSG-Format
@@ -75,7 +75,7 @@ public final class SyntaxTime
         try {
             return HBCIUtils.time2StringISO(new SimpleDateFormat("HHmmss").parse(x));
         } catch (Exception e) {
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_TIMEERR"),e);
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_TIMEERR"),e);
         }
     }
 

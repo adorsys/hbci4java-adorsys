@@ -23,7 +23,7 @@ package org.kapott.hbci.datatypes;
 
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* @brief class for storing data of type "country"
 
@@ -110,7 +110,7 @@ public final class SyntaxCtr
         } else if (x.equals("EU")) {
             ret="978";
         } else {
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXC_DT_UNNKOWN_CTR",x));
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXC_DT_UNNKOWN_CTR",x));
         }
 
         return ret;
@@ -199,7 +199,7 @@ public final class SyntaxCtr
         } else if (x.equals("978")) {
             ret="EU";
         } else {
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXC_DT_UNNKOWN_CTR",x));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DT_UNNKOWN_CTR",x));
         }
 
         return ret;

@@ -724,7 +724,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
             ret.append(segcode);
 
             while (posi < len && msg.charAt(posi) != '\'') {
-                posi = HBCIUtilsInternal.getPosiOfNextDelimiter(msg, posi + 1);
+                posi = HBCIUtils.getPosiOfNextDelimiter(msg, posi + 1);
             }
             if (posi >= len) {
                 break;

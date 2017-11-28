@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRDauerList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
@@ -80,7 +80,7 @@ public final class GVDauerList
         entry.addkey=result.getProperty(header+".addkey");
 
         for (int i=0;;i++) {
-            String usage=result.getProperty(header+".usage."+HBCIUtilsInternal.withCounter("usage",i));
+            String usage=result.getProperty(header+".usage."+HBCIUtils.withCounter("usage",i));
             if (usage==null)
                 break;
             entry.addUsage(usage);

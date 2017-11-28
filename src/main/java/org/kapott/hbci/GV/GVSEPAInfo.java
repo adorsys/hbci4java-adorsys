@@ -26,7 +26,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 public class GVSEPAInfo 
@@ -48,7 +48,7 @@ public class GVSEPAInfo
         Properties upd=getParentHandler().getPassport().getUPD();
         
         for (int i=0;;i++) {
-        	String subheader=HBCIUtilsInternal.withCounter(header+".Acc", i);
+        	String subheader=HBCIUtils.withCounter(header+".Acc", i);
         	String cansepa=result.getProperty(subheader+".sepa");
         	if (cansepa==null) {
         		// kein weiteres konto im antwortsegment
@@ -74,7 +74,7 @@ public class GVSEPAInfo
         	
         	// konto in den UPD suchen und UPD-Informationen aktualisieren
         	for (int j=0;;j++) {
-        		String temp_header=HBCIUtilsInternal.withCounter("KInfo",j);
+        		String temp_header=HBCIUtils.withCounter("KInfo",j);
         		String temp_number=upd.getProperty(temp_header+".KTV.number");
         		if (temp_number==null) {
         			// kein weiteres konto in den UPD

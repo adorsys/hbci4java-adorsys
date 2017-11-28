@@ -117,7 +117,7 @@ public class HBCIExecStatus {
         List<Exception> exc = getExceptions();
         if (exc != null && exc.size() != 0) {
 
-            // ret.append(HBCIUtilsInternal.getLocMsg("STAT_EXCEPTIONS")).append(":").append(linesep);
+            // ret.append(HBCIUtils.getLocMsg("STAT_EXCEPTIONS")).append(":").append(linesep);
             for (Iterator<Exception> j = exc.iterator(); j.hasNext(); ) {
                 ret.append(HBCIUtils.exception2StringShort(j.next()));
                 ret.append(linesep);

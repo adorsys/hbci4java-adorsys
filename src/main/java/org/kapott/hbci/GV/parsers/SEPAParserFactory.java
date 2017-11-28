@@ -2,7 +2,7 @@ package org.kapott.hbci.GV.parsers;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.sepa.PainVersion;
 
 /**
@@ -29,7 +29,7 @@ public class SEPAParserFactory
         catch (Exception e)
         {
             String msg = "Error creating SEPA parser";
-            if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreCreateJobErrors",msg))
+            if (!HBCIUtils.ignoreError(null,"client.errors.ignoreCreateJobErrors",msg))
                 throw new HBCI_Exception(msg,e);
         }
         return parser;

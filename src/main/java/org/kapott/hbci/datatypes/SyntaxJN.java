@@ -22,7 +22,7 @@
 package org.kapott.hbci.datatypes;
 
 import org.kapott.hbci.exceptions.InvalidArgumentException;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* a class representing the datatype "jn", where the
     value can be only either "J" or "N" */
@@ -32,7 +32,7 @@ public class SyntaxJN
     private static String check(String x)
     {
         if (!x.equals("J") && !x.equals("N"))
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXC_DTJN_ONLY_JN"));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTJN_ONLY_JN"));
         return x;
     }
 

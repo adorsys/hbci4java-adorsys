@@ -25,7 +25,7 @@ import java.util.Properties;
 
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 
 public final class GVUebBZU
@@ -60,7 +60,7 @@ public final class GVUebBZU
         int        maxusage=Integer.parseInt(parameters.getProperty("maxusage"));
 
         for (int i=1;i<maxusage;i++) {
-            String name=HBCIUtilsInternal.withCounter("usage",i);
+            String name=HBCIUtils.withCounter("usage",i);
             addConstraint(name,"usage."+name,"", LogFilter.FILTER_MOST);
         }
     }
@@ -68,11 +68,11 @@ public final class GVUebBZU
     private void checkBZUData(String bzudata)
     {
         if (bzudata==null)
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_BZUMISSING"));
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_BZUMISSING"));
 
         int len=bzudata.length();
         if (len!=13)
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_INV_BZULEN",Integer.toString(len)));
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_INV_BZULEN",Integer.toString(len)));
 
         byte[] digits=bzudata.getBytes();
         int p=10;
@@ -88,8 +88,8 @@ public final class GVUebBZU
         }
         
         if ((s%10)!=1) {
-            String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_BZUERR",bzudata);
-            if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+            String msg=HBCIUtils.getLocMsg("EXCMSG_BZUERR",bzudata);
+            if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                 throw new InvalidUserDataException(msg);
         }
     }

@@ -30,7 +30,7 @@ import java.util.Random;
 import org.kapott.hbci.comm.Comm;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.IHandlerData;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -372,8 +372,8 @@ public final class Sig {
             // DDV
             u_cid=msg.getValueOfDE(sigheadName+".SecIdnDetails.cid");
             if (!u_cid.equals(mainPassport.getCID())) {
-                String errmsg=HBCIUtilsInternal.getLocMsg("EXCMSG_CRYPTCIDFAIL");
-                if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreSignErrors",errmsg))
+                String errmsg=HBCIUtils.getLocMsg("EXCMSG_CRYPTCIDFAIL");
+                if (!HBCIUtils.ignoreError(null,"client.errors.ignoreSignErrors",errmsg))
                     throw new HBCI_Exception(errmsg);
             }
         } else {
@@ -424,8 +424,8 @@ public final class Sig {
         String checkref2 = msg.getValueOfDE(msg.getName() + ".SigTail.seccheckref");
 
         if (checkref == null || !checkref.equals(checkref2)) {
-            String errmsg = HBCIUtilsInternal.getLocMsg("EXCMSG_SIGREFFAIL");
-            if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreSignErrors", errmsg))
+            String errmsg = HBCIUtils.getLocMsg("EXCMSG_SIGREFFAIL");
+            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSignErrors", errmsg))
                 throw new HBCI_Exception(errmsg);
         }
 
@@ -435,8 +435,8 @@ public final class Sig {
         // wird, steht in der antwort secfunc=1 (RDH) drin. 
         /*
         if (!u_secfunc.equals(mainPassport.getSigFunction())) {
-            String errmsg=HBCIUtilsInternal.getLocMsg("EXCMSG_SIGTYPEFAIL",new String[] {u_secfunc,mainPassport.getSigFunction()});
-            if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreSignErrors",errmsg))
+            String errmsg=HBCIUtils.getLocMsg("EXCMSG_SIGTYPEFAIL",new String[] {u_secfunc,mainPassport.getSigFunction()});
+            if (!HBCIUtils.ignoreError(null,"client.errors.ignoreSignErrors",errmsg))
                 throw new HBCI_Exception(errmsg);
         }
         */

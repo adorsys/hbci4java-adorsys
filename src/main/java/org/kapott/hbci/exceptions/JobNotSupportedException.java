@@ -21,13 +21,13 @@
 
 package org.kapott.hbci.exceptions;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public class JobNotSupportedException 
     extends HBCI_Exception 
 {
     public JobNotSupportedException(String jobname)
     {
-        super(HBCIUtilsInternal.getLocMsg("EXCMSG_GVNOTSUPP",jobname));
+        super(HBCIUtils.getLocMsg("EXCMSG_GVNOTSUPP",jobname));
     }
 }

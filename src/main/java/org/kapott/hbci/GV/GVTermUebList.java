@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRTermUebList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
@@ -85,7 +85,7 @@ public final class GVTermUebList
             result.getProperty(header+".BTG.curr"));
         
         for (int i=0;;i++) {
-            String usage=result.getProperty(HBCIUtilsInternal.withCounter(header+".usage.usage",i));
+            String usage=result.getProperty(HBCIUtils.withCounter(header+".usage.usage",i));
             if (usage==null) {
                 break;
             }

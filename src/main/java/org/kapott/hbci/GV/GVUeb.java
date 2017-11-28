@@ -26,7 +26,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 
 public class GVUeb
@@ -65,7 +65,7 @@ public class GVUeb
         int        maxusage=Integer.parseInt(parameters.getProperty("maxusage"));
 
         for (int i=0;i<maxusage;i++) {
-            String name=HBCIUtilsInternal.withCounter("usage",i);
+            String name=HBCIUtils.withCounter("usage",i);
             addConstraint(name,"usage."+name,"", LogFilter.FILTER_MOST);
         }
     }
@@ -79,7 +79,7 @@ public class GVUeb
             boolean found=false;
 
             for (int i=0;;i++) {
-                String st=res.getProperty(HBCIUtilsInternal.withCounter("key",i));
+                String st=res.getProperty(HBCIUtils.withCounter("key",i));
 
                 if (st==null)
                     break;
@@ -93,8 +93,8 @@ public class GVUeb
             }
 
             if (atLeastOne&&!found) {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_INV_KEY",value);
-                if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                String msg=HBCIUtils.getLocMsg("EXCMSG_INV_KEY",value);
+                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                     throw new InvalidUserDataException(msg);
             }
         }

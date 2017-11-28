@@ -28,7 +28,7 @@ import java.util.List;
 import org.kapott.hbci.comm.Comm;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.IHandlerData;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -268,9 +268,9 @@ public final class Crypt
                     // neues secfunc (klartext/encrypted)
                     String secfunc=crypthead.getValueOfDE(msgName+".CryptHead.secfunc");
                     if (!secfunc.equals(passport.getCryptFunction())) {
-                        String errmsg=HBCIUtilsInternal.getLocMsg("EXCMSG_CRYPTSFFAIL",new Object[] {secfunc,
+                        String errmsg=HBCIUtils.getLocMsg("EXCMSG_CRYPTSFFAIL",new Object[] {secfunc,
                                                           passport.getCryptFunction()});
-                        if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreCryptErrors",errmsg))
+                        if (!HBCIUtils.ignoreError(null,"client.errors.ignoreCryptErrors",errmsg))
                             throw new HBCI_Exception(errmsg);
                     }
 
@@ -301,8 +301,8 @@ public final class Crypt
                     } else {
                         String cid=crypthead.getValueOfDE(msgName+".CryptHead.SecIdnDetails.cid");
                         if (!cid.equals(passport.getCID())) {
-                            String errmsg=HBCIUtilsInternal.getLocMsg("EXCMSG_CRYPTCIDFAIL");
-                            if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreCryptErrors",errmsg))
+                            String errmsg=HBCIUtils.getLocMsg("EXCMSG_CRYPTCIDFAIL");
+                            if (!HBCIUtils.ignoreError(null,"client.errors.ignoreCryptErrors",errmsg))
                                 throw new HBCI_Exception(errmsg);
                         }
                         
@@ -313,8 +313,8 @@ public final class Crypt
                     // TODO spaeter kompression implementieren
                     String compfunc=crypthead.getValueOfDE(msgName+".CryptHead.compfunc");
                     if (!compfunc.equals("0")) {
-                        String errmsg=HBCIUtilsInternal.getLocMsg("EXCMSG_CRYPTCOMPFUNCFAIL",compfunc);
-                        if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreCryptErrors",errmsg))
+                        String errmsg=HBCIUtils.getLocMsg("EXCMSG_CRYPTCOMPFUNCFAIL",compfunc);
+                        if (!HBCIUtils.ignoreError(null,"client.errors.ignoreCryptErrors",errmsg))
                             throw new HBCI_Exception(errmsg);
                     }
                     

@@ -30,7 +30,7 @@ import java.util.Properties;
 import org.kapott.hbci.exceptions.InvalidSegSeqException;
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.factory.MultipleDEGsFactory;
 import org.kapott.hbci.protocol.factory.MultipleDEsFactory;
@@ -172,7 +172,7 @@ public final class SEG
     {
         int num=Integer.parseInt(getValueOfDE(getPath()+".SegHead.seq"));
         if (num!=value) {
-            if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreSegSeqErrors",HBCIUtilsInternal.getLocMsg("EXCMSG_INVSEQNUM",
+            if (!HBCIUtils.ignoreError(null,"client.errors.ignoreSegSeqErrors",HBCIUtils.getLocMsg("EXCMSG_INVSEQNUM",
                                                                                                    new Object[] {getPath(),new Integer(value),new Integer(num)})))
                 throw new InvalidSegSeqException(getPath(),value,num);
         }

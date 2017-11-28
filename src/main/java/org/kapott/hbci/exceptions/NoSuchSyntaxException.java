@@ -21,13 +21,13 @@
 
 package org.kapott.hbci.exceptions;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NoSuchSyntaxException
      extends HBCI_Exception
 {
     public NoSuchSyntaxException(String type, String path)
     {
-        super(HBCIUtilsInternal.getLocMsg("EXCMSG_NOSUCHSYNTAX",new Object[] {type,path}));
+        super(HBCIUtils.getLocMsg("EXCMSG_NOSUCHSYNTAX",new Object[] {type,path}));
     }
 }

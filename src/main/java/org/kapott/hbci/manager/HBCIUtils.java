@@ -22,12 +22,12 @@
 package org.kapott.hbci.manager;
 
 import org.kapott.hbci.GV_Result.GVRKUms;
-import org.kapott.hbci.callback.AbstractHBCICallback;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.comm.Comm;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
+import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.swift.Swift;
 import org.slf4j.LoggerFactory;
@@ -40,408 +40,7 @@ import java.text.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-/**
- * <p>Hilfsklasse für diverse Tools. Diese Klasse definiert nur statische
- * Methoden und Konstanten. Sie kann nicht instanziiert werden. </p>
- * <p>Kernel-Parameter können zu jedem beliebigen Zeitpunkt der Laufzeit einer Anwendung gesetzt werden.
- * Das Setzen eines Kernel-Parameters geschieht mit der Methode <code>setParam()</code>. Dieser Methode
- * werden der Name eines Kernel-Parameters sowie der neue Wert für diesen Parameter übergeben. Alternativ
- * bzw. in Verbindung mit dieser Variante können diese Parameter in einer Datei abgelegt werden, die
- * beim Initialiseren des HBCI-Kernels eingelesen wird (via <code>Properties.load()</code>).
- * Folgende Kernel-Parameter werden zur Zeit von verschiedenen Subsystemen des HBCI-Kernels ausgewertet:</p>
- * <ul>
- * <li><code>client.product.name</code> und <code>client.product.version</code>
- * <p>Diese beiden Parameter identifizieren die HBCI-Anwendung. Diese
- * Daten werden von einigen HBCI-Servern ausgewertet, um bestimmte
- * HBCI-Anwendungen besonders zu unterstützen. Werden diese
- * Parameter nicht explizit belegt, so erhalten sie die
- * Standardwerte "HBCI4Java" und "2.5". Es wird empfohlen, diese Werte
- * nicht zu ändern.</p></li>
- * <li><code>client.passport.DDV.path</code> (für DDV-Passports)
- * <p>Hier wird eingestellt, wo die Datei
- * mit den Zusatzdaten ("Hilfsmedium") gespeichert werden soll. Der
- * Dateiname für das Hilfsmedium setzt sich zusammen aus dem Wert
- * dieses Parameters sowie der Seriennummer der HBCI-Chipkarte.
- * Ein Wert von "<code>/home/hbci/passports/</code>" führt also zur Speicherung
- * der Dateien im Verzeichnis <code>/home/hbci/passports</code>, wobei der
- * Dateiname nur aus der Seriennummer der Chipkarte besteht ("/" am
- * Ende beachten!). Ein Wert von "<code>/home/hbci/passports/card-</code>" führt
- * ebenfalls zur Speicherung der Dateien im Verzeichnis
- * <code>/home/hbci/passports</code>, allerdings bestehen die Dateinamen jetzt
- * aus dem Prefix card- sowie der Seriennummer der Chipkarte.</p>
- * <p>In der Regel wird hier nur eine Pfadangabe verwendet werden,
- * dabei darf aber auf keinen Fall der Slash (oder Backslash unter
- * Windows) vergessen werden, da der Dateiname aus einer simplen
- * Aneinanderkettung von Parameterwert und Seriennummer besteht.</p></li>
- * <li><code>client.passport.DDV.libname.ddv</code> (für DDV-Passports)
- * <p>Hier wird der vollständige
- * Dateiname (also mit Pfadangabe) der shared library (dynamisch
- * ladbaren Bibliothek) angegeben, welche als Bindeglied zwischen
- * Java und der CTAPI-Bibliothek für den Chipkartenleser fungiert.
- * Diese Bibliothek wird bereits mit dem <em>HBCI4Java</em>-Paket
- * mitgeliefert.</p></li>
- * <li><code>client.passport.DDV.libname.ctapi</code> (für DDV-Passports)
- * <p>Mit diesem Parameter wird
- * der komplette Dateiname (mit Pfad) der CTAPI-Bibliothek
- * eingestellt, die die CTAPI-Schnittstelle für den zu
- * verwendenden Chipkartenleser implementiert. Diese Bibliothek
- * ist vom Hersteller des Chipkartenterminals zu beziehen.</p></li>
- * <li><code>client.passport.DDV.port</code> (für DDV-Passports)
- * <p>Die logische Portnummer, an der der
- * Chipkartenleser angeschlossen ist (i.d.R. 0, 1 oder 2, abhängig
- * vom Anschluss (COM1, COM2, USB) und vom Treiber (manche Treiber
- * beginnen mit der Zählung bei 1, andere bei 0)) (am besten
- * ausprobieren). Achtung -- unter UN*X darauf achten, dass für
- * den ausführenden Nutzer Schreib- und Leserechte auf das
- * entsprechende Device (/dev/ttyS0, /dev/ttyUSB0 o.ä.) bestehen.</p></li>
- * <li><code>client.passport.DDV.ctnumber</code> (für DDV-Passports)
- * <p>Die logische Nummer des
- * Chipkartenterminals, die im weiteren Verlauf verwendet werden
- * soll. Dies ist i.d.R. 0, falls mehrere Chipkartenterminals
- * angeschlossen und in Benutzung sind, sind diese einfach
- * durchzunummerieren.</p></li>
- * <li><code>client.passport.DDV.usebio</code> (für DDV-Passports)
- * <p>Dieser Parameter kann entweder 0, 1 oder -1 sein und hat
- * nur Bedeutung, wenn die PIN-Eingabe direkt am Chipkartenterminal
- * erfolgt (also wenn <code>client.passport.DDV.softpin</code> ungleich
- * 1 ist und wenn ein Keypad am Chipkartenterminal vorhanden ist).</p>
- * <p>Wenn dieser Wert auf 1 gesetzt wird, so bedeutet
- * das, dass die PIN-Eingabe nicht manuell erfolgt, sondern dass
- * statt dessen biometrische Merkmale des Inhabers ausgewertet
- * werden. Zurzeit ist dieses Feature speziell auf den
- * Chipkartenleser PinPad-Bio von Reiner-SCT angepasst, bei dem
- * einem Fingerabdruck eine PIN zugeordnet werden kann, deren
- * Eingabe beim Auflegen des Fingers simuliert wird. Für
- * andere biometriefähige Chipkartenterminals wird dieser
- * Parameter wahrscheinlich nicht funktionieren, entsprechende
- * Unterstützung ist aber geplant.</p>
- * <p>Durch das Setzen dieses Wertes auf 0 wird das Benutzen der
- * Biometrie-Einheit definitiv abgeschaltet. Bei einem Wert von -1 wird
- * automatisch geprüft, ob eine Biometrie-Einheit verfügbar ist. Wenn ja,
- * so wird diese benutzt, ansonsten erfolgt die PIN-Eingabe über das
- * Keypad des Chipkartenterminals</p></li>
- * <li><code>client.passport.DDV.softpin</code> (für DDV-Passports)
- * <p>Dieser Parameter kann entweder 0,
- * 1 oder -1 enthalten. Für alle Chipkartenterminals, die über
- * keine eigene Tastatur zur Eingabe der PIN verfügen, ist er auf
- * 1 zu setzen. Damit wird der HBCI-Kernel darüber informiert,
- * dass die PIN vom Anwender über die PC-Tastatur einzugeben ist.
- * Durch Setzen dieses Wertes auf 0 wird die PIN-Eingabe für das
- * Keypad des Chipkartenlesers erzwungen.</p>
- * <p>Setzt man den Parameter auf -1, so wird automatisch erkannt,
- * welches PIN-Eingabeverfahren bei dem jeweils verwendeten
- * Chipkartenterminal zu benutzen ist.</p></li>
- * <li><code>client.passport.DDV.entryidx</code> (für DDV-Passports)
- * <p>Prinzipiell kann auf einer DDV-Chipkarte mehr als ein Datensatz mit
- * HBCI-Zugangsdaten gespeichert werden (bis zu fünf). Dieser Parameter
- * legt fest, welcher der fünf Datensätze tatsächlich benutzt werden soll.
- * Da in den meisten Fällen aber nur der erste Datensatzu tatsächlich belegt
- * ist, wird dieser Parameter meist den Wert "1" haben (ist auch default,
- * falls dieser Parameter gar nicht gesetzt ist).</p></li>
- * <li><code>client.passport.DDV.pcsc.name</code> (für DDV-Passports bei Verwendung von HBCIPassportDDVPCSC)
- * <p>Wenn statt dem DDV-Passport der DDVPCSC-Passport (basierend auf javax.smartcardio)
- * verwendet wird, kann hier der Name des Kartenlesers angegeben werden. Andernfalls
- * wird der erste gefundene verwendet.</p></li>
- * <li><code>client.passport.RDHNew.filename</code> (für RDHNew-Passports)
- * <p>Dieser Parameter legt den
- * Dateinamen der Schlüsseldatei fest. Diese Datei sollte am
- * besten auf einem mobilen Datenträger (Diskette) gespeichert
- * sein. Außerdem sollte ein Backup dieser Datei angefertigt
- * werden, da bei Verlust der Schlüsseldatei keine
- * HBCI-Kommunikation mehr möglich ist.</p></li>
- * <li><code>client.passport.RDHNew.init</code> (für RDHNew-Passports)
- * <p>Dieser Parameter ist immer auf "1" zu
- * setzen (wird nur intern anders verwendet).</p></li>
- * <li><code>client.passport.RDHNew.defaultprofile</code> (für RDHNew-Passports)
- * <p>Kann verwendet werden, wenn die RDH-Profilversion beim Erstellen eines
- * Schluessel nicht ermittelbar ist, weil die Bank den anonymen BPD-Abruf nicht
- * unterstuetzt. Per Default wird hier "10" verwendet.</p></li>
- * <li><code>client.passport.RDH.filename</code> (für RDH-Passports; <b><em>diese Variante der
- * RDH-Passports sollte nicht mehr benutzt werden, sondern <code>RDHNew</code></em></b>;
- * siehe Datei <code>README.RDHNew</code>)
- * <p>analog zu <code>client.passport.RDHNew.filename</code>.</p></li>
- * <li><code>client.passport.RDH.init</code> (für RDH-Passports; <b><em>diese Variante der
- * RDH-Passports sollte nicht mehr benutzt werden, sondern <code>RDHNew</code></em></b>;
- * siehe Datei <code>README.RDHNew</code>)
- * <p>analog zu <code>client.passport.RDHNew.init</code>.</p></li>
- * <li><code>client.passport.PinTan.filename</code> (für PIN/TAN-Passports)
- * <p>Dieser Parameter legt den
- * Dateinamen der "Schlüsseldatei" fest. Beim PIN/TAN-Verfahren handelt
- * es sich nicht wirklich um eine Schlüsseldatei, da bei diesem Sicherheitsverfahren
- * keine kryptografischen Schlüssel auf HBCI-Ebene eingesetzt werden. In dieser
- * Datei werden also nur die HBCI-Zugangsdaten abgelegt.</p></li>
- * <li><code>client.passport.PinTan.certfile</code> (für PIN/TAN-Passports)
- * <p>Dieser Parameter gibt den Dateinamen einer Datei an, die
- * ein Zertifikat für die Kommunikation via HTTPS (SSL-Verschlüsselung)
- * enthält. Diese Datei kann mit dem Tool <code>keytool</code> erzeugt werden,
- * welches zur Java-Laufzeitumgebung gehört. Das Zertifikat (ein bestätigter
- * öffentlicher Schlüssel) kann i.d.R. von der Bank angefordert werden.</p>
- * <p>Dieser Parameter wird nur dann benötigt, wenn das SSL-Zertifikat der Bank
- * nicht mit dem defaultmäßig in die JRE eingebauten TrustStore überprüft
- * werden kann (also am besten erst ohne diesen Parameter ausprobieren -
- * wenn eine entsprechende Fehlermeldung erscheint, muss das jeweilige Zertifikat
- * von der Bank angefordert, mit <code>keytool</code> konvertiert und hier
- * angegeben werden). Wenn ein entsprechendes Root-Zertifikat für die Überprüfung
- * gar nicht zur Verfügung steht, so kann mit dem Parameter
- * <code>client.passport.PinTan.checkcert</code> die Zertifikatsüberprüfung
- * gänzlich deaktiviert werden.</p></li>
- * <li><code>client.passport.PinTan.checkcert</code> (für PIN/TAN-Passports)
- * <p>Dieser Parameter steht defaultmäßig auf "<code>1</code>". Wird dieser
- * Parameter allerdings auf "<code>0</code>" gesetzt, so wird die Überprüfung
- * des Bank-Zertifikates, welches für die SSL-Kommunikation verwendet
- * wird, deaktiviert. Diese Vorgehensweise wird nicht empfohlen, da dann
- * Angriffe auf das SSL-Protokoll und damit auch auf die HBCI-Kommunikation
- * möglich sind. In einigen Fällen steht aber kein Root-Zertifikat für die
- * Überprüfung des SSL-Zertifikats der Bank zur Verfügung, so dass diese
- * Überprüfung abgeschaltet werden <em>muss</em>, um überhaupt eine Kommunikation
- * mit der Bank zu ermöglichen.</p></li>
- * <li><code>client.passport.PinTan.proxy</code> (für PIN/TAN-Passports)
- * <p>Falls ausgehende HTTPS-Verbindungen über einen Proxy-Server laufen
- * sollen, kann der zu verwendende Proxy-Server mit diesem Parameter
- * konfiguriert werden. Das Format für den Wert dieses Kernel-Parameters
- * ist "HOST:PORT", also z.B. <code>proxy.intern.domain.com:3128</code>.</p></li>
- * <li><code>client.passport.PinTan.proxyuser</code> (für PIN/TAN-Passports)
- * <p>Falls für ausgehende HTTPS-Verbindungen (für HBCI-PIN/TAN) ein Proxy-Server
- * verwendet wird, und falls dieser Proxy-Server eine Authentifizierung
- * verlangt, kann mit diesem Parameter der Nutzername festgelegt werden.</p>
- * <p>Wenn dieser Parameter nicht gesetzt wird, wird bei Bedarf über einen
- * Callback (<code>NEED_PROXY_USER</code>) nach dem Nutzernamen gefragt.</p></li>
- * <li><code>client.passport.PinTan.proxypass</code> (für PIN/TAN-Passports)
- * <p>Falls für ausgehende HTTPS-Verbindungen (für HBCI-PIN/TAN) ein Proxy-Server
- * verwendet wird, und falls dieser Proxy-Server eine Authentifizierung
- * verlangt, kann mit diesem Parameter das Passwort festgelegt werden.</p>
- * <p>Wenn dieser Parameter nicht gesetzt wird, wird bei Bedarf über einen
- * Callback (<code>NEED_PROXY_PASS</code>) nach dem Passwort gefragt.</p></li>
- * <li><code>client.passport.PinTan.init</code> (für PIN/TAN-Passports)
- * <p>Dieser Parameter ist immer auf "1" zu
- * setzen (wird nur intern anders verwendet).</p></li>
- * <li><code>client.passport.SIZRDHFile.filename</code> (für SIZRDHFile-Passports)
- * <p>Dieser Parameter legt den
- * Dateinamen der SIZ-Schlüsseldatei fest. Dabei handelt es sich
- * um die Schlüsseldatei, die von anderer HBCI-Software (z.B. <em>StarMoney</em>)
- * erzeugt wurde.</p>
- * <p>Siehe dazu auch <code>README.SIZRDHFile</code></p></li>
- * <li><code>client.passport.SIZRDHFile.libname</code> (für SIZRDHFile-Passports)
- * <p>Dieser Parameter gibt den vollständigen Dateinamen der SIZ-RDH-Laufzeitbibliothek
- * an. Diese Bibliothek ist <em>nicht</em> Teil von <em>HBCI4Java</em>, sondern muss separat
- * von <a href="http://hbci4java.kapott.org#download">http://hbci4java.kapott.org</a>
- * heruntergeladen und installiert werden.</p>
- * <p>Siehe dazu auch <code>README.SIZRDHFile</code></p></li>
- * <li><code>client.passport.SIZRDHFile.init</code> (für SIZRDHFile-Passports)
- * <p>Dieser Parameter ist immer auf "1" zu
- * setzen (wird nur intern anders verwendet).</p>
- * <p>Siehe dazu auch <code>README.SIZRDHFile</code></p></li>
- * <li><code>client.passport.RDHXFile.filename</code> (für RDHXFile-Passports)
- * <p>Dieser Parameter legt den
- * Dateinamen der RDHXFile-Schlüsseldatei fest. Dabei handelt es sich
- * um die Schlüsseldatei, die von anderer HBCI-Software (z.B. <em>VR-NetWorld</em>,
- * <em>ProfiCash</em>, ...) erzeugt wurde.</p>
- * <li><code>client.passport.RDHXFile.init</code> (für RDHXFile-Passports)
- * <p>Dieser Parameter ist immer auf "1" zu
- * setzen (wird nur intern anders verwendet).</p></li>
- * <li><code>client.passport.Anonymous.filename</code> (für Anonymous-Passports)
- * <p>Dieser Parameter legt den
- * Dateinamen der Schlüsseldatei fest.</p></li>
- * <li><code>client.passport.Anonymous.init</code> (für Anonymous-Passports)
- * <p>Dieser Parameter ist immer auf "1" zu
- * setzen (wird nur intern anders verwendet).</p></li>
- * <li><code>client.passport.default</code>
- * <p>Wird bei der Erzeugung eines Passport-Objektes
- * ({@link org.kapott.hbci.passport.AbstractHBCIPassport#getInstance()})
- * nicht explizit angegeben, für welches Sicherheitsverfahren ein Passport-Objekt
- * erzeugt werden soll, so wird der Wert dieses Parameters
- * benutzt, um die entsprechende Variante auszuwählen. Gültige
- * Werte sind "<code>DDV</code>", "<code>RDHNew</code>", "<code>RDH</code>" (nicht
- * mehr benutzen!), "<code>PinTan</code>", "<code>SIZRDHFile</code>", "<code>RDHXFile</code>"
- * oder "<code>Anonymous</code>" (Groß-/Kleinschreibung beachten).</p></li>
- * <li><code>client.retries.passphrase</code>
- * <p>Ist das Passwort für die Entschlüsselung der Passport-Datei falsch, so kann die Eingabe
- * so oft wiederholt werden, wie dieser Parameter angibt, bevor eine Exception geworfen und
- * die weitere Programmausführung unterbrochen wird.</p></li>
- * <li><code>client.connection.localPort</code>
- * <p>Für Anwendungen, die sich hinter einer Firewall befinden,
- * welche nur ausgehende Verbindungen mit bestimmten lokalen
- * Portnummern zulässt (sowas soll's geben), kann mit diesem
- * Parameter die Portnummer festgelegt werden, die lokal benutzt
- * werden soll. Dieser Parameter hat im Moment nur bei "normalen"
- * HBCI-Verbindungen Auswirkungen. Beim PIN/TAN-Verfahren wird
- * eine HTTPS-Verbindung mit dem HBCI-Server aufgebaut, für diese
- * Verbindung wird der localPort-Parameter im Moment noch nicht ausgewertet.</p></li>
- * <li><code>comm.standard.socks.server</code>
- * <p>Soll fuer ausgehende Verbindungen ein SOCKS-Server verwendet werden, kann
- * dieser SOCKS-Server im Format <code>hostname:port</code> festgelegt werden.
- * Diese Einstellung wird <em>NICHT</em> fuer HBCI-PIN/TAN verwendet, sondern nur
- * fuer alle "richtigen" HBCI-Verbindungen (alle Passport-Varianten von RDH und DDV).</p></li>
- * <li><code>sepa.schema.validation</code>
- * <p>Kann auf 1 gesetzt werden, wenn das erzeugte XML gegen das Schema validiert werden soll.</p></li>
- * <li><code>bpd.maxage.days</code>
- * <p>Maximales Alter der BPD in Tagen nach deren Ablauf die BPD erneut abgerufen werden - auch dann,
- * wenn sich deren Versionsnummer nicht geaendert hat. Das ermoeglicht das automatische Aktualisieren
- * der BPD, wenn die Bank die Versionsnummer nicht erhoeht. Ein Wert von "-1" bedeutet: Jedesmal
- * BPD erneut abrufen. Ein Wert von "0" bedeutet: Niemals BPD ohne Versionsaenderung erneut abrufen.
- * Der Default-Wet ist 7 - also einmal pro Woche.</p></li>
- * <li><code>kernel.kernel.xmlpath</code>
- * <p>(wird nicht gesetzt, zur Zeit nur intern benutzt)</p></li>
- * <li><code>kernel.kernel.blzpath</code>
- * <p>(wird nicht gesetzt, zur Zeit nur intern benutzt)</p></li>
- * <li><code>kernel.kernel.challengedatapath</code>
- * <p>(wird nicht gesetzt, zur Zeit nur intern benutzt)</p></li>
- * <li><code>log.loglevel.default</code>
- * <p>Mit diesem Parameter kann eingestellt werden, welche vom
- * HBCI-Kernel erzeugten Log-Ausgaben tatsächlich bis zur
- * Anwendung gelangen. Dieser Parameter kann Werte von 1 (nur
- * Fehlermeldungen) bis 5 (einschließlich aller Debug-Ausgaben) annehmen.</p>
- * <p>Bei Problemen mit dem Kernel diesen Level bitte auf 4 oder 5 setzen,
- * alle erzeugten Log-Ausgaben protokollieren
- * und zusammen mit einer Beschreibung des Problems an den
- * <a href="mailto:hbci4java@kapott.org">Autor</a> schicken.</p></li>
- * <li><code>log.ssl.enable</code>
- * <p>Dieser Parameter kann die Werte 0 und 1 annehmen. Ist er auf 1 gesetzt,
- * wird sämtliche Kommunikation, die bei Verwendung von HBCI-PIN/TAN über
- * eine HTTPS-Verbindung geht, im Klartext (also unverschlüsselt!) mitgeschnitten.
- * Das kann nützlich sein, um z.B. Probleme mit diversen HTTP-Request- oder
- * -Response-Headern zu finden. Diese Einstellung funktioniert allerdings
- * <b>NICHT mit Java-1.4.x</b> (Grund dafür ist eine spezielle Einschränkung
- * der JSSE). Der Standard-Wert für diese Einstellung ist 0 (also kein Logging).
- * Siehe dazu auch Kernel-Parameter <code>log.ssl.filename</code>.</p></li>
- * <li><code>log.ssl.filename</code>
- * <p>Wenn <code>log.ssl.enable=1</code>, so wird sämtliche HTTPS-Kommunikation
- * aller HBCI-PIN/TAN-Verbindungen mitgeschnitten und in die Datei geschrieben,
- * deren Dateiname mit diesem Parameter angegeben wird. Ist die Datei nicht
- * vorhanden, wird sie angelegt. Ist sie bereits vorhanden, werden die
- * Log-Daten angehängt. Wird kein Wert für diesen Parameter angegeben, gibt
- * <em>HBCI4Java</em> eine Warnung aus und erzeugt Log-Meldungen über den
- * <em>HBCI4Java</em>-Log-Mechanismus (Callback-Methode <code>log()</code>)
- * mit Log-Level <code>LOG_DEBUG2</code>.</p></li>
- * <li><code>infoPoint.enabled</code>
- * <p>Der <em>HBCI4Java-InfoPoint-Server</em> ist ein Versuch, die richtigen
- * HBCI-Konfigurations-Einstellungen für alle Banken zentral zu sammeln
- * und über ein öffentliches Interface allgemein zur Verfügung zu stellen.
- * Nähere Infos dazu siehe Datei <em>README.InfoPoint</em>.</p>
- * <p>Dieser Parameter legt fest, ob <em>HBCI4Java</em> nach einem erfolgreichen
- * HBCI-Verbindungsaufbau Informationen über diese HBCI-Verbindung zum
- * InfoPoint-Server senden soll oder nicht. Standardmäßig ist dieser
- * Parameter deaktiviert (<code>0</code>). Durch setzen auf <code>1</code>
- * kann das Senden der Daten zum InfoPoint-Server aktiviert werden.</p></li>
- * <li><code>infoPoint.url</code>
- * <p>Der "normale" InfoPoint-Server ist für <em>HBCI4Java</em> unter der
- * URL <code>http://hbci4java.kapott.org/infoPoint</code> zu erreichen.
- * Das ist auch der default-Wert für diesen Parameter. Dieser Parameter
- * dient momentan nur Debugging-Zwecken und sollte normalerweise nicht
- * geändert werden.</p></li>
- * <li><code>kernel.rewriter</code>
- * <p>Einige HBCI-Server-Implementationen bzw. die Backend-Systeme
- * einiger Banken halten sich nicht strikt an die in der
- * HBCI-Spezifikation vorgeschriebenen Formate. Um solche
- * Unzulänglichkeiten nicht direkt im HBCI-Kernel abfangen zu
- * müssen, existieren sogenannte Rewriter-Module. Ein solches
- * Modul ist für jeweils einen bekannten "Bug" zuständig. Kurz vor
- * dem Versand und direkt nach dem Eintreffen von HBCI-Nachrichten
- * werden diese durch alle registrierten Rewriter-Module
- * geschickt. Für ausgehende Nachrichten werden hier u.U. nicht
- * HBCI-konforme Veränderungen vorgenommen, die vom jeweiligen
- * HBCI-Server so erwartet werden. Eingehende Nachrichten, die
- * nicht HBCI-konform sind, werden so umgeformt, dass sie der
- * Spezifikation entsprechen. Auf diese Art und Weise kann der
- * HBCI-Kernel immer mit streng HBCI-konformen Nachrichten arbeiten.
- * Siehe dazu auch die Paketdokumentation zum Paket
- * <code>org.kapott.hbci.rewrite</code>.</p>
- * <p>Der Parameter <code>kernel.rewriter</code> legt die Liste aller
- * Rewriter-Module fest, welche eingehende und ausgehende Nachrichten
- * durchlaufen sollen. Wird dieser Parameter nicht gesetzt, so
- * verwendet <em>HBCI4Java</em> eine default-Liste von aktivierten
- * Rewriter-Modulen (kann mit etParam(String) ermittelt werden).
- * Wird dieser Parameter gesetzt, so wird die default-Einstellung
- * überschrieben. Es können mehrere zu durchlaufende Rewriter-Module
- * angegeben werden, indem sie durch Komma voneinander getrennt werden.</p></li>
- * <li><code>kernel.threaded.maxwaittime</code>
- * <p>Beim Verwenden des threaded-callback-Mechanismus (siehe Datei
- * <code>README.ThreadedCallbacks</code>) wird die eigentliche Ausführung
- * der HBCI-Dialoge und die Interaktion mit der Anwendung auf mehrere Threads
- * verteilt. Es ist jeweils einer der beteiligten Threads "aktiv" - die
- * anderen Threads warten auf eine Nachricht vom gerade aktiven
- * Thread. Um das System nicht mit "unendlich lange wartenden" Threads
- * zu belasten, warten die jeweils inaktiven Threads nur eine bestimmte
- * Zeitspanne auf eine Nachricht vom aktiven Thread. Diese Zeitspanne kann
- * mit diesem Kernel-Parameter konfiguriert werden. Falls nach der hier
- * konfigurierten Zeitspanne keine Nachricht empfangen wurde, beendet sich
- * der jeweils wartende Thread selbst. Falls der aktive Thread nach Ablauf
- * dieser Zeitspanne versucht, eine Nachricht an den wartenden Thread zu
- * senden, wird eine <code>RuntimeException</code> geworfen.</p>
- * <p>Die Zeitspanne wird in Sekunden angegeben. Der default-Wert beträgt
- * 300 (5 Minuten).</p></li>
- * <li><p>Die folgenden Parameter legen die Größe sog. Object-Pools fest, die
- * intern von <em>HBCI4Java</em> verwendet werden. Object-Pools stellen eine
- * Art Cache dar, um Instanzen häufig benutzter Klassen nicht jedesmal neu
- * zu erzeugen. Statt dessen werden nicht mehr benötigte Objekte in einem
- * Pool verwaltet, aus dem bei Bedarf wieder Objekte entnommen werden. Die
- * Größe der Pools für die einzelnen Objekttypen kann hier festgelegt werden.
- * Falls Speicherprobleme auftreten (<code>OutOfMemory</code>-Exception), so sollten
- * diese Werte verringert werden. Durch Setzen eines Wertes auf "<code>0</code>" wird
- * das Object-Pooling für die entsprechenden Objekte komplett deaktiviert.
- * Zur Zeit werden nur bei der Nachrichtenerzeugung und -analyse Object-Pools
- * verwendet. In der folgenden Auflistung steht in Klammern jeweils der
- * eingebaute default-Wert.</p>
- * <ul>
- * <li><p><code>kernel.objpool.MSG</code> -- Pool für Nachrichten-Objekte (3)</p></li>
- * <li><p><code>kernel.objpool.SF</code>  -- Pool für SF- (Segmentfolgen-) Objekte (128)</p></li>
- * <li><p><code>kernel.objpool.SEG</code> -- Pool für Segment-Objekte (256)</p></li>
- * <li><p><code>kernel.objpool.DEG</code> -- Pool für DEG- (Datenelementgruppen-) Objekte (256)</p></li>
- * <li><p><code>kernel.objpool.DE</code> -- Pool für Datenelement-Objekte (1024)</p></li>
- * <li><p><code>kernel.objpool.Sig</code> -- Pool für Signatur-Objekte (3)</p></li>
- * <li><p><code>kernel.objpool.Crypt</code> -- Pool für Crypt-Objekte (3)</p></li>
- * <li><p><code>kernel.objpool.Syntax</code> -- Pool für Daten-Objekte (=Werte in Nachrichten) (128 je Datentyp)</p></li>
- * </ul></li>
- * <li><p>Mit den folgenden Parametern kann <em>HBCI4Java</em> veranlasst
- * werden, beim Auftreten bestimmter Fehler keine Exception zu werfen, sondern
- * diesen Fehler zu ignorieren bzw. den Anwender entscheiden zu lassen,
- * ob der Fehler ignoriert werden soll. Bei den Fehlern handelt es sich
- * hauptsächlich um Fehler, die beim überprüfen von Eingabedaten und
- * Institutsnachrichten bzgl. der Einhaltung der HBCI-Spezifikation
- * auftreten.</p>
- * <p>Jeder der folgenden Parameter kann einen der Werte <code>yes</code>,
- * <code>no</code> oder <code>callback</code> annehmen. Ist ein Parameter auf
- * <code>no</code> gesetzt, so wird beim Auftreten des jeweiligen Fehlers
- * eine entsprechende Exception geworfen. Dieses Verhalten ist das Standardverhalten
- * und entspricht dem der Vorgängerversionen von <em>HBCI4Java</em>. Ist
- * ein Parameter auf <code>yes</code> gesetzt, so wird der Fehler komplett
- * ignoriert. Es wird nur eine entsprechende Warnung mit Loglevel <code>LOG_WARN</code>
- * erzeugt. Wird ein Parameter auf <code>callback</code> gesetzt, so wird ein
- * Callback mit dem Callback-Reason <code>HAVE_ERROR</code> erzeugt, bei dem
- * die Callback-Message (Parameter <code>msg</code>) die entsprechende Fehlermeldung
- * enthält. Gibt die Callback-Methode einen leeren String im <code>retData</code>-Objekt
- * zurück, so bedeutet das für <em>HBCI4Java</em>, dass der entsprechende
- * Fehler ignoriert werden soll (so als wäre der Parameter auf <code>yes</code>
- * gesetzt). Ist der Rückgabestring nicht leer, so wird <em>HBCI4Java</em> eine
- * entsprechende Exception werfen, so als wäre der zugehörige Parameter gleich
- * <code>no</code>. Nähere Informationen zu Callbacks befinden sich in der
- * Beschreibung des Interfaces {@link org.kapott.hbci.callback.HBCICallback}.</p>
- * <p><b>"Normalen" Benutzern von <em>HBCI4Java</em> ist dringend von der Verwendung
- * dieser Parameter abzuraten, weil sie bei falscher Anwendung dazu führen können,
- * dass <em>HBCI4Java</em> gar nicht mehr funktioniert.</b> Diese Parameter sind
- * nur für <em>HBCI4Java</em>-Entwickler (also mich ;-)) gedacht und sind hier nur
- * der Vollständigkeit halber aufgeführt.</p>
- * <p>Eine genauere Beschreibung der einzelnen Parameter befindet sich in
- * der Properties-Template-Datei <code>hbci.props.template</code>.</p></li>
- * <li><code>client.errors.ignoreJobResultStoreErrors</code></li>
- * <li><code>client.errors.ignoreWrongJobDataErrors</code></li>
- * <li><code>client.errors.ignoreWrongDataLengthErrors</code></li>
- * <li><code>client.errors.ignoreWrongDataSyntaxErrors</code></li>
- * <li><code>client.errors.ignoreAddJobErrors</code></li>
- * <li><code>client.errors.ignoreCreateJobErrors</code></li>
- * <li><code>client.errors.ignoreExtractKeysErrors</code></li>
- * <li><code>client.errors.ignoreDialogEndErrors</code></li>
- * <li><code>client.errors.ignoreSecMechCheckErrors</code></li>
- * <li><code>client.errors.ignoreVersionCheckErrors</code></li>
- * <li><code>client.errors.ignoreSignErrors</code></li>
- * <li><code>client.errors.ignoreMsgSizeErrors</code></li>
- * <li><code>client.errors.ignoreCryptErrors</code></li>
- * <li><code>client.errors.ignoreMsgCheckErrors</code></li>
- * <li><code>client.errors.allowOverwrites</code></li>
- * <li><code>client.errors.ignoreValidValueErrors</code></li>
- * <li><code>client.errors.ignoreSegSeqErrors</code></li>
- * </ul>
- */
+
 public final class HBCIUtils {
     private static final String VERSION = "HBCI4Java-2.5.12";
 
@@ -477,76 +76,8 @@ public final class HBCIUtils {
             'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
 
-    static {
-        initDataStructures();
-    }
-
-    private static void initDataStructures() {
-        HBCIUtilsInternal.blzs = new Properties();
-        HBCIUtilsInternal.banks = new HashMap<>();
-    }
-
-    /**
-     * Lädt ein Properties-File, welches über ClassLoader.getRessourceAsStream()
-     * gefunden wird. Der Name des Property-Files wird durch den Parameter
-     * <code>configfile</code> bestimmt. Wie dieser Name interpretiert wird,
-     * um das Property-File tatsächlich zu finden, hängt von dem zum Laden
-     * benutzten ClassLoader ab. Im Parameter <code>cl</code> kann dazu eine
-     * ClassLoader-Instanz übergeben werden, deren <code>getRessource</code>-Methode
-     * benutzt wird, um das Property-File zu lokalisieren und zu laden. Wird
-     * kein ClassLoader angegeben (<code>cl==null</code>), so wird zum Laden
-     * des Property-Files der ClassLoader benutzt, der auch zum Laden der
-     * aufrufenden Klasse benutzt wurde.
-     *
-     * @param cl         ClassLoader, der zum Laden des Property-Files verwendet werden soll
-     * @param configfile Name des zu ladenden Property-Files (kann <code>null</code>
-     *                   sein - in dem Fall gibt diese Methode auch <code>null</code> zurück).
-     * @return Properties-Objekt
-     */
-    public static Properties loadPropertiesFile(ClassLoader cl, String configfile) {
-        Properties props = null;
-
-        if (configfile != null) {
-            try {
-                // load kernel params from properties file
-                /* determine classloader to be used */
-                if (cl == null) {
-                    try {
-                        throw new Exception();
-                    } catch (Exception e) {
-                        StackTraceElement[] stackTrace = e.getStackTrace();
-
-                        if (stackTrace.length > 1) {
-                            String classname = stackTrace[1].getClassName();
-                            cl = Class.forName(classname).getClassLoader();
-                        }
-                    }
-
-                    if (cl == null) {
-                        cl = ClassLoader.getSystemClassLoader();
-                    }
-                }
-
-                // TODO: im fehlerfall wird hier nur f==null zurueckgegeben,
-                // so dass man ueber die eigentliche fehlerursache (file not found,
-                // permission denied) nichts erfaehrt
-                
-                /* get an input stream */
-                InputStream f = null;
-                f = cl.getResourceAsStream(configfile);
-                if (f == null)
-                    throw new InvalidUserDataException("*** can not load config file " + configfile);
-
-                props = new Properties();
-                props.load(f);
-                f.close();
-            } catch (Exception e) {
-                throw new HBCI_Exception("*** can not load config file " + configfile, e);
-            }
-        }
-
-        return props;
-    }
+    public static Properties blzs = new Properties();
+    public static Map<String, BankInfo> banks = new HashMap<>();
 
     /**
      * Ermittelt zu einer gegebenen Bankleitzahl den Namen des Institutes.
@@ -569,7 +100,7 @@ public final class HBCIUtils {
      * @return die Bank-Informationen oder NULL, wenn zu der BLZ keine Informationen bekannt sind.
      */
     public static BankInfo getBankInfo(String blz) {
-        return HBCIUtilsInternal.banks.get(blz);
+        return banks.get(blz);
     }
 
     /**
@@ -593,7 +124,7 @@ public final class HBCIUtils {
 
         query = query.toLowerCase();
 
-        for (BankInfo info : HBCIUtilsInternal.banks.values()) {
+        for (BankInfo info : banks.values()) {
             String blz = info.getBlz();
             String bic = info.getBic();
             String name = info.getName();
@@ -1135,7 +666,7 @@ public final class HBCIUtils {
 
             return ret.toString();
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_UTIL_ENCB64"), ex);
+            throw new HBCI_Exception(getLocMsg("EXCMSG_UTIL_ENCB64"), ex);
         }
     }
 
@@ -1229,7 +760,7 @@ public final class HBCIUtils {
             System.arraycopy(ret, 0, ret2, 0, retlen);
             return ret2;
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_UTIL_DECB64"), ex);
+            throw new HBCI_Exception(getLocMsg("EXCMSG_UTIL_DECB64"), ex);
         }
     }
 
@@ -1406,7 +937,7 @@ public final class HBCIUtils {
         InputStream f = new FileInputStream(blzpath);
 
         if (f == null)
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_BLZLOAD", blzpath));
+            throw new InvalidUserDataException(getLocMsg("EXCMSG_BLZLOAD", blzpath));
 
         refreshBLZList(f);
         f.close();
@@ -1428,17 +959,17 @@ public final class HBCIUtils {
     public static void refreshBLZList(InputStream in)
             throws IOException {
         LoggerFactory.getLogger(HBCIUtils.class).debug("trying to load BLZ data");
-        HBCIUtilsInternal.blzs.clear();
-        HBCIUtilsInternal.blzs.load(in);
+        blzs.clear();
+        blzs.load(in);
 
-        HBCIUtilsInternal.banks.clear();
-        for (Entry<Object, Object> e : HBCIUtilsInternal.blzs.entrySet()) {
+        banks.clear();
+        for (Entry<Object, Object> e : blzs.entrySet()) {
             String blz = (String) e.getKey();
             String value = (String) e.getValue();
 
             BankInfo info = BankInfo.parse(value);
             info.setBlz(blz);
-            HBCIUtilsInternal.banks.put(blz, info);
+            banks.put(blz, info);
         }
     }
 
@@ -1452,22 +983,6 @@ public final class HBCIUtils {
         BigDecimal result = new BigDecimal(st);
         result.setScale(2, BigDecimal.ROUND_HALF_EVEN);
         return result;
-    }
-
-    /**
-     * Wandelt einen BigDecimal-Wert in einen String im Format "<code>1234.56</code>"
-     * um (also ohne Tausender-Trennzeichen und mit "." als Dezimaltrennzeichen).
-     *
-     * @param value zu konvertierender BigDecimal-Wert
-     * @return String-Darstellung dieses Wertes
-     */
-    public static String bigDecimal2String(BigDecimal value) {
-        DecimalFormat format = new DecimalFormat("0.00");
-        DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
-        symbols.setDecimalSeparator('.');
-        format.setDecimalFormatSymbols(symbols);
-        format.setDecimalSeparatorAlwaysShown(true);
-        return format.format(value);
     }
 
     /**
@@ -1547,7 +1062,102 @@ public final class HBCIUtils {
                 LoggerFactory.getLogger(HBCIUtils.class).debug(s);
                 break;
         }
+    }
 
+    public static String bigDecimal2String(BigDecimal value) {
+        DecimalFormat format = new DecimalFormat("0.##");
+        DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        format.setDecimalFormatSymbols(symbols);
+        format.setDecimalSeparatorAlwaysShown(false);
+        return format.format(value);
+    }
+
+    public static String getLocMsg(String key) {
+        try {
+            return ResourceBundle.getBundle("hbci4java-messages", Locale.getDefault()).getString(key);
+        } catch (MissingResourceException re) {
+            // tolerieren wir
+            LoggerFactory.getLogger(HBCIUtils.class).debug(re.getMessage(), re);
+            return key;
+        }
+    }
+
+    public static String getLocMsg(String key, Object o) {
+        return getLocMsg(key, new Object[]{o});
+    }
+
+    public static String getLocMsg(String key, Object[] o) {
+        return MessageFormat.format(getLocMsg(key), o);
+    }
+
+    public static boolean ignoreError(HBCIPassport passport, String paramName, String msg) {
+        boolean ret = false;
+        String  paramValue = "no";
+        if (passport != null) {
+            paramValue = passport.getProperties().getProperty(paramName, "no");
+        }
+
+        if (paramValue.equals("yes")) {
+            LoggerFactory.getLogger(HBCIUtils.class).info(msg, HBCIUtils.LOG_ERR);
+            LoggerFactory.getLogger(HBCIUtils.class).info("ignoring error because param " + paramName + "=yes", HBCIUtils.LOG_ERR);
+            ret = true;
+        }
+
+        return ret;
+    }
+
+    public static long string2Long(String st, long factor) {
+        BigDecimal result = new BigDecimal(st);
+        result = result.multiply(new BigDecimal(factor));
+        return result.longValue();
+    }
+
+    public static String withCounter(String st, int idx) {
+        return st + ((idx != 0) ? "_" + Integer.toString(idx + 1) : "");
+    }
+
+    public static int getPosiOfNextDelimiter(String st, int posi) {
+        int len = st.length();
+        boolean quoting = false;
+        while (posi < len) {
+            char ch = st.charAt(posi);
+
+            if (!quoting) {
+                if (ch == '?') {
+                    quoting = true;
+                } else if (ch == '@') {
+                    int endpos = st.indexOf('@', posi + 1);
+                    String binlen_st = st.substring(posi + 1, endpos);
+                    int binlen = Integer.parseInt(binlen_st);
+                    posi += binlen_st.length() + 1 + binlen;
+                } else if (ch == '\'' || ch == '+' || ch == ':') {
+                    // Ende gefunden
+                    break;
+                }
+            } else {
+                quoting = false;
+            }
+
+            posi++;
+        }
+
+        return posi;
+    }
+
+    public static String stripLeadingZeroes(String st) {
+        String ret = null;
+
+        if (st != null) {
+            int start = 0;
+            int l = st.length();
+            while (start < l && st.charAt(start) == '0') {
+                start++;
+            }
+            ret = st.substring(start);
+        }
+
+        return ret;
     }
 
     public static void log(Exception e) {

@@ -26,7 +26,7 @@ import java.math.BigInteger;
 import org.kapott.hbci.comm.Comm;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* @internal
     @brief SyntaxBin enthÃ¤lt BinÃ¤rdaten.
@@ -59,7 +59,7 @@ public class SyntaxBin
         try {
             return new String((new BigInteger(x)).toByteArray(),Comm.ENCODING);
         } catch (Exception ex) {
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_BINNUMERR"),ex);
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_BINNUMERR"),ex);
         }
     }
 
@@ -90,7 +90,7 @@ public class SyntaxBin
                 ret = st;
                 break;
             default:
-                throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg(
+                throw new InvalidArgumentException(HBCIUtils.getLocMsg(
                         "EXC_DTBIN_NO_VALID_FORMAT",
                         Character.toString(format)));
         }

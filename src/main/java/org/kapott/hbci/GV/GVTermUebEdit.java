@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRTermUebEdit;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -64,7 +64,7 @@ public final class GVTermUebEdit
         int        maxusage=Integer.parseInt(parameters.getProperty("maxusage"));
 
         for (int i=0;i<maxusage;i++) {
-            String name=HBCIUtilsInternal.withCounter("usage",i);
+            String name=HBCIUtils.withCounter("usage",i);
             addConstraint(name,"usage."+name,"", LogFilter.FILTER_MOST);
         }
     }
@@ -100,8 +100,8 @@ public final class GVTermUebEdit
         if (paramName.equals("orderid")) {
             Properties p=(Properties)getMainPassport().getPersistentData("termueb_"+value);
             if (p==null) {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS",value);
-                if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                String msg=HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS",value);
+                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                     throw new InvalidUserDataException(msg);
                 p=new Properties();
             }

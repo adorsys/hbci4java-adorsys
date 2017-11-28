@@ -28,7 +28,7 @@ import org.kapott.hbci.GV_Result.GVRFestCondList;
 import org.kapott.hbci.GV_Result.GVRFestList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
@@ -145,7 +145,7 @@ public class GVFestList
         else if (st.equals("F"))
             entry.konditionen.zinsmethode=GVRFestCondList.Cond.METHOD_30_365;
         
-        entry.konditionen.zinssatz=HBCIUtilsInternal.string2Long(result.getProperty(header+".FestCond.zinssatz"), 1000);
+        entry.konditionen.zinssatz=HBCIUtils.string2Long(result.getProperty(header+".FestCond.zinssatz"), 1000);
         entry.konditionen.minbetrag=new Value(
             result.getProperty(header+".FestCond.MinBetrag.value"),
             result.getProperty(header+".FestCond.MinBetrag.curr"));

@@ -24,7 +24,7 @@ package org.kapott.hbci.comm;
 import java.lang.reflect.Constructor;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public abstract class Filter
 {
@@ -38,7 +38,7 @@ public abstract class Filter
             Constructor cons=cl.getConstructor((Class[])null);
             return (Filter)cons.newInstance((Object[])null);
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CANTCREATEFILT",filter),e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANTCREATEFILT",filter),e);
         }
     }
 }

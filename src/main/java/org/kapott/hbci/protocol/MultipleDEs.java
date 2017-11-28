@@ -30,7 +30,7 @@ import java.util.ListIterator;
 import java.util.Properties;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.factory.DEFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -128,7 +128,7 @@ public final class MultipleDEs
                     
                     int dotPos=key.lastIndexOf('.');
                     String newkey=key.substring(0,dotPos)+
-                                  HBCIUtilsInternal.withCounter("",idx)+
+                                  HBCIUtils.withCounter("",idx)+
                                   key.substring(dotPos);
                     valids.put(newkey,valids.get(key));
                 }

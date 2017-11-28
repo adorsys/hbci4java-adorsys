@@ -103,7 +103,7 @@ public final class HBCIInstitute
             HBCIUtils.log("extracting public institute keys from results", HBCIUtils.LOG_DEBUG);
 
             for (int i = 0; i < 3; i++) {
-                String head = HBCIUtilsInternal.withCounter("SendPubKey", i);
+                String head = HBCIUtils.withCounter("SendPubKey", i);
                 String keyType = result.getProperty(head + ".KeyName.keytype");
                 if (keyType == null)
                     continue;
@@ -136,8 +136,8 @@ public final class HBCIInstitute
                 }
             }
         } catch (Exception e) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_EXTR_IKEYS_ERR");
-            if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreExtractKeysErrors",
+            String msg = HBCIUtils.getLocMsg("EXCMSG_EXTR_IKEYS_ERR");
+            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreExtractKeysErrors",
                     msg + ": " + HBCIUtils.exception2String(e))) {
                 throw new HBCI_Exception(msg, e);
             }
@@ -153,7 +153,7 @@ public final class HBCIInstitute
         StringBuffer answer = new StringBuffer();
         passport.getCallback().callback(passport,
                 HBCICallback.NEED_NEW_INST_KEYS_ACK,
-                HBCIUtilsInternal.getLocMsg("CALLB_NEW_INST_KEYS"),
+                HBCIUtils.getLocMsg("CALLB_NEW_INST_KEYS"),
                 HBCICallback.TYPE_BOOLEAN,
                 answer);
 
@@ -166,7 +166,7 @@ public final class HBCIInstitute
                 HBCIUtils.log(e);
             }
 
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_KEYSNOTACK"));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_KEYSNOTACK"));
         }
     }
 
@@ -184,8 +184,8 @@ public final class HBCIInstitute
         if (!status.isOK()) {
             HBCIUtils.log("dialog end failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
 
-            String msg = HBCIUtilsInternal.getLocMsg("ERR_INST_ENDFAILED");
-            if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreDialogEndErrors",
+            String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
+            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreDialogEndErrors",
                     msg + ": " + status.getErrorString())) {
                 throw new ProcessException(msg, status);
             }
@@ -298,7 +298,7 @@ public final class HBCIInstitute
 
                 if (!status.isOK()) {
                     HBCIUtils.log("fetching BPD failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
-                    throw new ProcessException(HBCIUtilsInternal.getLocMsg("ERR_INST_BPDFAILED"), status);
+                    throw new ProcessException(HBCIUtils.getLocMsg("ERR_INST_BPDFAILED"), status);
                 }
             } catch (Exception e) {
                 if (e instanceof HBCI_Exception) {
@@ -320,14 +320,14 @@ public final class HBCIInstitute
         HBCIUtils.log("checking if requested hbci parameters are supported", HBCIUtils.LOG_DEBUG);
         if (passport.getBPD() != null) {
             if (!passport.isSupported()) {
-                String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_SECMETHNOTSUPP");
-                if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreSecMechCheckErrors", msg))
+                String msg = HBCIUtils.getLocMsg("EXCMSG_SECMETHNOTSUPP");
+                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSecMechCheckErrors", msg))
                     throw new InvalidUserDataException(msg);
             }
 
             if (!Arrays.asList(passport.getSuppVersions()).contains(kernel.getHBCIVersion(0))) {
-                String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_VERSIONNOTSUPP");
-                if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreVersionCheckErrors", msg))
+                String msg = HBCIUtils.getLocMsg("EXCMSG_VERSIONNOTSUPP");
+                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreVersionCheckErrors", msg))
                     throw new InvalidUserDataException(msg);
             }
         } else {

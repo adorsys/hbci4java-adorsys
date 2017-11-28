@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.structures.Value;
 
 /** Rückgabedaten für die Abfrage von Festgeld-Konditionen. Es wird eine Liste
@@ -99,7 +99,7 @@ public final class GVRFestCondList
             ret.append(linesep);
             
             ret.append("  Zinssatz: ");
-            ret.append(HBCIUtilsInternal.bigDecimal2String(new BigDecimal(zinssatz).divide(new BigDecimal("1000.0"))));
+            ret.append(HBCIUtils.bigDecimal2String(new BigDecimal(zinssatz).divide(new BigDecimal("1000.0"))));
             ret.append("% (");
             switch (zinsmethode) {
                 case METHOD_2831_360:    ret.append("28/31 Tage bzw. 360 Tage"); break;

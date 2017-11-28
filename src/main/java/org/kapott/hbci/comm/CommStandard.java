@@ -29,7 +29,7 @@ import java.net.Socket;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.MSG;
@@ -82,7 +82,7 @@ public final class CommStandard
             i=s.getInputStream();
             o=s.getOutputStream();
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CONNERR"),e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CONNERR"),e);
         }
     }
 
@@ -94,7 +94,7 @@ public final class CommStandard
             o.write(b);
             o.flush();
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_SENDERR"),ex);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SENDERR"),ex);
         }
     }
 
@@ -143,7 +143,7 @@ public final class CommStandard
 
             return new StringBuffer(getPassport().getCommFilter().decode(ret.toString()));
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_RECVERR"),ex);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_RECVERR"),ex);
         }
     }
     
@@ -170,7 +170,7 @@ public final class CommStandard
             HBCIUtils.log("closing communication line",HBCIUtils.LOG_DEBUG);
             s.close();
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CLOSEERR"),ex);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CLOSEERR"),ex);
         }
     }
 }

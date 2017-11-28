@@ -21,13 +21,13 @@
 
 package org.kapott.hbci.exceptions;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NoSuchElementException
     extends HBCI_Exception
 {
     public NoSuchElementException(String type, String name)
     {
-        super(HBCIUtilsInternal.getLocMsg("EXCMSG_NOSUCHELEM",new Object[] {type,name}));
+        super(HBCIUtils.getLocMsg("EXCMSG_NOSUCHELEM",new Object[] {type,name}));
     }
 }

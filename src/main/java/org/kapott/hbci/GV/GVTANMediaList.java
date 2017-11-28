@@ -5,7 +5,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -36,7 +36,7 @@ public class GVTANMediaList extends HBCIJobImpl {
         StringBuffer mediaNames = new StringBuffer();
         
         for (int i=0;;i++) {
-            String mediaheader=HBCIUtilsInternal.withCounter(header+".MediaInfo",i);
+            String mediaheader=HBCIUtils.withCounter(header+".MediaInfo",i);
             
             String st=result.getProperty(mediaheader+".mediacategory");
             if (st==null)

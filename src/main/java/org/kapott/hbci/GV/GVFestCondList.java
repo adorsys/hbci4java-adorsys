@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRFestCondList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Value;
@@ -53,7 +53,7 @@ public class GVFestCondList
         Properties result=msgstatus.getData();
         for (int i=0;;i++) {
             GVRFestCondList.Cond entry=new GVRFestCondList.Cond();
-            String               condheader=HBCIUtilsInternal.withCounter(header+".FestCond",i);
+            String               condheader=HBCIUtils.withCounter(header+".FestCond",i);
             
             if (result.getProperty(condheader+".anlagedate")==null)
                 break;
@@ -81,7 +81,7 @@ public class GVFestCondList
             else if (st.equals("F"))
                 entry.zinsmethode=GVRFestCondList.Cond.METHOD_30_365;
             
-            entry.zinssatz=HBCIUtilsInternal.string2Long(result.getProperty(condheader+".zinssatz"), 1000);
+            entry.zinssatz=HBCIUtils.string2Long(result.getProperty(condheader+".zinssatz"), 1000);
             entry.minbetrag=new Value(
                 result.getProperty(condheader+".MinBetrag.value"),
                 result.getProperty(condheader+".MinBetrag.curr"));

@@ -89,11 +89,11 @@ public final class MsgGen {
 
             clientValues = new Hashtable<String, String>();
         } catch (FactoryConfigurationError e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_MSGGEN_DBFAC"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_MSGGEN_DBFAC"), e);
         } catch (ParserConfigurationException e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_MSGGEN_DB"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_MSGGEN_DB"), e);
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_MSGGEN_STXFILE"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_MSGGEN_STXFILE"), e);
         }
     }
 

@@ -24,7 +24,7 @@ package org.kapott.hbci.GV;
 import java.util.Properties;
 
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 
 public class GVUebGar
@@ -62,7 +62,7 @@ public class GVUebGar
         int        maxusage=Integer.parseInt(parameters.getProperty("maxusage"));
 
         for (int i=0;i<maxusage;i++) {
-            String name=HBCIUtilsInternal.withCounter("usage",i);
+            String name=HBCIUtils.withCounter("usage",i);
             addConstraint(name,"usage."+name,"", LogFilter.FILTER_MOST);
         }
     }

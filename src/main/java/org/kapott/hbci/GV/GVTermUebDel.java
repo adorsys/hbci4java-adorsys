@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 
 public final class GVTermUebDel
@@ -52,8 +52,8 @@ public final class GVTermUebDel
         if (paramName.equals("orderid")) {
             Properties p=(Properties)getMainPassport().getPersistentData("termueb_"+value);
             if (p==null) {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS",value);
-                if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                String msg=HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS",value);
+                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                     throw new InvalidUserDataException(msg);
                 p=new Properties();
             }

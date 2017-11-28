@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRTANList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 public class GVTANList 
@@ -57,7 +57,7 @@ public class GVTANList
         list.nofUsedTANsPerList=Integer.parseInt(result.getProperty(header+".nofusedtansperlist","0"));
             
         for (int i=0;;i++) {
-            String tanheader=HBCIUtilsInternal.withCounter(header+".TANInfo",i);
+            String tanheader=HBCIUtils.withCounter(header+".TANInfo",i);
             
             st=result.getProperty(tanheader+".usagecode");
             if (st==null)

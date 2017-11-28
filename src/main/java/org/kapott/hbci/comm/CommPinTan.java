@@ -34,7 +34,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.AbstractPinTanPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -99,7 +99,7 @@ public final class CommPinTan extends Comm {
                 Authenticator.setDefault(new PinTanProxyAuthenticator(parentPassport));
             }
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CONNERR"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CONNERR"), e);
         }
     }
 
@@ -147,7 +147,7 @@ public final class CommPinTan extends Comm {
             HBCIUtils.log("closing output stream", HBCIUtils.LOG_DEBUG);
             out.close();
         } catch (Exception e) {
-            HBCI_Exception he = new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_SENDERR"), e);
+            HBCI_Exception he = new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SENDERR"), e);
             he.setFatal(true); // Abbruch. Auch dann, wenn es ein anonymer BPD-Abruf war
             throw he;
         }
@@ -158,7 +158,7 @@ public final class CommPinTan extends Comm {
             byte[] b = new byte[1024];
             StringBuffer ret = new StringBuffer();
 
-            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("STATUS_MSG_RECV"), HBCIUtils.LOG_DEBUG);
+            HBCIUtils.log(HBCIUtils.getLocMsg("STATUS_MSG_RECV"), HBCIUtils.LOG_DEBUG);
 
             int msgsize = conn.getContentLength();
             int num;
@@ -187,7 +187,7 @@ public final class CommPinTan extends Comm {
         } catch (Exception e) {
             // Die hier marieren wir nicht als fatal - ich meine mich zu erinnern,
             // dass es Banken gibt, die einen anonymen BPD-Abruf mit einem HTTP-Fehlercode quittieren
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_RECVERR"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_RECVERR"), e);
         }
     }
 

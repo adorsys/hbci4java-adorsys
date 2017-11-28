@@ -115,7 +115,7 @@ public final class HBCIHandler implements IHandlerData {
     public HBCIHandler(HBCIPassport passport, HBCIDialog hbciDialog, boolean init, boolean closeDialog) {
         try {
             if (passport == null)
-                throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXCMSG_PASSPORT_NULL"));
+                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_NULL"));
 
             this.dialog = hbciDialog;
             this.closeDialog = closeDialog;
@@ -132,7 +132,7 @@ public final class HBCIHandler implements IHandlerData {
                 registerUser();
             }
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CANT_CREATE_HANDLE"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_CREATE_HANDLE"), e);
         }
 
         // wenn in den UPD noch keine SEPA- und TAN-Medien-Informationen ueber die Konten enthalten
@@ -247,7 +247,7 @@ public final class HBCIHandler implements IHandlerData {
             HBCIInstitute inst = new HBCIInstitute(kernel, passport, false);
             inst.register();
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CANT_REG_INST"), ex);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_INST"), ex);
         }
     }
 
@@ -257,7 +257,7 @@ public final class HBCIHandler implements IHandlerData {
             HBCIUser user = new HBCIUser(kernel, passport, false);
             user.register();
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
         }
     }
 
@@ -336,7 +336,7 @@ public final class HBCIHandler implements IHandlerData {
         HBCIUtils.log("creating new job " + jobname, HBCIUtils.LOG_DEBUG);
 
         if (jobname == null || jobname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
         HBCIJobImpl ret = null;
         String className = "org.kapott.hbci.GV.GV" + jobname;
@@ -348,8 +348,8 @@ public final class HBCIHandler implements IHandlerData {
         } catch (ClassNotFoundException e) {
             throw new InvalidUserDataException("*** there is no highlevel job named " + jobname + " - need class " + className);
         } catch (Exception e) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_JOB_CREATE_ERR", jobname);
-            if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreCreateJobErrors", msg))
+            String msg = HBCIUtils.getLocMsg("EXCMSG_JOB_CREATE_ERR", jobname);
+            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCreateJobErrors", msg))
                 throw new HBCI_Exception(msg, e);
         }
 
@@ -368,7 +368,7 @@ public final class HBCIHandler implements IHandlerData {
         HBCIUtils.log("generating new lowlevel-job " + gvname, HBCIUtils.LOG_DEBUG);
 
         if (gvname == null || gvname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
         HBCIJobImpl ret = new GVTemplate(gvname, this);
         return ret;
@@ -619,7 +619,7 @@ public final class HBCIHandler implements IHandlerData {
      */
     public List<String> getLowlevelJobParameterNames(String gvname) {
         if (gvname == null || gvname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
         String version = getSupportedLowlevelJobs().getProperty(gvname);
         if (version == null)
@@ -664,7 +664,7 @@ public final class HBCIHandler implements IHandlerData {
      */
     public List<String> getLowlevelJobResultNames(String gvname) {
         if (gvname == null || gvname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
         String version = getSupportedLowlevelJobs().getProperty(gvname);
         if (version == null)
@@ -698,7 +698,7 @@ public final class HBCIHandler implements IHandlerData {
      */
     public Properties getLowlevelJobRestrictions(String gvname) {
         if (gvname == null || gvname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
         String version = getSupportedLowlevelJobs().getProperty(gvname);
         if (version == null)
@@ -729,14 +729,14 @@ public final class HBCIHandler implements IHandlerData {
      */
     public boolean isSupported(String jobnameHL) {
         if (jobnameHL == null || jobnameHL.length() == 0)
-            throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
         try {
             Class cl = Class.forName("org.kapott.hbci.GV.GV" + jobnameHL);
             String lowlevelName = (String) cl.getMethod("getLowlevelName", (Class[]) null).invoke(null, (Object[]) null);
             return getSupportedLowlevelJobs().keySet().contains(lowlevelName);
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_HANDLER_HLCHECKERR", jobnameHL), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_HANDLER_HLCHECKERR", jobnameHL), e);
         }
     }
 

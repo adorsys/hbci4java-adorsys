@@ -31,7 +31,7 @@ import org.kapott.hbci.exceptions.CanNotParseMessageException;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.IHandlerData;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -129,7 +129,7 @@ public abstract class Comm {
                 retmsg = new MSG(msgName + "Res", st, st.length(), gen, MSG.CHECK_SEQ, true);
             }
         } catch (Exception ex) {
-            throw new CanNotParseMessageException(HBCIUtilsInternal.getLocMsg("EXCMSG_CANTPARSE"), st, ex);
+            throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), st, ex);
         }
 
         return retmsg;
@@ -141,7 +141,7 @@ public abstract class Comm {
             Constructor cons = cl.getConstructor(new Class[]{HBCIPassportInternal.class});
             return (Comm) cons.newInstance(new Object[]{passport});
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CANTCREATECOMM", name), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANTCREATECOMM", name), e);
         }
     }
 
@@ -152,6 +152,6 @@ public abstract class Comm {
     public void close() {
         closeConnection();
         getPassport().getCallback().callback(getPassport(), HBCICallback.CLOSE_CONNECTION,
-                HBCIUtilsInternal.getLocMsg("CALLB_CLOSE_CONN"), HBCICallback.TYPE_NONE, new StringBuffer());
+                HBCIUtils.getLocMsg("CALLB_CLOSE_CONN"), HBCICallback.TYPE_NONE, new StringBuffer());
     }
 }

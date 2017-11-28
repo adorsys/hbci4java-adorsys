@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /**
  * <p>Status-Informationen für einen kompletten HBCI-Dialog. Objekte
@@ -165,7 +165,7 @@ public final class HBCIDialogStatus {
         if (initStatus != null) {
             String s = initStatus.getErrorString();
             if (s.length() != 0) {
-                // ret.append(HBCIUtilsInternal.getLocMsg("STAT_INIT")).append(":");
+                // ret.append(HBCIUtils.getLocMsg("STAT_INIT")).append(":");
                 // ret.append(System.getProperty("line.separator"));
                 ret.append(s);
                 ret.append(System.getProperty("line.separator"));
@@ -176,7 +176,7 @@ public final class HBCIDialogStatus {
             for (int i = 0; i < msgStatus.length; i++) {
                 String s = msgStatus[i].getErrorString();
                 if (s.length() != 0) {
-                    // ret.append(HBCIUtilsInternal.getLocMsg("STAT_MSG")).append(" ");
+                    // ret.append(HBCIUtils.getLocMsg("STAT_MSG")).append(" ");
                     // ret.append(Integer.toString(i+1));
                     // ret.append(":");
                     // ret.append(System.getProperty("line.separator"));
@@ -189,7 +189,7 @@ public final class HBCIDialogStatus {
         if (endStatus != null) {
             String s = endStatus.getErrorString();
             if (s.length() != 0) {
-                // ret.append(HBCIUtilsInternal.getLocMsg("STAT_END")).append(":");
+                // ret.append(HBCIUtils.getLocMsg("STAT_END")).append(":");
                 // ret.append(System.getProperty("line.separator"));
                 ret.append(s);
                 ret.append(System.getProperty("line.separator"));
@@ -211,7 +211,7 @@ public final class HBCIDialogStatus {
     public String toString() {
         StringBuffer ret = new StringBuffer();
 
-        ret.append(HBCIUtilsInternal.getLocMsg("STAT_INIT")).append(":").append(System.getProperty("line.separator"));
+        ret.append(HBCIUtils.getLocMsg("STAT_INIT")).append(":").append(System.getProperty("line.separator"));
         if (initStatus != null) {
             ret.append(initStatus.toString());
         } else {
@@ -221,13 +221,13 @@ public final class HBCIDialogStatus {
 
         if (msgStatus != null) {
             for (int i = 0; i < msgStatus.length; i++) {
-                ret.append(HBCIUtilsInternal.getLocMsg("STAT_MSG")).append(" #").append(i + 1).append(":").append(System.getProperty("line.separator"));
+                ret.append(HBCIUtils.getLocMsg("STAT_MSG")).append(" #").append(i + 1).append(":").append(System.getProperty("line.separator"));
                 ret.append(msgStatus[i].toString());
                 ret.append(System.getProperty("line.separator"));
             }
         }
 
-        ret.append(HBCIUtilsInternal.getLocMsg("STAT_END")).append(":").append(System.getProperty("line.separator"));
+        ret.append(HBCIUtils.getLocMsg("STAT_END")).append(":").append(System.getProperty("line.separator"));
         if (endStatus != null) {
             ret.append(endStatus.toString());
         } else {

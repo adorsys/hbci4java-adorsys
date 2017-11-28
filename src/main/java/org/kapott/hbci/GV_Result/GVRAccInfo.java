@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
@@ -174,9 +174,9 @@ public class GVRAccInfo
             
             if (created!=null)
                 ret.append("ErÃ¶ffnungsdatum: ").append(HBCIUtils.date2StringLocal(created)).append(linesep);
-            ret.append("Sollzins:").append(HBCIUtilsInternal.bigDecimal2String(new BigDecimal(sollzins).divide(ONE_THOUSAND)));
-            ret.append(" Habenzins:").append(HBCIUtilsInternal.bigDecimal2String(new BigDecimal(habenzins).divide(ONE_THOUSAND)));
-            ret.append(" Ãberziehungszins:").append(HBCIUtilsInternal.bigDecimal2String(new BigDecimal(ueberzins).divide(ONE_THOUSAND)));
+            ret.append("Sollzins:").append(HBCIUtils.bigDecimal2String(new BigDecimal(sollzins).divide(ONE_THOUSAND)));
+            ret.append(" Habenzins:").append(HBCIUtils.bigDecimal2String(new BigDecimal(habenzins).divide(ONE_THOUSAND)));
+            ret.append(" Ãberziehungszins:").append(HBCIUtils.bigDecimal2String(new BigDecimal(ueberzins).divide(ONE_THOUSAND)));
             ret.append(" Kredit: ").append(kredit).append(linesep);
             
             if (refAccount!=null)

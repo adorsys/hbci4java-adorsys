@@ -22,7 +22,7 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
 import org.kapott.hbci.protocol.SyntaxElement;
@@ -41,7 +41,7 @@ public class RInvalidSuppHBCIVersion
 
         // in einer Schleife durch alle SuppVersions-Datensätze laufen
         for (int i = 0; ; i++) {
-            String elemName = HBCIUtilsInternal.withCounter(myMsgName + ".BPD.BPA.SuppVersions.version", i);
+            String elemName = HBCIUtils.withCounter(myMsgName + ".BPD.BPA.SuppVersions.version", i);
             SyntaxElement elem = msg.getElement(elemName);
 
             if (elem == null) {

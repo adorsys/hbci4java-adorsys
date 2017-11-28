@@ -26,7 +26,7 @@ import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.INILetter;
@@ -101,7 +101,7 @@ public class HBCICallbackIOStreams
     Eingabe vom <code>inStream</code> gelesen.*/
     public void callback(HBCIPassport passport, int reason, String msg, int datatype, StringBuffer retData) 
     {
-//        getOutStream().println(HBCIUtilsInternal.getLocMsg("CALLB_PASS_IDENT",passport.getClientData("init")));
+//        getOutStream().println(HBCIUtils.getLocMsg("CALLB_PASS_IDENT",passport.getClientData("init")));
         
         try {
             INILetter iniletter;
@@ -122,7 +122,7 @@ public class HBCICallbackIOStreams
                         
                         String st2=getInStream().readLine();
                         if (!st.equals(st2))
-                            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_PWDONTMATCH"));
+                            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_PWDONTMATCH"));
                     }
                     logfilter.addSecretData(st,"X",LogFilter.FILTER_SECRETS);
                     retData.replace(0,retData.length(),st);
@@ -182,8 +182,8 @@ public class HBCICallbackIOStreams
                 case NEED_NEW_INST_KEYS_ACK:
                     getOutStream().println(msg);
                     iniletter=new INILetter(passport,INILetter.TYPE_INST);
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("EXPONENT")+": "+HBCIUtils.data2hex(iniletter.getKeyExponentDisplay()));
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("MODULUS")+": "+HBCIUtils.data2hex(iniletter.getKeyModulusDisplay()));
+                    getOutStream().println(HBCIUtils.getLocMsg("EXPONENT")+": "+HBCIUtils.data2hex(iniletter.getKeyExponentDisplay()));
+                    getOutStream().println(HBCIUtils.getLocMsg("MODULUS")+": "+HBCIUtils.data2hex(iniletter.getKeyModulusDisplay()));
                     getOutStream().print("<ENTER>=OK, \"ERR\"=ERROR: ");
                     getOutStream().flush();
                     retData.replace(0, retData.length(), getInStream().readLine());
@@ -192,20 +192,20 @@ public class HBCICallbackIOStreams
                 case HAVE_NEW_MY_KEYS:
                     iniletter=new INILetter(passport,INILetter.TYPE_USER);
                     date=new Date();
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("DATE")+": "+HBCIUtils.date2StringLocal(date));
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("TIME")+": "+HBCIUtils.time2StringLocal(date));
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("BLZ")+": "+passport.getBLZ());
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("USERID")+": "+passport.getUserId());
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("KEYNUM")+": "+passport.getMyPublicSigKey().num);
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("KEYVERSION")+": "+passport.getMyPublicSigKey().version);
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("EXPONENT")+": "+HBCIUtils.data2hex(iniletter.getKeyExponentDisplay()));
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("MODULUS")+": "+HBCIUtils.data2hex(iniletter.getKeyModulusDisplay()));
+                    getOutStream().println(HBCIUtils.getLocMsg("DATE")+": "+HBCIUtils.date2StringLocal(date));
+                    getOutStream().println(HBCIUtils.getLocMsg("TIME")+": "+HBCIUtils.time2StringLocal(date));
+                    getOutStream().println(HBCIUtils.getLocMsg("BLZ")+": "+passport.getBLZ());
+                    getOutStream().println(HBCIUtils.getLocMsg("USERID")+": "+passport.getUserId());
+                    getOutStream().println(HBCIUtils.getLocMsg("KEYNUM")+": "+passport.getMyPublicSigKey().num);
+                    getOutStream().println(HBCIUtils.getLocMsg("KEYVERSION")+": "+passport.getMyPublicSigKey().version);
+                    getOutStream().println(HBCIUtils.getLocMsg("EXPONENT")+": "+HBCIUtils.data2hex(iniletter.getKeyExponentDisplay()));
+                    getOutStream().println(HBCIUtils.getLocMsg("MODULUS")+": "+HBCIUtils.data2hex(iniletter.getKeyModulusDisplay()));
                     getOutStream().println(msg);
                     break;
     
                 case HAVE_INST_MSG:
                     getOutStream().println(msg);
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("CONTINUE"));
+                    getOutStream().println(HBCIUtils.getLocMsg("CONTINUE"));
                     getOutStream().flush();
                     getInStream().readLine();
                     break;
@@ -221,14 +221,14 @@ public class HBCICallbackIOStreams
                     String blz=retData.substring(0,idx);
                     String number=retData.substring(idx+1);
     
-                    getOutStream().print(HBCIUtilsInternal.getLocMsg("BLZ")+" ["+blz+"]: ");
+                    getOutStream().print(HBCIUtils.getLocMsg("BLZ")+" ["+blz+"]: ");
                     getOutStream().flush();
                     String s=getInStream().readLine();
                     if (s.length()==0)
                         s=blz;
                     blz=s;
     
-                    getOutStream().print(HBCIUtilsInternal.getLocMsg("ACCNUMBER")+" ["+number+"]: ");
+                    getOutStream().print(HBCIUtils.getLocMsg("ACCNUMBER")+" ["+number+"]: ");
                     getOutStream().flush();
                     s=getInStream().readLine();
                     if (s.length()==0)
@@ -245,7 +245,7 @@ public class HBCICallbackIOStreams
                     getOutStream().println(msg);
     
                     String iban=retData.toString();
-                    getOutStream().print(HBCIUtilsInternal.getLocMsg("IBAN")+" ["+iban+"]: ");
+                    getOutStream().print(HBCIUtils.getLocMsg("IBAN")+" ["+iban+"]: ");
                     getOutStream().flush();
                     String newiban=getInStream().readLine();
                     if (newiban.length()!=0 && !newiban.equals(iban)) {
@@ -269,11 +269,11 @@ public class HBCICallbackIOStreams
                         
                         String tempblz;
                         getOutStream().println(tok2.nextToken()+": "+
-                                           HBCIUtilsInternal.getLocMsg("BLZ")+"="+(tempblz=tok2.nextToken())+
+                                           HBCIUtils.getLocMsg("BLZ")+"="+(tempblz=tok2.nextToken())+
                                            " ("+HBCIUtils.getNameForBLZ(tempblz)+") "+
-                                           HBCIUtilsInternal.getLocMsg("USERID")+"="+tok2.nextToken());
+                                           HBCIUtils.getLocMsg("USERID")+"="+tok2.nextToken());
                     }
-                    getOutStream().print(HBCIUtilsInternal.getLocMsg("CALLB_SELECT_ENTRY")+": ");
+                    getOutStream().print(HBCIUtils.getLocMsg("CALLB_SELECT_ENTRY")+": ");
                     getOutStream().flush();
                     retData.replace(0,retData.length(),getInStream().readLine());
                     break;
@@ -287,7 +287,7 @@ public class HBCICallbackIOStreams
                         
                         getOutStream().println(values[0]+": "+values[1]);
                     }
-                    getOutStream().print(HBCIUtilsInternal.getLocMsg("CALLB_SELECT_ENTRY")+": ");
+                    getOutStream().print(HBCIUtils.getLocMsg("CALLB_SELECT_ENTRY")+": ");
                     getOutStream().flush();
                     retData.replace(0,retData.length(),getInStream().readLine());
                     break;
@@ -308,7 +308,7 @@ public class HBCICallbackIOStreams
                         for (String media:medias) {
                             getOutStream().println(media);
                         }
-                        getOutStream().print(HBCIUtilsInternal.getLocMsg("CALLB_SELECT_ENTRY")+": ");
+                        getOutStream().print(HBCIUtils.getLocMsg("CALLB_SELECT_ENTRY")+": ");
                         getOutStream().flush();
                         retData.replace(0,retData.length(),getInStream().readLine());
                     }
@@ -325,7 +325,7 @@ public class HBCICallbackIOStreams
                 case NEED_CONNECTION:
                 case CLOSE_CONNECTION:
                     getOutStream().println(msg);
-                    getOutStream().println(HBCIUtilsInternal.getLocMsg("CONTINUE"));
+                    getOutStream().println(HBCIUtils.getLocMsg("CONTINUE"));
                     getOutStream().flush();
                     getInStream().readLine();
                     break;
@@ -335,10 +335,10 @@ public class HBCICallbackIOStreams
                     break;
     
                 default:
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CALLB_UNKNOWN",Integer.toString(reason)));
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CALLB_UNKNOWN",Integer.toString(reason)));
             }
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_CALLB_ERR"),e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CALLB_ERR"),e);
         }
     }
 
@@ -353,109 +353,109 @@ public class HBCICallbackIOStreams
     public void status(HBCIPassport passport, int statusTag, Object[] o) {
         switch (statusTag) {
             case STATUS_INST_BPD_INIT:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_INST_DATA"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_DATA"));
                 break;
             case STATUS_INST_BPD_INIT_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_INST_DATA_DONE",passport.getBPDVersion()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_DATA_DONE",passport.getBPDVersion()));
                 break;
             case STATUS_INST_GET_KEYS:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_INST_KEYS"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_KEYS"));
                 break;
             case STATUS_INST_GET_KEYS_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_INST_KEYS_DONE"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_KEYS_DONE"));
                 break;
             case STATUS_SEND_KEYS:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_SEND_MY_KEYS"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_SEND_MY_KEYS"));
                 break;
             case STATUS_SEND_KEYS_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_SEND_MY_KEYS_DONE"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_SEND_MY_KEYS_DONE"));
                 getOutStream().println("status: "+((HBCIMsgStatus)o[0]).toString());
                 break;
             case STATUS_INIT_SYSID:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_SYSID"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_SYSID"));
                 break;
             case STATUS_INIT_SYSID_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_SYSID_DONE",o[1].toString()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_SYSID_DONE",o[1].toString()));
                 getOutStream().println("status: "+((HBCIMsgStatus)o[0]).toString());
                 break;
             case STATUS_INIT_SIGID:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_SIGID"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_SIGID"));
                 break;
             case STATUS_INIT_SIGID_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_SIGID_DONE",o[1].toString()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_SIGID_DONE",o[1].toString()));
                 getOutStream().println("status: "+((HBCIMsgStatus)o[0]).toString());
                 break;
             case STATUS_INIT_UPD:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_USER_DATA"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_USER_DATA"));
                 break;
             case STATUS_INIT_UPD_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_REC_USER_DATA_DONE",passport.getUPDVersion()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_USER_DATA_DONE",passport.getUPDVersion()));
                 break;
             case STATUS_LOCK_KEYS:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_USR_LOCK"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_USR_LOCK"));
                 break;
             case STATUS_LOCK_KEYS_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_USR_LOCK_DONE"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_USR_LOCK_DONE"));
                 getOutStream().println("status: "+((HBCIMsgStatus)o[0]).toString());
                 break;
             case STATUS_DIALOG_INIT:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_INIT"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT"));
                 break;
             case STATUS_DIALOG_INIT_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_INIT_DONE",o[1]));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT_DONE",o[1]));
                 getOutStream().println("status: "+((HBCIMsgStatus)o[0]).toString());
                 break;
             case STATUS_SEND_TASK:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_NEW_JOB",((HBCIJob)o[0]).getName()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_NEW_JOB",((HBCIJob)o[0]).getName()));
                 break;
             case STATUS_SEND_TASK_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_JOB_DONE",((HBCIJob)o[0]).getName()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_JOB_DONE",((HBCIJob)o[0]).getName()));
                 break;
             case STATUS_DIALOG_END:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_END"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_END"));
                 break;
             case STATUS_DIALOG_END_DONE:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_END_DONE"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_END_DONE"));
                 getOutStream().println("status: "+((HBCIMsgStatus)o[0]).toString());
                 break;
             case STATUS_MSG_CREATE:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_CREATE",o[0].toString()));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_CREATE",o[0].toString()));
                 break;
             case STATUS_MSG_SIGN:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_SIGN"));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_SIGN"));
                 break;
             case STATUS_MSG_CRYPT:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_CRYPT"));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_CRYPT"));
                 break;
             case STATUS_MSG_SEND:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_SEND"));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_SEND"));
                 break;
             case STATUS_MSG_RECV:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_RECV"));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_RECV"));
                 break;
             case STATUS_MSG_PARSE:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_PARSE",o[0].toString()+")"));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_PARSE",o[0].toString()+")"));
                 break;
             case STATUS_MSG_DECRYPT:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_DECRYPT"));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_DECRYPT"));
                 break;
             case STATUS_MSG_VERIFY:
-                getOutStream().println("  "+HBCIUtilsInternal.getLocMsg("STATUS_MSG_VERIFY"));
+                getOutStream().println("  "+HBCIUtils.getLocMsg("STATUS_MSG_VERIFY"));
                 break;
             case STATUS_SEND_INFOPOINT_DATA:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_SEND_INFOPOINT_DATA"));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_SEND_INFOPOINT_DATA"));
                 break;
                 
             case STATUS_MSG_RAW_SEND:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_MSG_RAW_SEND",o[0].toString()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_MSG_RAW_SEND",o[0].toString()));
                 break;
 
             case STATUS_MSG_RAW_RECV:
-                getOutStream().println(HBCIUtilsInternal.getLocMsg("STATUS_MSG_RAW_RECV",o[0].toString()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_MSG_RAW_RECV",o[0].toString()));
                 break;
 
             default:
-                throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("STATUS_INVALID",Integer.toString(statusTag)));
+                throw new HBCI_Exception(HBCIUtils.getLocMsg("STATUS_INVALID",Integer.toString(statusTag)));
         }
     }
 }

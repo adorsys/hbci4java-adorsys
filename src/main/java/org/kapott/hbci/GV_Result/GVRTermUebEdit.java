@@ -21,7 +21,7 @@
 
 package org.kapott.hbci.GV_Result;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /** Ergebnis der Ãnderung einer terminierten Ãberweisung. Ein geÃ¤nderter Auftrag kann
     u.U. eine andere Auftrags-Identifikationsnummer erhalten als der ursprÃ¼ngliche
@@ -61,6 +61,6 @@ public class GVRTermUebEdit
     
     public String toString()
     {
-        return HBCIUtilsInternal.getLocMsg("ORDERID")+": "+getOrderId();
+        return HBCIUtils.getLocMsg("ORDERID")+": "+getOrderId();
     }
 }

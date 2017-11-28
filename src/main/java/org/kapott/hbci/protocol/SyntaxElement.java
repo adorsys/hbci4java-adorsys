@@ -31,7 +31,7 @@ import java.util.Properties;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.factory.MultipleDEGsFactory;
 import org.kapott.hbci.protocol.factory.MultipleDEsFactory;
 import org.kapott.hbci.protocol.factory.MultipleSEGsFactory;
@@ -192,7 +192,7 @@ public abstract class SyntaxElement {
         StringBuffer temppath = new StringBuffer(128);
         if (ppath != null && ppath.length() != 0)
             temppath.append(ppath).append(".");
-        temppath.append(HBCIUtilsInternal.withCounter(name, idx));
+        temppath.append(HBCIUtils.withCounter(name, idx));
         this.path = temppath.toString();
 
         setValid(false);
@@ -363,7 +363,7 @@ public abstract class SyntaxElement {
         StringBuffer temppath = new StringBuffer(128);
         if (ppath != null && ppath.length() != 0)
             temppath.append(ppath).append(".");
-        temppath.append(HBCIUtilsInternal.withCounter(name, idx));
+        temppath.append(HBCIUtils.withCounter(name, idx));
         this.path = temppath.toString();
 
         setValid(false);
@@ -398,7 +398,7 @@ public abstract class SyntaxElement {
                     for (int j = 0; j < len2; j++) {
                         Node validvalue = validvalueNodes.item(j);
                         String value = (validvalue.getFirstChild()).getNodeValue();
-                        valids.put(HBCIUtilsInternal.withCounter(absPath + ".value", j), value);
+                        valids.put(HBCIUtils.withCounter(absPath + ".value", j), value);
                     }
                 }
             }
@@ -523,7 +523,7 @@ public abstract class SyntaxElement {
             if (value != null && value.equals("requested"))
                 this.haveRequestTag = true;
             else
-                throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_INVVALUE", new Object[]{destPath, value}));
+                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVVALUE", new Object[]{destPath, value}));
             ret = true;
         } else {
             // damit Ã¼berspringen wir gleich elemente, bei denen es mit 

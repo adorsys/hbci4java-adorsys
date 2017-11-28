@@ -22,7 +22,7 @@
 package org.kapott.hbci.datatypes;
 
 import org.kapott.hbci.exceptions.InvalidArgumentException;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* a representation of the datatype "dig", which
     consists of a string of digits (including zeroes) */
@@ -46,7 +46,7 @@ public final class SyntaxDig
         for (int i=0; i<len; i++) {
             char c=st.charAt(i);
             if (c<'0' || c>'9')
-                throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXC_DTDIG_ONLY_DIGS",st));
+                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTDIG_ONLY_DIGS",st));
         }
 
         for (int i=len; i<destlen; i++) {
@@ -79,7 +79,7 @@ public final class SyntaxDig
             char ch=st.charAt(i);
 
             if (ch>'9' || ch<'0')
-                throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXC_DTDIG_ONLY_DIGS",st));
+                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTDIG_ONLY_DIGS",st));
         }
 
         setContent(st,minsize,maxsize);

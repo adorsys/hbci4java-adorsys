@@ -21,13 +21,13 @@
 
 package org.kapott.hbci.exceptions;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NoSuchPathException
     extends HBCI_Exception
 {
     public NoSuchPathException(String path)
     {
-        super(HBCIUtilsInternal.getLocMsg("EXCMSG_NOSUCHPATH",path));
+        super(HBCIUtils.getLocMsg("EXCMSG_NOSUCHPATH",path));
     }
 }

@@ -77,8 +77,8 @@ public final class HBCIUser
         if (!status.isOK()) {
             HBCIUtils.log("dialog end failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
 
-            String msg = HBCIUtilsInternal.getLocMsg("ERR_INST_ENDFAILED");
-            if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreDialogEndErrors", msg + ": " + status.getErrorString()))
+            String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
+            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreDialogEndErrors", msg + ": " + status.getErrorString()))
                 throw new ProcessException(msg, status);
         }
     }
@@ -192,7 +192,7 @@ public final class HBCIUser
                         HBCIUtils.log("keys have not been thrown away", HBCIUtils.LOG_WARN);
                     }
 
-                    throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_SENDKEYERR"), ret);
+                    throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SENDKEYERR"), ret);
                 }
 
                 try {
@@ -242,7 +242,7 @@ public final class HBCIUser
                 Properties result = ret.getData();
 
                 if (!ret.isOK())
-                    throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_GETUPDFAIL"), ret);
+                    throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), ret);
 
                 // evtl. Passport-Daten aktualisieren 
                 HBCIInstitute inst = new HBCIInstitute(kernel, passport, false);
@@ -313,7 +313,7 @@ public final class HBCIUser
                         HBCIUtils.log("keys have not been thrown away", HBCIUtils.LOG_WARN);
                     }
 
-                    throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_SENDKEYERR"), ret);
+                    throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SENDKEYERR"), ret);
                 }
 
                 passport.setSigId(new Long(1));
@@ -328,7 +328,7 @@ public final class HBCIUser
                         HBCIKernelImpl.NEED_CRYPT);
             }
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_SENDABORT"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SENDABORT"), e);
         } finally {
             passport.closeComm();
         }
@@ -338,7 +338,7 @@ public final class HBCIUser
         // TODO: hier überprüfen, ob tatsächlich ein INI-brief benötigt wird
         passport.getCallback().callback(passport,
                 HBCICallback.HAVE_NEW_MY_KEYS,
-                HBCIUtilsInternal.getLocMsg("CALLB_NEW_USER_KEYS"),
+                HBCIUtils.getLocMsg("CALLB_NEW_USER_KEYS"),
                 HBCICallback.TYPE_NONE,
                 new StringBuffer());
         throw new NeedKeyAckException();
@@ -374,12 +374,12 @@ public final class HBCIUser
                     }
                 }
             } catch (Exception ex) {
-                throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_GENKEYS_ERR"), ex);
+                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_GENKEYS_ERR"), ex);
             }
 
             sendAndActivateNewUserKeys(newSigKey, newEncKey);
         } else {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_USRKEYS_UNSUPP"));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_USRKEYS_UNSUPP"));
         }
     }
 
@@ -436,7 +436,7 @@ public final class HBCIUser
             Properties result = ret.getData();
 
             if (!ret.isOK())
-                throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), ret);
+                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), ret);
 
             HBCIInstitute inst = new HBCIInstitute(kernel, passport, false);
             inst.updateBPD(result);
@@ -449,7 +449,7 @@ public final class HBCIUser
             doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
                     HBCIKernelImpl.NEED_CRYPT);
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
         } finally {
             passport.closeComm();
         }
@@ -507,7 +507,7 @@ public final class HBCIUser
             Properties result = ret.getData();
 
             if (!ret.isOK())
-                throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), ret);
+                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), ret);
 
             HBCIInstitute inst = new HBCIInstitute(kernel, passport, false);
             inst.updateBPD(result);
@@ -521,7 +521,7 @@ public final class HBCIUser
             doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", passport.hasMySigKey(), HBCIKernelImpl.CRYPTIT,
                     passport.hasMyEncKey());
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), e);
         } finally {
             passport.closeComm();
         }
@@ -609,7 +609,7 @@ public final class HBCIUser
             Properties result = ret.getData();
 
             if (!ret.isOK())
-                throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_GETUPDFAIL"), ret);
+                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), ret);
 
             HBCIInstitute inst = new HBCIInstitute(kernel, passport, false);
             inst.updateBPD(result);
@@ -620,7 +620,7 @@ public final class HBCIUser
             doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
                     HBCIKernelImpl.NEED_CRYPT);
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_GETUPDFAIL"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), e);
         } finally {
             passport.closeComm();
         }
@@ -658,9 +658,9 @@ public final class HBCIUser
                 !passport.hasMySigKey()) {
 
             if (!passport.needUserKeys()) {
-                throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_USR_DONTHAVEUSRKEYS"));
+                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_USR_DONTHAVEUSRKEYS"));
             }
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_USR_NOUSRKEYSAVAIL"));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_USR_NOUSRKEYSAVAIL"));
         }
 
         try {
@@ -704,7 +704,7 @@ public final class HBCIUser
             Properties result = status.getData();
 
             if (!status.isOK())
-                throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_LOCKFAILED"), status);
+                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_LOCKFAILED"), status);
 
             String dialogid = result.getProperty("MsgHead.dialogid");
             passport.getCallback().status(passport, HBCICallback.STATUS_DIALOG_INIT_DONE, new Object[]{status, dialogid});
@@ -726,7 +726,7 @@ public final class HBCIUser
             status = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
                     HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.DONT_NEED_CRYPT);
             if (!status.isOK())
-                throw new ProcessException(HBCIUtilsInternal.getLocMsg("EXCMSG_LOCKFAILED"), status);
+                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_LOCKFAILED"), status);
 
             passport.clearMyDigKey();
             passport.clearMySigKey();
@@ -738,7 +738,7 @@ public final class HBCIUser
             passport.getCallback().status(passport, HBCICallback.STATUS_LOCK_KEYS_DONE, status);
             doDialogEnd(dialogid, "3", HBCIKernelImpl.DONT_SIGNIT, HBCIKernelImpl.CRYPTIT, HBCIKernelImpl.DONT_NEED_CRYPT);
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_LOCKFAILED"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_LOCKFAILED"), e);
         } finally {
             passport.closeComm();
         }

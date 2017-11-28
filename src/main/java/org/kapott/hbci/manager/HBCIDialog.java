@@ -90,7 +90,7 @@ public final class HBCIDialog {
             boolean s = passport.isSupported();
             HBCIUtils.log("passport supported: " + s, HBCIUtils.LOG_DEBUG);
 
-            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("STATUS_DIALOG_INIT"), HBCIUtils.LOG_DEBUG);
+            HBCIUtils.log(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT"), HBCIUtils.LOG_DEBUG);
             passport.getCallback().status(passport, HBCICallback.STATUS_DIALOG_INIT, null);
             String country = passport.getCountry();
             String blz = passport.getBLZ();
@@ -165,7 +165,7 @@ public final class HBCIDialog {
                 HBCIInstMessage msg = null;
                 for (int i = 0; true; i++) {
                     try {
-                        String header = HBCIUtilsInternal.withCounter("KIMsg", i);
+                        String header = HBCIUtils.withCounter("KIMsg", i);
                         msg = new HBCIInstMessage(result, header);
                     } catch (Exception e) {
                         break;
@@ -187,7 +187,7 @@ public final class HBCIDialog {
     }
 
     private HBCIMsgStatus[] doJobs() {
-        HBCIUtils.log(HBCIUtilsInternal.getLocMsg("LOG_PROCESSING_JOBS"), HBCIUtils.LOG_INFO);
+        HBCIUtils.log(HBCIUtils.getLocMsg("LOG_PROCESSING_JOBS"), HBCIUtils.LOG_INFO);
 
         ArrayList<HBCIMsgStatus> msgstatus_a = new ArrayList<HBCIMsgStatus>();
         HBCIPassportList msgPassports = new HBCIPassportList();
@@ -230,7 +230,7 @@ public final class HBCIDialog {
                             task.setContinueOffset(loop);
 
                             Properties p = task.getLowlevelParams();
-                            String header = HBCIUtilsInternal.withCounter("GV", taskNum);
+                            String header = HBCIUtils.withCounter("GV", taskNum);
 
                             String taskName = task.getName();
                             HBCIUtils.log("adding task " + taskName, HBCIUtils.LOG_DEBUG);
@@ -336,7 +336,7 @@ public final class HBCIDialog {
         HBCIMsgStatus ret = new HBCIMsgStatus();
 
         try {
-            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("LOG_DIALOG_END"), HBCIUtils.LOG_DEBUG);
+            HBCIUtils.log(HBCIUtils.getLocMsg("LOG_DIALOG_END"), HBCIUtils.LOG_DEBUG);
             passport.getCallback().status(passport, HBCICallback.STATUS_DIALOG_END, null);
 
             kernel.rawNewMsg("DialogEnd");
@@ -451,7 +451,7 @@ public final class HBCIDialog {
         // signatur-anforderungen (anzahl) in einer msg stehen
 
         try {
-            HBCIUtils.log(HBCIUtilsInternal.getLocMsg("EXCMSG_ADDJOB", job.getName()), HBCIUtils.LOG_INFO);
+            HBCIUtils.log(HBCIUtils.getLocMsg("EXCMSG_ADDJOB", job.getName()), HBCIUtils.LOG_INFO);
             job.verifyConstraints();
 
             // check bpd.numgva here
@@ -497,8 +497,8 @@ public final class HBCIDialog {
 
             msgs.get(msgs.size() - 1).add(job);
         } catch (Exception e) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_CANTADDJOB", job.getName());
-            if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreAddJobErrors",
+            String msg = HBCIUtils.getLocMsg("EXCMSG_CANTADDJOB", job.getName());
+            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreAddJobErrors",
                     msg + ": " + HBCIUtils.exception2String(e))) {
                 throw new HBCI_Exception(msg, e);
             }

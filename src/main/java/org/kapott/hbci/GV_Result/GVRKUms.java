@@ -23,7 +23,7 @@ package org.kapott.hbci.GV_Result;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Saldo;
@@ -539,7 +539,7 @@ public class GVRKUms
                     // Buchungsbetrag
                     String negValueIndikator=line.isStorno?"C":"D";
                     line.value.setValue(
-                        HBCIUtilsInternal.string2Long(
+                        HBCIUtils.string2Long(
                             (cd.equals(negValueIndikator)?"-":"") + st_ums.substring(next,npos).replace(',','.'),
                             100));
                     next=npos+4;

@@ -42,7 +42,7 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.JobNotSupportedException;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -215,8 +215,8 @@ public abstract class HBCIJobImpl
         }
 
         if (maxVersion == 0) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_GVNOTSUPP", jobnameLL);
-            if (!HBCIUtilsInternal.ignoreError(handler.getPassport(), "client.errors.ignoreJobNotSupported", msg))
+            String msg = HBCIUtils.getLocMsg("EXCMSG_GVNOTSUPP", jobnameLL);
+            if (!HBCIUtils.ignoreError(handler.getPassport(), "client.errors.ignoreJobNotSupported", msg))
                 throw new JobNotSupportedException(jobnameLL);
 
             maxVersion = 1;
@@ -457,8 +457,8 @@ public abstract class HBCIJobImpl
                     content = givenContent;
 
                 if (content == null) {
-                    String msg = HBCIUtilsInternal.getLocMsg("EXC_MISSING_HL_PROPERTY", frontendName);
-                    if (!HBCIUtilsInternal.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
+                    String msg = HBCIUtils.getLocMsg("EXC_MISSING_HL_PROPERTY", frontendName);
+                    if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                         throw new InvalidUserDataException(msg);
                     content = "";
                 }
@@ -676,22 +676,22 @@ public abstract class HBCIJobImpl
         HBCIPassportInternal passport = getMainPassport();
 
         if (destinations == null) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_PARAM_NOTNEEDED", new String[]{paramName, getName()});
-            if (!HBCIUtilsInternal.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
+            String msg = HBCIUtils.getLocMsg("EXCMSG_PARAM_NOTNEEDED", new String[]{paramName, getName()});
+            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                 throw new InvalidUserDataException(msg);
             destinations = new String[0][];
         }
 
         if (value == null || value.length() == 0) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_PARAM_EMPTY", new String[]{paramName, getName()});
-            if (!HBCIUtilsInternal.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
+            String msg = HBCIUtils.getLocMsg("EXCMSG_PARAM_EMPTY", new String[]{paramName, getName()});
+            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                 throw new InvalidUserDataException(msg);
             value = "";
         }
 
         if (index != null && !indexedConstraints.contains(paramName)) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_PARAM_NOTINDEXED", new String[]{paramName, getName()});
-            if (!HBCIUtilsInternal.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
+            String msg = HBCIUtils.getLocMsg("EXCMSG_PARAM_NOTINDEXED", new String[]{paramName, getName()});
+            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                 throw new InvalidUserDataException(msg);
         }
 
@@ -835,8 +835,8 @@ public abstract class HBCIJobImpl
                 // der contentCounter wird fuer jedes antwortsegment um 1 erhoeht
             }
         } catch (Exception e) {
-            String msg = HBCIUtilsInternal.getLocMsg("EXCMSG_CANTSTORERES", getName());
-            if (!HBCIUtilsInternal.ignoreError(getMainPassport(),
+            String msg = HBCIUtils.getLocMsg("EXCMSG_CANTSTORERES", getName());
+            if (!HBCIUtils.ignoreError(getMainPassport(),
                     "client.errors.ignoreJobResultStoreErrors",
                     msg + ": " + HBCIUtils.exception2String(e))) {
                 throw new HBCI_Exception(msg, e);
@@ -904,7 +904,7 @@ public abstract class HBCIJobImpl
         for (Enumeration e = result.keys(); e.hasMoreElements(); ) {
             String key = (String) (e.nextElement());
             if (key.startsWith(header + ".")) {
-                jobResult.storeResult(HBCIUtilsInternal.withCounter("content", idx) +
+                jobResult.storeResult(HBCIUtils.withCounter("content", idx) +
                         "." +
                         key.substring(header.length() + 1), result.getProperty(key));
             }
@@ -947,7 +947,7 @@ public abstract class HBCIJobImpl
                 StringBuffer sb = new StringBuffer(blz).append("|").append(number);
                 getMainPassport().getCallback().callback(getMainPassport(),
                         HBCICallback.HAVE_CRC_ERROR,
-                        HBCIUtilsInternal.getLocMsg("CALLB_HAVE_CRC_ERROR"),
+                        HBCIUtils.getLocMsg("CALLB_HAVE_CRC_ERROR"),
                         HBCICallback.TYPE_TEXT,
                         sb);
 
@@ -989,7 +989,7 @@ public abstract class HBCIJobImpl
                 StringBuffer sb = new StringBuffer(iban);
                 getMainPassport().getCallback().callback(getMainPassport(),
                         HBCICallback.HAVE_IBAN_ERROR,
-                        HBCIUtilsInternal.getLocMsg("CALLB_HAVE_IBAN_ERROR"),
+                        HBCIUtils.getLocMsg("CALLB_HAVE_IBAN_ERROR"),
                         HBCICallback.TYPE_TEXT,
                         sb);
 

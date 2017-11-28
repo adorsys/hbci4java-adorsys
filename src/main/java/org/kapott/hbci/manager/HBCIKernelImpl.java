@@ -71,13 +71,13 @@ public final class HBCIKernelImpl implements HBCIKernel {
         String filename = xmlpath + "hbci-" + hbciversion + ".xml";
         syntaxStream = cl.getResourceAsStream(filename);
         if (syntaxStream == null)
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_KRNL_CANTLOAD_SYN", filename));
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_KRNL_CANTLOAD_SYN", filename));
 
         try {
             gen = new MsgGen(syntaxStream);
             currentMsgName = null;
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_MSGGEN_INIT"), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_MSGGEN_INIT"), e);
         }
     }
 
@@ -123,7 +123,7 @@ public final class HBCIKernelImpl implements HBCIKernel {
                     with name "xxx" */
     public void rawNewMsg(String name) {
         if (name == null || name.length() == 0)
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_MSGNAME"));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_EMPTY_MSGNAME"));
 
         currentMsgName = name;
         HBCIUtils.log("creating new raw message " + name, HBCIUtils.LOG_DEBUG2);
@@ -144,11 +144,11 @@ public final class HBCIKernelImpl implements HBCIKernel {
                 HBCIUtils.LOG_DEBUG2);
 
         if (currentMsgName == null)
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_NORAWMSG"));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_NORAWMSG"));
         if (key == null)
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_KEYNULL"));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_KEYNULL"));
         if (value == null)
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_VALUENULL", key));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_VALUENULL", key));
 
         if (value.length() != 0) {
             gen.set(currentMsgName + "." + key, value);
@@ -230,8 +230,8 @@ public final class HBCIKernelImpl implements HBCIKernel {
                 Sig sig = new Sig(getParentHandlerData(), msg, passports);
 
                 if (!sig.signIt()) {
-                    String errmsg = HBCIUtilsInternal.getLocMsg("EXCMSG_CANTSIGN");
-                    if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreSignErrors", errmsg)) {
+                    String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTSIGN");
+                    if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSignErrors", errmsg)) {
                         throw new HBCI_Exception(errmsg);
                     }
                 }
@@ -268,9 +268,9 @@ public final class HBCIKernelImpl implements HBCIKernel {
             // max. nachrichtengröße aus BPD überprüfen
             int maxmsgsize = mainPassport.getMaxMsgSizeKB();
             if (maxmsgsize != 0 && (outstring.length() >> 10) > maxmsgsize) {
-                String errmsg = HBCIUtilsInternal.getLocMsg("EXCMSG_MSGTOOLARGE",
+                String errmsg = HBCIUtils.getLocMsg("EXCMSG_MSGTOOLARGE",
                         new Object[]{Integer.toString(outstring.length() >> 10), Integer.toString(maxmsgsize)});
-                if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreMsgSizeErrors", errmsg))
+                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreMsgSizeErrors", errmsg))
                     throw new HBCI_Exception(errmsg);
             }
 
@@ -286,8 +286,8 @@ public final class HBCIKernelImpl implements HBCIKernel {
 
 
                 if (!msg.getName().equals("Crypted")) {
-                    String errmsg = HBCIUtilsInternal.getLocMsg("EXCMSG_CANTCRYPT");
-                    if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
+                    String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTCRYPT");
+                    if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
                         throw new HBCI_Exception(errmsg);
                 }
 
@@ -340,7 +340,7 @@ public final class HBCIKernelImpl implements HBCIKernel {
                     MSG oldMsg = msg;
                     msg = new MSG(currentMsgName + "Res", newmsgstring, newmsgstring.length(), gen, MSG.CHECK_SEQ, true);
                 } catch (Exception ex) {
-                    throw new CanNotParseMessageException(HBCIUtilsInternal.getLocMsg("EXCMSG_CANTPARSE"), newmsgstring, ex);
+                    throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), newmsgstring, ex);
                 }
             }
 
@@ -363,24 +363,24 @@ public final class HBCIKernelImpl implements HBCIKernel {
             try {
                 String hbciversion2 = msg.getValueOfDE(msgPath + ".MsgHead.hbciversion");
                 if (!hbciversion2.equals(hbciversion))
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_INVVERSION", new Object[]{hbciversion2,
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVVERSION", new Object[]{hbciversion2,
                             hbciversion}));
                 String msgnum2 = msg.getValueOfDE(msgPath + ".MsgHead.msgnum");
                 if (!msgnum2.equals(msgnum))
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_INVMSGNUM_HEAD", new Object[]{msgnum2, msgnum}));
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_HEAD", new Object[]{msgnum2, msgnum}));
                 msgnum2 = msg.getValueOfDE(msgPath + ".MsgTail.msgnum");
                 if (!msgnum2.equals(msgnum))
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_INVMSGNUM_TAIL", new Object[]{msgnum2, msgnum}));
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_TAIL", new Object[]{msgnum2, msgnum}));
                 String dialogid2 = msg.getValueOfDE(msgPath + ".MsgHead.dialogid");
                 if (!dialogid.equals("0") && !dialogid2.equals(dialogid))
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_INVDIALOGID", new Object[]{dialogid2, dialogid}));
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVDIALOGID", new Object[]{dialogid2, dialogid}));
                 if (!dialogid.equals("0") && !msg.getValueOfDE(msgPath + ".MsgHead.MsgRef.dialogid").equals(dialogid))
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_INVDIALOGID_REF"));
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVDIALOGID_REF"));
                 if (!msg.getValueOfDE(msgPath + ".MsgHead.MsgRef.msgnum").equals(msgnum))
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_INVMSGNUM_REF"));
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_REF"));
             } catch (HBCI_Exception e) {
-                String errmsg = HBCIUtilsInternal.getLocMsg("EXCMSG_MSGCHECK") + ": " + HBCIUtils.exception2String(e);
-                if (!HBCIUtilsInternal.ignoreError(mainPassport, "client.errors.ignoreMsgCheckErrors", errmsg))
+                String errmsg = HBCIUtils.getLocMsg("EXCMSG_MSGCHECK") + ": " + HBCIUtils.exception2String(e);
+                if (!HBCIUtils.ignoreError(mainPassport, "client.errors.ignoreMsgCheckErrors", errmsg))
                     throw e;
             }
 
@@ -396,15 +396,15 @@ public final class HBCIKernelImpl implements HBCIKernel {
 
             // fehler wegen falscher verschlüsselung
             if (needCrypt && !crypted) {
-                String errmsg = HBCIUtilsInternal.getLocMsg("EXCMSG_NOTCRYPTED");
-                if (!HBCIUtilsInternal.ignoreError(mainPassport, "client.errors.ignoreCryptErrors", errmsg))
+                String errmsg = HBCIUtils.getLocMsg("EXCMSG_NOTCRYPTED");
+                if (!HBCIUtils.ignoreError(mainPassport, "client.errors.ignoreCryptErrors", errmsg))
                     throw new HBCI_Exception(errmsg);
             }
 
             // signaturfehler
             if (!sigOk) {
-                String errmsg = HBCIUtilsInternal.getLocMsg("EXCMSG_INVSIG");
-                if (!HBCIUtilsInternal.ignoreError(null, "client.errors.ignoreSignErrors", errmsg))
+                String errmsg = HBCIUtils.getLocMsg("EXCMSG_INVSIG");
+                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSignErrors", errmsg))
                     throw new HBCI_Exception(errmsg);
             }
         } catch (Exception e) {

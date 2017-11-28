@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.Properties;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public final class HBCIInstMessage
     implements Serializable
@@ -37,7 +37,7 @@ public final class HBCIInstMessage
     {
         betreff=result.getProperty(header+".betreff");
         if (betreff==null)
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXECMS_IMSGNOSUCHMSG",header));
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXECMS_IMSGNOSUCHMSG",header));
         text=result.getProperty(header+".text");
     }
 

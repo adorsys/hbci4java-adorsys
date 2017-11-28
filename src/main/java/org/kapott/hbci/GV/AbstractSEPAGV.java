@@ -16,7 +16,7 @@ import org.kapott.hbci.comm.Comm;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
@@ -313,8 +313,8 @@ public abstract class AbstractSEPAGV extends HBCIJobImpl
             }
             catch (Exception e)
             {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_JOB_CREATE_ERR",this.getPainJobName());
-                if (!HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreCreateJobErrors",msg))
+                String msg=HBCIUtils.getLocMsg("EXCMSG_JOB_CREATE_ERR",this.getPainJobName());
+                if (!HBCIUtils.ignoreError(null,"client.errors.ignoreCreateJobErrors",msg))
                     throw new HBCI_Exception(msg,e);
             }
             

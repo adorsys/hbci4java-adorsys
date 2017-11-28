@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* represents the datatype "date" */
 // interne Speicherung im HBCI-MSG-Format
@@ -87,7 +87,7 @@ public final class SyntaxDate
         try {
             return HBCIUtils.date2StringISO(new SimpleDateFormat("yyyyMMdd").parse(x));
         } catch (Exception e) {
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_DATEERR"),e);
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_DATEERR"),e);
         }
     }
 

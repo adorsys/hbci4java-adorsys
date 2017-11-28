@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRAccInfo;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
@@ -72,9 +72,9 @@ public class GVAccInfo
         if ((st=result.getProperty(header+".opendate"))!=null)
             info.created=HBCIUtils.string2DateISO(st);
         
-        info.habenzins=((st=result.getProperty(header+".habenzins"))!=null)?HBCIUtilsInternal.string2Long(st,1000):-1;
-        info.sollzins=((st=result.getProperty(header+".sollzins"))!=null)?HBCIUtilsInternal.string2Long(st,1000):-1;
-        info.ueberzins=((st=result.getProperty(header+".overdrivezins"))!=null)?HBCIUtilsInternal.string2Long(st,1000):-1;
+        info.habenzins=((st=result.getProperty(header+".habenzins"))!=null)?HBCIUtils.string2Long(st,1000):-1;
+        info.sollzins=((st=result.getProperty(header+".sollzins"))!=null)?HBCIUtils.string2Long(st,1000):-1;
+        info.ueberzins=((st=result.getProperty(header+".overdrivezins"))!=null)?HBCIUtils.string2Long(st,1000):-1;
         
         if ((st=result.getProperty(header+".kredit.value"))!=null)
             info.kredit=new Value(st,result.getProperty(header+".kredit.curr"));

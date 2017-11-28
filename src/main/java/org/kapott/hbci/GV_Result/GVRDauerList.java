@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
@@ -128,22 +128,22 @@ public final class GVRDauerList
             StringBuffer ret=new StringBuffer();
             String linesep=System.getProperty("line.separator");
             
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("SRCACCOUNT")).append(": ").append(my.toString()).append(linesep);
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("DSTACCOUNT")).append(": ").append(other.toString()).append(linesep);
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("VALUE")).append(": ").append(value.toString()).append(linesep);
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("KEY")).append(": ").append(key).append("/").append(addkey).append(linesep);
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("USAGE")).append(":").append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("SRCACCOUNT")).append(": ").append(my.toString()).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("DSTACCOUNT")).append(": ").append(other.toString()).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("VALUE")).append(": ").append(value.toString()).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("KEY")).append(": ").append(key).append("/").append(addkey).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("USAGE")).append(":").append(linesep);
             for (int i=0;i<usage.length;i++) {
                 ret.append("    ").append(usage[i]).append(linesep);
             }
             if (nextdate!=null)
-                ret.append("  ").append(HBCIUtilsInternal.getLocMsg("NEXTEXECDATE")).append(": ").append(HBCIUtils.date2StringLocal(nextdate)).append(linesep);
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("ORDERID")).append(": ").append(orderid).append(linesep);
+                ret.append("  ").append(HBCIUtils.getLocMsg("NEXTEXECDATE")).append(": ").append(HBCIUtils.date2StringLocal(nextdate)).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("ORDERID")).append(": ").append(orderid).append(linesep);
 
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("FIRSTLASTEXEC")).append(": ").append(HBCIUtils.date2StringLocal(firstdate)).append(" / ");
+            ret.append("  ").append(HBCIUtils.getLocMsg("FIRSTLASTEXEC")).append(": ").append(HBCIUtils.date2StringLocal(firstdate)).append(" / ");
             ret.append((lastdate!=null?HBCIUtils.date2StringLocal(lastdate):"N/A")).append(linesep);
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("EXECDAY")).append(": ").append(execday).append(linesep);
-            ret.append("  ").append(HBCIUtilsInternal.getLocMsg("UNITTURNUS")).append(": ").append(timeunit).append(" / ").append(turnus).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("EXECDAY")).append(": ").append(execday).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("UNITTURNUS")).append(": ").append(timeunit).append(" / ").append(turnus).append(linesep);
 
             ret.append("  (Aussetzung not yet implemented)");
 
@@ -175,7 +175,7 @@ public final class GVRDauerList
         StringBuffer ret=new StringBuffer();
 
         for (Iterator<Dauer> i=entries.iterator();i.hasNext();) {
-            ret.append(HBCIUtilsInternal.getLocMsg("STANDINGORDER")).append(" #").append(i).append(System.getProperty("line.separator"));
+            ret.append(HBCIUtils.getLocMsg("STANDINGORDER")).append(" #").append(i).append(System.getProperty("line.separator"));
             ret.append(i.next()).append(System.getProperty("line.separator"));
         }
         

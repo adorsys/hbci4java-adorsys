@@ -35,7 +35,7 @@
 package org.kapott.hbci.datatypes; 
 
 import org.kapott.hbci.exceptions.InvalidArgumentException;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* @internal
     @brief Abstract base class for datatypes.
@@ -113,9 +113,9 @@ public abstract class SyntaxDE
            im falle 'maxsize=0' kann sie beliebig gross sein */
         int len=st.length();
         if (len<minsize || (maxsize!=0 && len>maxsize)) {
-            String msg=HBCIUtilsInternal.getLocMsg("EXC_DT_INV_STRINGLEN",new Object[] {
+            String msg=HBCIUtils.getLocMsg("EXC_DT_INV_STRINGLEN",new Object[] {
                                            st,Integer.toString(len),Integer.toString(minsize),Integer.toString(maxsize)});
-            if (len==0 || !HBCIUtilsInternal.ignoreError(null,"client.errors.ignoreWrongDataLengthErrors",msg))
+            if (len==0 || !HBCIUtils.ignoreError(null,"client.errors.ignoreWrongDataLengthErrors",msg))
                 throw new InvalidArgumentException(msg);
         }
 

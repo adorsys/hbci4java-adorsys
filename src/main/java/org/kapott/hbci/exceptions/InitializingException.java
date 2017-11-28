@@ -21,13 +21,13 @@
 
 package org.kapott.hbci.exceptions;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public final class InitializingException
      extends HBCI_Exception
 {
     public InitializingException(Exception e, String path)
     {
-        super(HBCIUtilsInternal.getLocMsg("EXCMSG_INITEXC",path),e);
+        super(HBCIUtils.getLocMsg("EXCMSG_INITEXC",path),e);
     }
 }

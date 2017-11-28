@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRWPDepotList;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -368,7 +368,7 @@ public final class GVWPDepotList
                             
                             st=SwiftLegacy.getLineFieldValue(formtext,"2",2);
                             if (st!=null)
-                                gattung.zinssatz=HBCIUtilsInternal.string2Long(st.replace(',','.'), 1000);
+                                gattung.zinssatz=HBCIUtils.string2Long(st.replace(',','.'), 1000);
                             
                             // TODO: zeug fuer kontrakte
                         }

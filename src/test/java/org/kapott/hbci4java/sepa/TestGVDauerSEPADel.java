@@ -138,7 +138,7 @@ public class TestGVDauerSEPADel extends AbstractTest {
       };
       
 //      HBCIUtils.init(props,callback);
-      this.passport = (HBCIPassportPinTan) AbstractHBCIPassport.getInstance(new HBCICallbackConsole(), props, "PinTan");
+      this.passport = (HBCIPassportPinTan) AbstractHBCIPassport.getInstance(callback, props, "PinTan");
       
       // init handler
       this.handler = new HBCIHandler(passport);

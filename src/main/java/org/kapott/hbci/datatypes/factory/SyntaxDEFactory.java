@@ -32,10 +32,11 @@ import org.kapott.hbci.exceptions.NoSuchConstructorException;
 import org.kapott.hbci.exceptions.NoSuchSyntaxException;
 import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.tools.ObjectFactory;
 
 public class SyntaxDEFactory {
+
     private static SyntaxDEFactory instance;
 
 
@@ -126,7 +127,7 @@ public class SyntaxDEFactory {
             } catch (InstantiationException e) {
             } catch (IllegalAccessException e) {
             } catch (InvocationTargetException e) {
-                throw new ParseErrorException(HBCIUtilsInternal.getLocMsg("EXCMSG_PROT_ERRSYNDE", path), (Exception) e.getCause());
+                throw new ParseErrorException(HBCIUtils.getLocMsg("EXCMSG_PROT_ERRSYNDE", path), (Exception) e.getCause());
             }
 
             if (ret != null) {
@@ -138,13 +139,10 @@ public class SyntaxDEFactory {
                 factory.addToUsedPool(ret);
             } catch (RuntimeException e) {
                 factory.addToFreePool(ret);
-                throw new ParseErrorException(HBCIUtilsInternal.getLocMsg("EXCMSG_PROT_ERRSYNDE", path), (Exception) e.getCause());
+                throw new ParseErrorException(HBCIUtils.getLocMsg("EXCMSG_PROT_ERRSYNDE", path), (Exception) e.getCause());
             }
         }
 
         return ret;
-    }
-
-    public void unuseObject(SyntaxDE sde, String type) {
     }
 }

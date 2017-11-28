@@ -23,7 +23,7 @@ package org.kapott.hbci.datatypes;
 
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* the class for representing the datatype "num" */
 // interne Speicherung im HBCI-Nachrichten-Format
@@ -43,7 +43,7 @@ public final class SyntaxNum
 
             return ret.toString();
         } catch (Exception e) {
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_LONGERR",st),e); 
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_LONGERR",st),e);
         }
     }
 
@@ -70,7 +70,7 @@ public final class SyntaxNum
             char ch = st.charAt(i);
 
             if (ch>'9' || ch<'0' || (i==0 && len!=1 && ch=='0'))
-                throw new InvalidArgumentException(HBCIUtilsInternal.getLocMsg("EXC_DTNUM_INV_CHAR",st));
+                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTNUM_INV_CHAR",st));
         }
 
         setContent(st, minsize, maxsize);

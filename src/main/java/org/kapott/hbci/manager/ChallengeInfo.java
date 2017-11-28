@@ -379,15 +379,9 @@ public class ChallengeInfo {
                 return value;
 
             SyntaxDEFactory factory = SyntaxDEFactory.getInstance();
-            SyntaxDE syntax = null;
-            try {
-                syntax = factory.createSyntaxDE(this.type, this.path, value, 0, 0);
-                return syntax.toString(0);
-            } finally {
-                // Objekt wieder freigeben
-                if (syntax != null)
-                    factory.unuseObject(syntax, this.type);
-            }
+            SyntaxDE syntax = factory.createSyntaxDE(this.type, this.path, value, 0, 0);
+            return syntax.toString(0);
+
         }
     }
 }

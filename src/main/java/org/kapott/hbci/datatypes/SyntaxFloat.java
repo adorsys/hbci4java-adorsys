@@ -28,7 +28,7 @@ import java.text.DecimalFormatSymbols;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /* a class for representing the HBCI-datatype "float" */
 // interne Speicherung im HBCI-MSG-Format
@@ -89,7 +89,7 @@ public class SyntaxFloat
             setContent(st,minsize,maxsize);
             res.delete(0,endidx);
         } catch (Exception ex) {
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_FLOATERR",st),ex); 
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_FLOATERR",st),ex);
         }
     }
 

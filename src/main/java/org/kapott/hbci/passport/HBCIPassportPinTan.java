@@ -310,11 +310,11 @@ public class HBCIPassportPinTan extends AbstractPinTanPassport {
 
                 getCallback().callback(this,
                         HBCICallback.NEED_PT_PIN,
-                        HBCIUtilsInternal.getLocMsg("CALLB_NEED_PTPIN"),
+                        HBCIUtils.getLocMsg("CALLB_NEED_PTPIN"),
                         HBCICallback.TYPE_SECRET,
                         s);
                 if (s.length() == 0) {
-                    throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_PINZERO"));
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PINZERO"));
                 }
                 LogFilter.getInstance().addSecretData(getPIN(), "X", LogFilter.FILTER_SECRETS);
             }
@@ -351,11 +351,11 @@ public class HBCIPassportPinTan extends AbstractPinTanPassport {
                             StringBuffer s = new StringBuffer();
                             callback.callback(this,
                                     HBCICallback.NEED_PT_TAN,
-                                    HBCIUtilsInternal.getLocMsg("CALLB_NEED_PTTAN"),
+                                    HBCIUtils.getLocMsg("CALLB_NEED_PTTAN"),
                                     HBCICallback.TYPE_TEXT,
                                     s);
                             if (s.length() == 0) {
-                                throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_TANZERO"));
+                                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_TANZERO"));
                             }
                             tan = s.toString();
                         } else {
@@ -411,7 +411,7 @@ public class HBCIPassportPinTan extends AbstractPinTanPassport {
 
                     setPersistentData("externalid", null); // External-ID aus Passport entfernen
                     if (payload == null || payload.length() == 0) {
-                        throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_TANZERO"));
+                        throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_TANZERO"));
                     }
                     tan = payload.toString();
                 }

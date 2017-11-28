@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRInfoList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -51,7 +51,7 @@ public final class GVInfoList
         Properties result=msgstatus.getData();
         for (int i=0;;i++) {
             GVRInfoList.Info entry=new GVRInfoList.Info();
-            String           header2=HBCIUtilsInternal.withCounter(header+".InfoInfo",i);
+            String           header2=HBCIUtils.withCounter(header+".InfoInfo",i);
 
             if (result.getProperty(header2+".code")==null)
                 break;
@@ -63,7 +63,7 @@ public final class GVInfoList
             entry.type=result.getProperty(header2+".type");
 
             for (int j=0;;j++) {
-                String hint=result.getProperty(header2+HBCIUtilsInternal.withCounter(".comment",j));
+                String hint=result.getProperty(header2+HBCIUtils.withCounter(".comment",j));
                 if (hint==null)
                     break;
                 entry.addComment(hint);

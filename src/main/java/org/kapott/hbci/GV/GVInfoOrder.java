@@ -26,7 +26,7 @@ import java.util.Properties;
 
 import org.kapott.hbci.GV_Result.GVRInfoOrder;
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -58,8 +58,8 @@ public final class GVInfoOrder
         // TODO: country fehlt
 
         for (int i=1;i<10;i++) {
-            addConstraint(HBCIUtilsInternal.withCounter("code",i),
-                          HBCIUtilsInternal.withCounter("InfoCodes.code",i),
+            addConstraint(HBCIUtils.withCounter("code",i),
+                          HBCIUtils.withCounter("InfoCodes.code",i),
                           "",
                           LogFilter.FILTER_NONE);
         }
@@ -69,7 +69,7 @@ public final class GVInfoOrder
     {
         Properties result=msgstatus.getData();
         for (int i=0;;i++) {
-            String header2=HBCIUtilsInternal.withCounter(header+".Info",i);
+            String header2=HBCIUtils.withCounter(header+".Info",i);
             
             if (result.getProperty(header2+".code")==null)
                 break;

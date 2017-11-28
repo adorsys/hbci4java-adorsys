@@ -92,9 +92,9 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         if (needCountry &&
                 (getCountry() == null || getCountry().length() == 0)) {
             StringBuffer sb = new StringBuffer("DE");
-            callback.callback(this, HBCICallback.NEED_COUNTRY, HBCIUtilsInternal.getLocMsg("COUNTRY"), HBCICallback.TYPE_TEXT, sb);
+            callback.callback(this, HBCICallback.NEED_COUNTRY, HBCIUtils.getLocMsg("COUNTRY"), HBCICallback.TYPE_TEXT, sb);
             if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_X", HBCIUtilsInternal.getLocMsg("COUNTRY")));
+                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("COUNTRY")));
             setCountry(sb.toString());
             dataChanged = true;
         }
@@ -102,9 +102,9 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         if (needBLZ &&
                 (getBLZ() == null || getBLZ().length() == 0)) {
             StringBuffer sb = new StringBuffer();
-            callback.callback(this, HBCICallback.NEED_BLZ, HBCIUtilsInternal.getLocMsg("BLZ"), HBCICallback.TYPE_TEXT, sb);
+            callback.callback(this, HBCICallback.NEED_BLZ, HBCIUtils.getLocMsg("BLZ"), HBCICallback.TYPE_TEXT, sb);
             if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_X", HBCIUtilsInternal.getLocMsg("BLZ")));
+                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("BLZ")));
             setBLZ(sb.toString());
             dataChanged = true;
         }
@@ -122,9 +122,9 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 sb = new StringBuffer(HBCIUtils.getHBCIHostForBLZ(getBLZ()));
             }
 
-            callback.callback(this, HBCICallback.NEED_HOST, HBCIUtilsInternal.getLocMsg("HOST"), HBCICallback.TYPE_TEXT, sb);
+            callback.callback(this, HBCICallback.NEED_HOST, HBCIUtils.getLocMsg("HOST"), HBCICallback.TYPE_TEXT, sb);
             if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_X", HBCIUtilsInternal.getLocMsg("HOST")));
+                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("HOST")));
             setHost(sb.toString());
             dataChanged = true;
         }
@@ -132,9 +132,9 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         if (needFilter &&
                 (getFilterType() == null || getFilterType().length() == 0)) {
             StringBuffer sb = new StringBuffer("Base64");
-            callback.callback(this, HBCICallback.NEED_FILTER, HBCIUtilsInternal.getLocMsg("FILTER"), HBCICallback.TYPE_TEXT, sb);
+            callback.callback(this, HBCICallback.NEED_FILTER, HBCIUtils.getLocMsg("FILTER"), HBCICallback.TYPE_TEXT, sb);
             if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_X", HBCIUtilsInternal.getLocMsg("FILTER")));
+                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("FILTER")));
             setFilterType(sb.toString());
             dataChanged = true;
         }
@@ -142,9 +142,9 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         if (needUserId &&
                 (getUserId() == null || getUserId().length() == 0)) {
             StringBuffer sb = new StringBuffer();
-            callback.callback(this, HBCICallback.NEED_USERID, HBCIUtilsInternal.getLocMsg("USERID"), HBCICallback.TYPE_TEXT, sb);
+            callback.callback(this, HBCICallback.NEED_USERID, HBCIUtils.getLocMsg("USERID"), HBCICallback.TYPE_TEXT, sb);
             if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_EMPTY_X", HBCIUtilsInternal.getLocMsg("USERID")));
+                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("USERID")));
             setUserId(sb.toString());
             dataChanged = true;
         }
@@ -152,7 +152,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         if (needCustomerId &&
                 (getStoredCustomerId() == null || getStoredCustomerId().length() == 0)) {
             StringBuffer sb = new StringBuffer(getCustomerId());
-            callback.callback(this, HBCICallback.NEED_CUSTOMERID, HBCIUtilsInternal.getLocMsg("CUSTOMERID"), HBCICallback.TYPE_TEXT, sb);
+            callback.callback(this, HBCICallback.NEED_CUSTOMERID, HBCIUtils.getLocMsg("CUSTOMERID"), HBCICallback.TYPE_TEXT, sb);
             setCustomerId(sb.toString());
             dataChanged = true;
         }
@@ -214,7 +214,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
         if (upd != null) {
             for (int i = 0; ; i++) {
-                String header = HBCIUtilsInternal.withCounter("KInfo", i);
+                String header = HBCIUtils.withCounter("KInfo", i);
                 String number = upd.getProperty(header + ".KTV.number");
 
                 if (number == null)
@@ -247,7 +247,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 // allowedGVs
                 ArrayList<String> codes = new ArrayList<String>();
                 for (int j = 0; ; j++) {
-                    String gvHeader = HBCIUtilsInternal.withCounter(header + ".AllowedGV", j);
+                    String gvHeader = HBCIUtils.withCounter(header + ".AllowedGV", j);
                     String code = upd.getProperty(gvHeader + ".code");
                     if (code == null) break;
                     codes.add(code);
@@ -262,16 +262,16 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final void fillAccountInfo(Konto account) {
-        String number = HBCIUtilsInternal.stripLeadingZeroes(account.number);
-        String iban = HBCIUtilsInternal.stripLeadingZeroes(account.iban);
+        String number = HBCIUtils.stripLeadingZeroes(account.number);
+        String iban = HBCIUtils.stripLeadingZeroes(account.iban);
         boolean haveNumber = (number != null && number.length() != 0);
         boolean haveIBAN = (iban != null && iban.length() != 0);
 
         Konto[] accounts = getAccounts();
 
         for (int i = 0; i < accounts.length; i++) {
-            String temp_number = HBCIUtilsInternal.stripLeadingZeroes(accounts[i].number);
-            String temp_iban = HBCIUtilsInternal.stripLeadingZeroes(accounts[i].iban);
+            String temp_number = HBCIUtils.stripLeadingZeroes(accounts[i].number);
+            String temp_iban = HBCIUtils.stripLeadingZeroes(accounts[i].iban);
 
             if (haveNumber && number.equals(temp_number) ||
                     haveIBAN && iban.equals(temp_iban)) {
@@ -328,7 +328,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final String getCustomerId(int idx) {
-        String header = HBCIUtilsInternal.withCounter("KInfo", idx) + ".customerid";
+        String header = HBCIUtils.withCounter("KInfo", idx) + ".customerid";
         String c = (upd != null) ? upd.getProperty(header) : customerid;
         return (c != null) ? c : getUserId();
     }
@@ -403,7 +403,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             String value;
             int i = 0;
 
-            while ((header = HBCIUtilsInternal.withCounter("BPA.SuppLangs.lang", i)) != null &&
+            while ((header = HBCIUtils.withCounter("BPA.SuppLangs.lang", i)) != null &&
                     (value = bpd.getProperty(header)) != null) {
                 temp.add(value);
                 i++;
@@ -425,7 +425,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             String value;
             int i = 0;
 
-            while ((header = HBCIUtilsInternal.withCounter("BPA.SuppVersions.version", i)) != null &&
+            while ((header = HBCIUtils.withCounter("BPA.SuppVersions.version", i)) != null &&
                     (value = bpd.getProperty(header)) != null) {
                 temp.add(value);
                 i++;
@@ -465,14 +465,14 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             String method;
             int i = 0;
 
-            while ((header = HBCIUtilsInternal.withCounter("SecMethod.SuppSecMethods", i)) != null &&
+            while ((header = HBCIUtils.withCounter("SecMethod.SuppSecMethods", i)) != null &&
                     (method = bpd.getProperty(header + ".method")) != null) {
 
                 String header2;
                 String version;
                 int j = 0;
 
-                while ((header2 = HBCIUtilsInternal.withCounter(header + ".version", j)) != null &&
+                while ((header2 = HBCIUtils.withCounter(header + ".version", j)) != null &&
                         (version = bpd.getProperty(header2)) != null) {
                     String[] entry = new String[2];
                     entry[0] = method;
@@ -500,7 +500,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             String method;
             int i = 0;
 
-            while ((header = HBCIUtilsInternal.withCounter("CompMethod.SuppCompMethods", i)) != null &&
+            while ((header = HBCIUtils.withCounter("CompMethod.SuppCompMethods", i)) != null &&
                     (method = bpd.getProperty(header + ".func")) != null) {
 
                 String version = bpd.getProperty(header + ".version");
@@ -657,11 +657,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             if (cause instanceof HBCI_Exception)
                 throw (HBCI_Exception) cause;
 
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_PASSPORT_INST", name), ite);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_INST", name), ite);
         } catch (HBCI_Exception he) {
             throw he;
         } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_PASSPORT_INST", name), e);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_INST", name), e);
         }
     }
 
@@ -676,7 +676,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     public static HBCIPassport getInstance(HBCICallback callback, Properties properties, Object init) {
         String passportName = properties.getProperty("client.passport.default");
         if (passportName == null)
-            throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_NODEFPASS"));
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_NODEFPASS"));
 
         return getInstance(callback, properties, passportName, init);
     }
@@ -705,12 +705,12 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             callback.callback(this,
                     forSaving ? HBCICallback.NEED_PASSPHRASE_SAVE
                             : HBCICallback.NEED_PASSPHRASE_LOAD,
-                    forSaving ? HBCIUtilsInternal.getLocMsg("CALLB_NEED_PASS_NEW")
-                            : HBCIUtilsInternal.getLocMsg("CALLB_NEED_PASS"),
+                    forSaving ? HBCIUtils.getLocMsg("CALLB_NEED_PASS_NEW")
+                            : HBCIUtils.getLocMsg("CALLB_NEED_PASS"),
                     HBCICallback.TYPE_SECRET,
                     passphrase);
             if (passphrase.length() == 0) {
-                throw new InvalidUserDataException(HBCIUtilsInternal.getLocMsg("EXCMSG_PASSZERO"));
+                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_PASSZERO"));
             }
             LogFilter.getInstance().addSecretData(passphrase.toString(), "X", LogFilter.FILTER_SECRETS);
 
@@ -722,7 +722,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
             return passportKey;
         } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtilsInternal.getLocMsg("EXCMSG_PASSPORT_KEYCALCERR"), ex);
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_KEYCALCERR"), ex);
         }
     }
 

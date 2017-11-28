@@ -28,7 +28,7 @@ import java.util.Properties;
 import org.kapott.hbci.GV_Result.GVRDauerEdit;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -73,7 +73,7 @@ public final class GVDauerEdit
         int        maxusage=Integer.parseInt(parameters.getProperty("maxusage"));
 
         for (int i=0;i<maxusage;i++) {
-            String name=HBCIUtilsInternal.withCounter("usage",i);
+            String name=HBCIUtils.withCounter("usage",i);
             addConstraint(name,"usage."+name,"", LogFilter.FILTER_MOST);
         }
     }
@@ -109,15 +109,15 @@ public final class GVDauerEdit
         if (paramName.equals("date")) {
             String st=res.getProperty("numtermchanges");
             if (st!=null && Integer.parseInt(st)==0) {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_SCHEDMODSTANDORDUNAVAIL");
-                if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                String msg=HBCIUtils.getLocMsg("EXCMSG_SCHEDMODSTANDORDUNAVAIL");
+                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                     throw new InvalidUserDataException(msg);
             }
             // TODO: numtermchanges richtig auswerten
         } else if (paramName.equals("timeunit")) {
             if (!(value.equals("W")||value.equals("M"))) {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_INV_TIMEUNIT",value);
-                if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                String msg=HBCIUtils.getLocMsg("EXCMSG_INV_TIMEUNIT",value);
+                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                     throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("turnus")) {
@@ -131,8 +131,8 @@ public final class GVDauerEdit
                         String value2=new DecimalFormat("00").format(Integer.parseInt(value));
 
                         if (!st.equals("00") && !twoDigitValueInList(value2,st)) {
-                            String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_INV_TURNUS",value);
-                            if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                            String msg=HBCIUtils.getLocMsg("EXCMSG_INV_TURNUS",value);
+                            if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                                 throw new InvalidUserDataException(msg);
                         }
                     }
@@ -143,8 +143,8 @@ public final class GVDauerEdit
                         String value2=new DecimalFormat("00").format(Integer.parseInt(value));
 
                         if (!st.equals("00") && !twoDigitValueInList(value2,st)) {
-                            String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_INV_TURNUS",value);
-                            if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                            String msg=HBCIUtils.getLocMsg("EXCMSG_INV_TURNUS",value);
+                            if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                                 throw new InvalidUserDataException(msg);
                         }
                     }
@@ -158,8 +158,8 @@ public final class GVDauerEdit
                     String st=res.getProperty("daysperweek");
 
                     if (st!=null && !st.equals("0") && st.indexOf(value)==-1) {
-                        String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_INV_EXECDAY",value);
-                        if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                        String msg=HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY",value);
+                        if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                             throw new InvalidUserDataException(msg);
                     }
                 } else if (timeunit.equals("M")) {
@@ -169,8 +169,8 @@ public final class GVDauerEdit
                         String value2=new DecimalFormat("00").format(Integer.parseInt(value));
 
                         if (!st.equals("00") && !twoDigitValueInList(value2,st)) {
-                            String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_INV_EXECDAY",value);
-                            if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                            String msg=HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY",value);
+                            if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                                 throw new InvalidUserDataException(msg);
                         }
                     }
@@ -181,7 +181,7 @@ public final class GVDauerEdit
             boolean found=false;
 
             for (int i=0;;i++) {
-                String st=res.getProperty(HBCIUtilsInternal.withCounter("textkey",i));
+                String st=res.getProperty(HBCIUtils.withCounter("textkey",i));
 
                 if (st==null)
                     break;
@@ -195,8 +195,8 @@ public final class GVDauerEdit
             }
 
             if (atLeastOne&&!found) {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_INV_KEY",value);
-                if (!HBCIUtilsInternal.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+                String msg=HBCIUtils.getLocMsg("EXCMSG_INV_KEY",value);
+                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
                     throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("orderid")) {

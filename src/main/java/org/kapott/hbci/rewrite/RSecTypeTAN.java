@@ -22,7 +22,7 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
@@ -54,7 +54,7 @@ public class RSecTypeTAN
 
         // in einer Schleife durch alle SuppSecMethods-Datensätze laufen
         for (int i = 0; ; i++) {
-            String elemBaseName = HBCIUtilsInternal.withCounter(myMsgName + ".BPD.SecMethod.SuppSecMethods", i);
+            String elemBaseName = HBCIUtils.withCounter(myMsgName + ".BPD.SecMethod.SuppSecMethods", i);
             SyntaxElement elem = msg.getElement(elemBaseName + ".method");
 
             if (elem == null) {

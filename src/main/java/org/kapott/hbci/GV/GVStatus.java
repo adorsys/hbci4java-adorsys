@@ -29,7 +29,7 @@ import org.kapott.hbci.GV_Result.GVRStatus;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
@@ -80,8 +80,8 @@ public final class GVStatus
                 setParam("startdate",dateOfJob);
                 setParam("enddate",dateOfJob);
             } catch (Exception e) {
-                String msg=HBCIUtilsInternal.getLocMsg("EXCMSG_CANTEXTRACTDATE",value);
-                if (!HBCIUtilsInternal.ignoreError(getMainPassport(),
+                String msg=HBCIUtils.getLocMsg("EXCMSG_CANTEXTRACTDATE",value);
+                if (!HBCIUtils.ignoreError(getMainPassport(),
                                            "client.errors.ignoreWrongJobDataErrors",
                                            msg+": "+HBCIUtils.exception2String(e))) {
                     throw new InvalidUserDataException(msg,e);

@@ -21,14 +21,14 @@
 
 package org.kapott.hbci.exceptions;
 
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 public final class InvalidSegSeqException
     extends HBCI_Exception
 {
     public InvalidSegSeqException(String path,int expected,int found)
     {
-        super(HBCIUtilsInternal.getLocMsg("EXCMSG_INVSEQNUM",
+        super(HBCIUtils.getLocMsg("EXCMSG_INVSEQNUM",
                                   new Object[] {path,Integer.toString(expected),Integer.toString(found)}));
     }
 }

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 
 /** <p>Repräsentation eines HBCI-Statuscodes. Objekte dieser Klasse
     stellen einen einzigen HBCI-Returncode dar, welcher aus einer
@@ -112,7 +112,7 @@ public final class HBCIRetVal
         int i=0;
         String parm;
 
-        while ((parm=result.getProperty(HBCIUtilsInternal.withCounter(header+".parm",i)))!=null) {
+        while ((parm=result.getProperty(HBCIUtils.withCounter(header+".parm",i)))!=null) {
             a.add(parm);
             i++;
         }

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtilsInternal;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.structures.BigDecimalValue;
 import org.kapott.hbci.structures.Konto;
 
@@ -279,7 +279,7 @@ public final class GVRWPDepotList
                 if (einstandspreis!=null)
                     ret.append("Einstandspreis: ").append(einstandspreis.toString()).append(linesep);
                 if (zinssatz!=0)
-                    ret.append("Zinssatz: ").append(HBCIUtilsInternal.bigDecimal2String(new BigDecimal(zinssatz).divide(new BigDecimal("1000.0")))).append(linesep);
+                    ret.append("Zinssatz: ").append(HBCIUtils.bigDecimal2String(new BigDecimal(zinssatz).divide(new BigDecimal("1000.0")))).append(linesep);
                 ret.append("Typ:").append(wptype).append(" Branche:").append(branche).append(" Emittent:").append(countryEmittent).append(linesep);
                 if (kauf!=null)
                     ret.append("Kauf: ").append(HBCIUtils.date2StringLocal(kauf)).append(linesep);
