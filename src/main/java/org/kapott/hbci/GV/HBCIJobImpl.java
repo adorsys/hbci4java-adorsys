@@ -147,7 +147,7 @@ public abstract class HBCIJobImpl
         if (ret != null) {
             return ret.toString();
         }
-        return null;
+        throw new HBCI_Exception(searchString.toString() + "not supported");
     }
 
     /* gibt zu einem gegebenen jobnamen des namen dieses jobs in der syntax-spez.
@@ -872,7 +872,7 @@ public abstract class HBCIJobImpl
                 jobResult.jobStatus.addRetVal(rv);
             }
         }
-        
+
         /* bei Jobs, die mehrere Nachrichten benötigt haben, bewirkt das, dass nur
          * der globStatus der *letzten* ausgeführten Nachricht gespeichert wird.
          * Das ist aber auch ok, weil nach einem Fehler keine weiteren Nachrichten
