@@ -144,7 +144,10 @@ public abstract class HBCIJobImpl
             }
         }
 
-        return ret.toString();
+        if (ret != null) {
+            return ret.toString();
+        }
+        return null;
     }
 
     /* gibt zu einem gegebenen jobnamen des namen dieses jobs in der syntax-spez.
