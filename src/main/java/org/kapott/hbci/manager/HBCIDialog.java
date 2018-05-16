@@ -456,6 +456,9 @@ public final class HBCIDialog {
 
             // check bpd.numgva here
             String hbciCode = job.getHBCICode();
+            if (hbciCode == null) {
+                throw new HBCI_Exception(job.getName() + " not supported");
+            }
 
             int gva_counter = listOfGVs.size();
             String counter_st = listOfGVs.getProperty(hbciCode);

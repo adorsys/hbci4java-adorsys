@@ -147,7 +147,7 @@ public abstract class HBCIJobImpl
         if (ret != null) {
             return ret.toString();
         }
-        throw new HBCI_Exception(searchString.toString() + "not supported");
+        return null;
     }
 
     /* gibt zu einem gegebenen jobnamen des namen dieses jobs in der syntax-spez.
