@@ -22,20 +22,18 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public class GVChangePIN 
-    extends HBCIJobImpl
-{
-    public static String getLowlevelName()
-    {
+public class GVChangePIN extends HBCIJobImpl {
+
+    public static String getLowlevelName() {
         return "ChangePIN";
     }
-    
-    public GVChangePIN(HBCIHandler handler)
-    {
-        super(handler, getLowlevelName(), new HBCIJobResultImpl());
+
+    public GVChangePIN(HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
         addConstraint("newpin", "newpin", null, LogFilter.FILTER_SECRETS);
     }
 }

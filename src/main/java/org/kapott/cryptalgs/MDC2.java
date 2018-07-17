@@ -21,19 +21,13 @@
 
 package org.kapott.cryptalgs;
 
+import javax.crypto.*;
+import javax.crypto.spec.DESKeySpec;
 import java.security.InvalidKeyException;
 import java.security.MessageDigestSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
 
 public final class MDC2
     extends MessageDigestSpi

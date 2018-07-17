@@ -21,13 +21,9 @@
 
 package org.kapott.hbci.status;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
 import org.kapott.hbci.manager.HBCIUtils;
+
+import java.util.Properties;
 
 /**
  * <p>Enthält alle Status-Informationen zu genau einem Nachrichtenaustausch.

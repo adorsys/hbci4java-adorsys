@@ -3,10 +3,10 @@
  */
 package org.kapott.hbci.smartcardio;
 
+import org.kapott.hbci.exceptions.HBCI_Exception;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
-
-import org.kapott.hbci.exceptions.HBCI_Exception;
 
 /**
  * @author axel

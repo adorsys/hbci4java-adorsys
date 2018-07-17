@@ -21,55 +21,73 @@
 
 package org.kapott.hbci.GV_Result;
 
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.status.HBCIRetVal;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.status.HBCIRetVal;
+/**
+ * <p>Ergebnisse einer Statusprotokoll-Abfrage.
+ * Ein Statusprotokoll enthält zu allen eingereichten Aufträgen
+ * den Bearbeitungsstatus. Die einzelnen Aufträge werden durch
+ * die HBCI-Daten identifiziert, mit denen sie eingereicht wurden
+ * (Dialog-ID, Nachrichtennummer, Segmentnummer). Um diese Daten
+ * nicht manuell verwalten zu müssen, werden sie in der sogenannten
+ * Job-ID (siehe {@link org.kapott.hbci.GV_Result.HBCIJobResultImpl#getJobId()})
+ * zusammengefasst. </p>
+ * <p>In dieser Klasse werden die Antwortdaten für eine Statusprotokollabfrage
+ * gespeichert. Dabei handelt es sich in der Regel um mehr als einen
+ * Protokolleintrag. Es kann der Protokolleintrag für eine gegebene Job-ID
+ * extrahiert werden.</p>
+ */
+public final class GVRStatus extends HBCIJobResultImpl {
 
-/** <p>Ergebnisse einer Statusprotokoll-Abfrage.
-    Ein Statusprotokoll enthält zu allen eingereichten Aufträgen
-    den Bearbeitungsstatus. Die einzelnen Aufträge werden durch
-    die HBCI-Daten identifiziert, mit denen sie eingereicht wurden
-    (Dialog-ID, Nachrichtennummer, Segmentnummer). Um diese Daten
-    nicht manuell verwalten zu müssen, werden sie in der sogenannten
-    Job-ID (siehe {@link org.kapott.hbci.GV_Result.HBCIJobResultImpl#getJobId()})
-    zusammengefasst. </p>
-    <p>In dieser Klasse werden die Antwortdaten für eine Statusprotokollabfrage
-    gespeichert. Dabei handelt es sich in der Regel um mehr als einen
-    Protokolleintrag. Es kann der Protokolleintrag für eine gegebene Job-ID
-    extrahiert werden.</p> */
-public final class GVRStatus
-    extends HBCIJobResultImpl
-{
-    /** Daten für einen einzelnen Eintrag im Statusprotokoll. Ein Eintrag enthält
-        Informationen zu genau einem eingereichten Auftrag */
-    public static class Entry
-    {
-        /** Dialog-ID, mit der der Auftrag eingereicht wurde */
-        public String     dialogid;
-        /** Nachrichtennummer innerhalb des Dialoges, in dem der Auftrag eingereicht wurde */
-        public String     msgnum;
-        /** Zeitpunkt der Einreichung */
-        public Date       timestamp;
-        /** Status (ein HBCI-Returncode) des Auftrages */
+    private List<Entry> entries = new ArrayList<>();
+
+    public GVRStatus(HBCIPassportInternal passport) {
+        super(passport);
+    }
+
+    /**
+     * Daten für einen einzelnen Eintrag im Statusprotokoll. Ein Eintrag enthält
+     * Informationen zu genau einem eingereichten Auftrag
+     */
+    public static class Entry {
+        /**
+         * Dialog-ID, mit der der Auftrag eingereicht wurde
+         */
+        public String dialogid;
+        /**
+         * Nachrichtennummer innerhalb des Dialoges, in dem der Auftrag eingereicht wurde
+         */
+        public String msgnum;
+        /**
+         * Zeitpunkt der Einreichung
+         */
+        public Date timestamp;
+        /**
+         * Status (ein HBCI-Returncode) des Auftrages
+         */
         public HBCIRetVal retval;
-        
-        /** Gibt die Job-ID des Jobs zurück, zu dem dieser Statusprotokolleintrag gehört. 
-            @return Job-ID */
-        public String getJobId()
-        {
-            SimpleDateFormat format=new SimpleDateFormat("yyyyMMdd");
-            return format.format(timestamp)+"/"+dialogid+"/"+msgnum+"/"+retval.segref;
+
+        /**
+         * Gibt die Job-ID des Jobs zurück, zu dem dieser Statusprotokolleintrag gehört.
+         *
+         * @return Job-ID
+         */
+        public String getJobId() {
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+            return format.format(timestamp) + "/" + dialogid + "/" + msgnum + "/" + retval.segref;
         }
-        
-        public String toString()
-        {
-            StringBuffer ret=new StringBuffer();
-            
+
+        public String toString() {
+            StringBuffer ret = new StringBuffer();
+
             ret.append(HBCIUtils.datetime2StringLocal(timestamp));
             ret.append(" ");
             ret.append(dialogid);
@@ -77,62 +95,57 @@ public final class GVRStatus
             ret.append(msgnum);
             ret.append("/");
             ret.append(retval.toString());
-            
+
             return ret.toString();
         }
     }
-    
-    private List<Entry> entries;
-    
-    public GVRStatus()
-    {
-        entries=new ArrayList<Entry>();
-    }
-    
-    public void addEntry(Entry entry)
-    {
+
+    public void addEntry(Entry entry) {
         entries.add(entry);
     }
-    
-    public String toString()
-    {
-        StringBuffer ret=new StringBuffer();
-        
-        for (Iterator<Entry> i=entries.iterator();i.hasNext();) {
-            Entry e=i.next();
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+
+        for (Iterator<Entry> i = entries.iterator(); i.hasNext(); ) {
+            Entry e = i.next();
             ret.append(e.toString());
             ret.append(System.getProperty("line.separator"));
         }
-        
+
         return ret.toString().trim();
     }
-    
-    /** Gibt alle Einträge des Statusprotokolls in einem Array zurück.
-        @return Array mit Statusprotokolleinträgen */
-    public Entry[] getStatusData()
-    {
+
+    /**
+     * Gibt alle Einträge des Statusprotokolls in einem Array zurück.
+     *
+     * @return Array mit Statusprotokolleinträgen
+     */
+    public Entry[] getStatusData() {
         return entries.toArray(new Entry[entries.size()]);
     }
-    
-    /** Gibt den Protokoll-Eintrag zu einem bestimmten Job zurück.
-        Liefert <code>null</code>, wenn der Eintrag für die angegebene Job-ID
-        nicht im Statusprotokoll vorhanden ist. 
-        @param jobId die Job-ID, für die Informationen zurückgegeben werden sollen
-        @return Eintrag im Statusprotokoll, der zu dem entsprechenden Auftrag gehört;
-                <code>null</code>, wenn kein solcher Auftrag gefunden wurde */
-    public Entry getJobEntry(String jobId)
-    {
-        Entry ret=null;
-        
-        for (Iterator<Entry> i=entries.iterator();i.hasNext();) {
-            Entry entry=i.next();
-            
+
+    /**
+     * Gibt den Protokoll-Eintrag zu einem bestimmten Job zurück.
+     * Liefert <code>null</code>, wenn der Eintrag für die angegebene Job-ID
+     * nicht im Statusprotokoll vorhanden ist.
+     *
+     * @param jobId die Job-ID, für die Informationen zurückgegeben werden sollen
+     * @return Eintrag im Statusprotokoll, der zu dem entsprechenden Auftrag gehört;
+     * <code>null</code>, wenn kein solcher Auftrag gefunden wurde
+     */
+    public Entry getJobEntry(String jobId) {
+        Entry ret = null;
+
+        for (Iterator<Entry> i = entries.iterator(); i.hasNext(); ) {
+            Entry entry = i.next();
+
             if (entry.getJobId().equals(jobId)) {
-                ret=entry;
+                ret = entry;
                 break;
             }
         }
-        
+
         return ret;
     }
 }

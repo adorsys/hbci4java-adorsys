@@ -21,6 +21,14 @@
 
 package org.kapott.hbci.manager;
 
+import org.kapott.hbci.callback.HBCICallback;
+import org.kapott.hbci.comm.CommPinTan;
+import org.kapott.hbci.exceptions.HBCI_Exception;
+import org.kapott.hbci.exceptions.InvalidUserDataException;
+import org.kapott.hbci.exceptions.ProcessException;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.status.HBCIMsgStatus;
+
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -31,42 +39,23 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.comm.Comm;
-import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.exceptions.ProcessException;
-import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.status.HBCIMsgStatus;
-
 /* @brief Class representing an HBCI institute.
 
     It it responsible for storing institute-specific-data (the BPD,
     the signature and encryption keys etc.) and for providing
     a Comm object for making communication with the institute */
-public final class HBCIInstitute
-        implements IHandlerData {
+public final class HBCIInstitute implements IHandlerData {
+
     private final static String BPD_KEY_LASTUPDATE = "_lastupdate";
     private final static String BPD_KEY_HBCIVERSION = "_hbciversion";
 
     private HBCIPassportInternal passport;
     private HBCIKernelImpl kernel;
 
-    public HBCIInstitute(HBCIKernelImpl kernel, HBCIPassportInternal passport, boolean forceAsParent) {
+    public HBCIInstitute(HBCIKernelImpl kernel, HBCIPassportInternal passport) {
         this.kernel = kernel;
-        if (forceAsParent || this.kernel.getParentHandlerData() == null) {
-            // Dieser Fall tritt im HBCI4Java-PE ein, wenn ein HBCIInstitute()
-            // erzeugt wird, ohne dass es einen HBCIHandler() gäbe
-            this.kernel.setParentHandlerData(this);
-        }
 
         this.passport = passport;
-        if (forceAsParent || this.passport.getParentHandlerData() == null) {
-            // Dieser Fall tritt im HBCI4Java-PE ein, wenn ein HBCIInstitute()
-            // erzeugt wird, ohne dass es einen HBCIHandler() gäbe
-            this.passport.setParentHandlerData(this);
-        }
     }
 
     /**
@@ -89,7 +78,7 @@ public final class HBCIInstitute
             p.setProperty(BPD_KEY_LASTUPDATE, String.valueOf(System.currentTimeMillis()));
             passport.setBPD(p);
             HBCIUtils.log("installed new BPD with version " + passport.getBPDVersion(), HBCIUtils.LOG_INFO);
-            passport.getCallback().status(passport, HBCICallback.STATUS_INST_BPD_INIT_DONE, passport.getBPD());
+            passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT_DONE, passport.getBPD());
         }
     }
 
@@ -119,8 +108,8 @@ public final class HBCIInstitute
                                 keyNum + "_" + keyVersion,
                         HBCIUtils.LOG_INFO);
 
-                byte[] keyExponent = result.getProperty(head + ".PubKey.exponent").getBytes(Comm.ENCODING);
-                byte[] keyModulus = result.getProperty(head + ".PubKey.modulus").getBytes(Comm.ENCODING);
+                byte[] keyExponent = result.getProperty(head + ".PubKey.exponent").getBytes(CommPinTan.ENCODING);
+                byte[] keyModulus = result.getProperty(head + ".PubKey.modulus").getBytes(CommPinTan.ENCODING);
 
                 KeyFactory fac = KeyFactory.getInstance("RSA");
                 KeySpec spec = new RSAPublicKeySpec(new BigInteger(+1, keyModulus),
@@ -144,34 +133,12 @@ public final class HBCIInstitute
         }
 
         if (foundChanges) {
-            passport.getCallback().status(passport, HBCICallback.STATUS_INST_GET_KEYS_DONE, null);
-            acknowledgeNewKeys();
-        }
-    }
-
-    private void acknowledgeNewKeys() {
-        StringBuffer answer = new StringBuffer();
-        passport.getCallback().callback(passport,
-                HBCICallback.NEED_NEW_INST_KEYS_ACK,
-                HBCIUtils.getLocMsg("CALLB_NEW_INST_KEYS"),
-                HBCICallback.TYPE_BOOLEAN,
-                answer);
-
-        if (answer.length() > 0) {
-            try {
-                passport.setInstSigKey(null);
-                passport.setInstEncKey(null);
-                passport.saveChanges();
-            } catch (Exception e) {
-                HBCIUtils.log(e);
-            }
-
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_KEYSNOTACK"));
+            passport.getCallback().status(HBCICallback.STATUS_INST_GET_KEYS_DONE, null);
         }
     }
 
     private void doDialogEnd(String dialogid, boolean needSig) {
-        passport.getCallback().status(passport, HBCICallback.STATUS_DIALOG_END, null);
+        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END, null);
 
         kernel.rawNewMsg("DialogEndAnon");
         kernel.rawSet("MsgHead.dialogid", dialogid);
@@ -179,7 +146,7 @@ public final class HBCIInstitute
         kernel.rawSet("DialogEndS.dialogid", dialogid);
         kernel.rawSet("MsgTail.msgnum", "2");
         HBCIMsgStatus status = kernel.rawDoIt(HBCIKernelImpl.DONT_SIGNIT, HBCIKernelImpl.DONT_CRYPTIT, needSig, HBCIKernelImpl.DONT_NEED_CRYPT);
-        passport.getCallback().status(passport, HBCICallback.STATUS_DIALOG_END_DONE, status);
+        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {
             HBCIUtils.log("dialog end failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
@@ -266,10 +233,9 @@ public final class HBCIInstitute
                 if (!version.equals("0")) {
                     HBCIUtils.log("resetting BPD version from " + version + " to 0", HBCIUtils.LOG_INFO);
                     passport.getBPD().setProperty("BPA.version", "0");
-                    passport.saveChanges();
                 }
 
-                passport.getCallback().status(passport, HBCICallback.STATUS_INST_BPD_INIT, null);
+                passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT, null);
                 HBCIUtils.log("fetching BPD", HBCIUtils.LOG_INFO);
 
                 kernel.rawNewMsg("DialogInitAnon");
@@ -286,7 +252,6 @@ public final class HBCIInstitute
 
                 Properties result = status.getData();
                 updateBPD(result);
-                passport.saveChanges();
 
                 if (!status.isDialogClosed()) {
                     try {
@@ -310,8 +275,6 @@ public final class HBCIInstitute
                 // Viele Kreditinstitute unterstützen den anonymen Login nicht. Dass sollte nicht als Fehler den Anwender beunruhigen
                 HBCIUtils.log("FAILED! - maybe this institute does not support anonymous logins", HBCIUtils.LOG_INFO);
                 HBCIUtils.log("we will nevertheless go on", HBCIUtils.LOG_INFO);
-            } finally {
-                passport.closeComm();
             }
         }
 
@@ -344,7 +307,7 @@ public final class HBCIInstitute
         return this.kernel.getMsgGen();
     }
 
-    public HBCIPassport getPassport() {
+    public HBCIPassportInternal getPassport() {
         return this.passport;
     }
 }

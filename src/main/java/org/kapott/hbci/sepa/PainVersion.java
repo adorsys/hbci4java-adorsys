@@ -7,27 +7,22 @@
 
 package org.kapott.hbci.sepa;
 
+import org.kapott.hbci.GV.generators.ISEPAGenerator;
+import org.kapott.hbci.GV.parsers.ISEPAParser;
+import org.kapott.hbci.comm.CommPinTan;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.kapott.hbci.GV.generators.ISEPAGenerator;
-import org.kapott.hbci.GV.parsers.ISEPAParser;
-import org.kapott.hbci.comm.Comm;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * Kapselt das Parsen und Vergleichen von SEPA Pain-Versionen.
@@ -427,7 +422,7 @@ public class PainVersion implements Comparable<PainVersion>
       try
       {
         final PainVersion versionDesc = haveDesc ? PainVersion.byURN(sepadesc) : null;
-        final PainVersion versionData = haveData ? PainVersion.autodetect(new ByteArrayInputStream(sepadata.getBytes(Comm.ENCODING))) : null;
+        final PainVersion versionData = haveData ? PainVersion.autodetect(new ByteArrayInputStream(sepadata.getBytes(CommPinTan.ENCODING))) : null;
         
         HBCIUtils.log("pain version given in sepadescr: " + versionDesc,HBCIUtils.LOG_DEBUG2);
         HBCIUtils.log("pain version according to data: " + versionData,HBCIUtils.LOG_DEBUG2);

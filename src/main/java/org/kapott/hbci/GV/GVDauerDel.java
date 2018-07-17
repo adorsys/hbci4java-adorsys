@@ -21,49 +21,47 @@
 
 package org.kapott.hbci.GV;
 
+import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
+import org.kapott.hbci.exceptions.InvalidUserDataException;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
+public final class GVDauerDel extends HBCIJobImpl {
 
-public final class GVDauerDel
-    extends HBCIJobImpl
-{
-    public static String getLowlevelName()
-    {
+    public static String getLowlevelName() {
         return "DauerDel";
     }
-    
-    public GVDauerDel(HBCIHandler handler)
-    {
-        super(handler,getLowlevelName(),new HBCIJobResultImpl());
-        
-        addConstraint("src.number","My.number","", LogFilter.FILTER_IDS);
-        addConstraint("src.subnumber","My.subnumber","", LogFilter.FILTER_MOST);
-        addConstraint("dst.blz","Other.KIK.blz","", LogFilter.FILTER_MOST);
-        addConstraint("dst.number","Other.number","", LogFilter.FILTER_IDS);
-        addConstraint("dst.subnumber","Other.subnumber","", LogFilter.FILTER_MOST);
-        addConstraint("btg.value","BTG.value","", LogFilter.FILTER_MOST);
-        addConstraint("btg.curr","BTG.curr","", LogFilter.FILTER_NONE);
-        addConstraint("name","name","", LogFilter.FILTER_IDS);
-        addConstraint("firstdate","DauerDetails.firstdate","", LogFilter.FILTER_NONE);
-        addConstraint("timeunit","DauerDetails.timeunit","", LogFilter.FILTER_NONE);
-        addConstraint("turnus","DauerDetails.turnus","", LogFilter.FILTER_NONE);
-        addConstraint("execday","DauerDetails.execday","", LogFilter.FILTER_NONE);
 
-        addConstraint("src.blz","My.KIK.blz",null, LogFilter.FILTER_MOST);
-        addConstraint("src.country","My.KIK.country","DE", LogFilter.FILTER_NONE);
-        addConstraint("dst.country","Other.KIK.country","DE", LogFilter.FILTER_NONE);
-        addConstraint("name2","name2","", LogFilter.FILTER_IDS);
-        addConstraint("key","key","52", LogFilter.FILTER_NONE);
-        addConstraint("date","date","", LogFilter.FILTER_NONE);
-        addConstraint("orderid","orderid","", LogFilter.FILTER_NONE);
-        addConstraint("lastdate","DauerDetails.lastdate","", LogFilter.FILTER_NONE);
-        
+    public GVDauerDel(HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
+
+        addConstraint("src.number", "My.number", "", LogFilter.FILTER_IDS);
+        addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("dst.blz", "Other.KIK.blz", "", LogFilter.FILTER_MOST);
+        addConstraint("dst.number", "Other.number", "", LogFilter.FILTER_IDS);
+        addConstraint("dst.subnumber", "Other.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("btg.value", "BTG.value", "", LogFilter.FILTER_MOST);
+        addConstraint("btg.curr", "BTG.curr", "", LogFilter.FILTER_NONE);
+        addConstraint("name", "name", "", LogFilter.FILTER_IDS);
+        addConstraint("firstdate", "DauerDetails.firstdate", "", LogFilter.FILTER_NONE);
+        addConstraint("timeunit", "DauerDetails.timeunit", "", LogFilter.FILTER_NONE);
+        addConstraint("turnus", "DauerDetails.turnus", "", LogFilter.FILTER_NONE);
+        addConstraint("execday", "DauerDetails.execday", "", LogFilter.FILTER_NONE);
+
+        addConstraint("src.blz", "My.KIK.blz", null, LogFilter.FILTER_MOST);
+        addConstraint("src.country", "My.KIK.country", "DE", LogFilter.FILTER_NONE);
+        addConstraint("dst.country", "Other.KIK.country", "DE", LogFilter.FILTER_NONE);
+        addConstraint("name2", "name2", "", LogFilter.FILTER_IDS);
+        addConstraint("key", "key", "52", LogFilter.FILTER_NONE);
+        addConstraint("date", "date", "", LogFilter.FILTER_NONE);
+        addConstraint("orderid", "orderid", "", LogFilter.FILTER_NONE);
+        addConstraint("lastdate", "DauerDetails.lastdate", "", LogFilter.FILTER_NONE);
+
         // TODO: daten fuer aussetzung fehlen
         // TODO: addkey fehlt
 
@@ -74,42 +72,41 @@ public final class GVDauerDel
         // from GVDauerNew here, but we have no chance to access this parameter
         // from here. The design changes of the next HBCI4Java version may solve
         // this problem.
-        int maxusage=99;
+        int maxusage = 99;
 
-        for (int i=0;i<maxusage;i++) {
-            String name=HBCIUtils.withCounter("usage",i);
-            addConstraint(name,"usage."+name,"", LogFilter.FILTER_MOST);
+        for (int i = 0; i < maxusage; i++) {
+            String name = HBCIUtils.withCounter("usage", i);
+            addConstraint(name, "usage." + name, "", LogFilter.FILTER_MOST);
         }
     }
-    
-    public void setParam(String paramName,String value)
-    {
+
+    public void setParam(String paramName, String value) {
         if (paramName.equals("date")) {
-            Properties res=getJobRestrictions();
-            String st_cantermdel=res.getProperty("cantermdel");
-            
-            if (st_cantermdel!=null && st_cantermdel.equals("N")) {
-                String msg=HBCIUtils.getLocMsg("EXCMSG_SCHEDDELSTANDORDUNAVAIL");
-                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+            Properties res = getJobRestrictions();
+            String st_cantermdel = res.getProperty("cantermdel");
+
+            if (st_cantermdel != null && st_cantermdel.equals("N")) {
+                String msg = HBCIUtils.getLocMsg("EXCMSG_SCHEDDELSTANDORDUNAVAIL");
+                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                     throw new InvalidUserDataException(msg);
             }
-            
+
             // TODO: minpretime und maxpretime auswerten
         } else if (paramName.equals("orderid")) {
-            Properties p=(Properties)getMainPassport().getPersistentData("dauer_"+value);
-            if (p!=null && p.size()!=0) {
-                for (Enumeration e=p.propertyNames();e.hasMoreElements();) {
-                    String key=(String)e.nextElement();
-                    
+            Properties p = (Properties) passport.getPersistentData("dauer_" + value);
+            if (p != null && p.size() != 0) {
+                for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
+                    String key = (String) e.nextElement();
+
                     if (!key.equals("date") &&
                             !key.startsWith("Aussetzung.")) {
-                        setLowlevelParam(getName()+"."+key,
-                            p.getProperty(key));
+                        setLowlevelParam(getName() + "." + key,
+                                p.getProperty(key));
                     }
                 }
             }
         }
-        
-        super.setParam(paramName,value);
+
+        super.setParam(paramName, value);
     }
 }

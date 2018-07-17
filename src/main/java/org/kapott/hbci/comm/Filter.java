@@ -21,10 +21,10 @@
 
 package org.kapott.hbci.comm;
 
-import java.lang.reflect.Constructor;
-
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
+
+import java.lang.reflect.Constructor;
 
 public abstract class Filter
 {

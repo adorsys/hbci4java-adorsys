@@ -21,10 +21,10 @@
 
 package org.kapott.hbci.comm;
 
+import org.kapott.hbci.manager.HBCIUtils;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
-
-import org.kapott.hbci.manager.HBCIUtils;
 
 // modifizierter HostnameVerifier, der zum Einsatz kommt, wenn Zert.-Check
 // deaktiviert ist.

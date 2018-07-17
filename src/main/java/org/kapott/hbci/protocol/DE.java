@@ -21,23 +21,15 @@
 
 package org.kapott.hbci.protocol;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Properties;
-
 import org.kapott.hbci.datatypes.SyntaxDE;
 import org.kapott.hbci.datatypes.factory.SyntaxDEFactory;
-import org.kapott.hbci.exceptions.NoValidValueException;
-import org.kapott.hbci.exceptions.NoValueGivenException;
-import org.kapott.hbci.exceptions.OverwriteException;
-import org.kapott.hbci.exceptions.ParseErrorException;
-import org.kapott.hbci.exceptions.PredelimErrorException;
+import org.kapott.hbci.exceptions.*;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import java.util.*;
 
 public final class DE
         extends SyntaxElement {
@@ -63,7 +55,7 @@ public final class DE
         // wenn dieses de gemeint ist
         if (destPath.equals(getPath())) {
             if (this.value != null) { // es gibt schon einen Wert
-                if (!allowOverwrite) { // Ã¼berschreiben ist nicht erlaubt
+                if (!allowOverwrite) { // überschreiben ist nicht erlaubt
                     // fehler
                     if (!HBCIUtils.ignoreError(null, "client.errors.allowOverwrites",
                             "*** trying to overwrite " + getPath() + "=" + value.toString() + " with " + valueString))

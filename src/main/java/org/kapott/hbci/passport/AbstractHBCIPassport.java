@@ -21,37 +21,34 @@
 
 package org.kapott.hbci.passport;
 
-import org.kapott.hbci.GV.HBCIJobImpl;
+import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.comm.CommPinTan;
-import org.kapott.hbci.comm.Filter;
 import org.kapott.hbci.exceptions.HBCI_Exception;
+import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.*;
-import org.kapott.hbci.status.HBCIMsgStatus;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Limit;
 import org.kapott.hbci.structures.Value;
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
 
 /**
- * <p>Diese Klasse stellt die Basisklasse fÃ¼r alle "echten" Passport-Implementationen
+ * <p>Diese Klasse stellt die Basisklasse für alle "echten" Passport-Implementationen
  * dar. Hier werden bereits einige Methoden implementiert sowie einige
- * zusÃ¤tzliche Hilfsmethoden zur VerfÃ¼gung gestellt.</p><p>
+ * zusätzliche Hilfsmethoden zur Verfügung gestellt.</p><p>
  * Aus einer HBCI-Anwendung heraus ist hier nur eine einzige Methode interessant,
  * um eine Instanz eines bestimmtes Passports zu erzeugen</p>
  */
 public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Serializable {
-
-    private String paramHeader;
 
     private Properties bpd;
     private Properties upd;
@@ -60,129 +57,19 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private String blz;
     private String host;
     private Integer port;
-    private String filterType;
     private String userid;
     private String customerid;
     private String sysid;
     private Long sigid;
     private String cid;
-    private CommPinTan comm;
     private Hashtable<String, Object> persistentData = new Hashtable<>();
 
     protected HBCICallback callback;
-    private IHandlerData parentHandlerData;
     protected Properties properties;
 
-    protected static final boolean FOR_SAVE = true;
-    protected static final boolean FOR_LOAD = false;
-
-    public AbstractHBCIPassport(Properties properties, HBCICallback callback, Object init) {
+    public AbstractHBCIPassport(Properties properties, HBCICallback callback) {
         this.callback = callback;
         this.properties = properties;
-
-        setClientData("init", init);
-    }
-
-    protected boolean askForMissingData(boolean needCountry, boolean needBLZ,
-                                        boolean needHost, boolean needPort,
-                                        boolean needFilter,
-                                        boolean needUserId, boolean needCustomerId) {
-        boolean dataChanged = false;
-
-        if (needCountry &&
-                (getCountry() == null || getCountry().length() == 0)) {
-            StringBuffer sb = new StringBuffer("DE");
-            callback.callback(this, HBCICallback.NEED_COUNTRY, HBCIUtils.getLocMsg("COUNTRY"), HBCICallback.TYPE_TEXT, sb);
-            if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("COUNTRY")));
-            setCountry(sb.toString());
-            dataChanged = true;
-        }
-
-        if (needBLZ &&
-                (getBLZ() == null || getBLZ().length() == 0)) {
-            StringBuffer sb = new StringBuffer();
-            callback.callback(this, HBCICallback.NEED_BLZ, HBCIUtils.getLocMsg("BLZ"), HBCICallback.TYPE_TEXT, sb);
-            if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("BLZ")));
-            setBLZ(sb.toString());
-            dataChanged = true;
-        }
-
-        if (needHost &&
-                (getHost() == null || getHost().length() == 0)) {
-            StringBuffer sb;
-
-            if (this instanceof AbstractPinTanPassport) {
-                sb = new StringBuffer(HBCIUtils.getPinTanURLForBLZ(getBLZ()));
-                if (sb.indexOf("https://") == 0) {
-                    sb.delete(0, 8);
-                }
-            } else {
-                sb = new StringBuffer(HBCIUtils.getHBCIHostForBLZ(getBLZ()));
-            }
-
-            callback.callback(this, HBCICallback.NEED_HOST, HBCIUtils.getLocMsg("HOST"), HBCICallback.TYPE_TEXT, sb);
-            if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("HOST")));
-            setHost(sb.toString());
-            dataChanged = true;
-        }
-
-        if (needFilter &&
-                (getFilterType() == null || getFilterType().length() == 0)) {
-            StringBuffer sb = new StringBuffer("Base64");
-            callback.callback(this, HBCICallback.NEED_FILTER, HBCIUtils.getLocMsg("FILTER"), HBCICallback.TYPE_TEXT, sb);
-            if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("FILTER")));
-            setFilterType(sb.toString());
-            dataChanged = true;
-        }
-
-        if (needUserId &&
-                (getUserId() == null || getUserId().length() == 0)) {
-            StringBuffer sb = new StringBuffer();
-            callback.callback(this, HBCICallback.NEED_USERID, HBCIUtils.getLocMsg("USERID"), HBCICallback.TYPE_TEXT, sb);
-            if (sb.length() == 0)
-                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_X", HBCIUtils.getLocMsg("USERID")));
-            setUserId(sb.toString());
-            dataChanged = true;
-        }
-
-        if (needCustomerId &&
-                (getStoredCustomerId() == null || getStoredCustomerId().length() == 0)) {
-            StringBuffer sb = new StringBuffer(getCustomerId());
-            callback.callback(this, HBCICallback.NEED_CUSTOMERID, HBCIUtils.getLocMsg("CUSTOMERID"), HBCICallback.TYPE_TEXT, sb);
-            setCustomerId(sb.toString());
-            dataChanged = true;
-        }
-
-        return dataChanged;
-    }
-
-    public final CommPinTan getComm() {
-        if (comm == null) {
-            comm = getCommInstance();
-        }
-
-        return comm;
-    }
-
-    public void unsetComm() {
-        this.comm = null;
-    }
-
-    protected abstract CommPinTan getCommInstance();
-
-    public final Filter getCommFilter() {
-        return Filter.getInstance(getFilterType());
-    }
-
-    public final void closeComm() {
-        if (comm != null) {
-            comm.close();
-            comm = null;
-        }
     }
 
     public final Properties getBPD() {
@@ -304,7 +191,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             // TODO: very dirty!
             ret.name = getCustomerId();
 
-            // an dieser Stelle sind jetzt alle Werte gefÃ¼llt, die teilweise
+            // an dieser Stelle sind jetzt alle Werte gefüllt, die teilweise
             // zwingend benÃ¶tigt werden
         }
 
@@ -319,26 +206,12 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return (port != null) ? port : new Integer(0);
     }
 
-    public final String getFilterType() {
-        return filterType;
-    }
-
     public String getUserId() {
         return userid;
     }
 
-    public final String getCustomerId(int idx) {
-        String header = HBCIUtils.withCounter("KInfo", idx) + ".customerid";
-        String c = (upd != null) ? upd.getProperty(header) : customerid;
-        return (c != null) ? c : getUserId();
-    }
-
     public String getCustomerId() {
         return (customerid != null && customerid.length() != 0) ? customerid : getUserId();
-    }
-
-    public String getStoredCustomerId() {
-        return customerid;
     }
 
     public String getSysId() {
@@ -347,14 +220,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
     public final String getCID() {
         return cid != null ? cid : "";
-    }
-
-    public final void clearInstSigKey() {
-        setInstSigKey(null);
-    }
-
-    public final void clearInstEncKey() {
-        setInstEncKey(null);
     }
 
     public final void clearMySigKey() {
@@ -394,28 +259,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return (bpd != null) ? Integer.parseInt(bpd.getProperty("BPA.maxmsgsize", "0")) : 0;
     }
 
-    public final String[] getSuppLangs() {
-        String[] ret = new String[0];
-
-        if (bpd != null) {
-            ArrayList<String> temp = new ArrayList<String>();
-            String header;
-            String value;
-            int i = 0;
-
-            while ((header = HBCIUtils.withCounter("BPA.SuppLangs.lang", i)) != null &&
-                    (value = bpd.getProperty(header)) != null) {
-                temp.add(value);
-                i++;
-            }
-
-            if (temp.size() != 0)
-                ret = (temp.toArray(ret));
-        }
-
-        return ret;
-    }
-
     public final String[] getSuppVersions() {
         String[] ret = new String[0];
 
@@ -451,68 +294,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
             if (value != null && value.equals("J"))
                 ret = true;
-        }
-
-        return ret;
-    }
-
-    public final String[][] getSuppSecMethods() {
-        String[][] ret = new String[0][];
-
-        if (bpd != null) {
-            ArrayList<String[]> temp = new ArrayList<String[]>();
-            String header;
-            String method;
-            int i = 0;
-
-            while ((header = HBCIUtils.withCounter("SecMethod.SuppSecMethods", i)) != null &&
-                    (method = bpd.getProperty(header + ".method")) != null) {
-
-                String header2;
-                String version;
-                int j = 0;
-
-                while ((header2 = HBCIUtils.withCounter(header + ".version", j)) != null &&
-                        (version = bpd.getProperty(header2)) != null) {
-                    String[] entry = new String[2];
-                    entry[0] = method;
-                    entry[1] = version;
-                    temp.add(entry);
-                    j++;
-                }
-
-                i++;
-            }
-
-            if (temp.size() != 0)
-                ret = (temp.toArray(ret));
-        }
-
-        return ret;
-    }
-
-    public final String[][] getSuppCompMethods() {
-        String[][] ret = new String[0][];
-
-        if (bpd != null) {
-            ArrayList<String[]> temp = new ArrayList<String[]>();
-            String header;
-            String method;
-            int i = 0;
-
-            while ((header = HBCIUtils.withCounter("CompMethod.SuppCompMethods", i)) != null &&
-                    (method = bpd.getProperty(header + ".func")) != null) {
-
-                String version = bpd.getProperty(header + ".version");
-                String[] entry = new String[2];
-                entry[0] = method;
-                entry[1] = version;
-                temp.add(entry);
-                i++;
-            }
-
-            if (temp.size() != 0)
-                ret = (temp.toArray(ret));
         }
 
         return ret;
@@ -560,10 +341,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         this.port = port;
     }
 
-    public final void setFilterType(String filter) {
-        this.filterType = filter;
-    }
-
     public final void setUserId(String userid) {
         LogFilter.getInstance().addSecretData(userid, "X", LogFilter.FILTER_IDS);
         this.userid = userid;
@@ -582,59 +359,10 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         this.sysid = sysid;
     }
 
-    public final void setCID(String cid) {
-        LogFilter.getInstance().addSecretData(cid, "X", LogFilter.FILTER_IDS);
-        this.cid = cid;
-    }
-
     public void incSigId() {
         setSigId(new Long(getSigId().longValue() + 1));
     }
 
-    public final boolean onlyBPDGVs() {
-        return getUPD().getProperty("UPA.usage").equals("0");
-    }
-
-    /**
-     * <p>Erzeugt eine Instanz eines HBCIPassports und gibt diese zurÃ¼ck. Der
-     * Typ der erzeugten Passport-Instanz wird durch den Parameter <code>name</code>
-     * bestimmt. GÃ¼ltige Werte sind zur Zeit
-     * <ul>
-     * <li>DDV</li>
-     * <li>RDHNew</li>
-     * <li>RDH (nicht mehr benutzen!)</li>
-     * <li>PinTan</li>
-     * <li>SIZRDHFile</li>
-     * <li>RDHXFile</li>
-     * <li>Anonymous</li>
-     * </ul></p>
-     * <p>Der zusÃ¤tzliche Parameter <code>init</code> gibt ein Objekt an, welches
-     * bereits wÃ¤hrend der Instanziierung des Passport-Objektes in dessen internen
-     * <code>clientData</code>-Datenstrukturen gespeichert wird
-     * (siehe {@link org.kapott.hbci.passport.HBCIPassport#setClientData(String, Object)}).
-     * Auf dieses Objekt kann dann mit
-     * {@link org.kapott.hbci.passport.HBCIPassport#getClientData(String) getClientData("init")}
-     * zugegriffen werden. Ist <code>init==null</code>), wo wird <code>init=name</code>
-     * gesetzt.</p>
-     * <p>Beim Erzeugen eines Passport-Objektes tritt i.d.R. der
-     * {@link org.kapott.hbci.callback.HBCICallback Callback} <code>NEED_PASSPHRASE</code>
-     * auf, um nach dem Passwort fÃ¼r das Einlesen der SchlÃ¼sseldatei zu fragen.
-     * Von der Callback-Methode eventuell zusÃ¤tzlich benÃ¶tigte Daten zu diesem Passport
-     * konnten bis zu dieser Stelle noch nicht via <code>setClientData(...)</code>
-     * gesetzt werden, weil das Passport-Objekt noch gar nicht existierte. FÃ¼r diesen
-     * Zweck gibt es das <code>init</code>-Objekt, welches bereits beim Erzeugen
-     * des Passport-Objektes (und <em>vor</em> dem Aufrufen eines Callbacks) zu den
-     * zusÃ¤tzlichen Passport-Daten hinzugefÃ¼gt wird (mit der id "<code>init</code>").</p>
-     * <p>Eine beispielhafte (wenn auch nicht sehr praxisnahe) Anwendung dieses
-     * Features wird im Quelltext des Tools
-     * {@link org.kapott.hbci.tools.AnalyzeReportOfTransactions}
-     * gezeigt. Zumindest das Prinzip sollte damit jedoch klar werden.</p>
-     *
-     * @param name Typ der zu erzeugenden Passport-Instanz
-     * @param init Objekt, welches schon wÃ¤hrend der Passport-Erzeugung via
-     *             <code>setClientData("init",init)</code> zu den Passport-Daten hinzugefÃ¼gt wird.
-     * @return Instanz eines HBCIPassports
-     */
     public static HBCIPassport getInstance(HBCICallback callback, Properties properties, String name, Object init) {
         if (name == null) {
             throw new NullPointerException("name of passport implementation must not be null");
@@ -668,7 +396,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     /**
      * Erzeugt eine Instanz eines HBCI-Passports. Der Typ der erzeugten
      * Passport-Instanz wird hierbei dem Wert des HBCI-Parameters
-     * <code>client.passport.default</code> entnommen. GÃ¼ltige Werte fÃ¼r diesen
+     * <code>client.passport.default</code> entnommen. Gültige Werte für diesen
      * HBCI-Parameter sind die gleichen wie beim Aufruf der Methode
      *
      * @return Instanz eines HBCI-Passports
@@ -687,43 +415,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
     public static HBCIPassport getInstance(HBCICallback callback, Properties properties) {
         return getInstance(callback, properties, (Object) null);
-    }
-
-    public void close() {
-        closeComm();
-    }
-
-    /**
-     * Fragt den User per Callback nach dem Passwort fuer die Passport-Datei.
-     *
-     * @param forSaving true, wenn das Passwort zum Speichern erfragt werden soll.
-     * @return der Secret-Key.
-     */
-    protected SecretKey calculatePassportKey(boolean forSaving) {
-        try {
-            StringBuffer passphrase = new StringBuffer();
-            callback.callback(this,
-                    forSaving ? HBCICallback.NEED_PASSPHRASE_SAVE
-                            : HBCICallback.NEED_PASSPHRASE_LOAD,
-                    forSaving ? HBCIUtils.getLocMsg("CALLB_NEED_PASS_NEW")
-                            : HBCIUtils.getLocMsg("CALLB_NEED_PASS"),
-                    HBCICallback.TYPE_SECRET,
-                    passphrase);
-            if (passphrase.length() == 0) {
-                throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_PASSZERO"));
-            }
-            LogFilter.getInstance().addSecretData(passphrase.toString(), "X", LogFilter.FILTER_SECRETS);
-
-            SecretKeyFactory fac = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-            PBEKeySpec keyspec = new PBEKeySpec(passphrase.toString().toCharArray());
-            SecretKey passportKey = fac.generateSecret(keyspec);
-            keyspec.clearPassword();
-            passphrase = null;
-
-            return passportKey;
-        } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_KEYCALCERR"), ex);
-        }
     }
 
     public Properties getParamSegmentNames() {
@@ -798,6 +489,96 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return result;
     }
 
+    /**
+     * <p>Gibt die Namen aller vom aktuellen HBCI-Zugang (d.h. Passport)
+     * unterstützten Lowlevel-Jobs zurück.</p>
+     * <p>In dem zurückgegebenen Properties-Objekt enthält jeder Eintrag als
+     * Key den Lowlevel-Job-Namen; als Value wird die Versionsnummer des
+     * jeweiligen Geschäftsvorfalls angegeben, die von <em>HBCI4Java</em> mit dem
+     * aktuellen Passport und der aktuell eingestellten HBCI-Version
+     * benutzt werden wird.</p>
+     * <p><em>(Prinzipiell unterstützt <em>HBCI4Java</em> für jeden
+     * Geschäftsvorfall mehrere GV-Versionen. Auch eine Bank bietet i.d.R. für
+     * jeden GV mehrere Versionen an. Wird mit <em>HBCI4Java</em> ein HBCI-Job
+     * erzeugt, so verwendet <em>HBCI4Java</em> immer automatisch die höchste
+     * von der Bank unterstützte GV-Versionsnummer. Diese Information ist
+     * für den Anwendungsentwickler kaum von Bedeutung und dient hauptsächlich
+     * zu Debugging-Zwecken.)</em></p>
+     * <p>Zum Unterschied zwischen High- und Lowlevel-Jobs siehe die
+     * Beschreibung im Package <code>org.kapott.hbci.GV</code>.</p>
+     *
+     * @return Sammlung aller vom aktuellen Passport unterstützten HBCI-
+     * Geschäftsvorfallnamen (Lowlevel) mit der jeweils von <em>HBCI4Java</em>
+     * verwendeten GV-Versionsnummer.
+     */
+    public Properties getSupportedLowlevelJobs(MsgGen msgGen) {
+        Properties paramSegments = getParamSegmentNames();
+        Properties result = new Properties();
+
+        for (Enumeration e = paramSegments.propertyNames(); e.hasMoreElements(); ) {
+            String segName = (String) e.nextElement();
+
+            // überprüfen, ob parameter-segment tatsächlich zu einem GV gehört
+            // gilt z.b. für "PinTan" nicht
+            if (msgGen.getLowlevelGVs().containsKey(segName))
+                result.put(segName, paramSegments.getProperty(segName));
+        }
+
+        return result;
+    }
+
+    /**
+     * <p>Gibt für einen Job alle bekannten Einschränkungen zurück, die bei
+     * der Ausführung des jeweiligen Jobs zu beachten sind. Diese Daten werden aus den
+     * Bankparameterdaten des aktuellen Passports extrahiert. Sie können von einer HBCI-Anwendung
+     * benutzt werden, um gleich entsprechende Restriktionen bei der Eingabe von
+     * Geschäftsvorfalldaten zu erzwingen (z.B. die maximale Anzahl von Verwendungszweckzeilen,
+     * ob das Ändern von terminierten Überweisungen erlaubt ist usw.).</p>
+     * <p>Die einzelnen Einträge des zurückgegebenen Properties-Objektes enthalten als Key die
+     * Bezeichnung einer Restriktion (z.B. "<code>maxusage</code>"), als Value wird der
+     * entsprechende Wert eingestellt. Die Bedeutung der einzelnen Restriktionen ist zur Zeit
+     * nur der HBCI-Spezifikation zu entnehmen. In späteren Programmversionen werden entsprechende
+     * Dokumentationen zur internen HBCI-Beschreibung hinzugefügt, so dass dafür eine Abfrageschnittstelle
+     * implementiert werden kann.</p>
+     * <p>I.d.R. werden mehrere Versionen eines Geschäftsvorfalles von der Bank
+     * angeboten. Diese Methode ermittelt automatisch die "richtige" Versionsnummer
+     * für die Ermittlung der GV-Restriktionen aus den BPD (und zwar die selbe,
+     * die <em>HBCI4Java</em> beim Erzeugen eines Jobs benutzt). </p>
+     * <p>Siehe dazu auch {@link HBCIJob#getJobRestrictions()}.</p>
+     *
+     * @param gvname Lowlevel-Name des Geschäftsvorfalles, für den die Restriktionen
+     *               ermittelt werden sollen
+     * @return Properties-Objekt mit den einzelnen Restriktionen
+     */
+    public Properties getLowlevelJobRestrictions(String gvname, MsgGen msgGen) {
+        if (gvname == null || gvname.length() == 0)
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+
+        String version = getSupportedLowlevelJobs(msgGen).getProperty(gvname);
+        if (version == null)
+            throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
+
+        return getJobRestrictions(gvname, version);
+    }
+
+    /**
+     * @param jobnameHL der Highlevel-Name des Jobs, dessen Unterstützung überprüft werden soll
+     * @return <code>true</code>, wenn dieser Job von der Bank unterstützt wird und
+     * mit <em>HBCI4Java</em> verwendet werden kann; ansonsten <code>false</code>
+     */
+    public boolean isSupported(String jobnameHL, MsgGen msgGen) {
+        if (jobnameHL == null || jobnameHL.length() == 0)
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+
+        try {
+            Class cl = Class.forName("org.kapott.hbci.GV.GV" + jobnameHL);
+            String lowlevelName = (String) cl.getMethod("getLowlevelName", (Class[]) null).invoke(null, (Object[]) null);
+            return getSupportedLowlevelJobs(msgGen).keySet().contains(lowlevelName);
+        } catch (Exception e) {
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_HANDLER_HLCHECKERR", jobnameHL), e);
+        }
+    }
+
     public void setPersistentData(String id, Object o) {
         if (o != null)
             persistentData.put(id, o);
@@ -817,164 +598,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return persistentData;
     }
 
-    public void syncSigId() {
-        setSigId(new Long("-1"));
-    }
-
-    public void syncSysId() {
-        setSysId("0");
-    }
-
-    public void changePassphrase() {
-        resetPassphrase();
-        saveChanges();
-    }
-
-    public final void setClientData(String id, Object o) {
-        setPersistentData("client_" + id, o);
-    }
-
-    public final Object getClientData(String id) {
-        return getPersistentData("client_" + id);
-    }
-
-    public boolean isAnonymous() {
-        return false;
-    }
-
-    protected void setParamHeader(String paramHeader) {
-        this.paramHeader = paramHeader;
-    }
-
-    protected String getParamHeader() {
-        return paramHeader;
-    }
-
-    public void setParentHandlerData(IHandlerData handler) {
-        this.parentHandlerData = handler;
-    }
-
-    public IHandlerData getParentHandlerData() {
-        return this.parentHandlerData;
-    }
-
-    public static byte[] checkForCryptDataSize(byte[] buffer, int size) {
-        byte[] result = buffer;
-
-        if (buffer.length != size) {
-            HBCIUtils.log("checking for crypted_data_length==" + size + "; current length is " + buffer.length, HBCIUtils.LOG_DEBUG);
-            if (buffer.length > size) {
-                int diff = buffer.length - size;
-                boolean ok = true;
-
-                for (int i = 0; i < diff; i++) {
-                    if (buffer[i] != 0x00) {
-                        HBCIUtils.log("byte " + i + " in crypted_data is not zero, but it should be zero - please contact the author", HBCIUtils.LOG_WARN);
-                        ok = false;
-                    }
-                }
-
-                if (ok) {
-                    HBCIUtils.log("removing " + diff + " unnecessary null-bytes from crypted_data", HBCIUtils.LOG_DEBUG);
-                    result = new byte[size];
-                    System.arraycopy(buffer, diff, result, 0, size);
-                }
-            } else if (buffer.length < size) {
-                int diff = size - buffer.length;
-                HBCIUtils.log("prepending " + diff + " null bytes to crypted_data", HBCIUtils.LOG_WARN);
-                result = new byte[size];
-                Arrays.fill(result, (byte) 0);
-                System.arraycopy(buffer, 0, result, diff, buffer.length);
-            }
-        }
-
-        return result;
-    }
-
-    public boolean postInitResponseHook(HBCIMsgStatus msgStatus) {
-        // die default-Implementierung tut nichts und verlangt auch keine
-        // erneute Dialog-Initialisierung
-        return false;
-    }
-
-    public void beforeCustomDialogHook(HBCIDialog dialog) {
-        // default implementation does nothing
-    }
-
-    public void afterCustomDialogInitHook(List<List<HBCIJobImpl>> msgs) {
-        // default implementation does nothing - only PinTan variant will override this
-    }
-
     public int getMaxGVSegsPerMsg() {
         return 0;
-    }
-
-    /**
-     * Ersetzt die Datei origFile gegen tmpFile.
-     * Nach dem Loeschen der Datei origFile wartet die Methode jedoch maximal 20 Sekunden,
-     * um sicherzustellen, dass z.Bsp. Virenscanner die Datei wieder losgelassen haben und
-     * sie wirklich verschwunden ist, bevor tmpFile auf den Namen von origFile umbenannt wird.
-     * Wichtig ist, dass zum Zeitpunkt des Aufrufes dieser Methode alle Streams auf die
-     * Dateien bereits geschlossen wurden. Die Schreibvorgaenge auf die Dateien muessen also
-     * abgeschlossen sein. Heisst: "os.close()" nicht erst im finally-Block machen sondern
-     * VOR dem Aufruf dieser Methode.
-     *
-     * @param origFile die originale zu ersetzende Datei.
-     * @param tmpFile  die neue Datei, welche die originale ersetzen soll.
-     */
-    protected void safeReplace(File origFile, File tmpFile) {
-        HBCIUtils.log("saving passport file " + origFile, HBCIUtils.LOG_DEBUG);
-
-        if (origFile.exists()) // Nur loeschen, wenn es ueberhaupt existiert
-        {
-            HBCIUtils.log("deleting old passport file " + origFile, HBCIUtils.LOG_DEBUG);
-            if (!origFile.delete())
-                HBCIUtils.log("delete method for " + origFile + " returned false", HBCIUtils.LOG_ERR);
-        }
-
-        // Wenn die Datei noch existiert, warten wir noch etwas
-        int retry = 0;
-        while (origFile.exists() && retry++ < 20) {
-            try {
-                HBCIUtils.log("wait a little bit, maybe another thread (antivirus scanner) holds a lock, file still exists", HBCIUtils.LOG_WARN);
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                HBCIUtils.log("interrupted", HBCIUtils.LOG_WARN);
-                break;
-            }
-            if (!origFile.exists()) {
-                HBCIUtils.log("passport file now gone: " + origFile, HBCIUtils.LOG_INFO);
-                break;
-            }
-        }
-
-        // Datei existiert immer noch, dann brauchen wir das Rename gar nicht erst versuchen
-        if (origFile.exists())
-            throw new HBCI_Exception("could not delete " + origFile);
-
-        // Das Rename versuchen wir jetzt auch wiederholt mehrfach
-        retry = 0;
-        HBCIUtils.log("renaming " + tmpFile.getName() + " to " + origFile.getName(), HBCIUtils.LOG_DEBUG);
-        while (!origFile.exists() && retry++ < 20) {
-            if (!tmpFile.renameTo(origFile))
-                HBCIUtils.log("rename method for " + tmpFile + " to " + origFile + " returned false", HBCIUtils.LOG_ERR);
-
-            if (origFile.exists()) {
-                HBCIUtils.log("new passport file now exists: " + origFile, HBCIUtils.LOG_DEBUG);
-                break;
-            }
-
-            try {
-                HBCIUtils.log("wait a little bit, maybe another thread (antivirus scanner) holds a lock, file still not renamed", HBCIUtils.LOG_WARN);
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                HBCIUtils.log("interrupted", HBCIUtils.LOG_WARN);
-                break;
-            }
-        }
-
-        if (!origFile.exists())
-            throw new HBCI_Exception("could not rename " + tmpFile.getName() + " to " + origFile.getName());
     }
 
     public Properties getProperties() {

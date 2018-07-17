@@ -21,134 +21,98 @@
 
 package org.kapott.hbci.GV_Result;
 
+import org.kapott.hbci.GV.HBCIJob;
+import org.kapott.hbci.GV.HBCIJobImpl;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.status.HBCIRetVal;
+import org.kapott.hbci.status.HBCIStatus;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 
-import org.kapott.hbci.GV.HBCIJob;
-import org.kapott.hbci.GV.HBCIJobImpl;
-import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.status.HBCIRetVal;
-import org.kapott.hbci.status.HBCIStatus;
+public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
 
-public class HBCIJobResultImpl
-    implements Serializable, HBCIJobResult
-{
-    private Properties  resultData;
-    private HBCIJobImpl parentJob;
-    
+    private HBCIPassportInternal passport;
+    private Properties resultData;
+
     public HBCIStatus jobStatus;
-    public HBCIStatus globStatus;  
+    public HBCIStatus globStatus;
 
-    public HBCIJobResultImpl()
-    {
-        resultData=new Properties();
-        jobStatus=new HBCIStatus();
-        globStatus=new HBCIStatus();
-    }
-    
-    public void setParentJob(HBCIJobImpl parentJob)
-    {
-        this.parentJob=parentJob;
-    }
-    
-    public void storeResult(String key,String value)
-    {
-        if (value!=null)
-            resultData.setProperty(key,value);
+    public HBCIJobResultImpl(HBCIPassportInternal passport) {
+        this.passport =passport;
+        resultData = new Properties();
+        jobStatus = new HBCIStatus();
+        globStatus = new HBCIStatus();
     }
 
-    public int getRetNumber()
-    {
-        return jobStatus.getRetVals().length;
+    public void storeResult(String key, String value) {
+        if (value != null)
+            resultData.setProperty(key, value);
     }
 
-    public HBCIRetVal getRetVal(int idx)
-    {
-        return jobStatus.getRetVals()[idx];
+    public int getRetNumber() {
+        return jobStatus.getRetVals().size();
     }
 
-    public boolean isOK()
-    {
-        /*
-        return jobStatus.getStatusCode()==HBCIStatus.STATUS_OK ||
-               (jobStatus.getStatusCode()==HBCIStatus.STATUS_UNKNOWN &&
-                globStatus.getStatusCode()==HBCIStatus.STATUS_OK);
-        */
-        
-        // ein job ist dann ok, wenn weder glob- noch job-status einen
-        // fehler gemeldet haben. es muss aber wenigstens entweder glob- oder
-        // job-status ein explizites OK gemeldet haben
-        return globStatus.getStatusCode()!=HBCIStatus.STATUS_ERR &&
-               jobStatus.getStatusCode()!=HBCIStatus.STATUS_ERR &&
-               (globStatus.getStatusCode()!=HBCIStatus.STATUS_UNKNOWN ||
-                jobStatus.getStatusCode()!=HBCIStatus.STATUS_UNKNOWN);
+    public HBCIRetVal getRetVal(int idx) {
+        return jobStatus.getRetVals().get(idx);
     }
 
-    public String getDialogId()
-    {
+    public boolean isOK() {
+        return globStatus.getStatusCode() != HBCIStatus.STATUS_ERR &&
+                jobStatus.getStatusCode() != HBCIStatus.STATUS_ERR &&
+                (globStatus.getStatusCode() != HBCIStatus.STATUS_UNKNOWN ||
+                        jobStatus.getStatusCode() != HBCIStatus.STATUS_UNKNOWN);
+    }
+
+    public String getDialogId() {
         return resultData.getProperty("basic.dialogid");
     }
 
-    public String getMsgNum()
-    {
+    public String getMsgNum() {
         return resultData.getProperty("basic.msgnum");
     }
-    
-    public String getSegNum()
-    {
+
+    public String getSegNum() {
         return resultData.getProperty("basic.segnum");
     }
-    
-    public String getJobId()
-    {
-        SimpleDateFormat format=new SimpleDateFormat("yyyyMMdd");
-        return format.format(new Date())+"/"+getDialogId()+"/"+getMsgNum()+"/"+getSegNum();
+
+    public String getJobId() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        return format.format(new Date()) + "/" + getDialogId() + "/" + getMsgNum() + "/" + getSegNum();
     }
 
-    public Properties getResultData()
-    {
+    public Properties getResultData() {
         return resultData;
     }
-    
-    public HBCIStatus getGlobStatus()
-    {
+
+    public HBCIStatus getGlobStatus() {
         return globStatus;
     }
 
-    public HBCIStatus getJobStatus()
-    {
+    public HBCIStatus getJobStatus() {
         return jobStatus;
     }
-    
-    public HBCIPassport getPassport()
-    {
-        HBCIPassport passport=null;
-        HBCIJobImpl  job=(HBCIJobImpl)getParentJob();
-        if (job!=null) {
-            passport=job.getMainPassport();
-        }
+
+    @Override
+    public HBCIPassportInternal getPassport() {
         return passport;
     }
 
-    public String toString()
-    {
-        StringBuffer ret=new StringBuffer();
-        Object[] a=resultData.keySet().toArray();
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        Object[] a = resultData.keySet().toArray();
 
         Arrays.sort(a);
-        for (int i=0;i<a.length;i++) {
-            String key=(String)(a[i]);
+        for (int i = 0; i < a.length; i++) {
+            String key = (String) (a[i]);
             ret.append(key).append(" = ").append(resultData.getProperty(key)).append(System.getProperty("line.separator"));
         }
-        
+
         return ret.toString().trim();
     }
-    
-    public HBCIJob getParentJob()
-    {
-        return this.parentJob;
-    }
+
 }

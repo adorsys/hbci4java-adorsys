@@ -1,41 +1,15 @@
 package org.kapott.hbci.GV.generators;
 
 
+import org.kapott.hbci.GV.AbstractSEPAGV;
+import org.kapott.hbci.GV.SepaUtil;
+import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci.sepa.jaxb.pain_001_001_03.*;
+
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Properties;
-
-import org.kapott.hbci.GV.AbstractSEPAGV;
-import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.AccountIdentificationSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.ActiveOrHistoricCurrencyAndAmountSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.ActiveOrHistoricCurrencyCodeEUR;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.AmountTypeSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.BranchAndFinancialInstitutionIdentificationSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.BranchAndFinancialInstitutionIdentificationSEPA3;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.CashAccountSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.CashAccountSEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.ChargeBearerTypeSEPACode;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.CreditTransferTransactionInformationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.CustomerCreditTransferInitiationV03;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.Document;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.FinancialInstitutionIdentificationSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.FinancialInstitutionIdentificationSEPA3;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.GroupHeaderSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.ObjectFactory;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.OthrIdentification;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.OthrIdentificationCode;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.PartyIdentificationSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.PartyIdentificationSEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.PaymentIdentificationSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.PaymentInstructionInformationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.PaymentMethodSCTCode;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.PaymentTypeInformationSCT1;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.PurposeSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.RemittanceInformationSEPA1Choice;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_03.ServiceLevel;
 
 /**
  * SEPA-Generator fuer pain.001.001.03.

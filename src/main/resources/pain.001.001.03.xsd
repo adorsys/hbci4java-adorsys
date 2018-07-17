@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Von der Deutschen Kreditwirtschaft bereitgestelltes Kunde-Bank-Schema fÃ¼r die SEPA-Ãberweisung; darÃ¼ber hinaus auch nutzbar fÃ¼r taggleiche Eilzahlungen (non-SEPA) -->
-<!-- Version gemÃ¤Ã DFÃ-Abkommen Anlage 3, Version 3.0, gÃ¼ltig ab November 2016 mit Umsetzung der EPC SCT IG 8.0 - Namespace analog ISO 20022 Edition 2009, da voll kompatibel, zudem inkl. aller EPC-Vorgaben -->
-<!-- Mit XMLSpy v2008 rel. 2 sp2 (http://www.altova.com) im MÃ¤rz 2016 von der SIZ GmbH (Wenzel) bearbeitet -->
+<!-- Von der Deutschen Kreditwirtschaft bereitgestelltes Kunde-Bank-Schema für die SEPA-Ãberweisung; darüber hinaus auch nutzbar für taggleiche Eilzahlungen (non-SEPA) -->
+<!-- Version gemäÃ DFÃ-Abkommen Anlage 3, Version 3.0, gültig ab November 2016 mit Umsetzung der EPC SCT IG 8.0 - Namespace analog ISO 20022 Edition 2009, da voll kompatibel, zudem inkl. aller EPC-Vorgaben -->
+<!-- Mit XMLSpy v2008 rel. 2 sp2 (http://www.altova.com) im März 2016 von der SIZ GmbH (Wenzel) bearbeitet -->
 <xs:schema xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" elementFormDefault="qualified">
 	<xs:element name="Document" type="Document"/>
 	<xs:complexType name="AccountIdentificationSEPA">

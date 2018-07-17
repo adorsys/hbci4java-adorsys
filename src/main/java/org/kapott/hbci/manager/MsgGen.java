@@ -21,16 +21,6 @@
 
 package org.kapott.hbci.manager;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.protocol.MSG;
 import org.w3c.dom.Document;
@@ -38,21 +28,30 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
 /* Message-Generator-Klasse. Diese Klasse verwaltet die Syntax-Spezifikation
- * fÃ¼r die zu verwendende HBCI-Version. Hiermit wird das Erzeugen von
+ * für die zu verwendende HBCI-Version. Hiermit wird das Erzeugen von
  * HBCI-Nachrichten gekapselt.
- * Dazu wird eine Hashtable verwaltet, die die Daten enthÃ¤lt, die in die
- * jeweilige Nachricht aufgenommen werden sollen. Die Hashtable enthÃ¤lt als
+ * Dazu wird eine Hashtable verwaltet, die die Daten enthält, die in die
+ * jeweilige Nachricht aufgenommen werden sollen. Die Hashtable enthält als
  * Key den "Pfad" zum Datenelement (DialogInit.MsgHead.hbciversion), als
  * Value den einzustellenden Wert im Klartext.
  * Das Erzeugen einer Nachricht geschieht in drei Schritten:
- *   1) MsgGen.reset() -- vollstÃ¤ndiges Leeren der Daten-Hashtable
- *   2) MsgGen.set(key,value) -- speichern eines Datums fÃ¼r die Nachricht
+ *   1) MsgGen.reset() -- vollständiges Leeren der Daten-Hashtable
+ *   2) MsgGen.set(key,value) -- speichern eines Datums für die Nachricht
  *      in der Hashtable
  *   3) MsgGen.generate(msgName) -- erzeugen der Nachricht mit dem Namen
  *      <msgName>. Dabei werden auch nur die Daten aus der Hashtable
  *      verwendet, dir mit "<msgName>." beginnen (so dass in der Datenhashtable
- *      auch zusÃ¤tzliche Daten gespeichert werden kÃ¶nnen, solange sie nicht
+ *      auch zusätzliche Daten gespeichert werden kÃ¶nnen, solange sie nicht
  *      mit "<msgName>." beginnen).*/
 public final class MsgGen {
     private Document syntax;
@@ -174,8 +173,8 @@ public final class MsgGen {
         return result;
     }
 
-    /* gibt fÃ¼r einen hbci-gv ("saldo3") die liste aller ll-job-parameter
-     * zurÃ¼ck */
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-parameter
+     * zurück */
     public List<String> getGVParameterNames(String specname) {
         int versionPos = specname.length() - 1;
         char ch;
@@ -189,8 +188,8 @@ public final class MsgGen {
                 specname.substring(versionPos + 1));
     }
 
-    /* gibt fÃ¼r einen hbci-gv ("saldo3") die liste aller ll-job-parameter
-     * zurÃ¼ck */
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-parameter
+     * zurück */
     public List<String> getGVParameterNames(String gvname, String version) {
         ArrayList<String> ret = new ArrayList<String>();
         Element gvdef = syntax.getElementById(gvname + version);
@@ -214,8 +213,8 @@ public final class MsgGen {
         return ret;
     }
 
-    /* gibt fÃ¼r einen hbci-gv ("saldo3") die liste aller ll-job-result-parameter
-     * zurÃ¼ck */
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-result-parameter
+     * zurück */
     public List<String> getGVResultNames(String specname) {
         int versionPos = specname.length() - 1;
         char ch;
@@ -229,8 +228,8 @@ public final class MsgGen {
                 specname.substring(versionPos + 1));
     }
 
-    /* gibt fÃ¼r einen hbci-gv ("saldo3") die liste aller ll-job-result-parameter
-     * zurÃ¼ck */
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-result-parameter
+     * zurück */
     public List<String> getGVResultNames(String gvname, String version) {
         ArrayList<String> ret = new ArrayList<String>();
         Element gvdef = syntax.getElementById(gvname + "Res" + version);
@@ -256,8 +255,8 @@ public final class MsgGen {
         return ret;
     }
 
-    /* gibt fÃ¼r einen hbci-gv ("saldo3") die liste aller ll-job-restriction-
-     * parameter zurÃ¼ck */
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-restriction-
+     * parameter zurück */
     public List<String> getGVRestrictionNames(String specname) {
         int versionPos = specname.length() - 1;
         char ch;
@@ -271,8 +270,8 @@ public final class MsgGen {
                 specname.substring(versionPos + 1));
     }
 
-    /* gibt fÃ¼r einen hbci-gv ("saldo3") die liste aller ll-job-restriction-
-     * parameter zurÃ¼ck */
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-restriction-
+     * parameter zurück */
     public List<String> getGVRestrictionNames(String gvname, String version) {
         ArrayList<String> ret = new ArrayList<String>();
 
@@ -303,7 +302,7 @@ public final class MsgGen {
                         len = gvcontent.getLength();
 
                         // darin alle elemente durchlaufen und deren namen
-                        // zur ergebnisliste hinzufÃ¼gen
+                        // zur ergebnisliste hinzufügen
                         for (i = 0; i < len; i++) {
                             contentref = gvcontent.item(i);
 

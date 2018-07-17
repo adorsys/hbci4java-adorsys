@@ -21,26 +21,21 @@
 
 package org.kapott.hbci.tools;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/** Dieses Tool ist nur fÃ¼r interne Verwendung bei der Entwicklung von HBCI4Java
- * gedacht. Damit lÃ¤sst sich prÃ¼fen, ob die Highlevel-Klassen fÃ¼r die einzelnen
- * GVs tatsÃ¤chlich alle mÃ¶glichen Lowlevel-Parameter eines bestimmten GV
- * kennen und mit richtigen Werten fÃ¼llen (jeweils abhÃ¤ngig von den bankseitig
- * unterstÃ¼tzten GV-Versionen) */
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.util.*;
+
+/** Dieses Tool ist nur für interne Verwendung bei der Entwicklung von HBCI4Java
+ * gedacht. Damit lässt sich prüfen, ob die Highlevel-Klassen für die einzelnen
+ * GVs tatsächlich alle mÃ¶glichen Lowlevel-Parameter eines bestimmten GV
+ * kennen und mit richtigen Werten füllen (jeweils abhängig von den bankseitig
+ * unterstützten GV-Versionen) */
 public class ShowCumulatedLowlevelParams 
 {
     private static void extractParams(Document doc, Element node, String path, List<String> params)

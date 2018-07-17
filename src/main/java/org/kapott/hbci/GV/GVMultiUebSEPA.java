@@ -21,20 +21,20 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
 /**
  * Job-Implementierung fuer SEPA-Multi-Ueberweisungen.
  */
-public class GVMultiUebSEPA extends GVUebSEPA
-{
+public class GVMultiUebSEPA extends GVUebSEPA {
     /**
      * Liefert den Lowlevel-Namen des Jobs.
+     *
      * @return der Lowlevel-Namen des Jobs.
      */
-    public static String getLowlevelName()
-    {
+    public static String getLowlevelName() {
         return "SammelUebSEPA";
     }
 
@@ -42,36 +42,24 @@ public class GVMultiUebSEPA extends GVUebSEPA
      * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainJobName()
      */
     @Override
-    public String getPainJobName()
-    {
+    public String getPainJobName() {
         return "UebSEPA";
     }
 
-    /**
-     * ct.
-     * @param handler
-     */
-    public GVMultiUebSEPA(HBCIHandler handler)
-    {
-        this(handler, getLowlevelName());
+    public GVMultiUebSEPA(HBCIPassportInternal passport, MsgGen msgGen) {
+        this(passport, msgGen, getLowlevelName());
     }
 
-    /**
-     * ct.
-     * @param handler
-     * @param name
-     */
-    public GVMultiUebSEPA(HBCIHandler handler, String name)
-    {
-        super(handler, name);
+    public GVMultiUebSEPA(HBCIPassportInternal passport, MsgGen msgGen, String name) {
+        super(passport, msgGen, name);
 
         addConstraint("batchbook", "sepa.batchbook", "", LogFilter.FILTER_NONE);
         addConstraint("Total.value", "Total.value", null, LogFilter.FILTER_MOST);
         addConstraint("Total.curr", "Total.curr", null, LogFilter.FILTER_NONE);
     }
 
-    @Override protected void createSEPAFromParams()
-    {
+    @Override
+    protected void createSEPAFromParams() {
         super.createSEPAFromParams();
         setParam("Total", SepaUtil.sumBtgValueObject(sepaParams));
     }

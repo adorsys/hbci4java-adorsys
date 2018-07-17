@@ -21,24 +21,23 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
 
 /**
  * Job-Implementierung fuer SEPA-Umbuchungen.
  */
-public class GVUmbSEPA extends AbstractSEPAGV
-{
+public class GVUmbSEPA extends AbstractSEPAGV {
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-    
+
     /**
      * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
      */
     @Override
-    protected PainVersion getDefaultPainVersion()
-    {
+    protected PainVersion getDefaultPainVersion() {
         return DEFAULT;
     }
 
@@ -46,77 +45,64 @@ public class GVUmbSEPA extends AbstractSEPAGV
      * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
      */
     @Override
-    protected Type getPainType()
-    {
+    protected Type getPainType() {
         return Type.PAIN_001;
     }
-    
+
     /**
      * Liefert den Lowlevel-Namen des Jobs.
+     *
      * @return der Lowlevel-Namen des Jobs.
      */
-    public static String getLowlevelName()
-    {
+    public static String getLowlevelName() {
         return "UmbSEPA";
     }
 
-    /**
-     * ct.
-     * @param handler
-     */
-    public GVUmbSEPA(HBCIHandler handler)
-    {
-        this(handler, getLowlevelName());
+    public GVUmbSEPA(HBCIPassportInternal passport, MsgGen msgGen) {
+        this(passport, msgGen, getLowlevelName());
     }
 
-    /**
-     * ct.
-     * @param handler
-     * @param name
-     */
-    public GVUmbSEPA(HBCIHandler handler, String name)
-    {
-        super(handler, name);
+    public GVUmbSEPA(HBCIPassportInternal passport, MsgGen msgGen, String name) {
+        super(passport, msgGen, name);
 
-        addConstraint("src.bic",  "My.bic",  null, LogFilter.FILTER_MOST);
+        addConstraint("src.bic", "My.bic", null, LogFilter.FILTER_MOST);
         addConstraint("src.iban", "My.iban", null, LogFilter.FILTER_IDS);
-        
-        if (this.canNationalAcc(handler)) // nationale Bankverbindung mitschicken, wenn erlaubt
+
+        if (this.canNationalAcc(passport, msgGen)) // nationale Bankverbindung mitschicken, wenn erlaubt
         {
-            addConstraint("src.country",  "My.KIK.country", "", LogFilter.FILTER_NONE);
-            addConstraint("src.blz",      "My.KIK.blz",     "", LogFilter.FILTER_MOST);
-            addConstraint("src.number",   "My.number",      "", LogFilter.FILTER_IDS);
-            addConstraint("src.subnumber","My.subnumber",   "", LogFilter.FILTER_MOST);
+            addConstraint("src.country", "My.KIK.country", "", LogFilter.FILTER_NONE);
+            addConstraint("src.blz", "My.KIK.blz", "", LogFilter.FILTER_MOST);
+            addConstraint("src.number", "My.number", "", LogFilter.FILTER_IDS);
+            addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
         }
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN(), LogFilter.FILTER_NONE);
-        addConstraint("_sepapain",       "sepapain", null, LogFilter.FILTER_IDS);
+        addConstraint("_sepapain", "sepapain", null, LogFilter.FILTER_IDS);
 
         /* dummy constraints to allow an application to set these values. the
          * overriden setLowlevelParam() stores these values in a special structure
          * which is later used to create the SEPA pain document. */
-        addConstraint("src.bic",   "sepa.src.bic",   null, LogFilter.FILTER_MOST);
-        addConstraint("src.iban",  "sepa.src.iban",  null, LogFilter.FILTER_IDS);
-        addConstraint("src.name",  "sepa.src.name",  null, LogFilter.FILTER_IDS);
-        addConstraint("dst.bic",   "sepa.dst.bic",   null, LogFilter.FILTER_MOST, true);
-        addConstraint("dst.iban",  "sepa.dst.iban",  null, LogFilter.FILTER_IDS, true);
-        addConstraint("dst.name",  "sepa.dst.name",  null, LogFilter.FILTER_IDS, true);
+        addConstraint("src.bic", "sepa.src.bic", null, LogFilter.FILTER_MOST);
+        addConstraint("src.iban", "sepa.src.iban", null, LogFilter.FILTER_IDS);
+        addConstraint("src.name", "sepa.src.name", null, LogFilter.FILTER_IDS);
+        addConstraint("dst.bic", "sepa.dst.bic", null, LogFilter.FILTER_MOST, true);
+        addConstraint("dst.iban", "sepa.dst.iban", null, LogFilter.FILTER_IDS, true);
+        addConstraint("dst.name", "sepa.dst.name", null, LogFilter.FILTER_IDS, true);
         addConstraint("btg.value", "sepa.btg.value", null, LogFilter.FILTER_NONE, true);
-        addConstraint("btg.curr",  "sepa.btg.curr",  "EUR", LogFilter.FILTER_NONE, true);
-        addConstraint("usage",     "sepa.usage",     "",   LogFilter.FILTER_NONE, true);
-      
-        //Constraints fÃ¼r die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
-        addConstraint("sepaid",    "sepa.sepaid",      getSEPAMessageId(),      LogFilter.FILTER_NONE);
-        addConstraint("pmtinfid",  "sepa.pmtinfid",    getSEPAMessageId(),      LogFilter.FILTER_NONE);
+        addConstraint("btg.curr", "sepa.btg.curr", "EUR", LogFilter.FILTER_NONE, true);
+        addConstraint("usage", "sepa.usage", "", LogFilter.FILTER_NONE, true);
+
+        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
+        addConstraint("sepaid", "sepa.sepaid", getSEPAMessageId(), LogFilter.FILTER_NONE);
+        addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId(), LogFilter.FILTER_NONE);
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, LogFilter.FILTER_NONE, true);
-        addConstraint("purposecode","sepa.purposecode", "",                     LogFilter.FILTER_NONE, true);
+        addConstraint("purposecode", "sepa.purposecode", "", LogFilter.FILTER_NONE, true);
     }
 
     /**
      * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainJobName()
      */
-    public String getPainJobName()
-    {
+    public String getPainJobName() {
         // Als Job-Namen nehmen wir die normale SEPA-Ueberweisung, weil das die selbe SEPA-Message ist
         return "UebSEPA";
     }

@@ -21,11 +21,10 @@
 
 package org.kapott.hbci.comm;
 
-import java.security.cert.X509Certificate;
+import org.kapott.hbci.manager.HBCIUtils;
 
 import javax.net.ssl.X509TrustManager;
-
-import org.kapott.hbci.manager.HBCIUtils;
+import java.security.cert.X509Certificate;
 
 // trust-manager, der verwendet wird, wenn keine server-certs geprueft werden sollen
 public class PinTanSSLTrustManager 

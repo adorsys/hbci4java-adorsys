@@ -24,7 +24,7 @@ public class TestMultipleDEGs extends AbstractTest {
     public void test() throws Exception {
 
         String data = getFile("msg/TestMultipleDEGs-01.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null, "300");
+        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
 
         kernel.rawNewMsg("DialogInit");
 

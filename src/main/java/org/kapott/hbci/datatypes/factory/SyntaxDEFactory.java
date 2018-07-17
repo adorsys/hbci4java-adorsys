@@ -21,19 +21,16 @@
 
 package org.kapott.hbci.datatypes.factory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-
 import org.kapott.hbci.datatypes.SyntaxDE;
 import org.kapott.hbci.exceptions.InitializingException;
 import org.kapott.hbci.exceptions.NoSuchConstructorException;
 import org.kapott.hbci.exceptions.NoSuchSyntaxException;
 import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.tools.ObjectFactory;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class SyntaxDEFactory {
 

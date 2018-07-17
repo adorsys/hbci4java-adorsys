@@ -26,10 +26,8 @@ import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.INILetter;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.io.BufferedReader;
@@ -37,21 +35,20 @@ import java.io.PrintStream;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-/** Callback-Klasse fÃ¼r Ein-/Ausgabe Ã¼ber IO-Streams. Dabei handelt es sich
+/** Callback-Klasse für Ein-/Ausgabe über IO-Streams. Dabei handelt es sich
  * eine Callback-Klasse, die Ausgaben auf einem PrintStream ausgibt und
- * Eingaben Ã¼ber einen BufferedReader liest. Die Klasse 
+ * Eingaben über einen BufferedReader liest. Die Klasse
  * {@link org.kapott.hbci.callback.HBCICallbackConsole HBCICallbackConsole} 
- * ist eine abgeleitete Klasse, welche STDOUT und STDIN fÃ¼r die beiden
+ * ist eine abgeleitete Klasse, welche STDOUT und STDIN für die beiden
  * I/O-Streams verwendet. */
-public class HBCICallbackIOStreams 
-    extends AbstractHBCICallback 
-{
+public class HBCICallbackIOStreams extends AbstractHBCICallback {
+
     private PrintStream    outStream;
     private BufferedReader inStream;
     
     /** Instanz mit vorgegebenem OUT- und INPUT-Stream erzeugen.
-     * @param outStream Stream, welcher fÃ¼r die Ausgabe verwendet wird.
-     * @param inStream Stream, der fÃ¼r das Einlesen von Antworten verwendet wird */
+     * @param outStream Stream, welcher für die Ausgabe verwendet wird.
+     * @param inStream Stream, der für das Einlesen von Antworten verwendet wird */
     public HBCICallbackIOStreams(PrintStream outStream, BufferedReader inStream)
     {
         this.outStream=outStream;
@@ -64,7 +61,7 @@ public class HBCICallbackIOStreams
         this.inStream=in;
     }
     
-    /** Gibt des INPUT-Stream zurÃ¼ck. */
+    /** Gibt des INPUT-Stream zurück. */
     protected BufferedReader getInStream() {
         return inStream;
     }
@@ -75,14 +72,14 @@ public class HBCICallbackIOStreams
         this.outStream=out;
     }
     
-    /** Gibt den verwendeten OUTPUT-Stream zurÃ¼ck. */
+    /** Gibt den verwendeten OUTPUT-Stream zurück. */
     protected PrintStream getOutStream() {
         return outStream;
     }
     
     /** Schreiben von Logging-Ausgaben in einen <code>PrintStream</code>. Diese Methode implementiert die Logging-Schnittstelle
     des {@link org.kapott.hbci.callback.HBCICallback}-Interfaces</a>. Die Log-Informationen,
-    die dieser Methode Ã¼bergeben werden, werden formatiert auf dem jeweiligen <code>outStream</code> ausgegeben. In dem
+    die dieser Methode übergeben werden, werden formatiert auf dem jeweiligen <code>outStream</code> ausgegeben. In dem
     ausgegebenen String sind in enthalten das Log-Level der Message, ein Zeitstempel im
     Format "<code>yyyy.MM.dd HH:mm:ss.SSS</code>", die Namen der ThreadGroup und des Threads, aus dem 
     heraus die Log-Message erzeugt wurde, der Klassenname der Klasse, welche die Log-Ausgabe
@@ -94,17 +91,16 @@ public class HBCICallbackIOStreams
     }
 
     /** Diese Methode reagiert auf alle mÃ¶glichen Callback-Ursachen. Bei Callbacks, die nur
-    Informationen an den Anwender Ã¼bergeben sollen, werden diese auf dem <code>outStream</code> ausgegeben.
+    Informationen an den Anwender übergeben sollen, werden diese auf dem <code>outStream</code> ausgegeben.
     Bei Callbacks, die Aktionen vom Anwender erwarten (Einlegen der Chipkarte), wird eine
     entsprechende Aufforderung ausgegeben. Bei Callbacks, die eine Eingabe vom
     Nutzer erwarten, wird die entsprechende Eingabeaufforderung ausgegeben und die
     Eingabe vom <code>inStream</code> gelesen.*/
-    public void callback(HBCIPassport passport, int reason, String msg, int datatype, StringBuffer retData) 
+    public void callback(int reason, String msg, int datatype, StringBuffer retData)
     {
 //        getOutStream().println(HBCIUtils.getLocMsg("CALLB_PASS_IDENT",passport.getClientData("init")));
         
         try {
-            INILetter iniletter;
             LogFilter logfilter=LogFilter.getInstance();
             Date      date;
             String    st;
@@ -178,31 +174,7 @@ public class HBCICallbackIOStreams
                     
                     retData.replace(0,retData.length(),st);
                     break;
-    
-                case NEED_NEW_INST_KEYS_ACK:
-                    getOutStream().println(msg);
-                    iniletter=new INILetter(passport,INILetter.TYPE_INST);
-                    getOutStream().println(HBCIUtils.getLocMsg("EXPONENT")+": "+HBCIUtils.data2hex(iniletter.getKeyExponentDisplay()));
-                    getOutStream().println(HBCIUtils.getLocMsg("MODULUS")+": "+HBCIUtils.data2hex(iniletter.getKeyModulusDisplay()));
-                    getOutStream().print("<ENTER>=OK, \"ERR\"=ERROR: ");
-                    getOutStream().flush();
-                    retData.replace(0, retData.length(), getInStream().readLine());
-                    break;
-    
-                case HAVE_NEW_MY_KEYS:
-                    iniletter=new INILetter(passport,INILetter.TYPE_USER);
-                    date=new Date();
-                    getOutStream().println(HBCIUtils.getLocMsg("DATE")+": "+HBCIUtils.date2StringLocal(date));
-                    getOutStream().println(HBCIUtils.getLocMsg("TIME")+": "+HBCIUtils.time2StringLocal(date));
-                    getOutStream().println(HBCIUtils.getLocMsg("BLZ")+": "+passport.getBLZ());
-                    getOutStream().println(HBCIUtils.getLocMsg("USERID")+": "+passport.getUserId());
-                    getOutStream().println(HBCIUtils.getLocMsg("KEYNUM")+": "+passport.getMyPublicSigKey().num);
-                    getOutStream().println(HBCIUtils.getLocMsg("KEYVERSION")+": "+passport.getMyPublicSigKey().version);
-                    getOutStream().println(HBCIUtils.getLocMsg("EXPONENT")+": "+HBCIUtils.data2hex(iniletter.getKeyExponentDisplay()));
-                    getOutStream().println(HBCIUtils.getLocMsg("MODULUS")+": "+HBCIUtils.data2hex(iniletter.getKeyModulusDisplay()));
-                    getOutStream().println(msg);
-                    break;
-    
+
                 case HAVE_INST_MSG:
                     getOutStream().println(msg);
                     getOutStream().println(HBCIUtils.getLocMsg("CONTINUE"));
@@ -348,15 +320,15 @@ public class HBCICallbackIOStreams
     }
 
     /** Wird diese Methode von <em>HBCI4Java</em> aufgerufen, so wird der aktuelle
-    Bearbeitungsschritt (mit evtl. vorhandenen zusÃ¤tzlichen Informationen)
+    Bearbeitungsschritt (mit evtl. vorhandenen zusätzlichen Informationen)
     auf <code>outStream</code> ausgegeben. */
-    public void status(HBCIPassport passport, int statusTag, Object[] o) {
+    public void status(int statusTag, Object[] o) {
         switch (statusTag) {
             case STATUS_INST_BPD_INIT:
                 getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_DATA"));
                 break;
             case STATUS_INST_BPD_INIT_DONE:
-                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_DATA_DONE",passport.getBPDVersion()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_DATA_DONE"));
                 break;
             case STATUS_INST_GET_KEYS:
                 getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_INST_KEYS"));
@@ -389,7 +361,7 @@ public class HBCICallbackIOStreams
                 getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_USER_DATA"));
                 break;
             case STATUS_INIT_UPD_DONE:
-                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_USER_DATA_DONE",passport.getUPDVersion()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_REC_USER_DATA_DONE"));
                 break;
             case STATUS_LOCK_KEYS:
                 getOutStream().println(HBCIUtils.getLocMsg("STATUS_USR_LOCK"));

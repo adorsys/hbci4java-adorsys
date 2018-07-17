@@ -32,7 +32,7 @@ public class TestBug1322 extends AbstractTest {
     public void test001() throws Exception {
         try {
             String data = getFile("bpd/bugzilla-1322.txt");
-            HBCIKernelImpl kernel = new HBCIKernelImpl(null, "300");
+            HBCIKernelImpl kernel = new HBCIKernelImpl(null);
             kernel.rawNewMsg("DialogInitAnon");
 
             MsgGen gen = kernel.getMsgGen();

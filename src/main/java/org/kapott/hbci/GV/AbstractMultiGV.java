@@ -21,51 +21,49 @@
 
 package org.kapott.hbci.GV;
 
+import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
+import org.kapott.hbci.datatypes.SyntaxWrt;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.swift.DTAUS;
+import org.kapott.hbci.swift.DTAUS.Transaction;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.datatypes.SyntaxWrt;
-import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.swift.DTAUS;
-import org.kapott.hbci.swift.DTAUS.Transaction;
+public abstract class AbstractMultiGV extends HBCIJobImpl {
 
-public abstract class AbstractMultiGV 
-  extends HBCIJobImpl 
-{
-    public AbstractMultiGV(HBCIHandler handler, String jobnameLL, HBCIJobResultImpl jobResult) 
-    {
-        super(handler, jobnameLL, jobResult);
+    public AbstractMultiGV(HBCIPassportInternal passport, MsgGen msgGen, String jobnameLL, HBCIJobResultImpl jobResult) {
+        super(passport, msgGen, jobnameLL, jobResult);
     }
 
-    public String getChallengeParam(String path)
-    {
-        String ret=null;
-        
+    public String getChallengeParam(String path) {
+        String ret = null;
+
         if (path.startsWith("sum")) {
-            String dtausdata=getLowlevelParams().getProperty(getName()+".data");
-            DTAUS  dtaus=new DTAUS(dtausdata.substring(1));
-            
+            String dtausdata = getLowlevelParams().getProperty(getName() + ".data");
+            DTAUS dtaus = new DTAUS(dtausdata.substring(1));
+
             if (path.equals("sumOthers")) {
-            	// summe der ziel-kontonummern
-            	long sum=0;
-            	ArrayList<Transaction> entries=dtaus.getEntries();
-            	for (Iterator<Transaction> i=entries.iterator();i.hasNext();) {
-            		DTAUS.Transaction entry= i.next();
-            		sum += Long.parseLong(entry.otherAccount.number);
-            	}
-            	ret=Long.toString(sum);
-            	if (ret.length()>10) {
-            		ret=ret.substring(0,10);
-            	}
-            	
+                // summe der ziel-kontonummern
+                long sum = 0;
+                ArrayList<Transaction> entries = dtaus.getEntries();
+                for (Iterator<Transaction> i = entries.iterator(); i.hasNext(); ) {
+                    DTAUS.Transaction entry = i.next();
+                    sum += Long.parseLong(entry.otherAccount.number);
+                }
+                ret = Long.toString(sum);
+                if (ret.length() > 10) {
+                    ret = ret.substring(0, 10);
+                }
+
             } else if (path.equals("sumValue")) {
                 // summe der beträge
                 long sum = 0;
                 ArrayList<Transaction> entries = dtaus.getEntries();
-                for (Iterator<Transaction> i = entries.iterator(); i.hasNext();) {
+                for (Iterator<Transaction> i = entries.iterator(); i.hasNext(); ) {
                     DTAUS.Transaction entry = i.next();
                     sum += entry.value.getLongValue();
                 }
@@ -73,20 +71,20 @@ public abstract class AbstractMultiGV
                 // die SyntaxDE-Funktionen zugegriffen
                 String v = HBCIUtils.bigDecimal2String(new BigDecimal(sum).divide(new BigDecimal("100.0")));
                 ret = new SyntaxWrt(v, 1, 0).toString();
-            	
+
             } else if (path.equals("sumCurr")) {
-            	// währung des sammlers
-                ret=dtaus.getCurr()==DTAUS.CURR_DM?"DEM":"EUR";
-            
+                // währung des sammlers
+                ret = dtaus.getCurr() == DTAUS.CURR_DM ? "DEM" : "EUR";
+
             } else if (path.equals("sumCount")) {
-              // willuhn 2011-05-17 Anzahl der Buchungen, HHD 1.4
-              // Anzahl der Buchungen
-              ret = Integer.toString(dtaus.getEntries().size());
+                // willuhn 2011-05-17 Anzahl der Buchungen, HHD 1.4
+                // Anzahl der Buchungen
+                ret = Integer.toString(dtaus.getEntries().size());
             }
         } else {
-            ret=super.getChallengeParam(path);
+            ret = super.getChallengeParam(path);
         }
-        
+
         return ret;
     }
 }

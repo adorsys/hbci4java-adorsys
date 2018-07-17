@@ -3,6 +3,8 @@
  */
 package org.kapott.hbci.smartcardio;
 
+import org.kapott.hbci.exceptions.HBCI_Exception;
+
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.KeyFactory;
@@ -10,8 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
-
-import org.kapott.hbci.exceptions.HBCI_Exception;
 
 /**
  * @author axel

@@ -21,48 +21,45 @@
 
 package org.kapott.hbci.GV;
 
+import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
+import org.kapott.hbci.exceptions.InvalidUserDataException;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-
-public final class GVTermUebDel
-    extends HBCIJobImpl
-{
-    public static String getLowlevelName()
-    {
+public final class GVTermUebDel extends HBCIJobImpl {
+    
+    public static String getLowlevelName() {
         return "TermUebDel";
     }
-    
-    public GVTermUebDel(HBCIHandler handler)
-    {
-        super(handler,getLowlevelName(),new HBCIJobResultImpl());
-        
-        addConstraint("orderid","id",null, LogFilter.FILTER_NONE);
+
+    public GVTermUebDel(HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
+
+        addConstraint("orderid", "id", null, LogFilter.FILTER_NONE);
     }
-    
-    public void setParam(String paramName,String value)
-    {
-        super.setParam(paramName,value);
+
+    public void setParam(String paramName, String value) {
+        super.setParam(paramName, value);
 
         if (paramName.equals("orderid")) {
-            Properties p=(Properties)getMainPassport().getPersistentData("termueb_"+value);
-            if (p==null) {
-                String msg=HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS",value);
-                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+            Properties p = (Properties) passport.getPersistentData("termueb_" + value);
+            if (p == null) {
+                String msg = HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS", value);
+                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                     throw new InvalidUserDataException(msg);
-                p=new Properties();
+                p = new Properties();
             }
-            
-            for (Enumeration e=p.propertyNames();e.hasMoreElements();) {
-                String key=(String)e.nextElement();
-                
-                setLowlevelParam(getName()+"."+key,
-                                 p.getProperty(key));
+
+            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
+                String key = (String) e.nextElement();
+
+                setLowlevelParam(getName() + "." + key,
+                        p.getProperty(key));
             }
         }
     }

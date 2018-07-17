@@ -21,12 +21,11 @@
 
 package org.kapott.cryptalgs;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 // TODO: implement some SPI interface?
 public class PBKDF2

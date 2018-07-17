@@ -21,7 +21,6 @@
 
 package org.kapott.hbci.tools;
 
-import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.BankInfo;
 import org.kapott.hbci.manager.HBCIUtils;
 

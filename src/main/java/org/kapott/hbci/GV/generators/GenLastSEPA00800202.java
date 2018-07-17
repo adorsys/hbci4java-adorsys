@@ -1,54 +1,15 @@
 package org.kapott.hbci.GV.generators;
 
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Properties;
-
 import org.kapott.hbci.GV.AbstractSEPAGV;
 import org.kapott.hbci.GV.SepaUtil;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.AccountIdentificationSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.ActiveOrHistoricCurrencyAndAmountSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.ActiveOrHistoricCurrencyCodeEUR;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.AmendmentInformationDetailsSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.BranchAndFinancialInstitutionIdentificationSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.BranchAndFinancialInstitutionIdentificationSEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.CashAccountSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.CashAccountSEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.ChargeBearerTypeSEPACode;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.CustomerDirectDebitInitiationV02;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.DirectDebitTransactionInformationSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.DirectDebitTransactionSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.Document;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.FinancialInstitutionIdentificationSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.FinancialInstitutionIdentificationSEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.GroupHeaderSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.IdentificationSchemeNameSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.LocalInstrumentSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.LocalInstrumentSEPACode;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.MandateRelatedInformationSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.ObjectFactory;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PartyIdentificationSEPA1;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PartyIdentificationSEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PartyIdentificationSEPA3;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PartyIdentificationSEPA5;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PartySEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PaymentIdentificationSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PaymentInstructionInformationSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PaymentMethod2Code;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PaymentTypeInformationSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PersonIdentificationSEPA2;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PurposeSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.RemittanceInformationSEPA1Choice;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.RestrictedFinancialIdentificationSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.RestrictedPersonIdentificationSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.RestrictedPersonIdentificationSchemeNameSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.RestrictedSMNDACode;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.SequenceType1Code;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.ServiceLevelSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.ServiceLevelSEPACode;
+import org.kapott.hbci.sepa.jaxb.pain_008_002_02.*;
+
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Properties;
 
 
 /**

@@ -1,11 +1,10 @@
 package org.kapott.hbci.GV.generators;
 
 
+import org.kapott.hbci.sepa.PainVersion;
 
 import java.io.OutputStream;
 import java.util.Properties;
-
-import org.kapott.hbci.sepa.PainVersion;
 
 /**
  * Basis-Interface fuer alle SEPA-Job-Generatoren.

@@ -23,7 +23,6 @@ package org.kapott.hbci.comm;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 
 public final class FilterBase64
     extends Filter
@@ -36,7 +35,7 @@ public final class FilterBase64
     public String decode(String st)
     {
         try {
-            return new String(HBCIUtils.decodeBase64(st),Comm.ENCODING);
+            return new String(HBCIUtils.decodeBase64(st),CommPinTan.ENCODING);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_B64DECODEERR"),e);
         }
@@ -45,7 +44,7 @@ public final class FilterBase64
     public byte[] encode(String st)
     {
         try {
-            return HBCIUtils.encodeBase64(st.getBytes(Comm.ENCODING)).getBytes(Comm.ENCODING);
+            return HBCIUtils.encodeBase64(st.getBytes(CommPinTan.ENCODING)).getBytes(CommPinTan.ENCODING);
         } catch (Exception ex) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_B64ENCODEERR"),ex);
         }

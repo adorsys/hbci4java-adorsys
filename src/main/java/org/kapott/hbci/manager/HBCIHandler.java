@@ -21,27 +21,20 @@
 
 package org.kapott.hbci.manager;
 
-import java.lang.reflect.Constructor;
-import java.security.KeyPair;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import org.kapott.hbci.GV.GVTemplate;
 import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.GV.HBCIJobImpl;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.passport.AbstractPinTanPassport;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIDialogStatus;
 import org.kapott.hbci.status.HBCIExecStatus;
-import org.kapott.hbci.status.HBCIExecThreadedStatus;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import static org.kapott.hbci.manager.HBCIJobFactory.newJob;
 
 /**
  * <p>Ein Handle für genau einen HBCI-Zugang. Diese Klasse stellt das Verbindungsglied
@@ -86,17 +79,7 @@ import org.kapott.hbci.status.HBCIExecThreadedStatus;
  */
 public final class HBCIHandler implements IHandlerData {
 
-    public final static int REFRESH_BPD = 1;
-    public final static int REFRESH_UPD = 2;
-
-    private HBCIKernelImpl kernel;
-    private HBCIPassportInternal passport;
     private HBCIDialog dialog;
-    private boolean closeDialog;
-
-    public HBCIHandler(HBCIPassport passport) {
-        this(passport, null, true, true);
-    }
 
     /**
      * Anlegen eines neuen HBCI-Handler-Objektes. Beim Anlegen wird
@@ -106,38 +89,20 @@ public final class HBCIHandler implements IHandlerData {
      * vom Kreditinstitut geholt. Bei Passports, die asymmetrische Verschlüsselungsverfahren
      * benutzen (RDH), wird zusätzlich überprüft, ob alle benötigten Schlüssel vorhanden
      * sind. Gegebenenfalls werden diese aktualisiert.
-     *
-     * @param passport    das zu benutzende Passport. Dieses muss vorher mit
-     *                    {@link org.kapott.hbci.passport.AbstractHBCIPassport#}
-     *                    erzeugt worden sein
-     * @param init        initialisiert inistitut und user
      */
-    public HBCIHandler(HBCIPassport passport, HBCIDialog hbciDialog, boolean init, boolean closeDialog) {
+    public HBCIHandler(HBCIDialog hbciDialog) {
         try {
-            if (passport == null)
-                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_NULL"));
-
             this.dialog = hbciDialog;
-            this.closeDialog = closeDialog;
-            this.kernel = new HBCIKernelImpl(this, passport.getHBCIVersion());
-            this.passport = (HBCIPassportInternal) passport;
-            this.passport.setParentHandlerData(this);
 
-            if (hbciDialog != null) {
-                hbciDialog.setKernel(this.kernel);
-            }
-
-            if (init) {
-                registerInstitute();
-                registerUser();
-            }
+            registerInstitute();
+            registerUser();
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_CREATE_HANDLE"), e);
         }
 
         // wenn in den UPD noch keine SEPA- und TAN-Medien-Informationen ueber die Konten enthalten
         // sind, versuchen wir, diese zu holen
-        Properties upd = passport.getUPD();
+        Properties upd = hbciDialog.getPassport().getUPD();
         if (upd != null && !upd.containsKey("_fetchedMetaInfo")) {
             // wir haben UPD, in denen aber nicht "_fetchedMetaInfo" drinsteht
             updateMetaInfo();
@@ -145,7 +110,7 @@ public final class HBCIHandler implements IHandlerData {
     }
 
     public Object getProperty(String key) {
-        return passport.getProperties().get(key);
+        return dialog.getPassport().getProperties().get(key);
     }
 
     /**
@@ -153,34 +118,33 @@ public final class HBCIHandler implements IHandlerData {
      * unterstuetzt wird und speichert diese Infos in den UPD.
      */
     public void updateMetaInfo() {
-        Properties bpd = passport.getBPD();
+        Properties bpd = dialog.getPassport().getBPD();
         if (bpd == null) {
             HBCIUtils.log("have no bpd, skip fetching of meta info", HBCIUtils.LOG_WARN);
             return;
         }
 
         try {
-            final Properties lowlevel = this.getSupportedLowlevelJobs();
+            final Properties lowlevel = getPassport().getSupportedLowlevelJobs(getMsgGen());
 
             // SEPA-Infos abrufen
             if (lowlevel.getProperty("SEPAInfo") != null) {
                 HBCIUtils.log("fetching SEPA information", HBCIUtils.LOG_INFO);
-                HBCIJob sepainfo = this.newJob("SEPAInfo");
-                sepainfo.addToQueue();
+                HBCIJob sepainfo = newJob("SEPAInfo", getPassport(), getMsgGen());
+                addJobToDialog(sepainfo);
             }
 
-            // TAN-Medien abrufen - aber nur bei PIN/TAN-Verfahren
-            if (lowlevel.getProperty("TANMediaList") != null && (this.passport instanceof AbstractPinTanPassport)) {
+            // TAN-Medien abrufen
+            if (lowlevel.getProperty("TANMediaList") != null) {
                 HBCIUtils.log("fetching TAN media list", HBCIUtils.LOG_INFO);
-                HBCIJob tanMedia = this.newJob("TANMediaList");
-                tanMedia.addToQueue();
+                HBCIJob tanMedia = newJob("TANMediaList", getPassport(), getMsgGen());
+                addJobToDialog(tanMedia);
             }
 
-            HBCIExecStatus status = this.execute();
+            HBCIExecStatus status = this.execute(false);
             if (status.isOK()) {
                 HBCIUtils.log("successfully fetched meta info", HBCIUtils.LOG_INFO);
-                passport.getUPD().setProperty("_fetchedMetaInfo", new Date().toString());
-                passport.saveChanges();
+                dialog.getPassport().getUPD().setProperty("_fetchedMetaInfo", new Date().toString());
             } else {
                 HBCIUtils.log("error while fetching meta info: " + status.toString(), HBCIUtils.LOG_ERR);
             }
@@ -201,7 +165,7 @@ public final class HBCIHandler implements IHandlerData {
      * @deprecated Bitte <code>updateMetaInfo</code> verwenden. Das aktualisiert auch die TAN-Medien.
      */
     public void updateSEPAInfo() {
-        Properties bpd = passport.getBPD();
+        Properties bpd = dialog.getPassport().getBPD();
         if (bpd == null) {
             HBCIUtils.log("have no bpd, skipping SEPA information fetching", HBCIUtils.LOG_WARN);
             return;
@@ -209,28 +173,27 @@ public final class HBCIHandler implements IHandlerData {
 
         // jetzt noch zusaetzliche die SEPA-Informationen abholen
         try {
-            if (getSupportedLowlevelJobs().getProperty("SEPAInfo") != null) {
+            if (getPassport().getSupportedLowlevelJobs(getMsgGen()).getProperty("SEPAInfo") != null) {
                 HBCIUtils.log("trying to fetch SEPA information from institute", HBCIUtils.LOG_INFO);
 
                 // HKSPA wird unterstuetzt
-                HBCIJob sepainfo = newJob("SEPAInfo");
-                sepainfo.addToQueue();
-                HBCIExecStatus status = execute();
+                HBCIJob sepainfo = newJob("SEPAInfo", getPassport(), getMsgGen());
+                addJobToDialog(sepainfo);
+                HBCIExecStatus status = execute(false);
                 if (status.isOK()) {
                     HBCIUtils.log("successfully fetched information about SEPA accounts from institute", HBCIUtils.LOG_INFO);
 
-                    passport.getUPD().setProperty("_fetchedSEPA", "1");
-                    passport.saveChanges();
+                    dialog.getPassport().getUPD().setProperty("_fetchedSEPA", "1");
                 } else {
                     HBCIUtils.log("error while fetching information about SEPA accounts from institute:", HBCIUtils.LOG_ERR);
                     HBCIUtils.log(status.toString(), HBCIUtils.LOG_ERR);
                 }
                 /* beim execute() werden die Job-Result-Objekte automatisch
                  * gefuellt. Der GV-Klasse fuer SEPAInfo haengt sich in diese
-        		 * Logik rein, um gleich die UPD mit den SEPA-Konto-Daten
-        		 * zu aktualisieren, so dass an dieser Stelle die UPD um
-        		 * die SEPA-Informationen erweitert wurden. 
-        		 */
+                 * Logik rein, um gleich die UPD mit den SEPA-Konto-Daten
+                 * zu aktualisieren, so dass an dieser Stelle die UPD um
+                 * die SEPA-Informationen erweitert wurden.
+                 */
             } else {
                 HBCIUtils.log("institute does not support SEPA accounts, so we skip fetching information about SEPA", HBCIUtils.LOG_DEBUG);
             }
@@ -244,7 +207,7 @@ public final class HBCIHandler implements IHandlerData {
     private void registerInstitute() {
         try {
             HBCIUtils.log("registering institute", HBCIUtils.LOG_DEBUG);
-            HBCIInstitute inst = new HBCIInstitute(kernel, passport, false);
+            HBCIInstitute inst = new HBCIInstitute(dialog.getKernel(), dialog.getPassport());
             inst.register();
         } catch (Exception ex) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_INST"), ex);
@@ -254,106 +217,15 @@ public final class HBCIHandler implements IHandlerData {
     private void registerUser() {
         try {
             HBCIUtils.log("registering user", HBCIUtils.LOG_DEBUG);
-            HBCIUser user = new HBCIUser(kernel, passport, false);
+            HBCIUser user = new HBCIUser(dialog.getKernel(), dialog.getPassport());
             user.register();
         } catch (Exception ex) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
         }
     }
 
-    /**
-     * <p>Schließen des Handlers. Diese Methode sollte immer dann aufgerufen werden,
-     * wenn die entsprechende HBCI-Verbindung nicht mehr benötigt wird. </p><p>
-     * Beim Schließen des Handlers wird das Passport ebenfalls geschlossen.
-     * Sowohl das Passport-Objekt als auch das Handler-Objekt können anschließend
-     * nicht mehr benutzt werden.</p>
-     */
-    public void close() {
-        if (passport != null) {
-            try {
-                passport.close();
-            } catch (Exception e) {
-                HBCIUtils.log(e);
-            }
-        }
-
-        passport = null;
-        kernel = null;
-        dialog = null;
-    }
-
-    /* gibt die zu verwendende Customer-Id zurück. Wenn keine angegeben wurde
-     * (customerId==null), dann wird die derzeitige passport-customerid 
-     * verwendet */
-    private String fixUnspecifiedCustomerId(String customerId) {
-        if (customerId == null) {
-            customerId = passport.getCustomerId();
-            HBCIUtils.log("using default customerid " + customerId, HBCIUtils.LOG_DEBUG);
-        }
-        return customerId;
-    }
-
     public HBCIDialog getDialog() {
-        if (dialog == null) {
-            HBCIUtils.log("have to create new dialog for customerid", HBCIUtils.LOG_DEBUG);
-            dialog = new HBCIDialog((HBCIPassportInternal) this.getPassport(), (HBCIKernelImpl) this.getKernel());
-        }
-
         return dialog;
-    }
-
-    /**
-     * <p>Beginn einer neuen HBCI-Nachricht innerhalb eines Dialoges festlegen.
-     * Normalerweise muss diese Methode niemals manuell aufgerufen zu werden!</p>
-     * <p>Mit dieser Methode wird der HBCI-Kernel gezwungen, eine neue HBCI-Nachricht
-     * anzulegen, in die alle nachfolgenden Geschäftsvorfälle aufgenommen werden.
-     * Die <code>customerId</code> legt fest, für welchen Dialog die neue Nachricht
-     * erzeugt werden soll. Für eine genauere Beschreibung von Dialogen und
-     * <code>customerid</code>s siehe {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String)}. </p>
-     */
-    public void newMsg() {
-        HBCIUtils.log("have to create new message for dialog for customer", HBCIUtils.LOG_DEBUG);
-        getDialog().newMsg();
-    }
-
-    /**
-     * <p>Erzeugen eines neuen Highlevel-HBCI-Jobs. Diese Methode gibt ein neues Job-Objekt zurück. Dieses
-     * Objekt wird allerdings noch <em>nicht</em> zum HBCI-Dialog hinzugefügt. Statt dessen
-     * müssen erst alle zur Beschreibung des jeweiligen Jobs benötigten Parameter mit
-     * {@link org.kapott.hbci.GV.HBCIJob#setParam(String, String)} gesetzt werden.
-     * Anschließend kann der Job mit {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String)} zum
-     * HBCI-Dialog hinzugefügt werden.</p>
-     * <p>Eine Beschreibung aller unterstützten Geschäftsvorfälle befindet sich
-     * im Package <code>org.kapott.hbci.GV</code>.</p>
-     *
-     * @param jobname der Name des Jobs, der erzeugt werden soll. Gültige
-     *                Job-Namen sowie die benötigten Parameter sind in der Beschreibung des Packages
-     *                <code>org.kapott.hbci.GV</code> zu finden.
-     * @return ein Job-Objekt, für das die entsprechenden Job-Parameter gesetzt werden müssen und
-     * welches anschließend zum HBCI-Dialog hinzugefügt werden kann.
-     */
-    public HBCIJobImpl newJob(String jobname) {
-        HBCIUtils.log("creating new job " + jobname, HBCIUtils.LOG_DEBUG);
-
-        if (jobname == null || jobname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
-
-        HBCIJobImpl ret = null;
-        String className = "org.kapott.hbci.GV.GV" + jobname;
-
-        try {
-            Class cl = Class.forName(className);
-            Constructor cons = cl.getConstructor(new Class[]{HBCIHandler.class});
-            ret = (HBCIJobImpl) cons.newInstance(new Object[]{this});
-        } catch (ClassNotFoundException e) {
-            throw new InvalidUserDataException("*** there is no highlevel job named " + jobname + " - need class " + className);
-        } catch (Exception e) {
-            String msg = HBCIUtils.getLocMsg("EXCMSG_JOB_CREATE_ERR", jobname);
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCreateJobErrors", msg))
-                throw new HBCI_Exception(msg, e);
-        }
-
-        return ret;
     }
 
     /**
@@ -370,25 +242,12 @@ public final class HBCIHandler implements IHandlerData {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        HBCIJobImpl ret = new GVTemplate(gvname, this);
+        HBCIJobImpl ret = new GVTemplate(gvname, getPassport(), getMsgGen());
         return ret;
     }
 
-    /**
-     * Do NOT use! Use {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String)} instead
-     */
-    public void addJobToDialog(String customerId, HBCIJob job) {
-        // TODO: nach dem neuen Objekt-Graph kennt der HBCIJob bereits "seinen"
-        // HBCIHandler, so dass ein HBCIHandler.addJob(job) eigentlich
-        // redundant ist und durch HBCIJob.addToQueue() ersetzt werden
-        // könnte. Deswegen muss es hier einen Überprüfung geben, ob
-        // (job.getHBCIHandler() === this) ist.
-
-        customerId = fixUnspecifiedCustomerId(customerId);
-
-        HBCIDialog dialog = null;
+    public void addJobToDialog(HBCIJob job) {
         try {
-            dialog = getDialog();
             dialog.addTask((HBCIJobImpl) job);
         } finally {
             // wenn beim hinzufügen des jobs ein fehler auftrat, und wenn der
@@ -398,7 +257,7 @@ public final class HBCIHandler implements IHandlerData {
 
             if (dialog != null) {
                 if (dialog.getAllTasks().size() == 0) {
-                    HBCIUtils.log("removing empty dialog for customerid " + customerId + " from list of dialogs", HBCIUtils.LOG_DEBUG);
+                    HBCIUtils.log("removing empty dialog for customerid " + getPassport().getCustomerId() + " from list of dialogs", HBCIUtils.LOG_DEBUG);
                     dialog = null;
                 }
             }
@@ -406,48 +265,16 @@ public final class HBCIHandler implements IHandlerData {
     }
 
     /**
-     * @deprecated use {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String) HBCIJob.addToQueue(String)} instead
-     */
-    public void addJob(String customerId, HBCIJob job) {
-        addJobToDialog(customerId, job);
-    }
-
-    /**
-     * @deprecated use {@link org.kapott.hbci.GV.HBCIJob#addToQueue() HBCIJob.addToQueue()} instead
-     */
-    public void addJob(HBCIJob job) {
-        addJob(null, job);
-    }
-
-    /**
-     * Erzeugen eines leeren HBCI-Dialoges. <p>Im Normalfall werden HBCI-Dialoge
-     * automatisch erzeugt, wenn Geschäftsvorfälle mit der Methode {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String)}
-     * zur Liste der auszuführenden Jobs hinzugefügt werden. <code>createEmptyDialog()</code>
-     * kann explizit aufgerufen werden, wenn ein Dialog erzeugt werden soll,
-     * der keine Geschäftsvorfälle enthält, also nur aus Dialog-Initialisierung
-     * und Dialog-Ende besteht.</p>
-     * <p>Ist die angegebene <code>customerId=null</code>, so wird der Dialog
-     * für die aktuell im Passport gespeicherte Customer-ID erzeugt.</p>
-     */
-    public void createEmptyDialog() {
-        HBCIUtils.log("creating empty dialog", HBCIUtils.LOG_DEBUG);
-        getDialog();
-    }
-
-    /**
      * <p>Ausführen aller bisher erzeugten Aufträge. Diese Methode veranlasst den HBCI-Kernel,
-     * die Aufträge, die durch die Aufrufe der Methode
-     * {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String)}
-     * zur Auftragsliste hinzugefügt wurden, auszuführen. </p>
-     * <p>Beim Hinzufügen der Aufträge zur Auftragsqueue (mit {@link org.kapott.hbci.GV.HBCIJob#addToQueue()}
-     * oder {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String)}) wird implizit oder explizit
+     * die Aufträge, die durch die Aufrufe auszuführen. </p>
+     * <p>Beim Hinzufügen der Aufträge zur Auftragsqueue wird implizit oder explizit
      * eine Kunden-ID mit angegeben, unter der der jeweilige Auftrag ausgeführt werden soll.
      * In den meisten Fällen hat ein Benutzer nur eine einzige Kunden-ID, so dass die
      * Angabe entfallen kann, es wird dann automatisch die richtige verwendet. Werden aber
      * mehrere Aufträge via <code>addToQueue()</code> zur Auftragsqueue hinzugefügt, und sind
      * diese Aufträge unter teilweise unterschiedlichen Kunden-IDs auszuführen, dann wird
      * für jede verwendete Kunden-ID ein separater HBCI-Dialog erzeugt und ausgeführt.
-     * Das äußert sich dann also darin, dass beim Aufrufen der Methode {@link #execute()}
+     * Das äußert sich dann also darin, dass beim Aufrufen der Methode execute
      * u.U. mehrere HBCI-Dialog mit der Bank geführt werden, und zwar je einer für jede Kunden-ID,
      * für die wenigstens ein Auftrag existiert. Innerhalb eines HBCI-Dialoges werden alle
      * auszuführenden Aufträge in möglichst wenige HBCI-Nachrichten verpackt.</p>
@@ -463,49 +290,23 @@ public final class HBCIHandler implements IHandlerData {
      * @return ein Status-Objekt, anhand dessen der Erfolg oder das Fehlschlagen
      * der Dialoge festgestellt werden kann.
      */
-    public HBCIExecStatus execute() {
-        String origCustomerId = passport.getCustomerId();
+    public HBCIExecStatus execute(boolean closeDialog) {
+        String origCustomerId = dialog.getPassport().getCustomerId();
         try {
             HBCIExecStatus ret = new HBCIExecStatus();
 
             HBCIUtils.log("executing dialog", HBCIUtils.LOG_DEBUG);
 
             try {
-                HBCIDialog dialog = getDialog();
                 HBCIDialogStatus dialogStatus = dialog.doIt(closeDialog);
                 ret.addDialogStatus(dialogStatus);
             } catch (Exception e) {
                 ret.addException(e);
-            } finally {
-                if (closeDialog) {
-                    dialog = null;
-                }
             }
-
             return ret;
         } finally {
-            if (closeDialog) {
-                reset();
-            }
-            passport.setCustomerId(origCustomerId);
-            try {
-                passport.closeComm();
-            } catch (Exception e) {
-                HBCIUtils.log("nested exception while closing passport: ", HBCIUtils.LOG_ERR);
-                HBCIUtils.log(e);
-            }
+            dialog.getPassport().setCustomerId(origCustomerId);
         }
-    }
-
-    /**
-     * Zurücksetzen des Handlers auf den Ausgangszustand. Diese Methode kann
-     * aufgerufen werden, wenn alle bisher hinzugefügten Nachrichten und
-     * Aufträge wieder entfernt werden sollen. Nach dem Ausführen eines
-     * Dialoges mit {@link #execute()} wird diese Methode
-     * automatisch aufgerufen.
-     */
-    public void reset() {
-        dialog = null;
     }
 
     /**
@@ -513,75 +314,24 @@ public final class HBCIHandler implements IHandlerData {
      *
      * @return Passport-Objekt, mit dem dieses Handle erzeugt wurde
      */
-    public HBCIPassport getPassport() {
-        return passport;
+    public HBCIPassportInternal getPassport() {
+        return dialog.getPassport();
     }
 
     /**
      * Gibt das HBCI-Kernel-Objekt zurück, welches von diesem HBCI-Handler
      * benutzt wird. Das HBCI-Kernel-Objekt kann u.a. benutzt werden, um
-     * alle für die aktuellen HBCI-Version (siehe {@link #getHBCIVersion()})
+     * alle für die aktuellen HBCI-Version
      * implementierten Geschäftsvorfälle abzufragen.
      *
      * @return HBCI-Kernel-Objekt, mit dem der HBCI-Handler arbeitet
      */
     public HBCIKernel getKernel() {
-        return kernel;
+        return dialog.getKernel();
     }
 
     public MsgGen getMsgGen() {
-        return kernel.getMsgGen();
-    }
-
-    /**
-     * Gibt die HBCI-Versionsnummer zurück, für die der aktuelle HBCIHandler
-     * konfiguriert ist.
-     *
-     * @return HBCI-Versionsnummer, mit welcher dieses Handler-Objekt arbeitet
-     */
-    public String getHBCIVersion() {
-        return kernel.getHBCIVersion();
-    }
-
-    /**
-     * <p>Gibt die Namen aller vom aktuellen HBCI-Zugang (d.h. Passport)
-     * unterstützten Lowlevel-Jobs zurück. Alle hier zurückgegebenen Job-Namen
-     * können als Argument beim Aufruf der Methode
-     * {@link #newLowlevelJob(String)} benutzt werden.</p>
-     * <p>In dem zurückgegebenen Properties-Objekt enthält jeder Eintrag als
-     * Key den Lowlevel-Job-Namen; als Value wird die Versionsnummer des
-     * jeweiligen Geschäftsvorfalls angegeben, die von <em>HBCI4Java</em> mit dem
-     * aktuellen Passport und der aktuell eingestellten HBCI-Version
-     * benutzt werden wird.</p>
-     * <p><em>(Prinzipiell unterstützt <em>HBCI4Java</em> für jeden
-     * Geschäftsvorfall mehrere GV-Versionen. Auch eine Bank bietet i.d.R. für
-     * jeden GV mehrere Versionen an. Wird mit <em>HBCI4Java</em> ein HBCI-Job
-     * erzeugt, so verwendet <em>HBCI4Java</em> immer automatisch die höchste
-     * von der Bank unterstützte GV-Versionsnummer. Diese Information ist
-     * für den Anwendungsentwickler kaum von Bedeutung und dient hauptsächlich
-     * zu Debugging-Zwecken.)</em></p>
-     * <p>Zum Unterschied zwischen High- und Lowlevel-Jobs siehe die
-     * Beschreibung im Package <code>org.kapott.hbci.GV</code>.</p>
-     *
-     * @return Sammlung aller vom aktuellen Passport unterstützten HBCI-
-     * Geschäftsvorfallnamen (Lowlevel) mit der jeweils von <em>HBCI4Java</em>
-     * verwendeten GV-Versionsnummer.
-     */
-    public Properties getSupportedLowlevelJobs() {
-        Hashtable<String, List<String>> allValidJobNames = kernel.getAllLowlevelJobs();
-        Properties paramSegments = passport.getParamSegmentNames();
-        Properties result = new Properties();
-
-        for (Enumeration e = paramSegments.propertyNames(); e.hasMoreElements(); ) {
-            String segName = (String) e.nextElement();
-
-            // überprüfen, ob parameter-segment tatsächlich zu einem GV gehört
-            // gilt z.b. für "PinTan" nicht
-            if (allValidJobNames.containsKey(segName))
-                result.put(segName, paramSegments.getProperty(segName));
-        }
-
-        return result;
+        return dialog.getKernel().getMsgGen();
     }
 
     /**
@@ -621,11 +371,11 @@ public final class HBCIHandler implements IHandlerData {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs().getProperty(gvname);
+        String version = getPassport().getSupportedLowlevelJobs(getMsgGen()).getProperty(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
-        return kernel.getLowlevelJobParameterNames(gvname, version);
+        return dialog.getKernel().getLowlevelJobParameterNames(gvname, version);
     }
 
     /**
@@ -666,104 +416,18 @@ public final class HBCIHandler implements IHandlerData {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs().getProperty(gvname);
+        String version = getPassport().getSupportedLowlevelJobs(getMsgGen()).getProperty(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
-        return kernel.getLowlevelJobResultNames(gvname, version);
+        return dialog.getKernel().getLowlevelJobResultNames(gvname, version);
     }
 
-    /**
-     * <p>Gibt für einen Job alle bekannten Einschränkungen zurück, die bei
-     * der Ausführung des jeweiligen Jobs zu beachten sind. Diese Daten werden aus den
-     * Bankparameterdaten des aktuellen Passports extrahiert. Sie können von einer HBCI-Anwendung
-     * benutzt werden, um gleich entsprechende Restriktionen bei der Eingabe von
-     * Geschäftsvorfalldaten zu erzwingen (z.B. die maximale Anzahl von Verwendungszweckzeilen,
-     * ob das Ändern von terminierten Überweisungen erlaubt ist usw.).</p>
-     * <p>Die einzelnen Einträge des zurückgegebenen Properties-Objektes enthalten als Key die
-     * Bezeichnung einer Restriktion (z.B. "<code>maxusage</code>"), als Value wird der
-     * entsprechende Wert eingestellt. Die Bedeutung der einzelnen Restriktionen ist zur Zeit
-     * nur der HBCI-Spezifikation zu entnehmen. In späteren Programmversionen werden entsprechende
-     * Dokumentationen zur internen HBCI-Beschreibung hinzugefügt, so dass dafür eine Abfrageschnittstelle
-     * implementiert werden kann.</p>
-     * <p>I.d.R. werden mehrere Versionen eines Geschäftsvorfalles von der Bank
-     * angeboten. Diese Methode ermittelt automatisch die "richtige" Versionsnummer
-     * für die Ermittlung der GV-Restriktionen aus den BPD (und zwar die selbe,
-     * die <em>HBCI4Java</em> beim Erzeugen eines Jobs benutzt). </p>
-     * <p>Siehe dazu auch {@link HBCIJob#getJobRestrictions()}.</p>
-     *
-     * @param gvname Lowlevel-Name des Geschäftsvorfalles, für den die Restriktionen
-     *               ermittelt werden sollen
-     * @return Properties-Objekt mit den einzelnen Restriktionen
-     */
-    public Properties getLowlevelJobRestrictions(String gvname) {
-        if (gvname == null || gvname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
-
-        String version = getSupportedLowlevelJobs().getProperty(gvname);
-        if (version == null)
-            throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
-
-        return passport.getJobRestrictions(gvname, version);
+    public void status(int statusMsgSend, Object o) {
+        dialog.getPassport().getCallback().status(statusMsgSend, o);
     }
 
-    /**
-     * <p>Überprüfen, ein bestimmter Highlevel-Job von der Bank angeboten
-     * wird. Diese Methode kann benutzt werden, um <em>vor</em> dem Erzeugen eines
-     * {@link org.kapott.hbci.GV.HBCIJob}-Objektes zu überprüfen, ob
-     * der gewünschte Job überhaupt von der Bank angeboten wird. Ist das
-     * nicht der Fall, so würde der Aufruf von
-     * {@link org.kapott.hbci.manager.HBCIHandler#newJob(String)}
-     * zu einer Exception führen.</p>
-     * <p>Eine Liste aller zur Zeit verfügbaren Highlevel-Jobnamen ist in der Paketbeschreibung
-     * des Packages <code>org.kapott.hbci.GV</code> zu finden. Wird hier nach einem Highlevel-Jobnamen
-     * gefragt, der nicht in dieser Liste enthalten ist, so wird eine Exception geworfen.</p>
-     * <p>Mit dieser Methode können nur Highlevel-Jobs überprüft werden. Zum Überprüfen,
-     * ob ein bestimmter Lowlevel-Job unterstützt wird, ist die Methode
-     * {@link HBCIHandler#getSupportedLowlevelJobs()}
-     * zu verwenden.</p>
-     *
-     * @param jobnameHL der Highlevel-Name des Jobs, dessen Unterstützung überprüft werden soll
-     * @return <code>true</code>, wenn dieser Job von der Bank unterstützt wird und
-     * mit <em>HBCI4Java</em> verwendet werden kann; ansonsten <code>false</code>
-     */
-    public boolean isSupported(String jobnameHL) {
-        if (jobnameHL == null || jobnameHL.length() == 0)
-            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
-
-        try {
-            Class cl = Class.forName("org.kapott.hbci.GV.GV" + jobnameHL);
-            String lowlevelName = (String) cl.getMethod("getLowlevelName", (Class[]) null).invoke(null, (Object[]) null);
-            return getSupportedLowlevelJobs().keySet().contains(lowlevelName);
-        } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_HANDLER_HLCHECKERR", jobnameHL), e);
-        }
+    public void callback(int closeConnection, String callb_close_conn, int typeNone, StringBuffer stringBuffer) {
+        dialog.getPassport().getCallback().callback(closeConnection, callb_close_conn, typeNone, stringBuffer);
     }
-
-    /**
-     * Abholen der BPD bzw. UPD erzwingen. Beim Aufruf dieser Methode wird
-     * automatisch ein HBCI-Dialog ausgeführt, der je nach Wert von <code>selectX</code>
-     * die BPD und/oder UPD erneut abholt. Alle bis zu diesem Zeitpunkt erzeugten
-     * ({@link org.kapott.hbci.GV.HBCIJob#addToQueue()}) und noch nicht ausgeführten Jobs werden dabei
-     * wieder aus der Job-Schlange entfernt.
-     *
-     * @param selectX kann aus einer Kombination (Addition) der Werte
-     *                {@link #REFRESH_BPD} und {@link #REFRESH_UPD} bestehen
-     * @return Status-Objekt, welches Informationen über den ausgeführten
-     * HBCI-Dialog enthält
-     */
-    public HBCIDialogStatus refreshXPD(int selectX) {
-        if ((selectX & REFRESH_BPD) != 0) {
-            passport.clearBPD();
-        }
-        if ((selectX & REFRESH_UPD) != 0) {
-            passport.clearUPD();
-        }
-
-        reset();
-        getDialog();
-        HBCIDialogStatus result = execute().getDialogStatus();
-        return result;
-    }
-
 }

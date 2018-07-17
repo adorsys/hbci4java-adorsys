@@ -21,10 +21,10 @@
 
 package org.kapott.hbci.structures;
 
+import org.kapott.hbci.manager.HBCIUtils;
+
 import java.io.Serializable;
 import java.util.Date;
-
-import org.kapott.hbci.manager.HBCIUtils;
 
 /** Darstellung eines Saldos. Anders als bei der Darstellung als
     einfacher Wert wird hier der <em>absolute</em> Betrag des Wertes

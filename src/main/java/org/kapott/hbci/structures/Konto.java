@@ -21,10 +21,10 @@
 
 package org.kapott.hbci.structures;
 
+import org.kapott.hbci.manager.HBCIUtils;
+
 import java.io.Serializable;
 import java.util.List;
-
-import org.kapott.hbci.manager.HBCIUtils;
 
 /** Kontoverbindung.
     Diese Klasse repräsentiert eine einzelne Kontoverbindung 

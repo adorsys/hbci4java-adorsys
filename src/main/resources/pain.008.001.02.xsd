@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Von der Deutschen Kreditwirtschaft bereitgestelltes Kunde-Bank-Schema fÃ¼r die SEPA-Lastschrift (nutzbar fÃ¼r CORE und B2B) -->
-<!-- Version gemÃ¤Ã DFÃ-Abkommen Anlage 3, Version 3.0, gÃ¼ltig ab November 2016 mit Umsetzung der EPC SDD Core IG 9.0 bzw. SDD B2B IG 7.0 und Erweiterung Mandatsreferenz um Leerzeichen - Namespace analog ISO 20022 Edition 2009, da voll kompatibel, zudem inkl. aller EPC-Vorgaben-->
-<!-- Beim Local Instrument ist die gesamte externe ISO-Codeliste aufgenommen (wenngleich hier gemÃ¤Ã Spezifikation nur CORE und B2B zulÃ¤ssig sind) -->
+<!-- Von der Deutschen Kreditwirtschaft bereitgestelltes Kunde-Bank-Schema für die SEPA-Lastschrift (nutzbar für CORE und B2B) -->
+<!-- Version gemäÃ DFÃ-Abkommen Anlage 3, Version 3.0, gültig ab November 2016 mit Umsetzung der EPC SDD Core IG 9.0 bzw. SDD B2B IG 7.0 und Erweiterung Mandatsreferenz um Leerzeichen - Namespace analog ISO 20022 Edition 2009, da voll kompatibel, zudem inkl. aller EPC-Vorgaben-->
+<!-- Beim Local Instrument ist die gesamte externe ISO-Codeliste aufgenommen (wenngleich hier gemäÃ Spezifikation nur CORE und B2B zulässig sind) -->
 <!-- Mit XMLSpy v2008 rel. 2 (http://www.altova.com) von Wenzel und mit XMLSpy v2007 rel. 3 (http://www.altova.com) von Schopohl (SIZ Bonn) bearbeitet -->
 <xs:schema xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" elementFormDefault="qualified">
 	<xs:element name="Document" type="Document"/>

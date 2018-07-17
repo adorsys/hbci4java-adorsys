@@ -25,11 +25,14 @@ import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.callback.HBCICallbackConsole;
+import org.kapott.hbci.manager.HBCIDialog;
 import org.kapott.hbci.manager.HBCIHandler;
+import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportPinTan;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
 import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.structures.Konto;
 
@@ -57,45 +60,36 @@ public final class AnalyzeReportOfTransactions {
         properties.put("client.passport.customerId", System.getProperty("login"));
 
         // Initialize User Passport
-        HBCIPassportPinTan passport = (HBCIPassportPinTan) AbstractHBCIPassport
+        HBCIPassportPinTanNoFile passport = (HBCIPassportPinTanNoFile) AbstractHBCIPassport
                 .getInstance(new HBCICallbackConsole(), properties);
+        HBCIDialog dialog = new HBCIDialog(passport);
 
         passport.setPIN(System.getProperty("pin"));
 
         // Initialize and use HBCI handle
-        HBCIHandler hbciHandle = null;
-        try {
-            hbciHandle = new HBCIHandler(passport);
+        HBCIHandler hbciHandle =  hbciHandle = new HBCIHandler(dialog);
 
-            // Read bank account statement
-            analyzeReportOfTransactions(passport, hbciHandle);
-
-        } finally {
-            if (hbciHandle != null) {
-                hbciHandle.close();
-            } else if (passport != null) {
-                passport.close();
-            }
-        }
+        // Read bank account statement
+        analyzeReportOfTransactions(passport, hbciHandle);
     }
 
-    private static void analyzeReportOfTransactions(HBCIPassport hbciPassport, HBCIHandler hbciHandle) {
+    private static void analyzeReportOfTransactions(HBCIPassportInternal hbciPassport, HBCIHandler hbciHandle) {
         // Use first available HBCI account
         Konto myaccount = hbciPassport.getAccounts()[0];
 
         // Create HBCI job
-        HBCIJob bankAccountStatementJob = hbciHandle.newJob("KUmsAll");
+        HBCIJob bankAccountStatementJob = HBCIJobFactory.newJob("KUmsAll", hbciPassport, hbciHandle.getMsgGen());
         bankAccountStatementJob.setParam("my", myaccount);
 
         // Set bank account statement retrieval date
         // bankAccountStatementJob.setParam("startdate","21.5.2003");
 
-        bankAccountStatementJob.addToQueue();
+        hbciHandle.addJobToDialog(bankAccountStatementJob);
 
         // Execute all jobs
-        HBCIExecStatus ret = hbciHandle.execute();
+        HBCIExecStatus ret = hbciHandle.execute(true);
 
-        // GVRKUms = GeschÃ¤fts Vorfall Result Konto Umsatz
+        // GVRKUms = Geschäfts Vorfall Result Konto Umsatz
         GVRKUms result = (GVRKUms) bankAccountStatementJob.getJobResult();
 
         if (result.isOK()) {

@@ -1,9 +1,7 @@
 package org.kapott.hbci.GV.generators;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Logger;
+import org.kapott.hbci.exceptions.HBCI_Exception;
+import org.kapott.hbci.sepa.PainVersion;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -13,9 +11,10 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-
-import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.sepa.PainVersion;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Logger;
 
 /**
  * Abstrakte Basis-Implementierung der SEPA-Generatoren.

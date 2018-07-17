@@ -21,12 +21,12 @@
 
 package org.kapott.hbci.status;
 
+import org.kapott.hbci.exceptions.HBCI_Exception;
+import org.kapott.hbci.manager.HBCIUtils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Properties;
-
-import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtils;
 
 /** <p>Repräsentation eines HBCI-Statuscodes. Objekte dieser Klasse
     stellen einen einzigen HBCI-Returncode dar, welcher aus einer

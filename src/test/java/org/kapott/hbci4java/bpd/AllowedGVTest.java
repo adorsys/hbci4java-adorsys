@@ -23,7 +23,7 @@ public class AllowedGVTest extends AbstractTest {
     @Test
     public void test() throws Exception {
         String data = getFile("bpd/bpd-allowedgv.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null, "plus");
+        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
 
 //	    Rewrite.setData("msgName","Synch");
         // liste der rewriter erzeugen
@@ -60,7 +60,7 @@ public class AllowedGVTest extends AbstractTest {
     @Test
     public void test2() throws Exception {
         String data = getFile("bpd/bpd-allowedgv2.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null, "300");
+        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
 
 //	        Rewrite.setData("msgName","Synch");
         // liste der rewriter erzeugen

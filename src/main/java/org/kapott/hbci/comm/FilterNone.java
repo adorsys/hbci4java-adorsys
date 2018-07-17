@@ -23,7 +23,6 @@ package org.kapott.hbci.comm;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 
 public final class FilterNone
     extends Filter
@@ -36,7 +35,7 @@ public final class FilterNone
     public byte[] encode(String st)
     {
         try {
-            return st.getBytes(Comm.ENCODING);
+            return st.getBytes(CommPinTan.ENCODING);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_ISOERR"),e);
         }

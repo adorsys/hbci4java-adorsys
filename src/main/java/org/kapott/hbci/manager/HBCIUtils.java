@@ -21,15 +21,13 @@
 
 package org.kapott.hbci.manager;
 
-import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.comm.Comm;
+import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.structures.Konto;
-import org.kapott.hbci.swift.Swift;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -679,7 +677,7 @@ public final class HBCIUtils {
      */
     public static byte[] decodeBase64(String st) {
         try {
-            byte[] source = st.getBytes(Comm.ENCODING);
+            byte[] source = st.getBytes(CommPinTan.ENCODING);
             byte[] ret = new byte[st.length()];
             int retlen = 0;
 
@@ -1025,23 +1023,6 @@ public final class HBCIUtils {
         return VERSION;
     }
 
-    /**
-     * Parsen eines MT940-Datenstroms (Kontoauszüge). Kontoauszüge können
-     * von vielen Software-Produkten im MT940-Format exportiert werden. Diese
-     * Methode nimmt einen solchen MT940-String entgegen, parst ihn und stellt
-     * ein {@link org.kapott.hbci.GV_Result.GVRKUms GVRKUms}-Objekt mit den
-     * geparsten Daten zur Verfügung.
-     *
-     * @param mt940 Der zu parsende MT940-String
-     * @return {@link org.kapott.hbci.GV_Result.GVRKUms GVRKUms}-Objekt für den
-     * einfachen Zugriff auf die Umsatzinformationen.
-     */
-    public static GVRKUms parseMT940(String mt940) {
-        GVRKUms result = new GVRKUms();
-        result.appendMT940Data(Swift.decodeUmlauts(mt940));
-        return result;
-    }
-
     public static void log(String s, int logLevel) {
         switch (logLevel) {
             case LOG_INTERN:
@@ -1093,7 +1074,7 @@ public final class HBCIUtils {
 
     public static boolean ignoreError(HBCIPassport passport, String paramName, String msg) {
         boolean ret = false;
-        String  paramValue = "no";
+        String paramValue = "no";
         if (passport != null) {
             paramValue = passport.getProperties().getProperty(paramName, "no");
         }

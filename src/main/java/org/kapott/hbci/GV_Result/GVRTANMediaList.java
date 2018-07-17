@@ -1,55 +1,53 @@
 package org.kapott.hbci.GV_Result;
 
-import java.util.List;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.io.Serializable;
+import java.util.List;
 
 public class GVRTANMediaList extends HBCIJobResultImpl {
-	
-	public static class TANMediaInfo implements Serializable {
-		public String 	mediaCategory;
-		public String 	status;
-		public String 	cardNumber;
-		public String 	cardSeqNumber;
-		public Integer	cardType;
-		public Date 	validFrom;
-		public Date 	validTo;
-		public String 	tanListNumber;
-		public String 	mediaName;
-		public String	mobileNumber;
-		public String	mobileNumberSecure;
-		public Integer	freeTans;
-		public Date		lastUse;
-		public Date		activatedOn;
-	}
-	
-	public GVRTANMediaList() {
-		super();
-		mediaList = new ArrayList<TANMediaInfo>();
-		tanOption = -1;
-	}
-	
-	private List<TANMediaInfo> mediaList;
-	private Integer tanOption;
 
-	public void add(TANMediaInfo info)
-	{
-		mediaList.add(info);
-	}
-	
-	public List<TANMediaInfo> mediaList()
-	{
-		return mediaList;
-	}
-	
-	public Integer getTanOption()
-	{
-		return tanOption;
-	}
-	
-	public void setTanOption(Integer option)
-	{
-		tanOption = option;
-	}
+    private List<TANMediaInfo> mediaList = new ArrayList<>();
+    private Integer tanOption = -1;
+
+    public GVRTANMediaList(HBCIPassportInternal passport) {
+        super(passport);
+    }
+
+    public static class TANMediaInfo implements Serializable {
+        public String mediaCategory;
+        public String status;
+        public String cardNumber;
+        public String cardSeqNumber;
+        public Integer cardType;
+        public Date validFrom;
+        public Date validTo;
+        public String tanListNumber;
+        public String mediaName;
+        public String mobileNumber;
+        public String mobileNumberSecure;
+        public Integer freeTans;
+        public Date lastUse;
+        public Date activatedOn;
+    }
+
+
+
+    public void add(TANMediaInfo info) {
+        mediaList.add(info);
+    }
+
+    public List<TANMediaInfo> mediaList() {
+        return mediaList;
+    }
+
+    public Integer getTanOption() {
+        return tanOption;
+    }
+
+    public void setTanOption(Integer option) {
+        tanOption = option;
+    }
 }

@@ -21,13 +21,13 @@
 
 package org.kapott.hbci.rewrite;
 
-import java.util.Enumeration;
-import java.util.Properties;
-
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
 import org.kapott.hbci.protocol.SyntaxElement;
+
+import java.util.Enumeration;
+import java.util.Properties;
 
 /** Rewriter-Modul für Kontoauszüge der 1822direkt-Bank (und vielleicht andere). Die
     Kontoauszüge können nicht geparst werden, weil das verwendete SWIFT-Format von

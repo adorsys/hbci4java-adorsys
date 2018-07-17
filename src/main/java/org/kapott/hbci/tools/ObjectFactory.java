@@ -21,10 +21,7 @@
 
 package org.kapott.hbci.tools;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-public class ObjectFactory 
+public class ObjectFactory
 {
     
     public ObjectFactory()

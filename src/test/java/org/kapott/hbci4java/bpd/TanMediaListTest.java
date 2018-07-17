@@ -18,7 +18,7 @@ public class TanMediaListTest extends AbstractTest {
     @Test
     public void test() throws Exception {
         String data = getFile("bpd/bpd-tanmedialist.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null, "300");
+        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
 
 
 //	    Rewrite.setData("msgName","CustomMsg");

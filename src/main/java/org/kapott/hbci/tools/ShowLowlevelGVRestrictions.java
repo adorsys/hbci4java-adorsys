@@ -21,17 +21,15 @@
 
 package org.kapott.hbci.tools;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.HBCIKernelImpl;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /** TODO: doku fehlt (analog zu ShowLowlevelGVRs */
 public class ShowLowlevelGVRestrictions 
@@ -49,7 +47,7 @@ public class ShowLowlevelGVRestrictions
                     .readLine();
         }
 
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null, hbciversion);
+        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
         MsgGen         msggen = kernel.getMsgGen();
         Document       syntax = msggen.getSyntax();
 

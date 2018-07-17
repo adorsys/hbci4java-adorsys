@@ -22,29 +22,35 @@
 package org.kapott.hbci.GV_Result;
 
 
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
-/** Rückgabedaten für das Einreichen einer terminierten Überweisung. Beim Einreichen
-    einer terminierten Überweisung gibt die Bank u.U. eine Auftrags-Identifikationsnummer
-    zurück, die benutzt werden kann, um den Auftrag später zu ändern oder zu löschen. */
-public class GVRTermUeb
-    extends HBCIJobResultImpl
-{
+/**
+ * Rückgabedaten für das Einreichen einer terminierten Überweisung. Beim Einreichen
+ * einer terminierten Überweisung gibt die Bank u.U. eine Auftrags-Identifikationsnummer
+ * zurück, die benutzt werden kann, um den Auftrag später zu ändern oder zu löschen.
+ */
+public class GVRTermUeb extends HBCIJobResultImpl {
+
     private String orderid;
 
-    public void setOrderId(String orderid)
-    {
-        this.orderid=orderid;
+    public GVRTermUeb(HBCIPassportInternal passport) {
+        super(passport);
     }
 
-    /** Gibt die Auftrags-ID zurück, unter der der Auftrag bei der Bank geführt wird. 
-        @return die Auftrags-ID oder <code>null</code>, wenn die Bank keine Auftrags-IDs unterstützt */
-    public String getOrderId()
-    {
+    public void setOrderId(String orderid) {
+        this.orderid = orderid;
+    }
+
+    /**
+     * Gibt die Auftrags-ID zurück, unter der der Auftrag bei der Bank geführt wird.
+     *
+     * @return die Auftrags-ID oder <code>null</code>, wenn die Bank keine Auftrags-IDs unterstützt
+     */
+    public String getOrderId() {
         return orderid;
     }
-    
-    public String toString()
-    {
-        return "orderid: "+getOrderId();
+
+    public String toString() {
+        return "orderid: " + getOrderId();
     }
 }

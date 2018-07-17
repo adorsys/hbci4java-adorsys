@@ -21,86 +21,99 @@
 
 package org.kapott.hbci.GV_Result;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Saldo;
 import org.kapott.hbci.structures.Value;
 
-/** Ergebnisse einer Saldenabfrage. Hier ist für jedes abgefragte Konto
-    genau ein entsprechendes Saldo-Objekt eingetragen. */
-public final class GVRSaldoReq
-    extends HBCIJobResultImpl
-{
-    /** Saldo-Informationen für ein Konto */
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Ergebnisse einer Saldenabfrage. Hier ist für jedes abgefragte Konto
+ * genau ein entsprechendes Saldo-Objekt eingetragen.
+ */
+public final class GVRSaldoReq extends HBCIJobResultImpl {
+
+    private List<Info> saldi = new ArrayList<>();
+
+    public GVRSaldoReq(HBCIPassportInternal passport) {
+        super(passport);
+    }
+
+    /**
+     * Saldo-Informationen für ein Konto
+     */
     public static final class Info
-        implements Serializable
-    {
-        /** Saldo für welches Konto */
+            implements Serializable {
+        /**
+         * Saldo für welches Konto
+         */
         public Konto konto;
-        /** Gebuchter Saldo */
+        /**
+         * Gebuchter Saldo
+         */
         public Saldo ready;
-        /** Saldo noch nicht verbuchter Umsätze (optional)*/
+        /**
+         * Saldo noch nicht verbuchter Umsätze (optional)
+         */
         public Saldo unready;
-        /** Kreditlinie (optional) */
+        /**
+         * Kreditlinie (optional)
+         */
         public Value kredit;
-        /** Aktuell verfügbarer Betrag (optional) */
+        /**
+         * Aktuell verfügbarer Betrag (optional)
+         */
         public Value available;
-        /** Bereits verfügter Betrag (optional) */
+        /**
+         * Bereits verfügter Betrag (optional)
+         */
         public Value used;
 
-        public String toString()
-        {
-            StringBuffer ret=new StringBuffer();
-            String linesep=System.getProperty("line.separator");
+        public String toString() {
+            StringBuffer ret = new StringBuffer();
+            String linesep = System.getProperty("line.separator");
 
             ret.append("Konto: ").append(konto.toString()).append(linesep);
             ret.append("  Gebucht: ").append(ready.toString()).append(linesep);
-            
-            if (unready!=null)
+
+            if (unready != null)
                 ret.append("  Pending: ").append(unready.toString()).append(linesep);
-            if (kredit!=null)
+            if (kredit != null)
                 ret.append("  Kredit: ").append(kredit.toString()).append(linesep);
-            if (available!=null)
+            if (available != null)
                 ret.append("  Verfügbar: ").append(available.toString()).append(linesep);
-            if (used!=null)
+            if (used != null)
                 ret.append("  Benutzt: ").append(used.toString());
 
             return ret.toString().trim();
         }
     }
 
-    private List<Info> saldi;
-
-    public GVRSaldoReq()
-    {
-        saldi=new ArrayList<Info>();
-    }
-    
-    public void store(GVRSaldoReq.Info info)
-    {
+    public void store(GVRSaldoReq.Info info) {
         saldi.add(info);
     }
-    
-    /** Gibt alle verfügbaren Saldo-Informationen in einem Feld zurück.
-        Dabei existiert für jedes abgefragte Konto ein Eintrag in diesem Feld.
-        @return Array mit Saldeninformationen */
-    public Info[] getEntries()
-    {
+
+    /**
+     * Gibt alle verfügbaren Saldo-Informationen in einem Feld zurück.
+     * Dabei existiert für jedes abgefragte Konto ein Eintrag in diesem Feld.
+     *
+     * @return Array mit Saldeninformationen
+     */
+    public Info[] getEntries() {
         return saldi.toArray(new Info[saldi.size()]);
     }
-    
-    public String toString()
-    {
-        StringBuffer ret=new StringBuffer();
-        
-        for (int i=0;i<saldi.size();i++) {
-            GVRSaldoReq.Info info= saldi.get(i);
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+
+        for (int i = 0; i < saldi.size(); i++) {
+            GVRSaldoReq.Info info = saldi.get(i);
             ret.append(info.toString()).append(System.getProperty("line.separator"));
         }
-        
+
         return ret.toString().trim();
     }
 }

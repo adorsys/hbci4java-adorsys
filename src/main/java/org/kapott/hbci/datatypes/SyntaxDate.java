@@ -21,11 +21,10 @@
 
 package org.kapott.hbci.datatypes;
 
-import java.text.SimpleDateFormat;
-
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
+
+import java.text.SimpleDateFormat;
 
 /* represents the datatype "date" */
 // interne Speicherung im HBCI-MSG-Format

@@ -22,14 +22,12 @@
 package org.kapott.hbci.manager;
 
 import org.kapott.hbci.callback.HBCICallback;
+import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.CanNotParseMessageException;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.passport.HBCIPassportList;
 import org.kapott.hbci.protocol.MSG;
-
 import org.kapott.hbci.rewrite.Rewrite;
 import org.kapott.hbci.security.Crypt;
 import org.kapott.hbci.security.Sig;
@@ -42,6 +40,7 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 
 public final class HBCIKernelImpl implements HBCIKernel {
+
     public final static boolean SIGNIT = true;
     public final static boolean DONT_SIGNIT = false;
     public final static boolean CRYPTIT = true;
@@ -51,24 +50,31 @@ public final class HBCIKernelImpl implements HBCIKernel {
     public final static boolean NEED_CRYPT = true;
     public final static boolean DONT_NEED_CRYPT = false;
 
-    private String hbciversion;      /* the HBCI version used by this kernel object */
     private MsgGen gen;              /* an instance of a message generator */
     private String currentMsgName;   /* name of job currently beeing created */
 
-    private IHandlerData parentHandlerData;
+    private HBCIPassportInternal passport;
+    private CommPinTan commPinTan;
 
-    public HBCIKernelImpl(IHandlerData parentHandlerData, String hbciversion) {
-        this.parentHandlerData = parentHandlerData;
-        this.hbciversion = hbciversion;
+    public HBCIKernelImpl(HBCIPassportInternal passport) {
+        this.passport = passport;
 
+        createMsgGen();
+
+        this.commPinTan = new CommPinTan(gen,  passport.getProperties().getProperty("kernel.rewriter"), passport.getHost(), passport.getCallback())
+                .withProxy(passport.getProxy(), passport.getProxyUser(),
+                        passport.getProxyPass());
+    }
+
+    private void createMsgGen() {
         String xmlpath = HBCIUtils.getParam("kernel.kernel.xmlpath");
-        InputStream syntaxStream = null;
+        InputStream syntaxStream;
         if (xmlpath == null) {
             xmlpath = "";
         }
 
         ClassLoader cl = this.getClass().getClassLoader();
-        String filename = xmlpath + "hbci-" + hbciversion + ".xml";
+        String filename = xmlpath + "hbci-" + passport.getHBCIVersion() + ".xml";
         syntaxStream = cl.getResourceAsStream(filename);
         if (syntaxStream == null)
             throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_KRNL_CANTLOAD_SYN", filename));
@@ -82,18 +88,7 @@ public final class HBCIKernelImpl implements HBCIKernel {
     }
 
     public String getHBCIVersion() {
-        return hbciversion;
-    }
-
-    public void setParentHandlerData(IHandlerData parentHandlerData) {
-        if (this.parentHandlerData != null) {
-            throw new HBCI_Exception("*** can not overwrite existing handler object");
-        }
-        this.parentHandlerData = parentHandlerData;
-    }
-
-    public IHandlerData getParentHandlerData() {
-        return this.parentHandlerData;
+        return passport.getHBCIVersion();
     }
 
     public String getHBCIVersion(int dummy) {
@@ -155,13 +150,6 @@ public final class HBCIKernelImpl implements HBCIKernel {
         }
     }
 
-    public HBCIMsgStatus rawDoIt(boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
-        HBCIPassportList passports = new HBCIPassportList();
-        HBCIPassportInternal passport = (HBCIPassportInternal) getParentHandlerData().getPassport();
-        passports.addPassport(passport, HBCIPassport.ROLE_ISS);
-        return rawDoIt(passports, signit, cryptit, needSig, needCrypt);
-    }
-
     /*  Processes the current message (mid-level API).
 
         This method creates the message specified earlier by the methods rawNewJob() and
@@ -180,23 +168,21 @@ public final class HBCIKernelImpl implements HBCIKernel {
         @param cryptit A boolean value specifying, if the message to be sent should be encrypted.
         @return A Properties object that contains a path-value-pair for each dataelement of
                 the received message. */
-    public HBCIMsgStatus rawDoIt(HBCIPassportList passports, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
+    public HBCIMsgStatus rawDoIt(boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
         HBCIMsgStatus ret = new HBCIMsgStatus();
         MSG msg = null;
 
         try {
-            HBCIPassportInternal mainPassport = passports.getMainPassport();
-
             HBCIUtils.log("generating raw message " + currentMsgName, HBCIUtils.LOG_DEBUG);
-            mainPassport.getCallback().status(mainPassport, HBCICallback.STATUS_MSG_CREATE, currentMsgName);
+            passport.getCallback().status(HBCICallback.STATUS_MSG_CREATE, currentMsgName);
 
             // plaintextnachricht erzeugen
             msg = gen.generate(currentMsgName);
 
-            Hashtable<String, Object> kernelData = createKernelData(passports, ret, signit, cryptit, needSig, needCrypt);
+            Hashtable<String, Object> kernelData = createKernelData(ret, signit, cryptit, needSig, needCrypt);
 
             // liste der rewriter erzeugen
-            String rewriters_st = mainPassport.getProperties().getProperty("kernel.rewriter");
+            String rewriters_st = passport.getProperties().getProperty("kernel.rewriter");
             ArrayList<Rewrite> al = new ArrayList<Rewrite>();
             StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
             while (tok.hasMoreTokens()) {
@@ -224,12 +210,12 @@ public final class HBCIKernelImpl implements HBCIKernel {
             // wenn nachricht signiert werden soll
             if (signit) {
                 HBCIUtils.log("trying to insert signature", HBCIUtils.LOG_DEBUG);
-                mainPassport.getCallback().status(mainPassport, HBCICallback.STATUS_MSG_SIGN, null);
+                passport.getCallback().status(HBCICallback.STATUS_MSG_SIGN, null);
 
                 // signatur erzeugen und an nachricht anhängen
-                Sig sig = new Sig(getParentHandlerData(), msg, passports);
+                Sig sig = new Sig(msg);
 
-                if (!sig.signIt()) {
+                if (!sig.signIt(passport, gen)) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTSIGN");
                     if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSignErrors", errmsg)) {
                         throw new HBCI_Exception(errmsg);
@@ -266,7 +252,7 @@ public final class HBCIKernelImpl implements HBCIKernel {
             HBCIUtils.log("sending message: " + outstring, HBCIUtils.LOG_DEBUG2);
 
             // max. nachrichtengröße aus BPD überprüfen
-            int maxmsgsize = mainPassport.getMaxMsgSizeKB();
+            int maxmsgsize = passport.getMaxMsgSizeKB();
             if (maxmsgsize != 0 && (outstring.length() >> 10) > maxmsgsize) {
                 String errmsg = HBCIUtils.getLocMsg("EXCMSG_MSGTOOLARGE",
                         new Object[]{Integer.toString(outstring.length() >> 10), Integer.toString(maxmsgsize)});
@@ -277,11 +263,11 @@ public final class HBCIKernelImpl implements HBCIKernel {
             // soll nachricht verschlüsselt werden?
             if (cryptit) {
                 HBCIUtils.log("trying to encrypt message", HBCIUtils.LOG_DEBUG);
-                mainPassport.getCallback().status(mainPassport, HBCICallback.STATUS_MSG_CRYPT, null);
+                passport.getCallback().status(HBCICallback.STATUS_MSG_CRYPT, null);
 
                 // nachricht verschlüsseln
-                Crypt crypt = new Crypt(getParentHandlerData(), msg);
-                msg = crypt.cryptIt("Crypted");
+                Crypt crypt = new Crypt(msg);
+                msg = crypt.cryptIt(passport, gen, "Crypted");
 
                 if (!msg.getName().equals("Crypted")) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTCRYPT");
@@ -307,18 +293,18 @@ public final class HBCIKernelImpl implements HBCIKernel {
             // nachricht versenden und antwortnachricht empfangen
             HBCIUtils.log("communicating dialogid/msgnum " + dialogid + "/" + msgnum, HBCIUtils.LOG_DEBUG);
             MSG old = msg;
-            msg = mainPassport.getComm().pingpong(kernelData, currentMsgName, old);
+            msg = commPinTan.pingpong(kernelData, currentMsgName, old);
 
             // ist antwortnachricht verschlüsselt?
             boolean crypted = msg.getName().equals("CryptedRes");
             if (crypted) {
-                mainPassport.getCallback().status(mainPassport, HBCICallback.STATUS_MSG_DECRYPT, null);
+                passport.getCallback().status(HBCICallback.STATUS_MSG_DECRYPT, null);
 
                 // wenn ja, dann nachricht entschlüsseln
                 HBCIUtils.log("acquire crypt instance", HBCIUtils.LOG_DEBUG);
-                Crypt crypt = new Crypt(getParentHandlerData(), msg);
+                Crypt crypt = new Crypt(msg);
                 HBCIUtils.log("decrypting using " + crypt, HBCIUtils.LOG_DEBUG);
-                String newmsgstring = crypt.decryptIt();
+                String newmsgstring = crypt.decryptIt(gen, passport);
                 gen.set("_origSignedMsg", newmsgstring);
 
                 // alle patches für die unverschlüsselte nachricht durchlaufen
@@ -333,7 +319,7 @@ public final class HBCIKernelImpl implements HBCIKernel {
 
                 // nachricht als plaintextnachricht parsen
                 try {
-                    mainPassport.getCallback().status(mainPassport, HBCICallback.STATUS_MSG_PARSE, currentMsgName + "Res");
+                    passport.getCallback().status(HBCICallback.STATUS_MSG_PARSE, currentMsgName + "Res");
                     HBCIUtils.log("message to pe parsed: " + msg.toString(0), HBCIUtils.LOG_DEBUG2);
                     MSG oldMsg = msg;
                     msg = new MSG(currentMsgName + "Res", newmsgstring, newmsgstring.length(), gen, MSG.CHECK_SEQ, true);
@@ -378,16 +364,16 @@ public final class HBCIKernelImpl implements HBCIKernel {
                     throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_REF"));
             } catch (HBCI_Exception e) {
                 String errmsg = HBCIUtils.getLocMsg("EXCMSG_MSGCHECK") + ": " + HBCIUtils.exception2String(e);
-                if (!HBCIUtils.ignoreError(mainPassport, "client.errors.ignoreMsgCheckErrors", errmsg))
+                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreMsgCheckErrors", errmsg))
                     throw e;
             }
 
             // überprüfen der signatur
             HBCIUtils.log("looking for a signature", HBCIUtils.LOG_DEBUG);
-            mainPassport.getCallback().status(mainPassport, HBCICallback.STATUS_MSG_VERIFY, null);
-            boolean sigOk = false;
-            Sig sig = new Sig(getParentHandlerData(), msg, passports);
-            sigOk = sig.verify();
+            passport.getCallback().status(HBCICallback.STATUS_MSG_VERIFY, null);
+            boolean sigOk;
+            Sig sig = new Sig(msg);
+            sigOk = sig.verify(passport, gen);
 
             // fehlermeldungen erzeugen, wenn irgendwelche fehler aufgetreten sind
             HBCIUtils.log("looking if message is encrypted", HBCIUtils.LOG_DEBUG);
@@ -395,7 +381,7 @@ public final class HBCIKernelImpl implements HBCIKernel {
             // fehler wegen falscher verschlüsselung
             if (needCrypt && !crypted) {
                 String errmsg = HBCIUtils.getLocMsg("EXCMSG_NOTCRYPTED");
-                if (!HBCIUtils.ignoreError(mainPassport, "client.errors.ignoreCryptErrors", errmsg))
+                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreCryptErrors", errmsg))
                     throw new HBCI_Exception(errmsg);
             }
 
@@ -431,9 +417,8 @@ public final class HBCIKernelImpl implements HBCIKernel {
         currentMsgName = null;
     }
 
-    private Hashtable<String, Object> createKernelData(HBCIPassportList passports, HBCIMsgStatus ret, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
+    private Hashtable<String, Object> createKernelData(HBCIMsgStatus ret, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
         Hashtable<String, Object> kernelData = new Hashtable<>();
-        kernelData.put("passports", passports);
         kernelData.put("msgStatus", ret);
         kernelData.put("msgName", currentMsgName);
         kernelData.put("signIt", Boolean.valueOf(signit));
@@ -441,10 +426,6 @@ public final class HBCIKernelImpl implements HBCIKernel {
         kernelData.put("needSig", Boolean.valueOf(needSig));
         kernelData.put("needCrypt", Boolean.valueOf(needCrypt));
         return kernelData;
-    }
-
-    public Hashtable<String, List<String>> getAllLowlevelJobs() {
-        return getMsgGen().getLowlevelGVs();
     }
 
     public List<String> getLowlevelJobParameterNames(String gvname, String version) {

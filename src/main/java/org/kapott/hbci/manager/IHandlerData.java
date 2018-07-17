@@ -21,24 +21,12 @@
 
 package org.kapott.hbci.manager;
 
-import org.kapott.hbci.passport.HBCIPassport;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
-// Dieses Interface wird von einigen Klassen implementiert (HBCIHandler,
-// HBCIInstitute, HBCIUser). Es dient dazu, ein "allgemeines" Interface
-// für alle Klassen zu haben, die sowohl ein Passport als auch einen
-// Message-Generator zurückgeben können, also alles, was man zum Ausführen
-// von HBCI-Dialogen braucht.
-//
-// Im Moment ist bei allen Implementierungen dieses Interfaces getMsgGen()
-// implementiert, indem this.kernel.getMsgGen() zurückgegeben wird - aber
-// das muss nicht so sein!
-// 
-// TODO: das sieht aus wie ein typisches DesignPattern - das evtl. mal
-// irgendwie verallgemeinern (double-linked-parent-child-connection) und überall
-// wo nötig einsetzen (evtl. inklusive asserts oder automatischer Setter)
+public interface IHandlerData {
 
-public interface IHandlerData 
-{
-    HBCIPassport getPassport();
-    MsgGen       getMsgGen();
+    HBCIPassportInternal getPassport();
+
+    MsgGen getMsgGen();
+
 }

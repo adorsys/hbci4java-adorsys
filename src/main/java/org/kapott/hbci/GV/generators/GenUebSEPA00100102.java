@@ -1,36 +1,14 @@
 package org.kapott.hbci.GV.generators;
 
+import org.kapott.hbci.GV.AbstractSEPAGV;
+import org.kapott.hbci.GV.SepaUtil;
+import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci.sepa.jaxb.pain_001_001_02.*;
+
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Properties;
-
-import org.kapott.hbci.GV.AbstractSEPAGV;
-import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.AccountIdentification2;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.AmountType3;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.CashAccount8;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.ChargeBearerType2Code;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.CreditTransferTransactionInformation2;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.Document;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.EuroMax9Amount;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.FinancialInstitution2;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.FinancialInstitutionIdentification4;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.GroupHeader20;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.Grouping2Code;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.ObjectFactory;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.Pain00100102;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.PartyIdentification20;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.PartyIdentification21;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.PartyIdentification23;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.PaymentIdentification1;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.PaymentInstructionInformation4;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.PaymentMethod5Code;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.PaymentTypeInformation7;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.RemittanceInformation3;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.ServiceLevel3Code;
-import org.kapott.hbci.sepa.jaxb.pain_001_001_02.ServiceLevel4;
 
 
 /**

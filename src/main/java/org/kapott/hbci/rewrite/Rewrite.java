@@ -21,10 +21,10 @@
 
 package org.kapott.hbci.rewrite;
 
-import java.util.Hashtable;
-
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
+
+import java.util.Hashtable;
 
 public abstract class Rewrite
 {

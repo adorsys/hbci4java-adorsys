@@ -22,38 +22,34 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public class GVMultiLast
-    extends AbstractMultiGV
-{
-    public static String getLowlevelName()
-    {
+public class GVMultiLast extends AbstractMultiGV {
+
+    public static String getLowlevelName() {
         return "SammelLast";
     }
-    
-    public GVMultiLast(HBCIHandler handler)
-    {
-        super(handler,getLowlevelName(),new HBCIJobResultImpl());
 
-        addConstraint("data","data",null, LogFilter.FILTER_NONE);
-        addConstraint("my.country","KTV.KIK.country","DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz","KTV.KIK.blz",null, LogFilter.FILTER_MOST);
-        addConstraint("my.number","KTV.number",null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber","KTV.subnumber","", LogFilter.FILTER_MOST);
+    public GVMultiLast(HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
+
+        addConstraint("data", "data", null, LogFilter.FILTER_NONE);
+        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
+        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
+        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
+        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
     }
-    
-    public void setParam(String paramName, String value)
-    {
+
+    public void setParam(String paramName, String value) {
         if (paramName.equals("data")) {
-            value="B"+value;
+            value = "B" + value;
         }
-        super.setParam(paramName,value);
+        super.setParam(paramName, value);
     }
 
-    public void verifyConstraints()
-    {
+    public void verifyConstraints() {
         super.verifyConstraints();
         checkAccountCRC("my");
     }

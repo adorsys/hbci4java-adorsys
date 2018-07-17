@@ -1,17 +1,16 @@
 package org.kapott.hbci.GV;
 
+import org.kapott.hbci.exceptions.InvalidArgumentException;
+import org.kapott.hbci.structures.Value;
+
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.kapott.hbci.exceptions.InvalidArgumentException;
-import org.kapott.hbci.structures.Value;
 
 /**
  * Ein paar statische Hilfs-Methoden fuer die Generierung der SEPA-Nachrichten.
@@ -105,13 +104,13 @@ public class SepaUtil
     }
 
     /**
-     * Liefert die Summe der BetrÃ¤ge aller Transaktionen. Bei einer Einzeltransaktion wird der
-     * Betrag zurÃ¼ckgeliefert. Mehrfachtransaktionen mÃ¼ssen die gleiche WÃ¤hrung verwenden, da
+     * Liefert die Summe der Beträge aller Transaktionen. Bei einer Einzeltransaktion wird der
+     * Betrag zurückgeliefert. Mehrfachtransaktionen müssen die gleiche Währung verwenden, da
      * eine Summenbildung sonst nicht mÃ¶glich ist.
      * 
      * @param sepaParams die Properties, mit denen gearbeitet werden soll
-     * @param max Maximaler Index, oder {@code null} fÃ¼r Einzeltransaktionen
-     * @return Summe aller BetrÃ¤ge
+     * @param max Maximaler Index, oder {@code null} für Einzeltransaktionen
+     * @return Summe aller Beträge
      */
     public static BigDecimal sumBtgValue(Properties sepaParams, Integer max)
     {
@@ -125,7 +124,7 @@ public class SepaUtil
         {
             sum = sum.add(new BigDecimal(sepaParams.getProperty(insertIndex("btg.value", index))));
 
-            // Sicherstellen, dass alle Transaktionen die gleiche WÃ¤hrung verwenden
+            // Sicherstellen, dass alle Transaktionen die gleiche Währung verwenden
             String indexCurr = sepaParams.getProperty(insertIndex("btg.curr", index));
             if (curr != null)
             {

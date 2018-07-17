@@ -21,13 +21,13 @@
 
 package org.kapott.hbci.rewrite;
 
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.MsgGen;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 
 // dieser Rewriter muss *VOR* "WrongSequenceNumbers" ausgeführt werden,
 // weil hierbei u.U. die Segment-Sequenz-Nummern durcheinandergebracht werden

@@ -22,31 +22,37 @@
 package org.kapott.hbci.GV_Result;
 
 import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
-/** Ergebnis einer Dauerauftragseinreichung. Falls die Bank die Vergabe von
-    Auftrags-Identifikationsnummern unterstützt, wird die ID für den neuen
-    Dauerauftrag hier bereitgestellt. */
-public class GVRDauerNew
-    extends HBCIJobResultImpl
-{
+/**
+ * Ergebnis einer Dauerauftragseinreichung. Falls die Bank die Vergabe von
+ * Auftrags-Identifikationsnummern unterstützt, wird die ID für den neuen
+ * Dauerauftrag hier bereitgestellt.
+ */
+public class GVRDauerNew extends HBCIJobResultImpl {
+
     private String orderid;
-    
-    public void setOrderId(String orderid)
-    {
-        this.orderid=orderid;
+
+    public GVRDauerNew(HBCIPassportInternal passport) {
+        super(passport);
     }
 
-    /** Gibt die Auftragsnummer zurück, unter der der eingereichte Dauerauftrag
-        bei der Bank registriert ist 
-        @return die Auftragsidentifikationsnummer oder <code>null</code>, wenn die
-                Bank das nicht unterstützt. */
-    public String getOrderId()
-    {
+    public void setOrderId(String orderid) {
+        this.orderid = orderid;
+    }
+
+    /**
+     * Gibt die Auftragsnummer zurück, unter der der eingereichte Dauerauftrag
+     * bei der Bank registriert ist
+     *
+     * @return die Auftragsidentifikationsnummer oder <code>null</code>, wenn die
+     * Bank das nicht unterstützt.
+     */
+    public String getOrderId() {
         return orderid;
     }
-    
-    public String toString()
-    {
-        return HBCIUtils.getLocMsg("ORDERID")+": "+getOrderId();
+
+    public String toString() {
+        return HBCIUtils.getLocMsg("ORDERID") + ": " + getOrderId();
     }
 }

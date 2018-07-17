@@ -21,6 +21,12 @@
 
 package org.kapott.hbci.tools;
 
+import org.kapott.hbci.comm.CommPinTan;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.protocol.MSG;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,14 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
-
-import org.kapott.hbci.callback.HBCICallbackConsole;
-import org.kapott.hbci.comm.Comm;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public final class SyntaxCheck 
 {
@@ -76,7 +74,7 @@ public final class SyntaxCheck
         StringBuffer    st=new StringBuffer();
         
         while ((len=fi.read(buffer))>0) {
-            st.append(new String(buffer,0,len,Comm.ENCODING));
+            st.append(new String(buffer,0,len,CommPinTan.ENCODING));
         }
         fi.close();
         

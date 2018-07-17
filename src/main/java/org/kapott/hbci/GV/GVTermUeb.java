@@ -21,107 +21,102 @@
 
 package org.kapott.hbci.GV;
 
+import org.kapott.hbci.GV_Result.GVRTermUeb;
+import org.kapott.hbci.exceptions.InvalidUserDataException;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.status.HBCIMsgStatus;
+
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.kapott.hbci.GV_Result.GVRTermUeb;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.status.HBCIMsgStatus;
-
 public final class GVTermUeb
-    extends HBCIJobImpl
-{
-    public static String getLowlevelName()
-    {
+        extends HBCIJobImpl {
+    public static String getLowlevelName() {
         return "TermUeb";
     }
-    
-    public GVTermUeb(HBCIHandler handler)
-    {
-        super(handler,getLowlevelName(),new GVRTermUeb());
 
-        addConstraint("src.country","My.KIK.country","DE", LogFilter.FILTER_NONE);
-        addConstraint("src.blz","My.KIK.blz",null, LogFilter.FILTER_MOST);
-        addConstraint("src.number","My.number",null, LogFilter.FILTER_IDS);
-        addConstraint("src.subnumber","My.subnumber","", LogFilter.FILTER_MOST);
-        addConstraint("dst.country","Other.KIK.country","DE", LogFilter.FILTER_NONE);
-        addConstraint("dst.blz","Other.KIK.blz",null, LogFilter.FILTER_MOST);
-        addConstraint("dst.number","Other.number",null, LogFilter.FILTER_IDS);
-        addConstraint("dst.subnumber","Other.subnumber","", LogFilter.FILTER_MOST);
-        addConstraint("btg.value","BTG.value",null, LogFilter.FILTER_MOST);
-        addConstraint("btg.curr","BTG.curr",null, LogFilter.FILTER_NONE);
-        addConstraint("name","name",null, LogFilter.FILTER_IDS);
-        addConstraint("date","date",null, LogFilter.FILTER_NONE);
+    public GVTermUeb(HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, getLowlevelName(), new GVRTermUeb(passport));
 
-        addConstraint("name2","name2","", LogFilter.FILTER_IDS);
-        addConstraint("key","key","51", LogFilter.FILTER_NONE);
+        addConstraint("src.country", "My.KIK.country", "DE", LogFilter.FILTER_NONE);
+        addConstraint("src.blz", "My.KIK.blz", null, LogFilter.FILTER_MOST);
+        addConstraint("src.number", "My.number", null, LogFilter.FILTER_IDS);
+        addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("dst.country", "Other.KIK.country", "DE", LogFilter.FILTER_NONE);
+        addConstraint("dst.blz", "Other.KIK.blz", null, LogFilter.FILTER_MOST);
+        addConstraint("dst.number", "Other.number", null, LogFilter.FILTER_IDS);
+        addConstraint("dst.subnumber", "Other.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("btg.value", "BTG.value", null, LogFilter.FILTER_MOST);
+        addConstraint("btg.curr", "BTG.curr", null, LogFilter.FILTER_NONE);
+        addConstraint("name", "name", null, LogFilter.FILTER_IDS);
+        addConstraint("date", "date", null, LogFilter.FILTER_NONE);
 
-        Properties parameters=getJobRestrictions();
-        int        maxusage=Integer.parseInt(parameters.getProperty("maxusage"));
+        addConstraint("name2", "name2", "", LogFilter.FILTER_IDS);
+        addConstraint("key", "key", "51", LogFilter.FILTER_NONE);
 
-        for (int i=0;i<maxusage;i++) {
-            String name=HBCIUtils.withCounter("usage",i);
-            addConstraint(name,"usage."+name,"", LogFilter.FILTER_MOST);
+        Properties parameters = getJobRestrictions();
+        int maxusage = Integer.parseInt(parameters.getProperty("maxusage"));
+
+        for (int i = 0; i < maxusage; i++) {
+            String name = HBCIUtils.withCounter("usage", i);
+            addConstraint(name, "usage." + name, "", LogFilter.FILTER_MOST);
         }
     }
 
-    protected void extractResults(HBCIMsgStatus msgstatus,String header,int idx)
-    {
-        Properties result=msgstatus.getData();
-        String orderid=result.getProperty(header+".orderid");
-        ((GVRTermUeb)(jobResult)).setOrderId(orderid);
-        
-        if (orderid!=null && orderid.length()!=0) {
-            Properties p=getLowlevelParams();
-            Properties p2=new Properties();
-            
-            for (Enumeration e=p.propertyNames();e.hasMoreElements();) {
-                String key=(String)e.nextElement();
-                p2.setProperty(key.substring(key.indexOf(".")+1),
-                               p.getProperty(key));
+    protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        Properties result = msgstatus.getData();
+        String orderid = result.getProperty(header + ".orderid");
+        ((GVRTermUeb) (jobResult)).setOrderId(orderid);
+
+        if (orderid != null && orderid.length() != 0) {
+            Properties p = getLowlevelParams();
+            Properties p2 = new Properties();
+
+            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
+                String key = (String) e.nextElement();
+                p2.setProperty(key.substring(key.indexOf(".") + 1),
+                        p.getProperty(key));
             }
-            
-            getMainPassport().setPersistentData("termueb_"+orderid,p2);
+
+            passport.setPersistentData("termueb_" + orderid, p2);
         }
     }
-    
-    public void setParam(String paramName,String value)
-    {
-        Properties res=getJobRestrictions();
+
+    public void setParam(String paramName, String value) {
+        Properties res = getJobRestrictions();
 
         if (paramName.equals("key")) {
-            boolean atLeastOne=false;
-            boolean found=false;
+            boolean atLeastOne = false;
+            boolean found = false;
 
-            for (int i=0;;i++) {
-                String st=res.getProperty(HBCIUtils.withCounter("key",i));
+            for (int i = 0; ; i++) {
+                String st = res.getProperty(HBCIUtils.withCounter("key", i));
 
-                if (st==null)
+                if (st == null)
                     break;
 
-                atLeastOne=true;
+                atLeastOne = true;
 
                 if (st.equals(value)) {
-                    found=true;
+                    found = true;
                     break;
                 }
             }
 
-            if (atLeastOne&&!found) {
-                String msg=HBCIUtils.getLocMsg("EXCMSG_INV_KEY",value);
-                if (!HBCIUtils.ignoreError(getMainPassport(),"client.errors.ignoreWrongJobDataErrors",msg))
+            if (atLeastOne && !found) {
+                String msg = HBCIUtils.getLocMsg("EXCMSG_INV_KEY", value);
+                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                     throw new InvalidUserDataException(msg);
             }
         }
-        
-        super.setParam(paramName,value);
+
+        super.setParam(paramName, value);
     }
-    
-    public void verifyConstraints()
-    {
+
+    public void verifyConstraints() {
         super.verifyConstraints();
         checkAccountCRC("src");
         checkAccountCRC("dst");

@@ -1,38 +1,14 @@
 package org.kapott.hbci.GV.generators;
 
+import org.kapott.hbci.GV.AbstractSEPAGV;
+import org.kapott.hbci.GV.SepaUtil;
+import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci.sepa.jaxb.pain_001_002_02.*;
+
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Properties;
-
-import org.kapott.hbci.GV.AbstractSEPAGV;
-import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.AccountIdentificationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.AmountTypeSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.BranchAndFinancialInstitutionIdentificationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.CashAccountSCT1;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.CashAccountSCT2;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.ChargeBearerTypeSCTCode;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.CreditTransferTransactionInformationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.CurrencyAndAmountSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.CurrencyCodeSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.Document;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.FinancialInstitutionIdentificationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.GroupHeaderSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.Grouping1CodeSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.ObjectFactory;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.Pain00100102;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PartyIdentificationSCT1;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PartyIdentificationSCT2;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PaymentIdentification1;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PaymentInstructionInformationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PaymentMethodSCTCode;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PaymentTypeInformationSCT1;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PurposeSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.RemittanceInformationSCTChoice;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.ServiceLevelSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.ServiceLevelSCTCode;
 
 
 /**

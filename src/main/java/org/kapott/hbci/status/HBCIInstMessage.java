@@ -21,11 +21,11 @@
 
 package org.kapott.hbci.status;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
+
+import java.io.Serializable;
+import java.util.Properties;
 
 public final class HBCIInstMessage
     implements Serializable

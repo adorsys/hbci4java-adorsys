@@ -2,6 +2,7 @@ package org.kapott.hbci4java.sepa;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci4java.AbstractTest;
 import org.kapott.hbci4java.AbstractTestGV;
 
@@ -28,7 +29,7 @@ import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportPinTan;
+import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
 import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
@@ -40,7 +41,7 @@ public class TestGVLastSEPA2 extends AbstractTestGV {
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        HBCIJob job =  handler.newJob("LastSEPA");
+        HBCIJob job =  HBCIJobFactory.newJob("LastSEPA", null, null);
         
         Konto acc = new Konto();
         acc.blz = params.getProperty("target_blz");
@@ -63,10 +64,10 @@ public class TestGVLastSEPA2 extends AbstractTestGV {
         job.setParam("manddateofsig", params.getProperty("date_of_sig"));
         
         System.out.println("---------Fï¿½r Job zur Queue");
-        job.addToQueue();
+        handler.addJobToDialog(job);
 
         
-        HBCIExecStatus ret = handler.execute();
+        HBCIExecStatus ret = handler.execute(true);
         HBCIJobResult res = job.getJobResult();
         System.out.println("----------Result: "+res.toString());
         

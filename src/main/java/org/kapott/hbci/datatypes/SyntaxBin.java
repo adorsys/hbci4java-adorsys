@@ -21,22 +21,22 @@
 
 package org.kapott.hbci.datatypes;
 
-import java.math.BigInteger;
-
-import org.kapott.hbci.comm.Comm;
+import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 
+import java.math.BigInteger;
+
 /* @internal
-    @brief SyntaxBin enthÃ¤lt BinÃ¤rdaten.
+    @brief SyntaxBin enthält Binärdaten.
 
     Beim Initialisieren gibt das erste
-    Zeichen des Ã¼bergebenen Strings den Typ der nachfolgenden Daten an:
-      - N bedeutet, der nachfolgende String ist eine Integer-Zahl, die binÃ¤r
+    Zeichen des übergebenen Strings den Typ der nachfolgenden Daten an:
+      - N bedeutet, der nachfolgende String ist eine Integer-Zahl, die binär
         dargestellt werden soll
-      - B bedeutet, der nachfolgende String ist bereits ein BinÃ¤rstring
-        und soll ohne Ãnderungen Ã¼bernommen werden
+      - B bedeutet, der nachfolgende String ist bereits ein Binärstring
+        und soll ohne Ãnderungen übernommen werden
 
     @author $Author: willuhn $
 */
@@ -57,7 +57,7 @@ public class SyntaxBin
     private static String expandNumber(String x)
     {
         try {
-            return new String((new BigInteger(x)).toByteArray(),Comm.ENCODING);
+            return new String((new BigInteger(x)).toByteArray(),CommPinTan.ENCODING);
         } catch (Exception ex) {
             throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_BINNUMERR"),ex);
         }
@@ -65,7 +65,7 @@ public class SyntaxBin
 
     /** @internal @brief erzeugt den HBCI-Datentyp BIN
 
-    Es wird der erzeugte String zurÃ¼ckgegeben. Dazu wird das erste Zeichen
+    Es wird der erzeugte String zurückgegeben. Dazu wird das erste Zeichen
     des uebergebenen Strings ausgewertet. Ist dieses "N", so wird der
     uebergebene String als Integer-Wert interpretiert und in seine
     binaere Byte-Darstellung konvertiert. Bei "B" als erstem Zeichen wird

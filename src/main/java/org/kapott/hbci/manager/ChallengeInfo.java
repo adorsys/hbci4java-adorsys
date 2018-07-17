@@ -20,16 +20,6 @@
 
 package org.kapott.hbci.manager;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.GV.HBCIJobImpl;
 import org.kapott.hbci.datatypes.SyntaxDE;
@@ -40,6 +30,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * Diese Klasse ermittelt die noetigen HKTAN-Challenge-Parameter fuer einen

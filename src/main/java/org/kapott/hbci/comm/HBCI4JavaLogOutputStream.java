@@ -21,11 +21,11 @@
 
 package org.kapott.hbci.comm;
 
+import org.kapott.hbci.manager.HBCIUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import org.kapott.hbci.manager.HBCIUtils;
 
 public class HBCI4JavaLogOutputStream
         extends OutputStream {
@@ -57,7 +57,7 @@ public class HBCI4JavaLogOutputStream
     public void flush()
             throws IOException {
         if (this.logdata.size() != 0) {
-            HBCIUtils.log("socket log: " + this.logdata.toString(Comm.ENCODING), HBCIUtils.LOG_DEBUG2);
+            HBCIUtils.log("socket log: " + this.logdata.toString(CommPinTan.ENCODING), HBCIUtils.LOG_DEBUG2);
         }
         this.logdata.reset();
     }

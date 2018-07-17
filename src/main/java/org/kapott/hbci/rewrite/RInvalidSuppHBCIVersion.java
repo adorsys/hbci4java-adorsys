@@ -22,7 +22,6 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
 import org.kapott.hbci.protocol.SyntaxElement;

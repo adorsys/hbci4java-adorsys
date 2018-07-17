@@ -21,27 +21,25 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public final class GVKUmsNew
-    extends GVKUmsAll
-{
-    public static String getLowlevelName()
-    {
+public final class GVKUmsNew extends GVKUmsAll {
+
+    public static String getLowlevelName() {
         return "KUmsNew";
     }
-    
-    public GVKUmsNew(HBCIHandler handler)
-    {
-        super(handler,getLowlevelName());
 
-        addConstraint("my.country","KTV.KIK.country","DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz","KTV.KIK.blz",null, LogFilter.FILTER_MOST);
-        addConstraint("my.number","KTV.number",null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber","KTV.subnumber","", LogFilter.FILTER_MOST);
-        addConstraint("my.curr","curr","EUR", LogFilter.FILTER_NONE);
-        addConstraint("maxentries","maxentries","", LogFilter.FILTER_NONE);
-        addConstraint("dummyall","allaccounts","N", LogFilter.FILTER_NONE);
+    public GVKUmsNew(HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, getLowlevelName());
+
+        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
+        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
+        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
+        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("my.curr", "curr", "EUR", LogFilter.FILTER_NONE);
+        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("dummyall", "allaccounts", "N", LogFilter.FILTER_NONE);
     }
 }

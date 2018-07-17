@@ -36,7 +36,7 @@ public class TestBug1129 extends AbstractTest {
      */
     private Hashtable<String, String> parse() throws Exception {
         String data = getFile("msg/bugzilla-1129.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null, "plus");
+        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
         kernel.rawNewMsg("DauerList");
 
         MsgGen gen = kernel.getMsgGen();

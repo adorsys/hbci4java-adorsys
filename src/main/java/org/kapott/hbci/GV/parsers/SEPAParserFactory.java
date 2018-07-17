@@ -2,7 +2,6 @@ package org.kapott.hbci.GV.parsers;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.sepa.PainVersion;
 
 /**

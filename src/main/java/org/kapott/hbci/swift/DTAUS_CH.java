@@ -21,18 +21,14 @@
 
 package org.kapott.hbci.swift;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class DTAUS_CH
 {

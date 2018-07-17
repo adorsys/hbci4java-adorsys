@@ -24,72 +24,55 @@ package org.kapott.hbci.callback;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.kapott.hbci.passport.HBCIPassport;
-
-/** Diese Klasse dient als Basisklasse fÃ¼r allen Callback-Klassen. Eine Anwendung sollte
-    zur Erstellung einer eigenen Callback-Klasse diese oder eine der schon bereitgestellten
-    "fertigen" Klassen ({@link org.kapott.hbci.callback.HBCICallbackConsole},
-    {@link org.kapott.hbci.callback.HBCICallbackSwing}) erweitern */
-public abstract class AbstractHBCICallback
-    implements HBCICallback
-{
-    /** Erzeugt einen Log-Eintrag. Diese Methode wird von den mitgelieferten
-     * Callback-Klassen fÃ¼r die Erzeugung von Log-EintrÃ¤gen verwendet. Um 
-     * ein eigenes Format fÃ¼r die Log-Eintrage zu definieren, kann diese
-     * Methode mit einer eigenen Implementierung Ã¼berschrieben werden.<br/>
-     * Die Parameter entsprechen denen der 
+public abstract class AbstractHBCICallback implements HBCICallback {
+    /**
+     * Erzeugt einen Log-Eintrag. Diese Methode wird von den mitgelieferten
+     * Callback-Klassen für die Erzeugung von Log-Einträgen verwendet. Um
+     * ein eigenes Format für die Log-Eintrage zu definieren, kann diese
+     * Methode mit einer eigenen Implementierung überschrieben werden.<br/>
+     * Die Parameter entsprechen denen der
      * {@link HBCICallback#log(String, int, Date, StackTraceElement) log}-Methode
+     *
      * @return ein Log-Eintrag
      */
-    protected String createDefaultLogLine(String msg, int level, Date date, StackTraceElement trace)
-    {
-        String[] levels={"NON","ERR","WRN","INF","DBG","DB2","INT"};
-        StringBuffer ret=new StringBuffer(128);
+    protected String createDefaultLogLine(String msg, int level, Date date, StackTraceElement trace) {
+        String[] levels = {"NON", "ERR", "WRN", "INF", "DBG", "DB2", "INT"};
+        StringBuffer ret = new StringBuffer(128);
         ret.append("<").append(levels[level]).append("> ");
-        
-        SimpleDateFormat df=new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
         ret.append("[").append(df.format(date)).append("] ");
-        
-        Thread thread=Thread.currentThread();
+
+        Thread thread = Thread.currentThread();
         ret.append("[").append(thread.getThreadGroup().getName());
         ret.append("/").append(thread.getName()).append("] ");
-        
-        String classname=trace.getClassName();
-        String hbciname="org.kapott.hbci.";
-        if (classname!=null && classname.startsWith(hbciname))
+
+        String classname = trace.getClassName();
+        String hbciname = "org.kapott.hbci.";
+        if (classname != null && classname.startsWith(hbciname))
             ret.append(classname.substring((hbciname).length())).append(": ");
-        
-        if (msg==null)
-            msg="";
-        StringBuffer escapedString=new StringBuffer();
-        int len=msg.length();
-        
-        for (int i=0;i<len;i++) {
-            char ch=msg.charAt(i);
-            int  x=ch;
-            
-            if ((x<26 && x!=9 && x!=10 && x!=13) || ch=='\\') {
-                String temp=Integer.toString(x,16);
-                if (temp.length()!=2)
-                    temp="0"+temp;
+
+        if (msg == null)
+            msg = "";
+        StringBuffer escapedString = new StringBuffer();
+        int len = msg.length();
+
+        for (int i = 0; i < len; i++) {
+            char ch = msg.charAt(i);
+            int x = ch;
+
+            if ((x < 26 && x != 9 && x != 10 && x != 13) || ch == '\\') {
+                String temp = Integer.toString(x, 16);
+                if (temp.length() != 2)
+                    temp = "0" + temp;
                 escapedString.append("\\").append(temp);
-            }
-            else escapedString.append(ch);
+            } else escapedString.append(ch);
         }
         ret.append(escapedString);
         return ret.toString();
     }
 
-    public final void status(HBCIPassport passport,int statusTag,Object o)
-    {
-        status(passport,statusTag,new Object[] {o});
-    }
-    
-    /** Standard-Verhalten - gibt fÃ¼r alle Callbacks <code>false</code> (= asynchrone
-     * Callback-Behandlung) zurÃ¼ck.*/
-    public boolean useThreadedCallback(HBCIPassport passport,int reason,String msg,
-                                       int datatype,StringBuffer retData)
-    {
-        return false;
+    public final void status(int statusTag, Object o) {
+        status(statusTag, new Object[]{o});
     }
 }

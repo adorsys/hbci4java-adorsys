@@ -21,19 +21,18 @@
 
 package org.kapott.hbci.smartcardio;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import org.kapott.hbci.exceptions.HBCI_Exception;
+import org.kapott.hbci.manager.HBCIUtils;
 
 import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
-
-import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtils;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * HBCI-Cardservice fuer den DDVPCSC-Passport, basierend auf dem OCF-Code

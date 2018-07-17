@@ -21,17 +21,18 @@
 
 package org.kapott.hbci.GV;
 
-import java.util.Enumeration;
-import java.util.Properties;
-
 import org.kapott.hbci.GV_Result.GVRTermUebList;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+
+import java.util.Enumeration;
+import java.util.Properties;
 
 public final class GVTermUebList
     extends HBCIJobImpl
@@ -41,9 +42,9 @@ public final class GVTermUebList
         return "TermUebList";
     }
     
-    public GVTermUebList(HBCIHandler handler)
+    public GVTermUebList(HBCIPassportInternal passport, MsgGen msgGen)
     {
-        super(handler,getLowlevelName(),new GVRTermUebList());
+        super(passport,msgGen,getLowlevelName(),new GVRTermUebList(passport));
 
         addConstraint("my.country","KTV.KIK.country","DE", LogFilter.FILTER_NONE);
         addConstraint("my.blz","KTV.KIK.blz",null, LogFilter.FILTER_MOST);
@@ -64,7 +65,7 @@ public final class GVTermUebList
         entry.my.country=result.getProperty(header+".My.KIK.country");
         entry.my.number=result.getProperty(header+".My.number");
         entry.my.subnumber=result.getProperty(header+".My.subnumber");
-        getMainPassport().fillAccountInfo(entry.my);
+        passport.fillAccountInfo(entry.my);
 
         entry.other=new Konto();
         entry.other.blz=result.getProperty(header+".Other.KIK.blz");
@@ -73,7 +74,7 @@ public final class GVTermUebList
         entry.other.subnumber=result.getProperty(header+".Other.subnumber");
         entry.other.name=result.getProperty(header+".name");
         entry.other.name2=result.getProperty(header+".name2");
-        getMainPassport().fillAccountInfo(entry.other);
+        passport.fillAccountInfo(entry.other);
         
         entry.key=result.getProperty(header+".key");
         entry.addkey=result.getProperty(header+".addkey");
@@ -108,7 +109,7 @@ public final class GVTermUebList
                 }
             }
 
-            getMainPassport().setPersistentData("termueb_"+entry.orderid,p2);
+            passport.setPersistentData("termueb_"+entry.orderid,p2);
         }
     }
     

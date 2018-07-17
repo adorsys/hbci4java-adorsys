@@ -21,10 +21,6 @@
 
 package org.kapott.hbci.status;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.kapott.hbci.manager.HBCIUtils;
 
 /**

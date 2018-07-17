@@ -21,10 +21,10 @@
 
 package org.kapott.hbci.structures;
 
+import org.kapott.hbci.manager.HBCIUtils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
-
-import org.kapott.hbci.manager.HBCIUtils;
 
 /** Darstellung eines Geldbetrages. */
 public final class Value

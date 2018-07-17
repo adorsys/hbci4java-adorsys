@@ -21,16 +21,11 @@
 
 package org.kapott.hbci.tools;
 
+import org.kapott.hbci.passport.HBCIPassport;
+
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-
-import org.kapott.hbci.callback.HBCICallbackConsole;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.passport.AbstractHBCIPassport;
-import org.kapott.hbci.passport.HBCIPassport;
 
 /** <p>Tool zum Erzeugen eines INI-Briefes. Diese Klasse enthält kein Programmier-API,
     sondern ist direkt mit 

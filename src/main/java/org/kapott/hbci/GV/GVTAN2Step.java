@@ -22,13 +22,15 @@
 package org.kapott.hbci.GV;
 
 
-import java.util.Properties;
-
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+
+import java.util.Properties;
 
 /**
  * @author stefan.palme
@@ -42,8 +44,8 @@ public class GVTAN2Step extends HBCIJobImpl {
         return "TAN2Step";
     }
 
-    public GVTAN2Step(HBCIHandler handler) {
-        super(handler, getLowlevelName(), new GVRSaldoReq());
+    public GVTAN2Step(HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, getLowlevelName(), new GVRSaldoReq(passport));
 
         addConstraint("process", "process", null, LogFilter.FILTER_NONE);
         addConstraint("orderhash", "orderhash", "", LogFilter.FILTER_NONE);
@@ -126,10 +128,10 @@ public class GVTAN2Step extends HBCIJobImpl {
                 // das ist für PV#1 (die antwort auf das einreichen des auftrags-hashs) oder 
                 // für PV#2 (die antwort auf das einreichen des auftrages)
                 // in jedem fall muss mit der nächsten nachricht die TAN übertragen werden
-                getMainPassport().setPersistentData("pintan_challenge", challenge);
+                passport.setPersistentData("pintan_challenge", challenge);
 
                 // External-ID des originalen Jobs durchreichen
-                getMainPassport().setPersistentData("externalid", this.getExternalId());
+                passport.setPersistentData("externalid", this.getExternalId());
 
                 // TODO: es muss hier evtl. noch überprüft werden, ob
                 // der zurückgegebene auftragshashwert mit dem ursprünglich versandten
@@ -144,7 +146,7 @@ public class GVTAN2Step extends HBCIJobImpl {
             String hhdUc = result.getProperty(header + ".challenge_hhd_uc");
             if (hhdUc != null) {
                 HBCIUtils.log("found Challenge HHDuc '" + hhdUc + "' in HITAN - saving it temporarily in passport", HBCIUtils.LOG_DEBUG);
-                getMainPassport().setPersistentData("pintan_challenge_hhd_uc", hhdUc);
+                passport.setPersistentData("pintan_challenge_hhd_uc", hhdUc);
             }
 
             String orderref = result.getProperty(header + ".orderref");
@@ -163,7 +165,7 @@ public class GVTAN2Step extends HBCIJobImpl {
                 }
             }
 
-            getMainPassport().getCallback().tanCallback(getMainPassport(), otherTAN2StepTask);
+            passport.getCallback().tanCallback(passport, otherTAN2StepTask);
         }
     }
 }

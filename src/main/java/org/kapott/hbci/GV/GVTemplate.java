@@ -24,19 +24,18 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.LogFilter;
+import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public final class GVTemplate
-    extends HBCIJobImpl
-{
-    public GVTemplate(String gvname,HBCIHandler handler)
-    {
-        super(handler,gvname,new HBCIJobResultImpl());
+public final class GVTemplate extends HBCIJobImpl {
+
+    public GVTemplate(String gvname, HBCIPassportInternal passport, MsgGen msgGen) {
+        super(passport, msgGen, gvname, new HBCIJobResultImpl(passport));
     }
-    
-    public void setParam(String paramName,String value)
-    {
-        addConstraint(paramName,paramName,"", LogFilter.FILTER_MOST);
-        super.setParam(paramName,value);
+
+    public void setParam(String paramName, String value) {
+        addConstraint(paramName, paramName, "", LogFilter.FILTER_MOST);
+        super.setParam(paramName, value);
     }
 }
 

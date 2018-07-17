@@ -3,16 +3,15 @@
  */
 package org.kapott.hbci.smartcardio;
 
+import org.kapott.hbci.exceptions.HBCI_Exception;
+import org.kapott.hbci.manager.HBCIUtils;
+
+import javax.smartcardio.Card;
+import javax.smartcardio.CommandAPDU;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.smartcardio.Card;
-import javax.smartcardio.CommandAPDU;
-
-import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtils;
 
 /**
  * @author axel

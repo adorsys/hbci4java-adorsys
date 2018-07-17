@@ -21,177 +21,146 @@
 
 package org.kapott.hbci.GV_Result;
 
+import org.kapott.hbci.passport.HBCIPassportInternal;
+
 import java.util.Date;
 
-// TODO: doku fehlt
-public class GVRKontoauszug
-    extends GVRKUms
-{
-    private String       format;
-    private StringBuffer isodata;
-    private StringBuffer pdfdata;
-    
+public class GVRKontoauszug extends GVRKUms {
+    private String format;
+    private StringBuffer isodata = new StringBuffer();
+    private StringBuffer pdfdata = new StringBuffer();
+
     private Date startDate;
     private Date endDate;
-    
+
     private String abschlussInfo;
     private String kundenInfo;
     private String werbetext;
-    
+
     private String iban;
     private String bic;
-    
+
     private String name;
     private String name2;
     private String name3;
-    
+
     private String receipt;
-    
-    public GVRKontoauszug()
-    {
-        this.isodata=new StringBuffer();
-        this.pdfdata=new StringBuffer();
+
+    public GVRKontoauszug(HBCIPassportInternal passport) {
+        super(passport);
     }
-    
-    public void appendISOData(String st)
-    {
+
+    public void appendISOData(String st) {
         this.isodata.append(st);
     }
-    
-    public void appendPDFData(String st)
-    {
+
+    public void appendPDFData(String st) {
         this.pdfdata.append(st);
     }
 
-    public String getFormat()
-    {
+    public String getFormat() {
         return format;
     }
 
-    public void setFormat(String format)
-    {
+    public void setFormat(String format) {
         this.format = format;
     }
 
-    public Date getStartDate()
-    {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate)
-    {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate()
-    {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate)
-    {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public String getAbschlussInfo()
-    {
+    public String getAbschlussInfo() {
         return abschlussInfo;
     }
 
-    public void setAbschlussInfo(String abschlussInfo)
-    {
+    public void setAbschlussInfo(String abschlussInfo) {
         this.abschlussInfo = abschlussInfo;
     }
 
-    public String getKundenInfo()
-    {
+    public String getKundenInfo() {
         return kundenInfo;
     }
 
-    public void setKundenInfo(String kundenInfo)
-    {
+    public void setKundenInfo(String kundenInfo) {
         this.kundenInfo = kundenInfo;
     }
 
-    public String getWerbetext()
-    {
+    public String getWerbetext() {
         return werbetext;
     }
 
-    public void setWerbetext(String werbetext)
-    {
+    public void setWerbetext(String werbetext) {
         this.werbetext = werbetext;
     }
 
-    public String getIBAN()
-    {
+    public String getIBAN() {
         return iban;
     }
 
-    public void setIBAN(String iban)
-    {
+    public void setIBAN(String iban) {
         this.iban = iban;
     }
 
-    public String getBIC()
-    {
+    public String getBIC() {
         return bic;
     }
 
-    public void setBIC(String bic)
-    {
+    public void setBIC(String bic) {
         this.bic = bic;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getName2()
-    {
+    public String getName2() {
         return name2;
     }
 
-    public void setName2(String name2)
-    {
+    public void setName2(String name2) {
         this.name2 = name2;
     }
 
-    public String getName3()
-    {
+    public String getName3() {
         return name3;
     }
 
-    public void setName3(String name3)
-    {
+    public void setName3(String name3) {
         this.name3 = name3;
     }
 
-    public String getReceipt()
-    {
+    public String getReceipt() {
         return receipt;
     }
 
-    public void setReceipt(String receipt)
-    {
+    public void setReceipt(String receipt) {
         this.receipt = receipt;
     }
 
-    public StringBuffer getISOdata()
-    {
+    public StringBuffer getISOdata() {
         return isodata;
     }
 
-    public StringBuffer getPDFdata()
-    {
+    public StringBuffer getPDFdata() {
         return pdfdata;
     }
-    
+
     // TODO: toString() fehlt    
 }

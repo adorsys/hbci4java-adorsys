@@ -23,11 +23,8 @@ package org.kapott.hbci.passport;
 
 import org.kapott.hbci.GV.HBCIJobImpl;
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.comm.Comm;
-import org.kapott.hbci.comm.Filter;
-import org.kapott.hbci.manager.HBCIDialog;
 import org.kapott.hbci.manager.HBCIKey;
-import org.kapott.hbci.manager.IHandlerData;
+import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.List;
@@ -41,14 +38,6 @@ import java.util.Properties;
  * nicht zur Anwendung hin sichtbar (deshalb auch "<code>Internal</code>").
  */
 public interface HBCIPassportInternal extends HBCIPassport {
-
-    String getPassportTypeName();
-
-    Comm getComm();
-
-    Filter getCommFilter();
-
-    void closeComm();
 
     void setHBCIVersion(String hbciversion);
 
@@ -104,14 +93,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     String getMySigKeyVersion();
 
-    String getMyEncKeyName();
-
-    String getMyEncKeyNum();
-
-    String getMyEncKeyVersion();
-
-    boolean canMixSecMethods();
-
     String getLang();
 
     Long getSigId();
@@ -140,19 +121,7 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     void setSysId(String sysid);
 
-    void setCID(String cid);
-
     void incSigId();
-
-    byte[] hash(byte[] data);
-
-    byte[] sign(byte[] data);
-
-    boolean verify(byte[] data, byte[] sig);
-
-    byte[][] encrypt(byte[] plainMsg);
-
-    byte[] decrypt(byte[] cryptedKey, byte[] encryptedMsg);
 
     Properties getParamSegmentNames();
 
@@ -164,12 +133,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     Object getPersistentData(String id);
 
-    void resetPassphrase();
-
-    void setParentHandlerData(IHandlerData handler);
-
-    IHandlerData getParentHandlerData();
-
     /* Diese Methode wird nach jeder Dialog-Initialisierung aufgerufen. Ein
      * Passport-Objekt kann den Status der Response mit Hilfe von msgStatus
      * auswerten. Durch Zurückgeben von "true" wird angezeigt, dass eine
@@ -177,12 +140,8 @@ public interface HBCIPassportInternal extends HBCIPassport {
      * legende Zugangsdaten geändert haben, secMechs neu festgelegt wurden o.ä.) */
     boolean postInitResponseHook(HBCIMsgStatus msgStatus);
 
-    /* Diese Methode wird aufgerufen, bevor ein "normaler" Dialog (also mit GVs)
-     * geführt wird. */
-    void beforeCustomDialogHook(HBCIDialog dialog);
-
     /* Diese Methode wird aufgerufen, nachdem bei einem normalen Dialog die
-     * Dialog-Initialisierung abgeschlossen ist. 
+     * Dialog-Initialisierung abgeschlossen ist.
      * Wird im Moment nur von PinTan-Passports benutzt, um bei
      * Verwendung des Zweischritt-Verfahrens die Message-Liste zu patchen */
     void afterCustomDialogInitHook(List<List<HBCIJobImpl>> msgs);
@@ -190,10 +149,10 @@ public interface HBCIPassportInternal extends HBCIPassport {
     /* Gibt zurück, wieviele GV-Segmente in einer Nachricht enthalten sein dürfen.
      * Normalerweise wird das schon durch die BPD bzw. die Job-Params festgelegt,
      * deswegen geben die meisten Passport-Implementierungen hier 0 zurück (also
-     * keine weiteren Einschränkungen neben den BPD-Daten). Im Fall von PIN/TAN 
-     * muss jedoch dafür gesorgt werden, dass tatsächlich nur ein einziges 
-     * Auftragssegment in einer HBCI-Nachricht steht (weil sonst das "Signieren" 
-     * mit einer TAN schwierig wird). Deswegen gibt die PIN/TAN-Implementierung 
+     * keine weiteren Einschränkungen neben den BPD-Daten). Im Fall von PIN/TAN
+     * muss jedoch dafür gesorgt werden, dass tatsächlich nur ein einziges
+     * Auftragssegment in einer HBCI-Nachricht steht (weil sonst das "Signieren"
+     * mit einer TAN schwierig wird). Deswegen gibt die PIN/TAN-Implementierung
      * dieser Methode 1 zurück.
      * In HBCIDialog.addTask() wird diese Methode aufgerufen, um festzustellen,
      * ob für den hinzuzufügenden Task eine neue Nachricht erzeugt werden muss
@@ -205,5 +164,19 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     HBCICallback getCallback();
 
-    void setCallback(HBCICallback callback);
+    String getProxy();
+
+    byte[] hash(byte[] bytes);
+
+    byte[][] encrypt(byte[] plainString);
+
+    byte[] decrypt(byte[] cryptedkey, byte[] cryptedstring);
+
+    byte[] sign(byte[] hashresult);
+
+    boolean verify(byte[] hashresult, byte[] bytes);
+
+    Properties getSupportedLowlevelJobs(MsgGen msgGen);
+
+    Properties getLowlevelJobRestrictions(String gvname, MsgGen msgGen);
 }

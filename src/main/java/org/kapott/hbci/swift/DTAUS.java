@@ -21,14 +21,6 @@
 
 package org.kapott.hbci.swift;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import org.kapott.hbci.datatypes.SyntaxDTAUS;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
@@ -37,6 +29,10 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /** <p>Hilfsklasse zum Erzeugen von DTAUS-Datensätzen für die Verwendung in
     Sammelüberweisungen und Sammellastschriften. Diese Klasse kann verwendet

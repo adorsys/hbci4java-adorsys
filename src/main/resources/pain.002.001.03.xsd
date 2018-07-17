@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Von der Deutschen Kreditwirtschaft bereitgestelltes Bank-Kunde-Bank-Schema fÃ¼r den Payment Status Report fÃ¼r SEPA-Ãberweisungen bzw. -Lastschriften (gemÃ¤Ã Kapitel 2.2.3 der Anlage 3 des DFÃ-Abkommens) -->
-<!-- Version gemÃ¤Ã DFÃ-Abkommen Anlage 3, Version 3.0, gÃ¼ltig ab November 2016 gemÃ¤Ã EPC IG , 
-Namespace analog ISO 20022 Edition 2009, da voll kompatibel, zudem inkl. aller EPC-Vorgaben   Stand MÃ¤rz 2016-->
+<!-- Von der Deutschen Kreditwirtschaft bereitgestelltes Bank-Kunde-Bank-Schema für den Payment Status Report für SEPA-Ãberweisungen bzw. -Lastschriften (gemäÃ Kapitel 2.2.3 der Anlage 3 des DFÃ-Abkommens) -->
+<!-- Version gemäÃ DFÃ-Abkommen Anlage 3, Version 3.0, gültig ab November 2016 gemäÃ EPC IG ,
+Namespace analog ISO 20022 Edition 2009, da voll kompatibel, zudem inkl. aller EPC-Vorgaben   Stand März 2016-->
 <!-- Mit XMLSpy v2008 rel. 2 (http://www.altova.com) von Wenzel (SIZ Bonn) bearbeitet -->
 <xs:schema xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03" elementFormDefault="qualified">
 	<xs:element name="Document" type="Document"/>
@@ -9,7 +9,7 @@ Namespace analog ISO 20022 Edition 2009, da voll kompatibel, zudem inkl. aller E
 		<xs:sequence>
 			<xs:element name="IBAN" type="IBAN2007Identifier">
 				<xs:annotation>
-					<xs:documentation>Angabe nur zulÃ¤ssig im Falle eines Kontowechsels bei gleichbleibender 
+					<xs:documentation>Angabe nur zulässig im Falle eines Kontowechsels bei gleichbleibender
 Zahlerbank.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -234,7 +234,7 @@ Zahlerbank.</xs:documentation>
 		<xs:sequence>
 			<xs:element name="Id" type="RestrictedSMNDACode">
 				<xs:annotation>
-					<xs:documentation>ZulÃ¤ssiger Code: SMNDA = Same Mandat New Debtor Account - zeigt ein verÃ¤ndertes Zahlerkonto im Mandat an</xs:documentation>
+					<xs:documentation>Zulässiger Code: SMNDA = Same Mandat New Debtor Account - zeigt ein verändertes Zahlerkonto im Mandat an</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

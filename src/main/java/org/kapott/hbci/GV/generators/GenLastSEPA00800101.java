@@ -1,46 +1,14 @@
 package org.kapott.hbci.GV.generators;
 
+import org.kapott.hbci.GV.AbstractSEPAGV;
+import org.kapott.hbci.GV.SepaUtil;
+import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci.sepa.jaxb.pain_008_001_01.*;
+
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Properties;
-
-import org.kapott.hbci.GV.AbstractSEPAGV;
-import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.AccountIdentification2;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.AmendmentInformationDetails4;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.CashAccount8;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.ChargeBearerType2Code;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.DirectDebitTransaction4;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.DirectDebitTransactionInformation2;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.Document;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.EuroMax9Amount;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.FinancialInstitution2;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.FinancialInstitution3;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.FinancialInstitutionIdentification4;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.FinancialInstitutionIdentification5;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.GroupHeader20;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.Grouping2Code;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.MandateRelatedInformation4;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.ObjectFactory;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.Pain00800101;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PartyIdentification11;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PartyIdentification20;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PartyIdentification22;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PartyIdentification23;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PartyPrivate1;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PaymentIdentification1;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PaymentInstructionInformation5;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PaymentMethod2Code;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PaymentTypeInformation8;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.PersonIdentification4;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.RemittanceInformation3;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.RestrictedIdentification1;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.RestrictedIdentification2;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.SequenceType1Code;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.ServiceLevel3Code;
-import org.kapott.hbci.sepa.jaxb.pain_008_001_01.ServiceLevel4;
 
 
 /**

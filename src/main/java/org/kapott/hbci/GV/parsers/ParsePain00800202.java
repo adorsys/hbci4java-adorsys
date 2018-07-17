@@ -1,19 +1,13 @@
 package org.kapott.hbci.GV.parsers;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
+import org.kapott.hbci.GV.SepaUtil;
+import org.kapott.hbci.sepa.jaxb.pain_008_002_02.*;
 
 import javax.xml.bind.JAXB;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.ActiveOrHistoricCurrencyAndAmountSEPA;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.CustomerDirectDebitInitiationV02;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.DirectDebitTransactionInformationSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.Document;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PaymentInstructionInformationSDD;
-import org.kapott.hbci.sepa.jaxb.pain_008_002_02.PurposeSEPA;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Parser-Implementierung fuer Pain 008.002.02.

@@ -1,20 +1,13 @@
 package org.kapott.hbci.GV.parsers;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
+import org.kapott.hbci.GV.SepaUtil;
+import org.kapott.hbci.sepa.jaxb.pain_001_002_02.*;
 
 import javax.xml.bind.JAXB;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.CreditTransferTransactionInformationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.CurrencyAndAmountSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.Document;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.Pain00100102;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PaymentIdentification1;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PaymentInstructionInformationSCT;
-import org.kapott.hbci.sepa.jaxb.pain_001_002_02.PurposeSCT;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
 
 
 /**

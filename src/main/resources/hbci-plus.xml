@@ -811,7 +811,7 @@
         </DEGdef>
         
         <DEGdef id="UserSig">
-            <DE name="pin" type="AN" maxsize="99"/>               <!-- Einige Banken unterstÃ¼tzen mehr als 6 Stellen  -->
+            <DE name="pin" type="AN" maxsize="99"/>               <!-- Einige Banken unterstützen mehr als 6 Stellen  -->
             <DE name="tan" type="AN" maxsize="35" minnum="0"/>
         </DEGdef>
 
@@ -5835,7 +5835,7 @@
             <value path="SegHead.version">1</value>
         </SEGdef>
 
-        <!-- BEGIN SEPA-Umbuchung aka 'SEPA-Ãberweisung auf ein EmpfÃ¤ngerkonto' -->
+        <!-- BEGIN SEPA-Umbuchung aka 'SEPA-Ãberweisung auf ein Empfängerkonto' -->
         <!-- Request -->
         <SEGdef id="UmbSEPA1">
             <DEG type="SegHeadUser" name="SegHead"/>
@@ -5854,7 +5854,7 @@
             <value path="SegHead.code">HICUMS</value>
             <value path="SegHead.version">1</value>
         </SEGdef>
-        <!-- END SEPA-Umbuchung aka 'SEPA-Ãberweisung auf ein EmpfÃ¤ngerkonto' -->
+        <!-- END SEPA-Umbuchung aka 'SEPA-Ãberweisung auf ein Empfängerkonto' -->
         
         <!-- ================================== SEPA Dated Transfers ========================= -->
         <SEGdef id="TermUebSEPA1">

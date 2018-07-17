@@ -28,12 +28,9 @@ import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.JobNotSupportedException;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.passport.HBCIPassportList;
 import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.protocol.SyntaxElement;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -45,8 +42,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class HBCIJobImpl
-        implements HBCIJob {
+public abstract class HBCIJobImpl implements HBCIJob {
+
+    private MsgGen gen;
+
     private String name;              /* Job-Name mit Versionsnummer */
     private String jobName;           /* Job-Name ohne Versionsnummer */
 
@@ -56,9 +55,8 @@ public abstract class HBCIJobImpl
 
     private String segVersion;        /* Segment-Version */
     private Properties llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
-    private HBCIPassportList passports;
     protected HBCIJobResultImpl jobResult;         /* Objekt mit Rückgabedaten für diesen GV */
-    private HBCIHandler parentHandler;
+    protected HBCIPassport passport;
     private int idx;                  /* idx gibt an, der wievielte task innerhalb der aktuellen message
                                          dieser GV ist */
     private boolean executed;
@@ -80,23 +78,20 @@ public abstract class HBCIJobImpl
 
     private HashSet<String> indexedConstraints;
 
-    protected HBCIJobImpl(HBCIHandler parentHandler, String jobnameLL, HBCIJobResultImpl jobResult) {
-        findSpecNameForGV(jobnameLL, parentHandler);
+    protected HBCIJobImpl(HBCIPassport passport, MsgGen gen, String jobnameLL, HBCIJobResultImpl jobResult) {
+        this.passport = passport;
+        this.gen = gen;
+
+        findSpecNameForGV(jobnameLL);
         this.llParams = new Properties();
 
-        this.passports = new HBCIPassportList();
-        this.passports.addPassport((HBCIPassportInternal) parentHandler.getPassport(), HBCIPassport.ROLE_ISS);
-
         this.jobResult = jobResult;
-        this.jobResult.setParentJob(this);
 
         this.contentCounter = 0;
-        this.constraints = new Hashtable<String, String[][]>();
-        this.logFilterLevels = new Hashtable<String, Integer>();
-        this.indexedConstraints = new HashSet<String>();
+        this.constraints = new Hashtable<>();
+        this.logFilterLevels = new Hashtable<>();
+        this.indexedConstraints = new HashSet<>();
         this.executed = false;
-
-        this.parentHandler = parentHandler;
 
         /* offensichtlich soll ein GV mit dem Namen name in die nachricht
            aufgenommen werden. da GV durch segmente definiert sind, und einige
@@ -122,7 +117,6 @@ public abstract class HBCIJobImpl
             }
         }
 
-        HBCIPassportInternal passport = getMainPassport();
         StringBuffer tempkey = new StringBuffer();
 
         // durchsuchen aller param-segmente nach einem job mit dem jobnamen des
@@ -153,12 +147,12 @@ public abstract class HBCIJobImpl
     /* gibt zu einem gegebenen jobnamen des namen dieses jobs in der syntax-spez.
      * zurück (also mit angehängter versionsnummer)
      */
-    private void findSpecNameForGV(String jobnameLL, HBCIHandler handler) {
+    private void findSpecNameForGV(String jobnameLL) {
         int maxVersion = 0;
         StringBuffer key = new StringBuffer();
 
         // alle param-segmente durchlaufen
-        Properties bpd = handler.getPassport().getBPD();
+        Properties bpd = passport.getBPD();
         for (Enumeration i = bpd.propertyNames(); i.hasMoreElements(); ) {
             String path = (String) i.nextElement();
             key.setLength(0);
@@ -209,7 +203,7 @@ public abstract class HBCIJobImpl
 
         if (maxVersion == 0) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_GVNOTSUPP", jobnameLL);
-            if (!HBCIUtils.ignoreError(handler.getPassport(), "client.errors.ignoreJobNotSupported", msg))
+            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreJobNotSupported", msg))
                 throw new JobNotSupportedException(jobnameLL);
 
             maxVersion = 1;
@@ -296,7 +290,6 @@ public abstract class HBCIJobImpl
             }
         }
 
-        HBCIPassportInternal passport = getMainPassport();
         StringBuffer tempkey = new StringBuffer();
 
         for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
@@ -329,7 +322,6 @@ public abstract class HBCIJobImpl
             }
         }
 
-        HBCIPassportInternal passport = getMainPassport();
         StringBuffer tempkey = new StringBuffer();
 
         for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
@@ -362,7 +354,6 @@ public abstract class HBCIJobImpl
             }
         }
 
-        HBCIPassportInternal passport = getMainPassport();
         StringBuffer tempkey = new StringBuffer();
 
         for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
@@ -419,8 +410,6 @@ public abstract class HBCIJobImpl
     }
 
     public void verifyConstraints() {
-        HBCIPassportInternal passport = getMainPassport();
-
         // durch alle gespeicherten constraints durchlaufen
         for (Iterator<String> i = constraints.keySet().iterator(); i.hasNext(); ) {
             // den frontendnamen für das constraint ermitteln
@@ -479,9 +468,8 @@ public abstract class HBCIJobImpl
     }
 
     public SEG createJobSegment(int segnum) {
-        SEG seg = null;
+        SEG seg;
         try {
-            MsgGen gen = getParentHandler().getMsgGen();
             seg = new SEG(getName(), getName(), null, 0, gen.getSyntax());
             for (Enumeration e = getLowlevelParams().propertyNames(); e.hasMoreElements(); ) {
                 String key = (String) e.nextElement();
@@ -501,17 +489,15 @@ public abstract class HBCIJobImpl
     }
 
     public List<String> getJobParameterNames() {
-        MsgGen gen = getParentHandler().getMsgGen();
         return gen.getGVParameterNames(name);
     }
 
     public List<String> getJobResultNames() {
-        MsgGen gen = getParentHandler().getMsgGen();
         return gen.getGVResultNames(name);
     }
 
     public Properties getJobRestrictions() {
-        return passports.getMainPassport().getJobRestrictions(name);
+        return passport.getJobRestrictions(name);
     }
 
     /**
@@ -657,12 +643,7 @@ public abstract class HBCIJobImpl
      */
     @Override
     public void setParam(String paramName, Integer index, String value) {
-        // wenn der Parameter einen LogFilter-Level gesetzt hat, dann den
-        // betreffenden Wert zum Logfilter hinzufügen
-        Integer logFilterLevel = logFilterLevels.get(paramName);
-
         String[][] destinations = constraints.get(paramName);
-        HBCIPassportInternal passport = getMainPassport();
 
         if (destinations == null) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_PARAM_NOTNEEDED", new String[]{paramName, getName()});
@@ -825,7 +806,7 @@ public abstract class HBCIJobImpl
             }
         } catch (Exception e) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_CANTSTORERES", getName());
-            if (!HBCIUtils.ignoreError(getMainPassport(),
+            if (!HBCIUtils.ignoreError(passport,
                     "client.errors.ignoreJobResultStoreErrors",
                     msg + ": " + HBCIUtils.exception2String(e))) {
                 throw new HBCI_Exception(msg, e);
@@ -862,16 +843,14 @@ public abstract class HBCIJobImpl
      * gespeichert. @i entspricht dabei dem @c retValCounter.
      */
     protected void saveReturnValues(HBCIMsgStatus status, int sref) {
-        HBCIRetVal[] retVals = status.segStatus.getRetVals();
+        List<HBCIRetVal> retVals = status.segStatus.getRetVals();
         String segref = Integer.toString(sref);
 
-        for (int i = 0; i < retVals.length; i++) {
-            HBCIRetVal rv = retVals[i];
-
-            if (rv.segref != null && rv.segref.equals(segref)) {
-                jobResult.jobStatus.addRetVal(rv);
+        retVals.forEach(retVal -> {
+            if (retVal.segref != null && retVal.segref.equals(segref)) {
+                jobResult.jobStatus.addRetVal(retVal);
             }
-        }
+        });
 
         /* bei Jobs, die mehrere Nachrichten benötigt haben, bewirkt das, dass nur
          * der globStatus der *letzten* ausgeführten Nachricht gespeichert wird.
@@ -904,10 +883,6 @@ public abstract class HBCIJobImpl
         return jobResult;
     }
 
-    public HBCIPassportInternal getMainPassport() {
-        return passports.getMainPassport();
-    }
-
     private void _checkAccountCRC(String frontendname,
                                   String blz, String number) {
         // pruefsummenberechnung nur wenn blz/kontonummer angegeben sind
@@ -934,7 +909,7 @@ public abstract class HBCIJobImpl
             if (!crcok) {
                 // wenn beim validieren ein fehler auftrat, nach neuen daten fragen
                 StringBuffer sb = new StringBuffer(blz).append("|").append(number);
-                getMainPassport().getCallback().callback(getMainPassport(),
+                passport.getCallback().callback(
                         HBCICallback.HAVE_CRC_ERROR,
                         HBCIUtils.getLocMsg("CALLB_HAVE_CRC_ERROR"),
                         HBCICallback.TYPE_TEXT,
@@ -976,7 +951,7 @@ public abstract class HBCIJobImpl
 
             if (!crcok) {
                 StringBuffer sb = new StringBuffer(iban);
-                getMainPassport().getCallback().callback(getMainPassport(),
+                passport.getCallback().callback(
                         HBCICallback.HAVE_IBAN_ERROR,
                         HBCIUtils.getLocMsg("CALLB_HAVE_IBAN_ERROR"),
                         HBCICallback.TYPE_TEXT,
@@ -1020,16 +995,6 @@ public abstract class HBCIJobImpl
             String iban = llParams.getProperty(lowlevelHeader + ".iban");
             _checkIBANCRC(frontendname, iban);
         }
-    }
-
-    public void addSignaturePassport(HBCIPassport passport, String role) {
-        HBCIUtils.log("adding additional passport to job " + getName(),
-                HBCIUtils.LOG_DEBUG);
-        passports.addPassport((HBCIPassportInternal) passport, role);
-    }
-
-    public HBCIPassportList getSignaturePassports() {
-        return passports;
     }
 
     // die default-implementierung holt einfach aus den job-parametern
@@ -1077,18 +1042,6 @@ public abstract class HBCIJobImpl
         k.blz = this.getLowlevelParam(prefix + "KIK.blz");
         k.country = this.getLowlevelParam(prefix + "KIK.country");
         return k;
-    }
-
-    public HBCIHandler getParentHandler() {
-        return this.parentHandler;
-    }
-
-    public void addToQueue(String customerId) {
-        getParentHandler().addJobToDialog(customerId, this);
-    }
-
-    public void addToQueue() {
-        addToQueue(null);
     }
 
     /**
