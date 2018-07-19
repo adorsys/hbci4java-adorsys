@@ -21,7 +21,6 @@
 
 package org.kapott.hbci.tools;
 
-import com.sun.xml.internal.rngom.parse.host.Base;
 import org.apache.commons.codec.binary.Base64;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
