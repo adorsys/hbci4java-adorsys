@@ -19,7 +19,7 @@ import org.junit.Assert;
 
 import org.junit.Test;
 import org.kapott.hbci.exceptions.ParseErrorException;
-import org.kapott.hbci.manager.HBCIKernelImpl;
+import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
@@ -36,7 +36,7 @@ public class TestBug1129 extends AbstractTest {
      */
     private Hashtable<String, String> parse() throws Exception {
         String data = getFile("msg/bugzilla-1129.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
+        HBCIKernel kernel = new HBCIKernel(null);
         kernel.rawNewMsg("DauerList");
 
         MsgGen gen = kernel.getMsgGen();

@@ -26,7 +26,7 @@ import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public class GVChangePIN extends HBCIJobImpl {
+public class GVChangePIN extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "ChangePIN";

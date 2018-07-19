@@ -2,7 +2,7 @@ package org.kapott.hbci4java.sepa;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kapott.hbci.GV.HBCIJob;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.HBCIJobResult;
 import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.status.HBCIExecStatus;
@@ -16,7 +16,7 @@ public class TestGVTermUebSEPA extends AbstractTestGV {
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        HBCIJob job =  HBCIJobFactory.newJob("TermUebSEPA", handler.getPassport(), handler.getMsgGen());
+        AbstractHBCIJob job =  HBCIJobFactory.newJob("TermUebSEPA", dialog.getPassport(), dialog.getKernel().getMsgGen());
         
         Konto acc = new Konto();
         acc.blz = params.getProperty("target_blz");
@@ -36,10 +36,10 @@ public class TestGVTermUebSEPA extends AbstractTestGV {
         job.setParam("date", params.getProperty("date"));
         
         System.out.println("---------Fï¿½r Job zur Queue");
-        handler.addJobToDialog(job);
+        dialog.addTask(job);
 
         
-        HBCIExecStatus ret = handler.execute(true);
+        HBCIExecStatus ret = dialog.execute(true);
         HBCIJobResult res = job.getJobResult();
         System.out.println("----------Result: "+res.toString());
         

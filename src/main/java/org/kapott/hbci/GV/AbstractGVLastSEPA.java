@@ -105,7 +105,7 @@ public abstract class AbstractGVLastSEPA extends AbstractSEPAGV {
     }
 
     /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
+     * @see AbstractHBCIJob#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
      */
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         Properties result = msgstatus.getData();

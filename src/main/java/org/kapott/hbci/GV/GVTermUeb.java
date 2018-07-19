@@ -33,7 +33,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 public final class GVTermUeb
-        extends HBCIJobImpl {
+        extends AbstractHBCIJob {
     public static String getLowlevelName() {
         return "TermUeb";
     }

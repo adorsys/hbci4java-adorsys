@@ -21,15 +21,19 @@
 
 package org.kapott.hbci.manager;
 
-import org.kapott.hbci.GV.HBCIJobImpl;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIDialogStatus;
+import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.status.HBCIInstMessage;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.*;
+
+import static org.kapott.hbci.manager.HBCIJobFactory.newJob;
+
 
 /* @brief A class for managing exactly one HBCI-Dialog
 
@@ -52,23 +56,34 @@ public final class HBCIDialog {
 
     private String dialogid;  /* The dialogID for this dialog (unique for each dialog) */
     private long msgnum;    /* An automatically managed message counter. */
-    private List<List<HBCIJobImpl>> msgs;    /* this array contains all messages to be sent (excluding
+    private List<List<AbstractHBCIJob>> msgs;    /* this array contains all messages to be sent (excluding
                                              dialogInit and dialogEnd); each element of the arrayList
                                              is again an ArrayList, where each element is one
                                              task (GV) to be sent with this specific message */
     // liste aller GVs in der aktuellen msg; key ist der hbciCode des jobs, value ist die anzahl dieses jobs in der aktuellen msg
     private Properties listOfGVs;
     private HBCIPassportInternal passport;
-    private HBCIKernelImpl kernel;
+    private HBCIKernel kernel;
 
     public HBCIDialog(HBCIPassportInternal passport) {
         HBCIUtils.log("creating new dialog", HBCIUtils.LOG_DEBUG);
 
-        this.kernel = new HBCIKernelImpl(passport);
+        this.kernel = new HBCIKernel(passport);
         this.passport = passport;
         this.msgs = new ArrayList<>();
         this.msgs.add(new ArrayList<>());
         this.listOfGVs = new Properties();
+
+        this.registerInstitute();
+        this.registerUser();
+
+        // wenn in den UPD noch keine SEPA- und TAN-Medien-Informationen ueber die Konten enthalten
+        // sind, versuchen wir, diese zu holen
+        Properties upd = passport.getUPD();
+        if (upd != null && !upd.containsKey("_fetchedMetaInfo")) {
+            // wir haben UPD, in denen aber nicht "_fetchedMetaInfo" drinsteht
+            updateMetaInfo();
+        }
     }
 
     /**
@@ -108,7 +123,7 @@ public final class HBCIDialog {
                 kernel.rawSet("ProcPrep.lang", passport.getDefaultLang());
                 kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
                 kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
-                ret = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT, HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+                ret = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
 
                 boolean need_restart = passport.postInitResponseHook(ret);
                 if (need_restart) {
@@ -160,6 +175,118 @@ public final class HBCIDialog {
         return ret;
     }
 
+    private void registerInstitute() {
+        try {
+            HBCIUtils.log("registering institute", HBCIUtils.LOG_DEBUG);
+            HBCIInstitute inst = new HBCIInstitute(kernel, passport);
+            inst.register();
+        } catch (Exception ex) {
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_INST"), ex);
+        }
+    }
+
+    private void registerUser() {
+        try {
+            HBCIUtils.log("registering user", HBCIUtils.LOG_DEBUG);
+            HBCIUser user = new HBCIUser(kernel, passport);
+            user.register();
+        } catch (Exception ex) {
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
+        }
+    }
+
+    /**
+     * Ruft die SEPA-Infos der Konten sowie die TAN-Medienbezeichnungen ab.
+     * unterstuetzt wird und speichert diese Infos in den UPD.
+     */
+    public void updateMetaInfo() {
+        Properties bpd = passport.getBPD();
+        if (bpd == null) {
+            HBCIUtils.log("have no bpd, skip fetching of meta info", HBCIUtils.LOG_WARN);
+            return;
+        }
+
+        try {
+            final Properties lowlevel = getPassport().getSupportedLowlevelJobs(kernel.getMsgGen());
+
+            // SEPA-Infos abrufen
+            if (lowlevel.getProperty("SEPAInfo") != null) {
+                HBCIUtils.log("fetching SEPA information", HBCIUtils.LOG_INFO);
+                AbstractHBCIJob sepainfo = newJob("SEPAInfo", getPassport(), kernel.getMsgGen());
+                addTask(sepainfo);
+            }
+
+            // TAN-Medien abrufen
+            if (lowlevel.getProperty("TANMediaList") != null) {
+                HBCIUtils.log("fetching TAN media list", HBCIUtils.LOG_INFO);
+                AbstractHBCIJob tanMedia = newJob("TANMediaList", getPassport(), kernel.getMsgGen());
+                addTask(tanMedia);
+            }
+
+            HBCIExecStatus status = execute(false);
+            if (status.isOK()) {
+                HBCIUtils.log("successfully fetched meta info", HBCIUtils.LOG_INFO);
+                passport.getUPD().setProperty("_fetchedMetaInfo", new Date().toString());
+            } else {
+                HBCIUtils.log("error while fetching meta info: " + status.toString(), HBCIUtils.LOG_ERR);
+            }
+        } catch (Exception e) {
+            // Wir werfen das nicht als Exception. Unschoen, wenn das nicht klappt.
+            // Aber kein Grund zur Panik.
+            HBCIUtils.log(e);
+        }
+    }
+
+
+    /**
+     * Wenn der GV SEPAInfo unterstützt wird, heißt das, dass die Bank mit
+     * SEPA-Konten umgehen kann. In diesem Fall holen wir die SEPA-Informationen
+     * über die Konten von der Bank ab - für jedes SEPA-fähige Konto werden u.a.
+     * BIC/IBAN geliefert
+     *
+     * @deprecated Bitte <code>updateMetaInfo</code> verwenden. Das aktualisiert auch die TAN-Medien.
+     */
+    public void updateSEPAInfo() {
+        Properties bpd = passport.getBPD();
+        if (bpd == null) {
+            HBCIUtils.log("have no bpd, skipping SEPA information fetching", HBCIUtils.LOG_WARN);
+            return;
+        }
+
+        // jetzt noch zusaetzliche die SEPA-Informationen abholen
+        try {
+            if (getPassport().getSupportedLowlevelJobs(kernel.getMsgGen()).getProperty("SEPAInfo") != null) {
+                HBCIUtils.log("trying to fetch SEPA information from institute", HBCIUtils.LOG_INFO);
+
+                // HKSPA wird unterstuetzt
+                AbstractHBCIJob sepainfo = newJob("SEPAInfo", getPassport(), kernel.getMsgGen());
+                addTask(sepainfo);
+                HBCIExecStatus status = execute(false);
+                if (status.isOK()) {
+                    HBCIUtils.log("successfully fetched information about SEPA accounts from institute", HBCIUtils.LOG_INFO);
+
+                    passport.getUPD().setProperty("_fetchedSEPA", "1");
+                } else {
+                    HBCIUtils.log("error while fetching information about SEPA accounts from institute:", HBCIUtils.LOG_ERR);
+                    HBCIUtils.log(status.toString(), HBCIUtils.LOG_ERR);
+                }
+                /* beim execute() werden die Job-Result-Objekte automatisch
+                 * gefuellt. Der GV-Klasse fuer SEPAInfo haengt sich in diese
+                 * Logik rein, um gleich die UPD mit den SEPA-Konto-Daten
+                 * zu aktualisieren, so dass an dieser Stelle die UPD um
+                 * die SEPA-Informationen erweitert wurden.
+                 */
+            } else {
+                HBCIUtils.log("institute does not support SEPA accounts, so we skip fetching information about SEPA", HBCIUtils.LOG_DEBUG);
+            }
+        } catch (HBCI_Exception he) {
+            throw he;
+        } catch (Exception e) {
+            throw new HBCI_Exception(e);
+        }
+    }
+
+
     private HBCIMsgStatus[] doJobs() {
         HBCIUtils.log(HBCIUtils.getLocMsg("LOG_PROCESSING_JOBS"), HBCIUtils.LOG_INFO);
 
@@ -169,7 +296,7 @@ public final class HBCIDialog {
         int nof_messages = msgs.size();
         for (int j = 0; j < nof_messages; j++) {
             // tasks ist liste aller jobs, die in dieser nachricht ausgeführt werden sollen
-            List<HBCIJobImpl> tasks = msgs.get(j);
+            List<AbstractHBCIJob> tasks = msgs.get(j);
 
             // loop wird benutzt, um zu zählen, wie oft bereits "nachgehakt" wurde,
             // falls ein bestimmter job nicht mit einem einzigen nachrichtenaustausch
@@ -192,8 +319,8 @@ public final class HBCIDialog {
 
                     // durch alle jobs loopen, die eigentlich in der aktuellen
                     // nachricht abgearbeitet werden müssten
-                    for (Iterator<HBCIJobImpl> i = tasks.iterator(); i.hasNext(); ) {
-                        HBCIJobImpl task = i.next();
+                    for (Iterator<AbstractHBCIJob> i = tasks.iterator(); i.hasNext(); ) {
+                        AbstractHBCIJob task = i.next();
 
                         // wenn der Task entweder noch gar nicht ausgeführt wurde
                         // oder in der letzten Antwortnachricht ein entsprechendes
@@ -234,7 +361,7 @@ public final class HBCIDialog {
                     nextMsgNum();
 
                     // nachrichtenaustausch durchführen
-                    msgstatus = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT, HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+                    msgstatus = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
                     Properties result = msgstatus.getData();
 
                     // searching for first segment number that belongs to the custom_msg
@@ -255,8 +382,8 @@ public final class HBCIDialog {
                     if (offset != 0) {
                         // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
                         // in fillOutStore wird auch "executed" fuer den jeweiligen Task auf true gesetzt.
-                        for (Iterator<HBCIJobImpl> i = tasks.iterator(); i.hasNext(); ) {
-                            HBCIJobImpl task = i.next();
+                        for (Iterator<AbstractHBCIJob> i = tasks.iterator(); i.hasNext(); ) {
+                            AbstractHBCIJob task = i.next();
                             if (task.needsContinue(loop)) {
                                 // nur wenn der auftrag auch tatsaechlich gesendet werden musste
                                 try {
@@ -310,7 +437,7 @@ public final class HBCIDialog {
             kernel.rawSet("MsgHead.msgnum", getMsgNumAsString());
             kernel.rawSet("MsgTail.msgnum", getMsgNumAsString());
             nextMsgNum();
-            ret = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT, HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+            ret = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
 
             passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, ret);
         } catch (Exception e) {
@@ -318,6 +445,51 @@ public final class HBCIDialog {
         }
 
         return ret;
+    }
+
+    /**
+     * <p>Ausführen aller bisher erzeugten Aufträge. Diese Methode veranlasst den HBCI-Kernel,
+     * die Aufträge, die durch die Aufrufe auszuführen. </p>
+     * <p>Beim Hinzufügen der Aufträge zur Auftragsqueue wird implizit oder explizit
+     * eine Kunden-ID mit angegeben, unter der der jeweilige Auftrag ausgeführt werden soll.
+     * In den meisten Fällen hat ein Benutzer nur eine einzige Kunden-ID, so dass die
+     * Angabe entfallen kann, es wird dann automatisch die richtige verwendet. Werden aber
+     * mehrere Aufträge via <code>addToQueue()</code> zur Auftragsqueue hinzugefügt, und sind
+     * diese Aufträge unter teilweise unterschiedlichen Kunden-IDs auszuführen, dann wird
+     * für jede verwendete Kunden-ID ein separater HBCI-Dialog erzeugt und ausgeführt.
+     * Das äußert sich dann also darin, dass beim Aufrufen der Methode execute
+     * u.U. mehrere HBCI-Dialog mit der Bank geführt werden, und zwar je einer für jede Kunden-ID,
+     * für die wenigstens ein Auftrag existiert. Innerhalb eines HBCI-Dialoges werden alle
+     * auszuführenden Aufträge in möglichst wenige HBCI-Nachrichten verpackt.</p>
+     * <p>Dazu wird eine Reihe von HBCI-Nachrichten mit dem HBCI-Server der Bank ausgetauscht. Die
+     * Menge der dazu verwendeten HBCI-Nachrichten kann dabei nur bedingt beeinflusst werden, da <em>HBCI4Java</em>
+     * u.U. selbstständig Nachrichten erzeugt, u.a. wenn ein Auftrag nicht mehr mit in eine Nachricht
+     * aufgenommen werden konnte, oder wenn eine Antwortnachricht nicht alle verfügbaren Daten
+     * zurückgegeben hat, so dass <em>HBCI4Java</em> mit einer oder mehreren weiteren Nachrichten den Rest
+     * der Daten abholt. </p>
+     * <p>Nach dem Nachrichtenaustausch wird ein Status-Objekt zurückgegeben,
+     * welches zur Auswertung aller ausgeführten Dialoge benutzt werden kann.</p>
+     *
+     * @return ein Status-Objekt, anhand dessen der Erfolg oder das Fehlschlagen
+     * der Dialoge festgestellt werden kann.
+     */
+    public HBCIExecStatus execute(boolean closeDialog) {
+        String origCustomerId = passport.getCustomerId();
+        try {
+            HBCIExecStatus ret = new HBCIExecStatus();
+
+            HBCIUtils.log("executing dialog", HBCIUtils.LOG_DEBUG);
+
+            try {
+                HBCIDialogStatus dialogStatus = doIt(closeDialog);
+                ret.addDialogStatus(dialogStatus);
+            } catch (Exception e) {
+                ret.addException(e);
+            }
+            return ret;
+        } finally {
+            passport.setCustomerId(origCustomerId);
+        }
     }
 
     /**
@@ -407,7 +579,7 @@ public final class HBCIDialog {
         return total;
     }
 
-    public void addTask(HBCIJobImpl job) {
+    public void addTask(AbstractHBCIJob job) {
         // TODO: hier evtl. auch überprüfen, dass nur jobs mit den gleichen
         // signatur-anforderungen (anzahl) in einer msg stehen
 
@@ -471,7 +643,7 @@ public final class HBCIDialog {
         }
     }
 
-    public List<HBCIJobImpl> getAllTasks() {
+    public List<AbstractHBCIJob> getAllTasks() {
         List tasks = new ArrayList();
 
         for (Iterator i = msgs.iterator(); i.hasNext(); ) {
@@ -487,11 +659,11 @@ public final class HBCIDialog {
         listOfGVs.clear();
     }
 
-    public List<List<HBCIJobImpl>> getMessages() {
+    public List<List<AbstractHBCIJob>> getMessages() {
         return this.msgs;
     }
 
-    public void setKernel(HBCIKernelImpl kernel) {
+    public void setKernel(HBCIKernel kernel) {
         this.kernel = kernel;
     }
 
@@ -499,7 +671,7 @@ public final class HBCIDialog {
         return passport;
     }
 
-    public HBCIKernelImpl getKernel() {
+    public HBCIKernel getKernel() {
         return kernel;
     }
 }

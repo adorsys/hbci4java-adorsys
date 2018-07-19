@@ -42,7 +42,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class HBCIJobImpl implements HBCIJob {
+public class AbstractHBCIJob {
 
     private MsgGen gen;
 
@@ -78,7 +78,7 @@ public abstract class HBCIJobImpl implements HBCIJob {
 
     private HashSet<String> indexedConstraints;
 
-    protected HBCIJobImpl(HBCIPassport passport, MsgGen gen, String jobnameLL, HBCIJobResultImpl jobResult) {
+    public AbstractHBCIJob(HBCIPassport passport, MsgGen gen, String jobnameLL, HBCIJobResultImpl jobResult) {
         this.passport = passport;
         this.gen = gen;
 
@@ -492,10 +492,35 @@ public abstract class HBCIJobImpl implements HBCIJob {
         return gen.getGVParameterNames(name);
     }
 
+    /**
+     * Gibt alle möglichen Property-Namen für die Lowlevel-Rückgabedaten dieses
+     * Jobs zurück. Die Lowlevel-Rückgabedaten können mit
+     * {@link #getJobResult()} und {@link HBCIJobResult#getResultData()}
+     * ermittelt werden.
+     *
+     * @return Liste aller prinzipiell möglichen Property-Keys für die
+     * Lowlevel-Rückgabedaten dieses Jobs
+     */
     public List<String> getJobResultNames() {
         return gen.getGVResultNames(name);
     }
 
+    /**
+     * <p>Gibt für einen Job alle bekannten Einschränkungen zurück, die bei
+     * der Ausführung des jeweiligen Jobs zu beachten sind. Diese Daten werden aus den
+     * Bankparameterdaten des aktuellen Passports extrahiert. Sie können von einer HBCI-Anwendung
+     * benutzt werden, um gleich entsprechende Restriktionen bei der Eingabe von
+     * Geschäftsvorfalldaten zu erzwingen (z.B. die maximale Anzahl von Verwendungszweckzeilen,
+     * ob das Ändern von terminierten Überweisungen erlaubt ist usw.).</p>
+     * <p>Die einzelnen Einträge des zurückgegebenen Properties-Objektes enthalten als Key die
+     * Bezeichnung einer Restriktion (z.B. "<code>maxusage</code>"), als Value wird der
+     * entsprechende Wert eingestellt. Die Bedeutung der einzelnen Restriktionen ist zur Zeit
+     * nur der HBCI-Spezifikation zu entnehmen. In späteren Programmversionen werden entsprechende
+     * Dokumentationen zur internen HBCI-Beschreibung hinzugefügt, so dass dafür eine Abfrageschnittstelle
+     * implementiert werden kann.</p>
+     *
+     * @return Properties-Objekt mit den einzelnen Restriktionen
+     */
     public Properties getJobRestrictions() {
         return passport.getJobRestrictions(name);
     }
@@ -517,9 +542,6 @@ public abstract class HBCIJobImpl implements HBCIJob {
         setParam(paramname, null, acc);
     }
 
-    /**
-     * @see org.kapott.hbci.GV.HBCIJob#setParam(java.lang.String, java.lang.Integer, org.kapott.hbci.structures.Konto)
-     */
     public void setParam(String paramname, Integer index, Konto acc) {
         if (acceptsParam(paramname + ".country") && acc.country != null && acc.country.length() != 0)
             setParam(paramname + ".country", index, acc.country);
@@ -609,9 +631,7 @@ public abstract class HBCIJobImpl implements HBCIJob {
      * <p>Setzen eines Job-Parameters. Für alle Highlevel-Jobs ist in der Package-Beschreibung zum
      * Package {@link org.kapott.hbci.GV} eine Auflistung aller Jobs und deren Parameter zu finden.
      * Für alle Lowlevel-Jobs kann eine Liste aller Parameter entweder mit dem Tool
-     * {@link org.kapott.hbci.tools.ShowLowlevelGVs} oder zur Laufzeit durch Aufruf
-     * der Methode {@link org.kapott.hbci.manager.HBCIHandler#getLowlevelJobParameterNames(String)}
-     * ermittelt werden.</p>
+     * {@link org.kapott.hbci.tools.ShowLowlevelGVs} ermittelt werden.</p>
      * <p>Bei Verwendung dieser oder einer der anderen <code>setParam()</code>-Methoden werden zusätzlich
      * einige der Job-Restriktionen (siehe {@link #getJobRestrictions()}) analysiert. Beim Verletzen einer
      * der überprüften Einschränkungen wird eine Exception mit einer entsprechenden Meldung erzeugt.
@@ -620,7 +640,6 @@ public abstract class HBCIJobImpl implements HBCIJob {
      * @param paramName der Name des zu setzenden Parameters.
      * @param value     Wert, auf den der Parameter gesetzt werden soll
      */
-    @Override
     public void setParam(String paramName, String value) {
         setParam(paramName, null, value);
     }
@@ -629,9 +648,7 @@ public abstract class HBCIJobImpl implements HBCIJob {
      * <p>Setzen eines Job-Parameters. Für alle Highlevel-Jobs ist in der Package-Beschreibung zum
      * Package {@link org.kapott.hbci.GV} eine Auflistung aller Jobs und deren Parameter zu finden.
      * Für alle Lowlevel-Jobs kann eine Liste aller Parameter entweder mit dem Tool
-     * {@link org.kapott.hbci.tools.ShowLowlevelGVs} oder zur Laufzeit durch Aufruf
-     * der Methode {@link org.kapott.hbci.manager.HBCIHandler#getLowlevelJobParameterNames(String)}
-     * ermittelt werden.</p>
+     * {@link org.kapott.hbci.tools.ShowLowlevelGVs} ermittelt werden.</p>
      * <p>Bei Verwendung dieser oder einer der anderen <code>setParam()</code>-Methoden werden zusätzlich
      * einige der Job-Restriktionen (siehe {@link #getJobRestrictions()}) analysiert. Beim Verletzen einer
      * der überprüften Einschränkungen wird eine Exception mit einer entsprechenden Meldung erzeugt.
@@ -641,7 +658,6 @@ public abstract class HBCIJobImpl implements HBCIJob {
      * @param index     Der index oder <code>null</code>, wenn kein Index gewünscht ist
      * @param value     Wert, auf den der Parameter gesetzt werden soll
      */
-    @Override
     public void setParam(String paramName, Integer index, String value) {
         String[][] destinations = constraints.get(paramName);
 
@@ -687,6 +703,16 @@ public abstract class HBCIJobImpl implements HBCIJob {
         llParams.setProperty(key, value);
     }
 
+    /**
+     * Gibt alle für diesen Job gesetzten Parameter zurück. In dem
+     * zurückgegebenen <code>Properties</code>-Objekt sind werden die
+     * Parameter als <em>Lowlevel</em>-Parameter abgelegt. Außerdem hat
+     * jeder Lowlevel-Parametername zusätzlich ein Prefix, welches den
+     * Lowlevel-Job angibt, für den der Parameter gilt (also z.B.
+     * <code>Ueb3.BTG.value</code>
+     *
+     * @return aktuelle gesetzte Lowlevel-Parameter für diesen Job
+     */
     public Properties getLowlevelParams() {
         return llParams;
     }
@@ -1044,18 +1070,10 @@ public abstract class HBCIJobImpl implements HBCIJob {
         return k;
     }
 
-    /**
-     * @see org.kapott.hbci.GV.HBCIJob#getExternalId()
-     */
-    @Override
     public String getExternalId() {
         return this.externalId;
     }
 
-    /**
-     * @see org.kapott.hbci.GV.HBCIJob#setExternalId(java.lang.String)
-     */
-    @Override
     public void setExternalId(String id) {
         this.externalId = id;
     }

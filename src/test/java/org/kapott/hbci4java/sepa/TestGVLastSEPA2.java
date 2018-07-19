@@ -1,38 +1,14 @@
 package org.kapott.hbci4java.sepa;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.kapott.hbci.manager.HBCIJobFactory;
-import org.kapott.hbci4java.AbstractTest;
-import org.kapott.hbci4java.AbstractTestGV;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
 import junit.framework.Assert;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kapott.hbci.GV.HBCIJob;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.HBCIJobResult;
-import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.callback.HBCICallbackConsole;
-import org.kapott.hbci.manager.HBCIHandler;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.passport.AbstractHBCIPassport;
-import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
+import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+import org.kapott.hbci4java.AbstractTestGV;
 
 
 
@@ -41,7 +17,7 @@ public class TestGVLastSEPA2 extends AbstractTestGV {
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        HBCIJob job =  HBCIJobFactory.newJob("LastSEPA", null, null);
+        AbstractHBCIJob job =  HBCIJobFactory.newJob("LastSEPA", null, null);
         
         Konto acc = new Konto();
         acc.blz = params.getProperty("target_blz");
@@ -64,10 +40,10 @@ public class TestGVLastSEPA2 extends AbstractTestGV {
         job.setParam("manddateofsig", params.getProperty("date_of_sig"));
         
         System.out.println("---------Fï¿½r Job zur Queue");
-        handler.addJobToDialog(job);
+        dialog.addTask(job);
 
         
-        HBCIExecStatus ret = handler.execute(true);
+        HBCIExecStatus ret = dialog.execute(true);
         HBCIJobResult res = job.getJobResult();
         System.out.println("----------Result: "+res.toString());
         

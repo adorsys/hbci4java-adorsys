@@ -26,7 +26,6 @@ import org.kapott.hbci.GV_Result.GVRAccInfo;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
@@ -34,7 +33,7 @@ import org.kapott.hbci.structures.Value;
 
 import java.util.Properties;
 
-public class GVAccInfo extends HBCIJobImpl {
+public class GVAccInfo extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "AccInfo";

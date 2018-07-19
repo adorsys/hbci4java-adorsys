@@ -28,7 +28,7 @@ import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public final class GVCustomMsg extends HBCIJobImpl {
+public final class GVCustomMsg extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "CustomMsg";

@@ -12,12 +12,11 @@
 package org.kapott.hbci4java.sepa;
 
 import org.junit.*;
-import org.kapott.hbci.GV.HBCIJob;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.HBCIJobResult;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.HBCIDialog;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
@@ -70,7 +69,7 @@ public class TestGVUebSEPA extends AbstractTest {
     private static File dir = null;
 
     private HBCIPassportPinTanNoFile passport = null;
-    private HBCIHandler handler = null;
+    private HBCIDialog dialog = null;
 
     /**
      * Testet das Erstellen einer SEPA-Basis-Lastschrift.
@@ -80,7 +79,7 @@ public class TestGVUebSEPA extends AbstractTest {
     @Test
     public void test001() throws Exception {
         System.out.println("---------Erstelle Job");
-        HBCIJob job = HBCIJobFactory.newJob("UebSEPA", handler.getPassport(), handler.getMsgGen());
+        AbstractHBCIJob job = HBCIJobFactory.newJob("UebSEPA", dialog.getPassport(), dialog.getKernel().getMsgGen());
 
 
 //    //Mal schauen welche Konten ich habe
@@ -97,10 +96,10 @@ public class TestGVUebSEPA extends AbstractTest {
 
 
         System.out.println("---------Fï¿½r Job zur Queue");
-        handler.addJobToDialog(job);
+        dialog.addTask(job);
 
 
-        HBCIExecStatus ret = handler.execute(true);
+        HBCIExecStatus ret = dialog.execute(true);
         HBCIJobResult res = job.getJobResult();
         System.out.println("----------Result: " + res.toString());
 
@@ -153,7 +152,7 @@ public class TestGVUebSEPA extends AbstractTest {
 
         // init handler
         HBCIDialog dialog = new HBCIDialog(passport);
-        this.handler = new HBCIHandler(dialog);
+
 
         // dump bpd
 //    this.dump("BPD",this.passport.getBPD());

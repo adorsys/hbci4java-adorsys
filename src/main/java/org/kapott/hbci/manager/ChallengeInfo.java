@@ -20,8 +20,7 @@
 
 package org.kapott.hbci.manager;
 
-import org.kapott.hbci.GV.HBCIJob;
-import org.kapott.hbci.GV.HBCIJobImpl;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.datatypes.SyntaxDE;
 import org.kapott.hbci.datatypes.factory.SyntaxDEFactory;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -114,7 +113,7 @@ public class ChallengeInfo {
      * @param hktan   der HKTAN-Geschaeftsvorfall, in dem die Parameter gesetzt werden sollen.
      * @param secmech die BPD-Informationen zum TAN-Verfahren.
      */
-    public void applyParams(HBCIJobImpl task, HBCIJob hktan, Properties secmech) {
+    public void applyParams(AbstractHBCIJob task, AbstractHBCIJob hktan, Properties secmech) {
         String code = task.getHBCICode(); // Code des Geschaeftsvorfalls
 
         // Job-Parameter holen
@@ -338,7 +337,7 @@ public class ChallengeInfo {
          * @param job der Geschaeftsvorfall.
          * @return der Wert des Parameters.
          */
-        private String getValue(HBCIJobImpl job) {
+        private String getValue(AbstractHBCIJob job) {
             // Leerer Parameter
             if (this.path == null || this.path.length() == 0)
                 return null;

@@ -21,7 +21,7 @@
 
 package org.kapott.hbci.tools;
 
-import org.kapott.hbci.manager.HBCIKernelImpl;
+import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.MsgGen;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,7 +78,7 @@ public class ShowLowlevelGVRs
             hbciversion=new BufferedReader(new InputStreamReader(System.in)).readLine();
         }
         
-        HBCIKernelImpl kernel=new HBCIKernelImpl(null);
+        HBCIKernel kernel=new HBCIKernel(null);
         MsgGen         msggen=kernel.getMsgGen();
         Document       syntax=msggen.getSyntax();
         

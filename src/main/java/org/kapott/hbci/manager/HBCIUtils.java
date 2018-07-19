@@ -68,10 +68,7 @@ public final class HBCIUtils {
      */
     public static final int LOG_INTERN = 6;
 
-    private static char[] base64table = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-            'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-            'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-            'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("hbci4java-messages", Locale.getDefault());
 
 
     public static Properties blzs = new Properties();
@@ -619,149 +616,6 @@ public final class HBCIUtils {
         return strings2DateTimeLocal(date, time);
     }
 
-
-    /**
-     * Gibt Daten Base64-encoded zurück. Die zu kodierenden Daten müssen als Byte-Array übergeben
-     * werden, als Resultat erhält man einen String mit der entsprechenden Base64-Kodierung.
-     *
-     * @param x zu kodierende Daten
-     * @return String mit Base64-kodierten Daten
-     */
-    public static String encodeBase64(byte[] x) {
-        try {
-            int origSize = x.length;
-
-            if ((origSize % 3) != 0) {
-                byte[] temp = new byte[((origSize / 3) + 1) * 3];
-                System.arraycopy(x, 0, temp, 0, origSize);
-                x = temp;
-            }
-
-            StringBuffer ret = new StringBuffer();
-            int readPos = 0;
-
-            while (readPos < (x.length << 3)) {
-                int modulus = readPos & 7;
-                int value;
-
-                if ((readPos >> 3) < origSize) {
-                    if (modulus <= 2) {
-                        // six bits in one byte
-                        value = (x[readPos >> 3] >> (2 - modulus)) & 0x3F;
-                    } else {
-                        // six bits in two bytes
-                        value = ((x[readPos >> 3] << (modulus - 2)) & 0x3F) |
-                                ((x[(readPos >> 3) + 1] >> (10 - modulus)) & ((1 << (modulus - 2)) - 1));
-                    }
-
-                    ret.append(base64table[value]);
-                } else {
-                    ret.append('=');
-
-                }
-                readPos += 6;
-            }
-
-            return ret.toString();
-        } catch (Exception ex) {
-            throw new HBCI_Exception(getLocMsg("EXCMSG_UTIL_ENCB64"), ex);
-        }
-    }
-
-    /**
-     * Dekodieren eines Base64-Datenstroms. Es wird zu einem gegebenen Base64-Datenstrom der dazugehörige
-     * "Klartext" zurückgegeben.
-     *
-     * @param st Base64-kodierten Daten
-     * @return dekodierter Datenstrom als Byte-Array
-     */
-    public static byte[] decodeBase64(String st) {
-        try {
-            byte[] source = st.getBytes(CommPinTan.ENCODING);
-            byte[] ret = new byte[st.length()];
-            int retlen = 0;
-
-            int needFromFirst = 6;
-            int needFromSecond = 2;
-            boolean abort = false;
-            int byteCounter = 0;
-            int[] values = new int[2];
-
-            for (int readPos = 0; readPos < source.length; readPos++) {
-                values[0] = 0;
-                values[1] = 0;
-
-                for (int step = 0; step < 2; step++) {
-                    int value = 0;
-
-                    while ((readPos + step) < source.length) {
-                        value = source[readPos + step];
-
-                        if (value >= '0' && value <= '9' ||
-                                value >= 'A' && value <= 'Z' ||
-                                value >= 'a' && value <= 'z' ||
-                                value == '+' || value == '/' || value == '=') {
-                            break;
-                        }
-
-                        readPos++;
-                    }
-
-                    if (!(value >= '0' && value <= '9' ||
-                            value >= 'A' && value <= 'Z' ||
-                            value >= 'a' && value <= 'z' ||
-                            value == '+' || value == '/')) {
-
-                        abort = true;
-                        break;
-                    }
-
-                    if ((char) value == '/') {
-                        value = 63;
-                    } else if ((char) value == '+') {
-                        value = 62;
-                    } else if ((char) value <= '9') {
-                        value = 52 + value - (byte) '0';
-                    } else if ((char) value <= 'Z') {
-                        value = value - (byte) 'A';
-                    } else {
-                        value = 26 + value - (byte) 'a';
-
-                    }
-                    if (step == 0) {
-                        values[0] = (value << (8 - needFromFirst)) & 0xFF;
-                    } else {
-                        values[1] = (value >> (6 - needFromSecond)) & 0xFF;
-                    }
-                }
-
-                if (abort) {
-                    break;
-                }
-
-                ret[retlen++] = (byte) (values[0] | values[1]);
-
-                if ((byteCounter & 3) == 2) {
-                    readPos++;
-                    byteCounter++;
-                    needFromFirst = 6;
-                    needFromSecond = 2;
-                } else {
-                    needFromFirst = 6 - needFromSecond;
-                    needFromSecond = 8 - needFromFirst;
-                }
-
-                byteCounter++;
-            }
-
-            byte[] ret2 = new byte[retlen];
-            System.arraycopy(ret, 0, ret2, 0, retlen);
-            return ret2;
-        } catch (Exception ex) {
-            throw new HBCI_Exception(getLocMsg("EXCMSG_UTIL_DECB64"), ex);
-        }
-    }
-
     private static Method getAccountCRCMethodByAlg(String alg) {
         Class<AccountCRCAlgs> cl = null;
         Method method = null;
@@ -1056,7 +910,7 @@ public final class HBCIUtils {
 
     public static String getLocMsg(String key) {
         try {
-            return ResourceBundle.getBundle("hbci4java-messages", Locale.getDefault()).getString(key);
+            return resourceBundle.getString(key);
         } catch (MissingResourceException re) {
             // tolerieren wir
             LoggerFactory.getLogger(HBCIUtils.class).debug(re.getMessage(), re);

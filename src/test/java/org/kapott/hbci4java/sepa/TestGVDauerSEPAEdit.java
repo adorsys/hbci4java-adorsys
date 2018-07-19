@@ -1,12 +1,11 @@
 package org.kapott.hbci4java.sepa;
 
 import org.junit.*;
-import org.kapott.hbci.GV.HBCIJob;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.HBCIJobResult;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.HBCIDialog;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassport;
@@ -41,14 +40,14 @@ public class TestGVDauerSEPAEdit extends AbstractTest {
     private static File dir = null;
 
     private HBCIPassportPinTanNoFile passport = null;
-    private HBCIHandler handler = null;
+    private HBCIDialog dialog = null;
     private Properties params = new Properties();
 
 
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        HBCIJob job = HBCIJobFactory.newJob("DauerSEPAEdit", handler.getPassport(), handler.getMsgGen());
+        AbstractHBCIJob job = HBCIJobFactory.newJob("DauerSEPAEdit", dialog.getPassport(), dialog.getKernel().getMsgGen());
 
         Konto acc = new Konto();
         acc.blz = params.getProperty("target_blz");
@@ -72,10 +71,10 @@ public class TestGVDauerSEPAEdit extends AbstractTest {
         job.setParam("orderid", params.getProperty("orderid"));
 
         System.out.println("---------Fï¿½r Job zur Queue");
-        handler.addJobToDialog(job);
+        dialog.addTask(job);
 
 
-        HBCIExecStatus ret = handler.execute(true);
+        HBCIExecStatus ret = dialog.execute(true);
         HBCIJobResult res = job.getJobResult();
         System.out.println("----------Result: " + res.toString());
 
@@ -133,7 +132,7 @@ public class TestGVDauerSEPAEdit extends AbstractTest {
 
         // init handler
         HBCIDialog dialog = new HBCIDialog(passport);
-        this.handler = new HBCIHandler(dialog);
+
 
         // dump bpd
         //this.dump("BPD",this.passport.getBPD());

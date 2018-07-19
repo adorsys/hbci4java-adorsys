@@ -22,7 +22,6 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRKontoauszug;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
@@ -33,7 +32,7 @@ import org.kapott.hbci.swift.Swift;
 import java.util.Properties;
 
 // TODO: doku fehlt (html)
-public class GVKontoauszug extends HBCIJobImpl {
+public class GVKontoauszug extends AbstractHBCIJob {
 
     public final static String FORMAT_MT940 = "1";
     public final static String FORMAT_ISO8583 = "2";

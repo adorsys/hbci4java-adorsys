@@ -21,7 +21,7 @@
 
 package org.kapott.hbci.passport;
 
-import org.kapott.hbci.GV.HBCIJob;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
@@ -36,10 +36,7 @@ import org.kapott.hbci.structures.Value;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * <p>Diese Klasse stellt die Basisklasse für alle "echten" Passport-Implementationen
@@ -490,6 +487,77 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     /**
+     * <p>Gibt alle Parameter zurück, die für einen Lowlevel-Job gesetzt
+     * werden können. Wird ein Job
+     * erzeugt, so kann der gleiche <code>gvname</code> als Argument dieser
+     * Methode verwendet werden, um eine Liste aller Parameter zu erhalten, die
+     * für diesen Job durch Aufrufe der Methode
+     * {@link org.kapott.hbci.GV.AbstractHBCIJob#setParam(String, String)}
+     * gesetzt werden können bzw. müssen.</p>
+     * <p>Aus der zurückgegebenen Liste ist nicht ersichtlich, ob ein bestimmter
+     * Parameter optional ist oder gesetzt werden <em>muss</em>. Das kann aber
+     * durch Benutzen des Tools {@link org.kapott.hbci.tools.ShowLowlevelGVs}
+     * ermittelt werden.</p>
+     * <p>Jeder Eintrag der zurückgegebenen Liste enthält einen String, welcher als
+     * erster Parameter für den Aufruf von <code>AbstractHBCIJob.setParam()</code> benutzt
+     * werden kann. </p>
+     * <p>Zur Beschreibung von High- und Lowlevel-Jobs siehe auch die Dokumentation
+     * im Package <code>org.kapott.hbci.GV</code>.</p>
+     *
+     * @param gvname der Lowlevel-Jobname, für den eine Liste der Job-Parameter
+     *               ermittelt werden soll
+     * @return eine Liste aller Parameter-Bezeichnungen, die in der Methode
+     * {@link org.kapott.hbci.GV.AbstractHBCIJob#setParam(String, String)}
+     * benutzt werden können
+     */
+    public List<String> getLowlevelJobParameterNames(String gvname, MsgGen msgGen) {
+        if (gvname == null || gvname.length() == 0)
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+
+        String version = getSupportedLowlevelJobs(msgGen).getProperty(gvname);
+        if (version == null)
+            throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
+
+        return msgGen.getGVParameterNames(gvname, version);
+    }
+
+    /**
+     * <p>Gibt eine Liste mit Strings zurück, welche Bezeichnungen für die einzelnen Rückgabedaten
+     * eines Lowlevel-Jobs darstellen. Jedem {@link org.kapott.hbci.GV.AbstractHBCIJob} ist ein
+     * Result-Objekt zugeordnet, welches die Rückgabedaten und Statusinformationen zu dem jeweiligen
+     * Job enthält (kann mit {@link org.kapott.hbci.GV.AbstractHBCIJob#getJobResult()}
+     * ermittelt werden). Bei den meisten Highlevel-Jobs handelt es sich dabei um bereits aufbereitete
+     * Daten (Kontoauszüge werden z.B. nicht in dem ursprünglichen SWIFT-Format zurückgegeben, sondern
+     * bereits als fertig geparste Buchungseinträge).</p>
+     * <p>Bei Lowlevel-Jobs gibt es diese Aufbereitung der Daten nicht. Statt dessen müssen die Daten
+     * manuell aus der Antwortnachricht extrahiert und interpretiert werden. Die einzelnen Datenelemente
+     * der Antwortnachricht werden in einem Properties-Objekt bereitgestellt. Jeder Eintrag
+     * darin enthält den Namen und den Wert eines Datenelementes aus der Antwortnachricht.</p>
+     * <p>Die Methode <code>getLowlevelJobResultNames()</code> gibt nun alle gültigen Namen zurück,
+     * für welche in dem Result-Objekt Daten gespeichert sein können. Ob für ein Datenelement tatsächlich
+     * ein Wert in dem Result-Objekt existiert, wird damit nicht bestimmt, da einzelne Datenelemente
+     * optional sind.</p>
+     * <p>Mit dem Tool {@link org.kapott.hbci.tools.ShowLowlevelGVRs} kann offline eine
+     * Liste aller Job-Result-Datenelemente erzeugt werden.</p>
+     * <p>Zur Beschreibung von High- und Lowlevel-Jobs siehe auch die Dokumentation
+     * im Package <code>org.kapott.hbci.GV</code>.</p>
+     *
+     * @param gvname Lowlevelname des Geschäftsvorfalls, für den die Namen der Rückgabedaten benötigt werden.
+     * @return Liste aller möglichen Property-Keys, für die im Result-Objekt eines Lowlevel-Jobs
+     * Werte vorhanden sein könnten
+     */
+    public List<String> getLowlevelJobResultNames(String gvname, MsgGen msgGen) {
+        if (gvname == null || gvname.length() == 0)
+            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
+
+        String version = getSupportedLowlevelJobs(msgGen).getProperty(gvname);
+        if (version == null)
+            throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
+
+        return msgGen.getGVResultNames(gvname, version);
+    }
+
+    /**
      * <p>Gibt die Namen aller vom aktuellen HBCI-Zugang (d.h. Passport)
      * unterstützten Lowlevel-Jobs zurück.</p>
      * <p>In dem zurückgegebenen Properties-Objekt enthält jeder Eintrag als
@@ -544,7 +612,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * angeboten. Diese Methode ermittelt automatisch die "richtige" Versionsnummer
      * für die Ermittlung der GV-Restriktionen aus den BPD (und zwar die selbe,
      * die <em>HBCI4Java</em> beim Erzeugen eines Jobs benutzt). </p>
-     * <p>Siehe dazu auch {@link HBCIJob#getJobRestrictions()}.</p>
+     * <p>Siehe dazu auch {@link AbstractHBCIJob#getJobRestrictions()}.</p>
      *
      * @param gvname Lowlevel-Name des Geschäftsvorfalles, für den die Restriktionen
      *               ermittelt werden sollen

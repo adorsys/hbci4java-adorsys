@@ -29,7 +29,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 
 import java.util.Properties;
 
-public class GVLast extends HBCIJobImpl {
+public class GVLast extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "Last";

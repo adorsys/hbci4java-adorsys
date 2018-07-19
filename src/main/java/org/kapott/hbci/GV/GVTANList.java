@@ -23,7 +23,6 @@ package org.kapott.hbci.GV;
 
 
 import org.kapott.hbci.GV_Result.GVRTANList;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -31,7 +30,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Properties;
 
-public class GVTANList extends HBCIJobImpl {
+public class GVTANList extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "TANListList";

@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-public final class GVStatus extends HBCIJobImpl {
+public final class GVStatus extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "Status";

@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernelImpl;
+import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
@@ -24,7 +24,7 @@ public class TestMultipleDEGs extends AbstractTest {
     public void test() throws Exception {
 
         String data = getFile("msg/TestMultipleDEGs-01.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
+        HBCIKernel kernel = new HBCIKernel(null);
 
         kernel.rawNewMsg("DialogInit");
 

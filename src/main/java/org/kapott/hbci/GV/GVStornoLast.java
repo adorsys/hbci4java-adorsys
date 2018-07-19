@@ -26,7 +26,7 @@ import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public class GVStornoLast extends HBCIJobImpl {
+public class GVStornoLast extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "LastObjection";

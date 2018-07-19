@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * Abstrakte Basis-Klasse fuer JAXB-basierte SEPA-Jobs.
  */
-public abstract class AbstractSEPAGV extends HBCIJobImpl {
+public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     /**
      * Token, der als End-to-End ID Platzhalter verwendet wird, wenn keine angegeben wurde.
      * In pain.001.001.02 wurde dieser Token noch explizit erwaehnt. Inzwischen nicht mehr.
@@ -201,7 +201,7 @@ public abstract class AbstractSEPAGV extends HBCIJobImpl {
     }
 
     /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#setLowlevelParam(java.lang.String, java.lang.String)
+     * @see AbstractHBCIJob#setLowlevelParam(java.lang.String, java.lang.String)
      * This is needed to "redirect" the sepa values. They dont have to stored
      * directly in the message, but have to go into the SEPA document which will
      * by created later (in verifyConstraints())
@@ -323,7 +323,7 @@ public abstract class AbstractSEPAGV extends HBCIJobImpl {
     }
 
     /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#addConstraint(java.lang.String, java.lang.String, java.lang.String, int, boolean)
+     * @see AbstractHBCIJob#addConstraint(java.lang.String, java.lang.String, java.lang.String, int, boolean)
      * Ueberschrieben, um die Default-Werte der SEPA-Parameter vorher rauszufischen und in "this.sepaParams" zu
      * speichern. Die brauchen wir "createSEPAFromParams" beim Erstellen des XML - sie wuerden dort sonst aber
      * fehlen, weil Default-Werte eigentlich erst in "verifyConstraints" uebernommen werden.

@@ -59,6 +59,7 @@
 
         <maven-jaxb2-plugin.version>0.13.2</maven-jaxb2-plugin.version>
         <jaxb.packageName>org.kapott</jaxb.packageName>
+        <commons-codec.version>1.11</commons-codec.version>
     </properties>
     <distributionManagement>
         <repository>
@@ -412,6 +413,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

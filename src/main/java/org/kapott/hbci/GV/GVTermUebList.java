@@ -22,7 +22,6 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRTermUebList;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
@@ -35,7 +34,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 public final class GVTermUebList
-    extends HBCIJobImpl
+    extends AbstractHBCIJob
 {
     public static String getLowlevelName()
     {

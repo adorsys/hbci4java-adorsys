@@ -21,8 +21,8 @@
 
 package org.kapott.hbci.passport;
 
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV.GVTAN2Step;
-import org.kapott.hbci.GV.HBCIJobImpl;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -807,7 +807,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
     }
 
     // das wird vor dialog.executeJobs() abstrakt aufgerufen
-    private void patchMessagesFor2StepMethods(List<List<HBCIJobImpl>> msgs) {
+    private void patchMessagesFor2StepMethods(List<List<AbstractHBCIJob>> msgs) {
         if (!getCurrentTANMethod(false).equals(Sig.SECFUNC_SIG_PT_1STEP)) {
             // wenn es sich um das pintan-verfahren im zweischritt-modus handelt,
             // müssen evtl. zusätzliche nachrichten bzw. segmente eingeführt werden
@@ -818,18 +818,18 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
             String segversion = secmechInfo.getProperty("segversion");
             String process = secmechInfo.getProperty("process");
 
-            List<List<HBCIJobImpl>> new_msgs = new ArrayList<>();
+            List<List<AbstractHBCIJob>> new_msgs = new ArrayList<>();
 
             // durch alle ursprünglichen nachrichten laufen
-            for (Iterator<List<HBCIJobImpl>> i = msgs.iterator(); i.hasNext(); ) {
-                List<HBCIJobImpl> msg_tasks = i.next();
-                ArrayList<HBCIJobImpl> new_msg_tasks = new ArrayList<>();
+            for (Iterator<List<AbstractHBCIJob>> i = msgs.iterator(); i.hasNext(); ) {
+                List<AbstractHBCIJob> msg_tasks = i.next();
+                ArrayList<AbstractHBCIJob> new_msg_tasks = new ArrayList<>();
 
                 GVTAN2Step hktan2 = null;
 
                 // jeden task einer nachricht ansehen
-                for (Iterator<HBCIJobImpl> j = msg_tasks.iterator(); j.hasNext(); ) {
-                    HBCIJobImpl task = j.next();
+                for (Iterator<AbstractHBCIJob> j = msg_tasks.iterator(); j.hasNext(); ) {
+                    AbstractHBCIJob task = j.next();
                     String segcode = task.getHBCICode();
 
                     if (getPinTanInfo(segcode).equals("J")) {
@@ -923,7 +923,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
                             applyTanMedia(hktan);
 
                             // diese neue msg vor der aktuellen in die msg-queue einstellen
-                            List<HBCIJobImpl> additional_msg_tasks = new ArrayList<>();
+                            List<AbstractHBCIJob> additional_msg_tasks = new ArrayList<>();
                             additional_msg_tasks.add(hktan2);
                             new_msgs.add(additional_msg_tasks);
 
@@ -1005,7 +1005,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
                     // wenn für prozessvariante 2 eine zusätzliche msg erzeugt
                     // wurde, diese jetzt mit anhängen
                     if (!callback.tanCallback(this, hktan2)) {
-                        List<HBCIJobImpl> additional_msg_tasks = new ArrayList<>();
+                        List<AbstractHBCIJob> additional_msg_tasks = new ArrayList<>();
                         additional_msg_tasks.add(hktan2);
 
                         HBCIUtils.log("adding newly created message with HKTAN(p=2) after current one", HBCIUtils.LOG_DEBUG);
@@ -1067,7 +1067,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    public void afterCustomDialogInitHook(List<List<HBCIJobImpl>> msgs) {
+    public void afterCustomDialogInitHook(List<List<AbstractHBCIJob>> msgs) {
         patchMessagesFor2StepMethods(msgs);
     }
 

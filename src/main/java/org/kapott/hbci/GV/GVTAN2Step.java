@@ -23,7 +23,6 @@ package org.kapott.hbci.GV;
 
 
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
@@ -35,10 +34,10 @@ import java.util.Properties;
 /**
  * @author stefan.palme
  */
-public class GVTAN2Step extends HBCIJobImpl {
+public class GVTAN2Step extends AbstractHBCIJob {
 
     private GVTAN2Step otherTAN2StepTask;
-    private HBCIJobImpl origTask;
+    private AbstractHBCIJob origTask;
 
     public static String getLowlevelName() {
         return "TAN2Step";
@@ -95,7 +94,7 @@ public class GVTAN2Step extends HBCIJobImpl {
         this.otherTAN2StepTask = other;
     }
 
-    public void storeOriginalTask(HBCIJobImpl task) {
+    public void storeOriginalTask(AbstractHBCIJob task) {
         this.origTask = task;
     }
 

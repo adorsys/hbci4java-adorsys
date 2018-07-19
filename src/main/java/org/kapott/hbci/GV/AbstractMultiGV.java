@@ -33,7 +33,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public abstract class AbstractMultiGV extends HBCIJobImpl {
+public abstract class AbstractMultiGV extends AbstractHBCIJob {
 
     public AbstractMultiGV(HBCIPassportInternal passport, MsgGen msgGen, String jobnameLL, HBCIJobResultImpl jobResult) {
         super(passport, msgGen, jobnameLL, jobResult);

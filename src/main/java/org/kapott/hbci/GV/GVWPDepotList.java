@@ -26,7 +26,6 @@ import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.BigDecimalValue;
@@ -37,7 +36,7 @@ import org.kapott.hbci.swift.SwiftLegacy;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-public final class GVWPDepotList extends HBCIJobImpl {
+public final class GVWPDepotList extends AbstractHBCIJob {
     private StringBuffer buffer;
 
     public static String getLowlevelName() {

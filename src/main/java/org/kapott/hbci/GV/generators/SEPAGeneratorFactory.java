@@ -1,7 +1,7 @@
 package org.kapott.hbci.GV.generators;
 
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV.AbstractSEPAGV;
-import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.sepa.PainVersion;
 
@@ -28,7 +28,7 @@ public class SEPAGeneratorFactory
 	 * @throws InstantiationException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static ISEPAGenerator get(HBCIJob job, PainVersion version) throws ClassNotFoundException, InstantiationException, IllegalAccessException
+	public static ISEPAGenerator get(AbstractHBCIJob job, PainVersion version) throws ClassNotFoundException, InstantiationException, IllegalAccessException
 	{
         String jobname = ((AbstractSEPAGV)job).getPainJobName(); // referenzierter pain-Geschäftsvorfall
         return get(jobname,version);

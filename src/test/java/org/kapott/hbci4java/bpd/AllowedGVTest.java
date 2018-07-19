@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernelImpl;
+import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
@@ -23,7 +23,7 @@ public class AllowedGVTest extends AbstractTest {
     @Test
     public void test() throws Exception {
         String data = getFile("bpd/bpd-allowedgv.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
+        HBCIKernel kernel = new HBCIKernel(null);
 
 //	    Rewrite.setData("msgName","Synch");
         // liste der rewriter erzeugen
@@ -60,7 +60,7 @@ public class AllowedGVTest extends AbstractTest {
     @Test
     public void test2() throws Exception {
         String data = getFile("bpd/bpd-allowedgv2.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
+        HBCIKernel kernel = new HBCIKernel(null);
 
 //	        Rewrite.setData("msgName","Synch");
         // liste der rewriter erzeugen

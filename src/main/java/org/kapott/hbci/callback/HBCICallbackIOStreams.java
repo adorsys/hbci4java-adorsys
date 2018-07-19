@@ -21,8 +21,8 @@
 
 package org.kapott.hbci.callback;
 
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV.GVTAN2Step;
-import org.kapott.hbci.GV.HBCIJob;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
@@ -378,10 +378,10 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
                 getOutStream().println("status: "+((HBCIMsgStatus)o[0]).toString());
                 break;
             case STATUS_SEND_TASK:
-                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_NEW_JOB",((HBCIJob)o[0]).getName()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_NEW_JOB",((AbstractHBCIJob)o[0]).getName()));
                 break;
             case STATUS_SEND_TASK_DONE:
-                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_JOB_DONE",((HBCIJob)o[0]).getName()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_JOB_DONE",((AbstractHBCIJob)o[0]).getName()));
                 break;
             case STATUS_DIALOG_END:
                 getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_END"));

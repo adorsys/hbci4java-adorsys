@@ -21,16 +21,14 @@
 
 package org.kapott.hbci.tools;
 
-import org.kapott.hbci.GV.HBCIJob;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.HBCIDialog;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
 import org.kapott.hbci.status.HBCIExecStatus;
@@ -66,28 +64,25 @@ public final class AnalyzeReportOfTransactions {
 
         passport.setPIN(System.getProperty("pin"));
 
-        // Initialize and use HBCI handle
-        HBCIHandler hbciHandle =  hbciHandle = new HBCIHandler(dialog);
-
         // Read bank account statement
-        analyzeReportOfTransactions(passport, hbciHandle);
+        analyzeReportOfTransactions(passport, dialog);
     }
 
-    private static void analyzeReportOfTransactions(HBCIPassportInternal hbciPassport, HBCIHandler hbciHandle) {
+    private static void analyzeReportOfTransactions(HBCIPassportInternal hbciPassport, HBCIDialog hbciDialog) {
         // Use first available HBCI account
         Konto myaccount = hbciPassport.getAccounts()[0];
 
         // Create HBCI job
-        HBCIJob bankAccountStatementJob = HBCIJobFactory.newJob("KUmsAll", hbciPassport, hbciHandle.getMsgGen());
+        AbstractHBCIJob bankAccountStatementJob = HBCIJobFactory.newJob("KUmsAll", hbciPassport, hbciDialog.getKernel().getMsgGen());
         bankAccountStatementJob.setParam("my", myaccount);
 
         // Set bank account statement retrieval date
         // bankAccountStatementJob.setParam("startdate","21.5.2003");
 
-        hbciHandle.addJobToDialog(bankAccountStatementJob);
+        hbciDialog.addTask(bankAccountStatementJob);
 
         // Execute all jobs
-        HBCIExecStatus ret = hbciHandle.execute(true);
+        HBCIExecStatus ret = hbciDialog.execute(true);
 
         // GVRKUms = Geschäfts Vorfall Result Konto Umsatz
         GVRKUms result = (GVRKUms) bankAccountStatementJob.getJobResult();

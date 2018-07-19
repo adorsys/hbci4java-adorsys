@@ -22,12 +22,11 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-public final class GVTemplate extends HBCIJobImpl {
+public final class GVTemplate extends AbstractHBCIJob {
 
     public GVTemplate(String gvname, HBCIPassportInternal passport, MsgGen msgGen) {
         super(passport, msgGen, gvname, new HBCIJobResultImpl(passport));

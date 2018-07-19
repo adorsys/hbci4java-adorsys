@@ -25,7 +25,6 @@ import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.ProcessException;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -38,12 +37,12 @@ import java.util.Properties;
     a certain institute. */
 public final class HBCIUser implements IHandlerData {
     private HBCIPassportInternal passport;
-    private HBCIKernelImpl kernel;
+    private HBCIKernel kernel;
 
     /**
      * @brief This constructor initializes a new user instance with the given values
      */
-    public HBCIUser(HBCIKernelImpl kernel, HBCIPassportInternal passport) {
+    public HBCIUser(HBCIKernel kernel, HBCIPassportInternal passport) {
         this.kernel = kernel;
         this.passport = passport;
     }
@@ -56,7 +55,7 @@ public final class HBCIUser implements IHandlerData {
         kernel.rawSet("MsgHead.msgnum", msgnum);
         kernel.rawSet("DialogEndS.dialogid", dialogid);
         kernel.rawSet("MsgTail.msgnum", msgnum);
-        HBCIMsgStatus status = kernel.rawDoIt(signIt, cryptIt, HBCIKernelImpl.NEED_SIG, needCrypt);
+        HBCIMsgStatus status = kernel.rawDoIt(signIt, cryptIt, HBCIKernel.NEED_SIG, needCrypt);
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {
@@ -157,8 +156,8 @@ public final class HBCIUser implements IHandlerData {
                 passport.setMyPrivateEncKey(encKey[1]);
                 // TODO: setMyDigKey
 
-                HBCIMsgStatus ret = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                        HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.DONT_NEED_CRYPT);
+                HBCIMsgStatus ret = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                        HBCIKernel.NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
 
                 passport.postInitResponseHook(ret);
                 Properties result = ret.getData();
@@ -179,8 +178,8 @@ public final class HBCIUser implements IHandlerData {
                 }
 
                 try {
-                    doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernelImpl.DONT_SIGNIT, HBCIKernelImpl.CRYPTIT,
-                            HBCIKernelImpl.DONT_NEED_CRYPT);
+                    doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.DONT_SIGNIT, HBCIKernel.CRYPTIT,
+                            HBCIKernel.DONT_NEED_CRYPT);
                 } catch (Exception e) {
                     HBCIUtils.log(e);
                 }
@@ -205,8 +204,8 @@ public final class HBCIUser implements IHandlerData {
                     kernel.rawSet("ProcPrep.lang", passport.getLang());
                     kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
                     kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
-                    ret = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                            HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+                    ret = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                            HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
 
                     boolean need_restart = passport.postInitResponseHook(ret);
                     if (need_restart) {
@@ -274,8 +273,8 @@ public final class HBCIUser implements IHandlerData {
                 passport.setMyPublicEncKey(encKey[0]);
                 passport.setMyPrivateEncKey(encKey[1]);
 
-                ret = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                        HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+                ret = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                        HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
                 if (!ret.isOK()) {
                     // TODO: hier muessen am besten beide schluessel im passport
                     // gesichert werden, damit spaeter ueberprueft werden
@@ -302,8 +301,8 @@ public final class HBCIUser implements IHandlerData {
 
                 result = ret.getData();
                 passport.getCallback().status(HBCICallback.STATUS_SEND_KEYS_DONE, ret);
-                doDialogEnd(result.getProperty("MsgHead.dialogid"), "3", HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                        HBCIKernelImpl.NEED_CRYPT);
+                doDialogEnd(result.getProperty("MsgHead.dialogid"), "3", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                        HBCIKernel.NEED_CRYPT);
             }
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SENDABORT"), e);
@@ -344,8 +343,8 @@ public final class HBCIUser implements IHandlerData {
                 kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
                 kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
                 kernel.rawSet("Sync.mode", "0");
-                ret = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                        HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+                ret = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                        HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
 
                 boolean need_restart = passport.postInitResponseHook(ret);
                 if (need_restart) {
@@ -372,8 +371,8 @@ public final class HBCIUser implements IHandlerData {
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{ret, passport.getSysId()});
             HBCIUtils.log("new sys-id is " + passport.getSysId(), HBCIUtils.LOG_DEBUG);
-            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                    HBCIKernelImpl.NEED_CRYPT);
+            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                    HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
         }
@@ -412,8 +411,8 @@ public final class HBCIUser implements IHandlerData {
                 kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
                 kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
                 kernel.rawSet("Sync.mode", "2");
-                ret = kernel.rawDoIt(passport.hasMySigKey(), HBCIKernelImpl.CRYPTIT,
-                        HBCIKernelImpl.NEED_SIG, passport.hasMyEncKey());
+                ret = kernel.rawDoIt(passport.hasMySigKey(), HBCIKernel.CRYPTIT,
+                        HBCIKernel.NEED_SIG, passport.hasMyEncKey());
 
                 boolean need_restart = passport.postInitResponseHook(ret);
                 if (need_restart) {
@@ -441,7 +440,7 @@ public final class HBCIUser implements IHandlerData {
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{ret, passport.getSigId()});
             HBCIUtils.log("signature id set to " + passport.getSigId(), HBCIUtils.LOG_DEBUG);
-            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", passport.hasMySigKey(), HBCIKernelImpl.CRYPTIT,
+            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", passport.hasMySigKey(), HBCIKernel.CRYPTIT,
                     passport.hasMyEncKey());
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), e);
@@ -512,7 +511,7 @@ public final class HBCIUser implements IHandlerData {
                 kernel.rawSet("ProcPrep.lang", passport.getLang());
                 kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
                 kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
-                ret = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT, HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+                ret = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
 
                 boolean need_restart = passport.postInitResponseHook(ret);
                 if (need_restart) {
@@ -537,8 +536,8 @@ public final class HBCIUser implements IHandlerData {
 
             updateUPD(result);
 
-            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                    HBCIKernelImpl.NEED_CRYPT);
+            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                    HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), e);
         }
@@ -603,8 +602,8 @@ public final class HBCIUser implements IHandlerData {
                 kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
                 kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
 
-                status = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                        HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.NEED_CRYPT);
+                status = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                        HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
 
                 boolean need_restart = passport.postInitResponseHook(status);
                 if (need_restart) {
@@ -641,8 +640,8 @@ public final class HBCIUser implements IHandlerData {
             kernel.rawSet("KeyLock.SecProfile.version", passport.getProfileVersion());
             kernel.rawSet("KeyLock.locktype", "999");
 
-            status = kernel.rawDoIt(HBCIKernelImpl.SIGNIT, HBCIKernelImpl.CRYPTIT,
-                    HBCIKernelImpl.NEED_SIG, HBCIKernelImpl.DONT_NEED_CRYPT);
+            status = kernel.rawDoIt(HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                    HBCIKernel.NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
             if (!status.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_LOCKFAILED"), status);
 
@@ -653,7 +652,7 @@ public final class HBCIUser implements IHandlerData {
             passport.setSigId(new Long(1));
 
             passport.getCallback().status(HBCICallback.STATUS_LOCK_KEYS_DONE, status);
-            doDialogEnd(dialogid, "3", HBCIKernelImpl.DONT_SIGNIT, HBCIKernelImpl.CRYPTIT, HBCIKernelImpl.DONT_NEED_CRYPT);
+            doDialogEnd(dialogid, "3", HBCIKernel.DONT_SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.DONT_NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_LOCKFAILED"), e);
         }

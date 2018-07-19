@@ -35,7 +35,7 @@ import org.kapott.hbci.structures.Value;
 import java.util.Properties;
 
 public class GVSaldoReq
-        extends HBCIJobImpl {
+        extends AbstractHBCIJob {
     public static String getLowlevelName() {
         return "Saldo";
     }

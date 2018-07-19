@@ -21,8 +21,6 @@
 
 package org.kapott.hbci.GV_Result;
 
-import org.kapott.hbci.GV.HBCIJob;
-import org.kapott.hbci.GV.HBCIJobImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIRetVal;
 import org.kapott.hbci.status.HBCIStatus;

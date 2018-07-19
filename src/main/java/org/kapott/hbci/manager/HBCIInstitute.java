@@ -50,9 +50,9 @@ public final class HBCIInstitute implements IHandlerData {
     private final static String BPD_KEY_HBCIVERSION = "_hbciversion";
 
     private HBCIPassportInternal passport;
-    private HBCIKernelImpl kernel;
+    private HBCIKernel kernel;
 
-    public HBCIInstitute(HBCIKernelImpl kernel, HBCIPassportInternal passport) {
+    public HBCIInstitute(HBCIKernel kernel, HBCIPassportInternal passport) {
         this.kernel = kernel;
 
         this.passport = passport;
@@ -145,7 +145,7 @@ public final class HBCIInstitute implements IHandlerData {
         kernel.rawSet("MsgHead.msgnum", "2");
         kernel.rawSet("DialogEndS.dialogid", dialogid);
         kernel.rawSet("MsgTail.msgnum", "2");
-        HBCIMsgStatus status = kernel.rawDoIt(HBCIKernelImpl.DONT_SIGNIT, HBCIKernelImpl.DONT_CRYPTIT, needSig, HBCIKernelImpl.DONT_NEED_CRYPT);
+        HBCIMsgStatus status = kernel.rawDoIt(HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT, needSig, HBCIKernel.DONT_NEED_CRYPT);
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {
@@ -247,15 +247,15 @@ public final class HBCIInstitute implements IHandlerData {
                 kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
                 kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
 
-                HBCIMsgStatus status = kernel.rawDoIt(HBCIKernelImpl.DONT_SIGNIT, HBCIKernelImpl.DONT_CRYPTIT,
-                        HBCIKernelImpl.DONT_NEED_SIG, HBCIKernelImpl.DONT_NEED_CRYPT);
+                HBCIMsgStatus status = kernel.rawDoIt(HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT,
+                        HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
 
                 Properties result = status.getData();
                 updateBPD(result);
 
                 if (!status.isDialogClosed()) {
                     try {
-                        doDialogEnd(result.getProperty("MsgHead.dialogid"), HBCIKernelImpl.DONT_NEED_SIG);
+                        doDialogEnd(result.getProperty("MsgHead.dialogid"), HBCIKernel.DONT_NEED_SIG);
                     } catch (Exception ex) {
                         HBCIUtils.log(ex);
                     }

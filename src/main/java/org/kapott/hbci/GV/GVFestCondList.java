@@ -32,7 +32,7 @@ import org.kapott.hbci.structures.Value;
 
 import java.util.Properties;
 
-public class GVFestCondList extends HBCIJobImpl {
+public class GVFestCondList extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "FestCondList";

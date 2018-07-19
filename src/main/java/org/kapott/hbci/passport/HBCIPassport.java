@@ -22,9 +22,7 @@
 package org.kapott.hbci.passport;
 
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIKey;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.structures.Konto;
 
 import java.util.Properties;
@@ -77,7 +75,7 @@ public interface HBCIPassport {
     /**
      * Gibt die HBCI-Version zurück, die zuletzt verwendet wurde. Der hier zurückgegebene
      * Wert ist der selbe, der bei der Initialisierung des
-     * {@link org.kapott.hbci.manager.HBCIHandler} verwendet werden kann. Um also
+     * {@link org.kapott.hbci.manager.HBCIDialog} verwendet werden kann. Um also
      * einen HBCIHandler zu erzeugen, der mit der HBCI-Version arbeitet, mit der
      * ein Passport-Objekt zuletzt benutzt wurde, so kann das mit
      * <code>new HBCIHandler(passport.getHBCIVersion(),passport)</code> erfolgen (vorausgesetzt,
@@ -283,7 +281,7 @@ public interface HBCIPassport {
     /**
      * Setzen der zu verwendenden Kunden-ID. Durch Aufruf dieser Methode wird die
      * Kunden-ID gesetzt, die beim nächsten Ausführen eines HBCI-Dialoges
-     * ({@link org.kapott.hbci.manager.HBCIHandler#execute(boolean)})
+     * ({@link org.kapott.hbci.manager.HBCIDialog#execute(boolean)})
      * benutzt wird. Diese neue Kunden-ID wird dann außerdem permanent im
      * jeweiligen Sicherheitsmedium gespeichert (sofern das von dem Medium
      * unterstützt wird).

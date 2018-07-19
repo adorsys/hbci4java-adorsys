@@ -33,7 +33,7 @@ import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Properties;
 
-public final class GVDauerEdit extends HBCIJobImpl {
+public final class GVDauerEdit extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "DauerEdit";

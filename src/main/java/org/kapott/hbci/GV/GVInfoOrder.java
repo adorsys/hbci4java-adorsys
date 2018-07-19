@@ -23,7 +23,6 @@ package org.kapott.hbci.GV;
 
 
 import org.kapott.hbci.GV_Result.GVRInfoOrder;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
@@ -32,7 +31,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Properties;
 
-public final class GVInfoOrder extends HBCIJobImpl {
+public final class GVInfoOrder extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "InfoDetails";

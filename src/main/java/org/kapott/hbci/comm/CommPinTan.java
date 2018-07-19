@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.comm;
 
+import org.apache.commons.codec.binary.Base64;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.CanNotParseMessageException;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -52,7 +53,6 @@ public final class CommPinTan {
 
     private URL url;
     private HttpURLConnection conn;
-    private Filter filter = Filter.getInstance("Base64");
 
     public final static String ENCODING = "ISO-8859-1";
 
@@ -186,7 +186,7 @@ public final class CommPinTan {
 
     protected void ping(MSG msg) {
         try {
-            byte[] b = filter.encode(msg.toString(0));
+            byte[] b = Base64.encodeBase64(msg.toString(0).getBytes(ENCODING));
 
             HBCIUtils.log("connecting to server", HBCIUtils.LOG_DEBUG);
             conn = (HttpURLConnection) url.openConnection();
@@ -260,7 +260,7 @@ public final class CommPinTan {
 
             HBCIUtils.log("closing communication line", HBCIUtils.LOG_DEBUG);
             conn.disconnect();
-            return new StringBuffer(filter.decode(ret.toString()));
+            return new StringBuffer(new String(Base64.decodeBase64(ret.toString()), ENCODING));
         } catch (Exception e) {
             // Die hier marieren wir nicht als fatal - ich meine mich zu erinnern,
             // dass es Banken gibt, die einen anonymen BPD-Abruf mit einem HTTP-Fehlercode quittieren

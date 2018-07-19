@@ -31,7 +31,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import java.util.Enumeration;
 import java.util.Properties;
 
-public final class GVTermUebDel extends HBCIJobImpl {
+public final class GVTermUebDel extends AbstractHBCIJob {
     
     public static String getLowlevelName() {
         return "TermUebDel";

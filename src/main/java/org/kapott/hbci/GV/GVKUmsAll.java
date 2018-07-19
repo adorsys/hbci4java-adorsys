@@ -31,7 +31,7 @@ import org.kapott.hbci.swift.Swift;
 
 import java.util.Properties;
 
-public class GVKUmsAll extends HBCIJobImpl {
+public class GVKUmsAll extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "KUmsZeit";

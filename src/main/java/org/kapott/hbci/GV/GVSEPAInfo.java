@@ -29,7 +29,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Properties;
 
-public class GVSEPAInfo extends HBCIJobImpl {
+public class GVSEPAInfo extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "SEPAInfo";

@@ -13,7 +13,7 @@ package org.kapott.hbci4java.bpd;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernelImpl;
+import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
 import org.kapott.hbci.protocol.MSG;
@@ -37,7 +37,7 @@ public class HITANSTest extends AbstractTest {
      */
     private Properties getBPD(String file, String version) throws Exception {
         String data = getFile(file);
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
+        HBCIKernel kernel = new HBCIKernel(null);
         kernel.rawNewMsg("DialogInitAnon");
 
         MsgGen gen = kernel.getMsgGen();

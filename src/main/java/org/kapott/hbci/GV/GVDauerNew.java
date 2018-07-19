@@ -23,7 +23,6 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRDauerNew;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
@@ -34,7 +33,7 @@ import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Properties;
 
-public final class GVDauerNew extends HBCIJobImpl {
+public final class GVDauerNew extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "DauerNew";

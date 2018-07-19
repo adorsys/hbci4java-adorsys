@@ -21,7 +21,7 @@
 
 package org.kapott.hbci.passport;
 
-import org.kapott.hbci.GV.HBCIJobImpl;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.manager.HBCIKey;
 import org.kapott.hbci.manager.MsgGen;
@@ -144,7 +144,7 @@ public interface HBCIPassportInternal extends HBCIPassport {
      * Dialog-Initialisierung abgeschlossen ist.
      * Wird im Moment nur von PinTan-Passports benutzt, um bei
      * Verwendung des Zweischritt-Verfahrens die Message-Liste zu patchen */
-    void afterCustomDialogInitHook(List<List<HBCIJobImpl>> msgs);
+    void afterCustomDialogInitHook(List<List<AbstractHBCIJob>> msgs);
 
     /* Gibt zurück, wieviele GV-Segmente in einer Nachricht enthalten sein dürfen.
      * Normalerweise wird das schon durch die BPD bzw. die Job-Params festgelegt,

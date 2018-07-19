@@ -13,7 +13,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernelImpl;
+import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
 
@@ -32,7 +32,7 @@ public class TestBug1322 extends AbstractTest {
     public void test001() throws Exception {
         try {
             String data = getFile("bpd/bugzilla-1322.txt");
-            HBCIKernelImpl kernel = new HBCIKernelImpl(null);
+            HBCIKernel kernel = new HBCIKernel(null);
             kernel.rawNewMsg("DialogInitAnon");
 
             MsgGen gen = kernel.getMsgGen();

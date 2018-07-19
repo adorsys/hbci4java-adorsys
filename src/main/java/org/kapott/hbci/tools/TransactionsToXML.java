@@ -21,6 +21,8 @@
 
 package org.kapott.hbci.tools;
 
+import com.sun.xml.internal.rngom.parse.host.Base;
+import org.apache.commons.codec.binary.Base64;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.manager.HBCIUtils;
@@ -165,7 +167,7 @@ public class TransactionsToXML
             root.appendChild(rawElem);
 
             try {
-                String mt940_encoded=HBCIUtils.encodeBase64(rawMT940.getBytes("ISO-8859-1"));
+                String mt940_encoded=Base64.encodeBase64String(rawMT940.getBytes("ISO-8859-1"));
                 rawElem.appendChild(doc.createCDATASection(mt940_encoded));
             } catch (Exception e) {
                 throw new RuntimeException(e);

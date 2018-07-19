@@ -2,7 +2,7 @@ package org.kapott.hbci4java.bpd;
 
 import org.junit.Test;
 import org.kapott.hbci4java.AbstractTest;
-import org.kapott.hbci.manager.HBCIKernelImpl;
+import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.protocol.MSG;
@@ -18,7 +18,7 @@ public class TanMediaListTest extends AbstractTest {
     @Test
     public void test() throws Exception {
         String data = getFile("bpd/bpd-tanmedialist.txt");
-        HBCIKernelImpl kernel = new HBCIKernelImpl(null);
+        HBCIKernel kernel = new HBCIKernel(null);
 
 
 //	    Rewrite.setData("msgName","CustomMsg");

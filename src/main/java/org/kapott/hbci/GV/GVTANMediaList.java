@@ -9,7 +9,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Properties;
 
-public class GVTANMediaList extends HBCIJobImpl {
+public class GVTANMediaList extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "TANMediaList";

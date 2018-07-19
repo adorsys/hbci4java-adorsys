@@ -23,7 +23,6 @@ package org.kapott.hbci.GV;
 
 
 import org.kapott.hbci.GV_Result.GVRCardList;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
@@ -33,7 +32,7 @@ import org.kapott.hbci.structures.Value;
 
 import java.util.Properties;
 
-public class GVCardList extends HBCIJobImpl {
+public class GVCardList extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "CardList";

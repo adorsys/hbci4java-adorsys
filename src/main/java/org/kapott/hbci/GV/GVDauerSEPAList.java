@@ -26,7 +26,6 @@ import org.kapott.hbci.GV.parsers.SEPAParserFactory;
 import org.kapott.hbci.GV_Result.GVRDauerList;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIHandler;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.LogFilter;
 import org.kapott.hbci.manager.MsgGen;
@@ -86,7 +85,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
     }
 
     /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
+     * @see AbstractHBCIJob#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
      */
     @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
