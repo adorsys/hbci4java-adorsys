@@ -31,6 +31,7 @@ import org.kapott.hbci.exceptions.JobNotSupportedException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassport;
+import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.protocol.SyntaxElement;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -142,6 +143,52 @@ public class AbstractHBCIJob {
             return ret.toString();
         }
         return null;
+    }
+
+    /**
+     * Durchsucht das BPD-Segment "HISPAS" nach dem Property "cannationalacc"
+     * um herauszufinden, ob beim Versand eines SEPA-Auftrages die nationale Bankverbindung
+     * angegeben sein darf.
+     * <p>
+     * Siehe FinTS_3.0_Messages_Geschaeftsvorfaelle_2013-05-28_final_version.pdf - Kapitel B.3.2
+     *
+     * @param passport
+     * @return true, wenn der BPD-Parameter von der Bank mit "J" befuellt ist und die
+     * nationale Bankverbindung angegeben sein darf.
+     */
+    protected boolean canNationalAcc(HBCIPassportInternal passport, MsgGen msgGen) {
+        // Checken, ob das Flag im Passport durch die Anwendung hart codiert ist.
+        // Dort kann die Entscheidung ueberschrieben werden, ob die nationale Kontoverbindung
+        // mitgeschickt wird oder nicht.
+        // Das wird voraussichtlich u.a. fuer die Postbank benoetigt, weil die in HISPAS
+        // zwar mitteilt, dass die nationale Kontoverbindung NICHT angegeben werden soll.
+        // Beim anschliessenden Einreichen einer SEPA-Ueberweisung beschwert sie sich aber,
+        // wenn man sie nicht mitgesendet hat. Die verbieten also erst das Senden der
+        // nationalen Kontoverbindung, verlangen sie anschliessend aber. Ein Fehler der
+        // Bank. Siehe http://www.onlinebanking-forum.de/forum/topic.php?p=86444#real86444
+
+        Object o = passport.getPersistentData("cannationalacc");
+        if (o != null) {
+            String s = o.toString();
+            HBCIUtils.log("value of \"cannationalacc\" overwritten in passport, value: " + s, HBCIUtils.LOG_INFO);
+            return s.equalsIgnoreCase("J");
+        }
+
+
+        HBCIUtils.log("searching for value of \"cannationalacc\" in HISPAS", HBCIUtils.LOG_DEBUG);
+
+        // Ansonsten suchen wir in HISPAS - aber nur, wenn wir die Daten schon haben
+        if (passport.getSupportedLowlevelJobs(msgGen).getProperty("SEPAInfo") == null) {
+            HBCIUtils.log("no HISPAS data found", HBCIUtils.LOG_INFO);
+            return false; // Ne, noch nicht. Dann lassen wir das erstmal weg
+        }
+
+
+        // SEPAInfo laden und darüber iterieren
+        Properties props = passport.getLowlevelJobRestrictions("SEPAInfo", msgGen);
+        String value = props.getProperty("cannationalacc");
+        HBCIUtils.log("cannationalacc=" + value, HBCIUtils.LOG_DEBUG);
+        return value != null && value.equalsIgnoreCase("J");
     }
 
     /* gibt zu einem gegebenen jobnamen des namen dieses jobs in der syntax-spez.
@@ -310,69 +357,6 @@ public class AbstractHBCIJob {
         return ret;
     }
 
-    public int getMinSigs() {
-        int ret = 0;
-
-        StringBuffer searchString = new StringBuffer(name);
-        for (int i = searchString.length() - 1; i >= 0; i--) {
-            if (!(searchString.charAt(i) >= '0' && searchString.charAt(i) <= '9')) {
-                searchString.insert(i + 1, "Par");
-                searchString.append(".minsigs");
-                break;
-            }
-        }
-
-        StringBuffer tempkey = new StringBuffer();
-
-        for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
-            String key = (String) i.nextElement();
-
-            if (key.indexOf("Params") == 0) {
-                tempkey.setLength(0);
-                tempkey.append(key);
-                tempkey.delete(0, tempkey.indexOf(".") + 1);
-
-                if (tempkey.toString().equals(searchString.toString())) {
-                    ret = Integer.parseInt(passport.getBPD().getProperty(key));
-                    break;
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    public int getSecurityClass() {
-        int ret = 1;
-
-        StringBuffer searchString = new StringBuffer(name);
-        for (int i = searchString.length() - 1; i >= 0; i--) {
-            if (!(searchString.charAt(i) >= '0' && searchString.charAt(i) <= '9')) {
-                searchString.insert(i + 1, "Par");
-                searchString.append(".secclass");
-                break;
-            }
-        }
-
-        StringBuffer tempkey = new StringBuffer();
-
-        for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
-            String key = (String) i.nextElement();
-
-            if (key.indexOf("Params") == 0) {
-                tempkey.setLength(0);
-                tempkey.append(key);
-                tempkey.delete(0, tempkey.indexOf(".") + 1);
-
-                if (tempkey.toString().equals(searchString.toString())) {
-                    ret = Integer.parseInt(passport.getBPD().getProperty(key));
-                    break;
-                }
-            }
-        }
-
-        return ret;
-    }
 
     protected void addConstraint(String frontendName, String destinationName, String defValue, int logFilterLevel) {
         addConstraint(frontendName, destinationName, defValue, logFilterLevel, false);
@@ -486,23 +470,6 @@ public class AbstractHBCIJob {
         }
 
         return seg;
-    }
-
-    public List<String> getJobParameterNames() {
-        return gen.getGVParameterNames(name);
-    }
-
-    /**
-     * Gibt alle möglichen Property-Namen für die Lowlevel-Rückgabedaten dieses
-     * Jobs zurück. Die Lowlevel-Rückgabedaten können mit
-     * {@link #getJobResult()} und {@link HBCIJobResult#getResultData()}
-     * ermittelt werden.
-     *
-     * @return Liste aller prinzipiell möglichen Property-Keys für die
-     * Lowlevel-Rückgabedaten dieses Jobs
-     */
-    public List<String> getJobResultNames() {
-        return gen.getGVResultNames(name);
     }
 
     /**
