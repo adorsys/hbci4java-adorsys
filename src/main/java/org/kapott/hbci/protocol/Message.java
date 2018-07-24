@@ -72,8 +72,8 @@ public final class Message extends SyntaxElement {
      * der methode werden vom nutzer einzugebenede daten (wie kontonummern, namen
      * usw.) in die generierte nachricht eingebaut
      */
-    private void propagateUserData(String name, Hashtable<String, String> clientValues) {
-        String dottedName = name + ".";
+    private void propagateUserData(Hashtable<String, String> clientValues) {
+        String dottedName = getName() + ".";
         Enumeration<String> e = clientValues.keys();
         while (e.hasMoreElements()) {
             String key = e.nextElement();
@@ -114,7 +114,7 @@ public final class Message extends SyntaxElement {
     }
 
     public void complete() {
-        propagateUserData(getName(), clientValues);
+        propagateUserData(clientValues);
 
         enumerateSegs(0, DONT_ALLOW_OVERWRITE);
         initMsgSize();

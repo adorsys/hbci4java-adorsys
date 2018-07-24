@@ -877,25 +877,26 @@ public final class HBCIUtils {
     }
 
     public static void log(String s, int logLevel) {
-        switch (logLevel) {
-            case LOG_INTERN:
-            case LOG_NONE:
-                LoggerFactory.getLogger(HBCIUtils.class).trace(s);
-                break;
-            case LOG_ERR:
-                LoggerFactory.getLogger(HBCIUtils.class).error(s);
-                break;
-            case LOG_WARN:
-                LoggerFactory.getLogger(HBCIUtils.class).warn(s);
-                break;
-            case LOG_INFO:
-                LoggerFactory.getLogger(HBCIUtils.class).info(s);
-                break;
-            case LOG_DEBUG:
-            case LOG_DEBUG2:
-                LoggerFactory.getLogger(HBCIUtils.class).debug(s);
-                break;
-        }
+        LoggerFactory.getLogger(HBCIUtils.class).info(s);
+//        switch (logLevel) {
+//            case LOG_INTERN:
+//            case LOG_NONE:
+//                LoggerFactory.getLogger(HBCIUtils.class).trace(s);
+//                break;
+//            case LOG_ERR:
+//                LoggerFactory.getLogger(HBCIUtils.class).error(s);
+//                break;
+//            case LOG_WARN:
+//                LoggerFactory.getLogger(HBCIUtils.class).warn(s);
+//                break;
+//            case LOG_INFO:
+//                LoggerFactory.getLogger(HBCIUtils.class).info(s);
+//                break;
+//            case LOG_DEBUG:
+//            case LOG_DEBUG2:
+//                LoggerFactory.getLogger(HBCIUtils.class).debug(s);
+//                break;
+//        }
     }
 
     public static String bigDecimal2String(BigDecimal value) {

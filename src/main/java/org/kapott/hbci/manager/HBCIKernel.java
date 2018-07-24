@@ -168,8 +168,8 @@ public final class HBCIKernel {
                 passport.getCallback().status(HBCICallback.STATUS_MSG_CRYPT, null);
 
                 // nachricht verschlüsseln
-                Crypt crypt = new Crypt(message);
-                message = crypt.cryptIt(passport, message, "Crypted");
+                Crypt crypt = new Crypt(passport);
+                message = crypt.cryptIt(message);
 
                 if (!message.getName().equals("Crypted")) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTCRYPT");
@@ -203,9 +203,9 @@ public final class HBCIKernel {
 
                 // wenn ja, dann nachricht entschlüsseln
                 HBCIUtils.log("acquire crypt instance", HBCIUtils.LOG_DEBUG);
-                Crypt crypt = new Crypt(message);
+                Crypt crypt = new Crypt(passport);
                 HBCIUtils.log("decrypting using " + crypt, HBCIUtils.LOG_DEBUG);
-                String newmsgstring = crypt.decryptIt(passport);
+                String newmsgstring = crypt.decryptIt(message);
 //                message.set("_origSignedMsg", newmsgstring);
 
                 // alle patches für die unverschlüsselte nachricht durchlaufen

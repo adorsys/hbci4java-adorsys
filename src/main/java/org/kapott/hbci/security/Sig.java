@@ -444,7 +444,7 @@ public final class Sig {
     public boolean verify(HBCIPassportInternal passport) {
         if (passport.hasInstSigKey()) {
             String msgName = msg.getName();
-            Node msgNode = msg.getSyntaxDef(msgName, msg.getDocument());
+            Node msgNode = msg.getSyntaxDef(msgName, passport.getSyntaxDocument());
             String dontsignAttr = ((Element) msgNode).getAttribute("dontsign");
 
             if (dontsignAttr.length() == 0) {
