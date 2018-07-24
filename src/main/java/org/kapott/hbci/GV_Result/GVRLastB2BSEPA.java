@@ -27,7 +27,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 /**
  * Rückgabedaten für das Einreichen einer terminierten SEPA-Lastschrift. Beim Einreichen
  * einer terminierten Lastschrift gibt die Bank u.U. eine Auftrags-Identifikationsnummer
- * zurück, die benutzt werden kann, um den Auftrag später zu ändern oder zu lÃ¶schen.
+ * zurück, die benutzt werden kann, um den Auftrag später zu ändern oder zu löschen.
  */
 public class GVRLastB2BSEPA extends AbstractGVRLastSEPA {
     public GVRLastB2BSEPA(HBCIPassportInternal passport) {

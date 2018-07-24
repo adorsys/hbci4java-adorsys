@@ -8,9 +8,8 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.AbstractGVRLastSEPA;
 import org.kapott.hbci.GV_Result.GVRLastB2BSEPA;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 /**
  * Implementierung des HBCI-Jobs fuer die SEPA-B2B-Multi-Lastschrift.
@@ -25,16 +24,16 @@ public class GVMultiLastB2BSEPA extends GVLastB2BSEPA {
     }
 
 
-    public GVMultiLastB2BSEPA(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName(), new GVRLastB2BSEPA(passport));
+    public GVMultiLastB2BSEPA(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName(), new GVRLastB2BSEPA(passport));
     }
 
-    public GVMultiLastB2BSEPA(HBCIPassportInternal passport, MsgGen msgGen, String lowlevelName, AbstractGVRLastSEPA result) {
-        super(passport, msgGen, lowlevelName, result);
+    public GVMultiLastB2BSEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
+        super(passport, lowlevelName, result);
 
-        addConstraint("batchbook", "sepa.batchbook", "", LogFilter.FILTER_NONE);
-        addConstraint("Total.value", "Total.value", null, LogFilter.FILTER_MOST);
-        addConstraint("Total.curr", "Total.curr", null, LogFilter.FILTER_NONE);
+        addConstraint("batchbook", "sepa.batchbook", "");
+        addConstraint("Total.value", "Total.value", null);
+        addConstraint("Total.curr", "Total.curr", null);
     }
 
     @Override

@@ -7,16 +7,15 @@
 
 package org.kapott.hbci4java.sepa;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci4java.AbstractTest;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.kapott.hbci.sepa.PainVersion;
-
-import org.kapott.hbci4java.AbstractTest;
 
 /**
  * Testet das Parsen von Pain XML-Dateien - ohne HBCI-Context.

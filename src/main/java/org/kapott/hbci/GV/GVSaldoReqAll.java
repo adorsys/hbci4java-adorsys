@@ -21,9 +21,8 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 public final class GVSaldoReqAll extends GVSaldoReq {
 
@@ -31,16 +30,16 @@ public final class GVSaldoReqAll extends GVSaldoReq {
         return "Saldo";
     }
 
-    public GVSaldoReqAll(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName());
+    public GVSaldoReqAll(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName());
 
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
-        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("my.curr", "curr", "EUR", LogFilter.FILTER_NONE);
-        addConstraint("dummyall", "allaccounts", "J", LogFilter.FILTER_NONE);
+        addConstraint("maxentries", "maxentries", "");
+        addConstraint("my.country", "KTV.KIK.country", "DE");
+        addConstraint("my.blz", "KTV.KIK.blz", null);
+        addConstraint("my.number", "KTV.number", null);
+        addConstraint("my.subnumber", "KTV.subnumber", "");
+        addConstraint("my.curr", "curr", "EUR");
+        addConstraint("dummyall", "allaccounts", "J");
     }
 
     public void verifyConstraints() {

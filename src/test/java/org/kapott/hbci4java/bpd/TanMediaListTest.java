@@ -1,25 +1,23 @@
 package org.kapott.hbci4java.bpd;
 
 import org.junit.Test;
-import org.kapott.hbci4java.AbstractTest;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
+import org.kapott.hbci4java.AbstractTest;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import java.lang.reflect.Constructor;
 
 public class TanMediaListTest extends AbstractTest {
 
     @Test
     public void test() throws Exception {
         String data = getFile("bpd/bpd-tanmedialist.txt");
-        HBCIKernel kernel = new HBCIKernel(null);
-
 
 //	    Rewrite.setData("msgName","CustomMsg");
         // liste der rewriter erzeugen
@@ -38,19 +36,15 @@ public class TanMediaListTest extends AbstractTest {
         }
         Rewrite[] rewriters = al.toArray(new Rewrite[al.size()]);
 
-        kernel.rawNewMsg("CustomMsg");
-
-        MsgGen gen = kernel.getMsgGen();
-
-        // alle patches fï¿½r die unverschlï¿½sselte nachricht durchlaufen
+        // alle patches für die unverschlüsselte nachricht durchlaufen
         String newmsgstring = data;
 
 
         for (int i = 0; i < rewriters.length; i++) {
-            newmsgstring = rewriters[i].incomingClearText(newmsgstring, gen);
+            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null);
         }
 
-        MSG msg = new MSG("CustomMsgRes", newmsgstring, newmsgstring.length(), gen, MSG.CHECK_SEQ, true);
+        Message msg = new Message("CustomMsgRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
         Hashtable<String, String> ht = new Hashtable<String, String>();
         msg.extractValues(ht);
     }

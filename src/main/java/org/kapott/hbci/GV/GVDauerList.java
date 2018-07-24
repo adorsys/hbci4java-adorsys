@@ -23,12 +23,11 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRDauerList;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+import org.w3c.dom.Document;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -39,15 +38,15 @@ public final class GVDauerList extends AbstractHBCIJob {
         return "DauerList";
     }
 
-    public GVDauerList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRDauerList(passport));
+    public GVDauerList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRDauerList(passport));
 
-        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("orderid", "orderid", "", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("my.country", "KTV.KIK.country", "DE");
+        addConstraint("my.blz", "KTV.KIK.blz", null);
+        addConstraint("my.number", "KTV.number", null);
+        addConstraint("my.subnumber", "KTV.subnumber", "");
+        addConstraint("orderid", "orderid", "");
+        addConstraint("maxentries", "maxentries", "");
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

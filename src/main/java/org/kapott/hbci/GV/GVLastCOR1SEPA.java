@@ -8,9 +8,8 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.AbstractGVRLastSEPA;
 import org.kapott.hbci.GV_Result.GVRLastCOR1SEPA;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 /**
  * Implementierung des HBCI-Jobs fuer die SEPA-COR1-Lastschrift.
@@ -24,12 +23,12 @@ public class GVLastCOR1SEPA extends AbstractGVLastSEPA {
         return "LastCOR1SEPA";
     }
 
-    public GVLastCOR1SEPA(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName(), new GVRLastCOR1SEPA(passport));
+    public GVLastCOR1SEPA(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName(), new GVRLastCOR1SEPA(passport));
     }
 
-    public GVLastCOR1SEPA(HBCIPassportInternal passport, MsgGen msgGen, String lowlevelName, AbstractGVRLastSEPA result) {
-        super(passport, msgGen, lowlevelName, result);
+    public GVLastCOR1SEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
+        super(passport, lowlevelName, result);
 
         // Typ der Lastschrift. Moegliche Werte:
         // CORE = Basis-Lastschrift (Default)
@@ -38,6 +37,6 @@ public class GVLastCOR1SEPA extends AbstractGVLastSEPA {
         //
         // TODO: Wobei eigentlich nur "COR1" erlaubt ist, da dieser GV nur die COR1-Lastschrift
         // kapselt. Eigentlich sollte das gar nicht konfigurierbar sein
-        addConstraint("type", "sepa.type", "COR1", LogFilter.FILTER_NONE);
+        addConstraint("type", "sepa.type", "COR1");
     }
 }

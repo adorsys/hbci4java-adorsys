@@ -22,7 +22,6 @@
 package org.kapott.hbci.passport;
 
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.manager.HBCIKey;
 import org.kapott.hbci.structures.Konto;
 
 import java.util.Properties;
@@ -205,19 +204,9 @@ public interface HBCIPassport {
 
     boolean isSupported();
 
-    boolean needUserKeys();
-
     boolean hasInstSigKey();
 
     boolean hasInstEncKey();
-
-    boolean hasMySigKey();
-
-    boolean hasMyEncKey();
-
-    HBCIKey getMyPublicEncKey();
-
-    HBCIKey getMyPrivateEncKey();
 
     /**
      * Gibt die Versionsnummer der lokal gespeicherten BPD zurück. Sind keine

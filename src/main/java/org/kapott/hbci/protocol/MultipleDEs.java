@@ -31,19 +31,19 @@ public final class MultipleDEs extends MultipleSyntaxElements {
     private char delimiter;
     private List<String> valids;
 
-    protected SyntaxElement createAndAppendNewElement(Node deref, String path, int idx, Document syntax) {
+    protected SyntaxElement createAndAppendNewElement(Node deref, String path, int idx, Document document) {
         SyntaxElement ret;
-        addElement(ret = new DE(deref, getName(), path, idx, syntax));
+        addElement(ret = new DE(deref, getName(), path, idx, document));
         return ret;
     }
 
-    public MultipleDEs(Node dedef, char delimiter, String path, Document syntax) {
-        super(dedef, path, syntax);
+    public MultipleDEs(Node dedef, char delimiter, String path, Document document) {
+        super(dedef, path, document);
         initData(delimiter);
     }
 
-    public void init(Node dedef, char delimiter, String path, Document syntax) {
-        super.init(dedef, path, syntax);
+    public void init(Node dedef, char delimiter, String path, Document document) {
+        super.init(dedef, path, document);
         initData(delimiter);
     }
 
@@ -65,7 +65,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
     }
 
     @Override
-    public String toString(int zero) {
+    public String toString() {
         StringBuffer ret = new StringBuffer(128);
         boolean first = true;
 
@@ -76,7 +76,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
 
             DE de = (DE) (i.next());
             if (de != null)
-                ret.append(de.toString(0));
+                ret.append(de.toString());
         }
 
         return ret.toString();
@@ -86,14 +86,14 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             DE de = (DE) (i.next());
             if (de != null)
-                HBCIUtils.log(de.toString(0), logLevel);
+                HBCIUtils.log(de.toString(), logLevel);
 
         }
     }
 
     // -------------------------------------------------------------------------------------------------------
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         SyntaxElement ret = null;
 
         if (idx != 0 && valids != null) {
@@ -113,7 +113,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
             }
         }
 
-        addElement(ret = new DE(ref, getName(), path, predelim, idx, res, fullResLen, syntax, predefs, valids));
+        addElement(ret = new DE(ref, getName(), path, predelim, idx, res, fullResLen, predefs, valids));
         return ret;
     }
 
@@ -122,13 +122,13 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         this.valids = new ArrayList<>();
     }
 
-    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(deref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         initData(delimiter);
     }
 
-    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(deref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         initData(delimiter);
     }
 

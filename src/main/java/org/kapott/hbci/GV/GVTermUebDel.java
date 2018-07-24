@@ -24,9 +24,8 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -37,10 +36,10 @@ public final class GVTermUebDel extends AbstractHBCIJob {
         return "TermUebDel";
     }
 
-    public GVTermUebDel(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
+    public GVTermUebDel(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
 
-        addConstraint("orderid", "id", null, LogFilter.FILTER_NONE);
+        addConstraint("orderid", "id", null);
     }
 
     public void setParam(String paramName, String value) {

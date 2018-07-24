@@ -22,8 +22,10 @@
 package org.kapott.hbci.tools;
 
 import org.kapott.hbci.comm.CommPinTan;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.manager.DocumentFactory;
+import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.protocol.Message;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -36,89 +38,86 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 
-public final class SyntaxCheck 
-{
-    private static String getArg(String[] args,int idx,String st)
-        throws IOException
-    {
-        String ret=null;
-        
-        if (args!=null && idx<args.length) {
-            ret=args[idx];
+public final class SyntaxCheck {
+    private static String getArg(String[] args, int idx, String st)
+            throws IOException {
+        String ret = null;
+
+        if (args != null && idx < args.length) {
+            ret = args[idx];
         } else {
-            System.out.print(st+": ");
+            System.out.print(st + ": ");
             System.out.flush();
-            ret=new BufferedReader(new InputStreamReader(System.in)).readLine();
+            ret = new BufferedReader(new InputStreamReader(System.in)).readLine();
         }
-        
+
         return ret;
     }
-    
+
     public static void main(String[] args)
-        throws IOException
-    {
-        String ifilename=getArg(args,0,"Dateiname der Datei mit der HBCI-Nachricht");
-        String version=getArg(args,1,"HBCI-Version");
-        String msgName=getArg(args,2,"Name der Nachricht");
-        String checkSeq_st=getArg(args,3,"Sequenznummern validieren (0/1)");
-        boolean checkSeq=checkSeq_st.equals("1");
-        String checkValids_st=getArg(args,4,"Auf gültige Werte testen (0/1)");
-        boolean checkValids=checkValids_st.equals("1");
-        
-        Properties props=new Properties();
+            throws IOException {
+        String ifilename = getArg(args, 0, "Dateiname der Datei mit der HBCI-Nachricht");
+        String version = getArg(args, 1, "HBCI-Version");
+        String msgName = getArg(args, 2, "Name der Nachricht");
+        String checkSeq_st = getArg(args, 3, "Sequenznummern validieren (0/1)");
+        boolean checkSeq = checkSeq_st.equals("1");
+        String checkValids_st = getArg(args, 4, "Auf gültige Werte testen (0/1)");
+        boolean checkValids = checkValids_st.equals("1");
+
+        Properties props = new Properties();
         props.setProperty("log.loglevel.default", "6");
-        
-        FileInputStream fi=new FileInputStream(ifilename);
-        byte[]          buffer=new byte[1024];
-        int             len;
-        StringBuffer    st=new StringBuffer();
-        
-        while ((len=fi.read(buffer))>0) {
-            st.append(new String(buffer,0,len,CommPinTan.ENCODING));
+
+        FileInputStream fi = new FileInputStream(ifilename);
+        byte[] buffer = new byte[1024];
+        int len;
+        StringBuffer st = new StringBuffer();
+
+        while ((len = fi.read(buffer)) > 0) {
+            st.append(new String(buffer, 0, len, CommPinTan.ENCODING));
         }
         fi.close();
-        
-        MsgGen gen=new MsgGen(SyntaxCheck.class.getClassLoader().getResourceAsStream("hbci-"+version+".xml"));
-        
-        if (msgName!=null && msgName.length()!=0) {
-            MSG msg=new MSG(msgName,st.toString(),st.length(),gen,checkSeq,checkValids);
-            String st2=msg.toString(0);
-            
+
+        Document document = DocumentFactory.createDocument(version);
+
+        if (msgName != null && msgName.length() != 0) {
+            Message msg = new Message(msgName, st.toString(), st.length(), document, checkSeq, checkValids);
+            String st2 = msg.toString();
+
             if (st2.equals(st.toString())) {
                 System.out.println("ok");
             } else {
                 System.out.println("detected, but different in- and output");
                 System.out.println(st2);
             }
-            
-            Properties p=msg.getData();
-            ArrayList al=new ArrayList();
-            for (Enumeration e=p.propertyNames();e.hasMoreElements();) {
+
+            Properties p = msg.getData();
+            ArrayList al = new ArrayList();
+            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
                 al.add(e.nextElement());
             }
-            String[] sa=(String[])al.toArray(new String[al.size()]);
+            String[] sa = (String[]) al.toArray(new String[al.size()]);
             Arrays.sort(sa);
-            
-            for (int i=0;i<sa.length;i++) {
-                String value=p.getProperty(sa[i]);
-                System.out.println(sa[i]+" = "+value+" ("+value.length()+" Bytes)");
+
+            for (int i = 0; i < sa.length; i++) {
+                String value = p.getProperty(sa[i]);
+                System.out.println(sa[i] + " = " + value + " (" + value.length() + " Bytes)");
             }
         } else {
-            NodeList list=gen.getSyntax().getElementsByTagName("MSGdef");
-            int      size=list.getLength();
-            MSG      msg;
-            
-            for (int i=0;i<size;i++) {
-                msgName=((Element)list.item(i)).getAttribute("id");
-                System.out.println("checking for '"+msgName+"'");
+            NodeList list = document.getElementsByTagName("MSGdef");
+            int size = list.getLength();
+            Message msg;
+
+            for (int i = 0; i < size; i++) {
+                msgName = ((Element) list.item(i)).getAttribute("id");
+                System.out.println("checking for '" + msgName + "'");
                 try {
-                    msg=new MSG(msgName,st.toString(),st.length(),gen,checkSeq,checkValids);
+                    msg = new Message(msgName, st.toString(), st.length(), document, checkSeq, checkValids);
                 } catch (Exception e) {
-                    msg=null;
+                    msg = null;
                 }
-                if (msg!=null) {
-                    String st2=msg.toString(0);
-                    
+                if (msg != null) {
+                    String st2 = msg.toString();
+
                     if (st2.equals(st.toString())) {
                         System.out.println("ok");
                     } else {

@@ -86,7 +86,7 @@ public class SyntaxAN
     /** @internal
         @see SyntaxDE
     */
-    public String toString(int zero)
+    public String toString()
     {
         String st=getContent();
         return (st==null)?"":quote(st);

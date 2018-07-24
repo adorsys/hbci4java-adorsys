@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Wurden mit dem Job "Bestellen von Kreditinstitutsinformationen" auch Freitextinformationen
- * angefordert, so werden diese nicht per Post zugestellt. Statt dessen kÃ¶nnen diese
+ * angefordert, so werden diese nicht per Post zugestellt. Statt dessen können diese
  * Informationen mit Hilfe dieser Klasse direkt ausgewertet werden. Es wird eine Liste aller
  * empfangenen Freitextmeldungen gespeichert.
  */

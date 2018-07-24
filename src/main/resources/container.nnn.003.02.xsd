@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- Version gemäÃ DFÃ-Abkommen Anlage 3, Version 2.7, gültig ab November 2013 -->
 <!-- Mit XMLSpy v2008 am 17.12.2012 von der SIZ GmbH bearbeitet -->
-<!-- SEPA Kunde-Bank-Nachrichten via XML-Container (gemäÃ Kapitel 9 der o.g. Spezifikation) für pain.001, pain.002 and pain.008, es ist nur der (sortenreine) Transport von Nachrichten mit Mittelblock 003 mÃ¶glich (s.u.) -->
+<!-- SEPA Kunde-Bank-Nachrichten via XML-Container (gemäÃ Kapitel 9 der o.g. Spezifikation) für pain.001, pain.002 and pain.008, es ist nur der (sortenreine) Transport von Nachrichten mit Mittelblock 003 möglich (s.u.) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:conxml="urn:conxml:xsd:container.nnn.003.02" xmlns:DocPain001="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03" xmlns:DocPain002="urn:iso:std:iso:20022:tech:xsd:pain.002.003.03" xmlns:DocPain008="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02" targetNamespace="urn:conxml:xsd:container.nnn.003.02" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03" schemaLocation="pain.001.003.03.xsd"/>
 	<xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pain.002.003.03" schemaLocation="pain.002.003.03.xsd"/>

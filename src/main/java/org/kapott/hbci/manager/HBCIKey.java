@@ -28,7 +28,7 @@ import java.security.Key;
     Ein solcher HBCI-Schlüssel besteht aus
     administrativen Daten zu diesem Schlüssel (Besitzer, Version) sowie den eigentlichen
     kryptographischen Daten. Bei Verwendung von asymmetrischen Sicherheitsverfahren
-    (RDH) werden sowohl für den Ã¶ffentlichen als auch für den privaten Schlüsselteil
+    (RDH) werden sowohl für den öffentlichen als auch für den privaten Schlüsselteil
     intern je ein <code>HBCIKey</code>-Objekt verwendet!
     Bei einigen Sicherheitsverfahren (DDV, PinTan) werden
     die kryptografischen Daten nicht in diesem Objekt gespeichert, sondern nur die
@@ -43,8 +43,8 @@ public final class HBCIKey
     /** Bankleitzahl des Schlüsselbesitzers */
     public String blz;
     /** Nutzerkennung des Schlüsselbesitzers. Wenn der Schlüssel
-        einem "richtigen" Nutzer gehÃ¶rt, so wird hier seine HBCI-Userkennung eingestellt;
-        gehÃ¶rt der Schlüssel der Bank, so steht hier eine bankinterne
+        einem "richtigen" Nutzer gehört, so wird hier seine HBCI-Userkennung eingestellt;
+        gehört der Schlüssel der Bank, so steht hier eine bankinterne
         ID (u.U. die Bankleitzahl o.ä.) */
     public String userid;
     /** Schlüsselnummer */

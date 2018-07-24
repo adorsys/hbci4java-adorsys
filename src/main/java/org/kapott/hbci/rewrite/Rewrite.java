@@ -21,63 +21,51 @@
 
 package org.kapott.hbci.rewrite;
 
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.protocol.Message;
+import org.w3c.dom.Document;
 
 import java.util.Hashtable;
 
-public abstract class Rewrite
-{
-    private Hashtable<String,Object> kernelData=new Hashtable<String, Object>();
+public abstract class Rewrite {
 
-    
-    protected Rewrite()
-    {
+    private Hashtable<String, Object> kernelData = new Hashtable<String, Object>();
+
+    protected Rewrite() {
     }
 
     public void setKernelData(Hashtable<String, Object> kernelData) {
         this.kernelData = kernelData;
     }
 
-    public void setData(String name,Object value)
-    {
-        kernelData.put(name, value);
-    }
-
-    public Object getData(String name)
-    {
+    public Object getData(String name) {
         return kernelData.get(name);
     }
 
-    public MSG outgoingClearText(MSG msg,MsgGen gen)
-    {
+    public Message outgoingClearText(Message msg) {
         return msg;
     }
-    
-    public MSG outgoingSigned(MSG msg,MsgGen gen)
-    {
+
+    public Message outgoingSigned(Message msg) {
         return msg;
     }
-    
-    public MSG outgoingCrypted(MSG msg,MsgGen gen)
-    {
+
+    public Message outgoingCrypted(Message msg) {
         return msg;
     }
-    
-    
-    
-    public String incomingCrypted(String st,MsgGen gen)
-    {
+
+    public String incomingCrypted(String st) {
         return st;
     }
-    
-    public String incomingClearText(String st,MsgGen gen)
-    {
+
+    public String incomingClearText(String st) {
         return st;
     }
-    
-    public MSG incomingData(MSG msg,MsgGen gen)
-    {
+
+    public String incomingClearText(String st, Document document) {
+        return st;
+    }
+
+    public Message incomingData(Message msg) {
         return msg;
     }
 }

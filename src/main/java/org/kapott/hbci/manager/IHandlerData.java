@@ -27,6 +27,4 @@ public interface IHandlerData {
 
     HBCIPassportInternal getPassport();
 
-    MsgGen getMsgGen();
-
 }

@@ -21,7 +21,7 @@ import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.structures.Value;
 import org.kapott.hbci4java.AbstractTest;
@@ -33,26 +33,26 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Testet das Erstellen von SEPA-Basis-ï¿½berweisung
+ * Testet das Erstellen von SEPA-Basis-überweisung
  * <p>
- * Erforderliche Angaben fï¿½r das Nachrichtenformat pain.001 (SEPA-ï¿½berweisung)
- * Folgende Angaben sind fï¿½r das Nachrichtenformat fï¿½r SEPA-ï¿½berweisungen (pain.001) erforderlich:
+ * Erforderliche Angaben für das Nachrichtenformat pain.001 (SEPA-überweisung)
+ * Folgende Angaben sind für das Nachrichtenformat für SEPA-überweisungen (pain.001) erforderlich:
  * - Name des Zahlungspflichtigen (<Dbtr><Nm>)
  * - IBAN des Zahlungskontos des Zahlungspflichtigen (<DbtrAcct>)
  * - BIC des Kreditinstituts des Zahlungspflichtigen (<DbtrAgt>)
- * - ï¿½berweisungsbetrag in Euro (<InstdAmt>)
+ * - überweisungsbetrag in Euro (<InstdAmt>)
  * - Angaben zum Verwendungszweck (<RmtInf>)
- * - Name des Zahlungsempfï¿½ngers (<Cdtr><Nm>)
- * - IBAN des Zahlungskontos des Zahlungsempfï¿½ngers (<CdtrAcct>)
- * - BIC des Kreditinstituts des Zahlungsempfï¿½ngers (<CdtrAgt>)
- * - Gegebenenfalls Identifikationscode des Zahlungsempfï¿½ngers (<Cdtr><Id>)
- * - Gegebenenfalls Name der Referenzpartei des Zahlungsempfï¿½ngers(<UltmtCdtr>)
- * - Gegebenenfalls Zweck der ï¿½berweisung (<Purp>)
+ * - Name des Zahlungsempfüngers (<Cdtr><Nm>)
+ * - IBAN des Zahlungskontos des Zahlungsempfüngers (<CdtrAcct>)
+ * - BIC des Kreditinstituts des Zahlungsempfüngers (<CdtrAgt>)
+ * - Gegebenenfalls Identifikationscode des Zahlungsempfüngers (<Cdtr><Id>)
+ * - Gegebenenfalls Name der Referenzpartei des Zahlungsempfüngers(<UltmtCdtr>)
+ * - Gegebenenfalls Zweck der überweisung (<Purp>)
  */
 public class TestGVUebSEPA extends AbstractTest {
     private final static int LOGLEVEL = HBCIUtils.LOG_INFO;
     private final static Map<Integer, String> settings = new HashMap<Integer, String>() {{
-        //TODO: Ein bisschen Geld auf folgendes Konto ï¿½berweisen ;)
+        //TODO: Ein bisschen Geld auf folgendes Konto überweisen ;)
         put(HBCICallback.NEED_COUNTRY, "DE");
         put(HBCICallback.NEED_BLZ, "12030000");
         put(HBCICallback.NEED_CUSTOMERID, "1007318833");
@@ -68,7 +68,7 @@ public class TestGVUebSEPA extends AbstractTest {
 
     private static File dir = null;
 
-    private HBCIPassportPinTanNoFile passport = null;
+    private PinTanPassport passport = null;
     private HBCIDialog dialog = null;
 
     /**
@@ -79,7 +79,7 @@ public class TestGVUebSEPA extends AbstractTest {
     @Test
     public void test001() throws Exception {
         System.out.println("---------Erstelle Job");
-        AbstractHBCIJob job = HBCIJobFactory.newJob("UebSEPA", dialog.getPassport(), dialog.getKernel().getMsgGen());
+        AbstractHBCIJob job = HBCIJobFactory.newJob("UebSEPA", dialog.getPassport());
 
 
 //    //Mal schauen welche Konten ich habe
@@ -95,7 +95,7 @@ public class TestGVUebSEPA extends AbstractTest {
         job.setParam("usage", "Hello SEPA Ueberweisung");
 
 
-        System.out.println("---------Fï¿½r Job zur Queue");
+        System.out.println("---------Für Job zur Queue");
         dialog.addTask(job);
 
 
@@ -109,7 +109,7 @@ public class TestGVUebSEPA extends AbstractTest {
 
 //    SEG seg = job.createJobSegment(0);
 //    seg.validate();
-//    String msg = seg.toString(0);
+//    String msg = seg.toString();
 //    Assert.assertEquals("HKUEB:0:5+0001956434:EUR:280:30060601+0001956434:EUR:280:30060601+TEST++0,01:EUR+51++TEST'",msg);
     }
 
@@ -148,7 +148,7 @@ public class TestGVUebSEPA extends AbstractTest {
         };
 
 //    HBCIUtils.init(props,callback);
-        this.passport = (HBCIPassportPinTanNoFile) AbstractHBCIPassport.getInstance(new HBCICallbackConsole(), props, "PinTan");
+        this.passport = (PinTanPassport) AbstractHBCIPassport.getInstance(new HBCICallbackConsole(), props, "PinTan");
 
         // init handler
         HBCIDialog dialog = new HBCIDialog(passport);

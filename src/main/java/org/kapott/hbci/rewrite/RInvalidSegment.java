@@ -22,21 +22,19 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 
-public class RInvalidSegment
-    extends Rewrite
-{
+public class RInvalidSegment extends Rewrite {
+
     // TODO: msgsize muss angepasst werden
-    public String incomingClearText(String st,MsgGen gen) 
-    {
-        StringBuffer sb=new StringBuffer(st);
+    @Override
+    public String incomingClearText(String st) {
+        StringBuffer sb = new StringBuffer(st);
 
-        int idx=sb.indexOf("'IIDIA:");
-        if (idx!=-1) {
-            int idx2=sb.indexOf("'",idx+1);
-            HBCIUtils.log("removing invalid segment '"+sb.substring(idx+1,idx2+1)+"'",HBCIUtils.LOG_WARN);
-            sb.delete(idx+1,idx2+1);
+        int idx = sb.indexOf("'IIDIA:");
+        if (idx != -1) {
+            int idx2 = sb.indexOf("'", idx + 1);
+            HBCIUtils.log("removing invalid segment '" + sb.substring(idx + 1, idx2 + 1) + "'", HBCIUtils.LOG_WARN);
+            sb.delete(idx + 1, idx2 + 1);
         }
 
         return sb.toString();

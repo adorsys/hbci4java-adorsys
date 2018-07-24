@@ -1,12 +1,11 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.AbstractGVRLastSEPA;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -41,45 +40,45 @@ public abstract class AbstractGVLastSEPA extends AbstractSEPAGV {
         return "LastSEPA";
     }
 
-    public AbstractGVLastSEPA(HBCIPassportInternal passport, MsgGen msgGen, String lowlevelName, AbstractGVRLastSEPA result) {
-        super(passport, msgGen, lowlevelName, result);
+    public AbstractGVLastSEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
+        super(passport, lowlevelName, result);
 
         // My bzw. src ist das Konto des Ausführenden. Dst ist das Konto des
         // Belasteten.
-        addConstraint("src.bic", "My.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("src.iban", "My.iban", null, LogFilter.FILTER_IDS);
+        addConstraint("src.bic", "My.bic", null);
+        addConstraint("src.iban", "My.iban", null);
 
-        if (this.canNationalAcc(passport, msgGen)) // nationale Bankverbindung mitschicken, wenn erlaubt
+        if (this.canNationalAcc(passport)) // nationale Bankverbindung mitschicken, wenn erlaubt
         {
-            addConstraint("src.country", "My.KIK.country", "", LogFilter.FILTER_NONE);
-            addConstraint("src.blz", "My.KIK.blz", "", LogFilter.FILTER_MOST);
-            addConstraint("src.number", "My.number", "", LogFilter.FILTER_IDS);
-            addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
+            addConstraint("src.country", "My.KIK.country", "");
+            addConstraint("src.blz", "My.KIK.blz", "");
+            addConstraint("src.number", "My.number", "");
+            addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN(), LogFilter.FILTER_NONE);
-        addConstraint("_sepapain", "sepapain", null, LogFilter.FILTER_IDS);
+        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("_sepapain", "sepapain", null);
 
-        addConstraint("src.bic", "sepa.src.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("src.iban", "sepa.src.iban", null, LogFilter.FILTER_IDS);
-        addConstraint("src.name", "sepa.src.name", null, LogFilter.FILTER_IDS);
-        addConstraint("dst.bic", "sepa.dst.bic", null, LogFilter.FILTER_MOST, true);
-        addConstraint("dst.iban", "sepa.dst.iban", null, LogFilter.FILTER_IDS, true);
-        addConstraint("dst.name", "sepa.dst.name", null, LogFilter.FILTER_IDS, true);
-        addConstraint("btg.value", "sepa.btg.value", null, LogFilter.FILTER_NONE, true);
-        addConstraint("btg.curr", "sepa.btg.curr", "EUR", LogFilter.FILTER_NONE, true);
-        addConstraint("usage", "sepa.usage", "", LogFilter.FILTER_NONE, true);
+        addConstraint("src.bic", "sepa.src.bic", null);
+        addConstraint("src.iban", "sepa.src.iban", null);
+        addConstraint("src.name", "sepa.src.name", null);
+        addConstraint("dst.bic", "sepa.dst.bic", null, true);
+        addConstraint("dst.iban", "sepa.dst.iban", null, true);
+        addConstraint("dst.name", "sepa.dst.name", null, true);
+        addConstraint("btg.value", "sepa.btg.value", null, true);
+        addConstraint("btg.curr", "sepa.btg.curr", "EUR", true);
+        addConstraint("usage", "sepa.usage", "", true);
 
-        addConstraint("sepaid", "sepa.sepaid", getSEPAMessageId(), LogFilter.FILTER_NONE);
-        addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId(), LogFilter.FILTER_NONE);
-        addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, LogFilter.FILTER_IDS, true);
-        addConstraint("creditorid", "sepa.creditorid", null, LogFilter.FILTER_IDS, true);
-        addConstraint("mandateid", "sepa.mandateid", null, LogFilter.FILTER_IDS, true);
-        addConstraint("purposecode", "sepa.purposecode", "", LogFilter.FILTER_IDS, true);
+        addConstraint("sepaid", "sepa.sepaid", getSEPAMessageId());
+        addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId());
+        addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, true);
+        addConstraint("creditorid", "sepa.creditorid", null, true);
+        addConstraint("mandateid", "sepa.mandateid", null, true);
+        addConstraint("purposecode", "sepa.purposecode", "", true);
 
         // Datum als java.util.Date oder als ISO-Date-String im Format yyyy-MM-dd
-        addConstraint("manddateofsig", "sepa.manddateofsig", null, LogFilter.FILTER_NONE, true);
-        addConstraint("amendmandindic", "sepa.amendmandindic", Boolean.toString(false), LogFilter.FILTER_NONE, true);
+        addConstraint("manddateofsig", "sepa.manddateofsig", null, true);
+        addConstraint("amendmandindic", "sepa.amendmandindic", Boolean.toString(false), true);
 
         // Moegliche Werte:
         //   FRST = Erst-Einzug
@@ -89,18 +88,18 @@ public abstract class AbstractGVLastSEPA extends AbstractSEPAGV {
         //
         // Ueblicherweise verwendet man bei einem Mandat bei der ersten Abbuchung "FRST"
         // und bei allen Folgeabbuchungen des selben Mandats "RCUR".
-        addConstraint("sequencetype", "sepa.sequencetype", "FRST", LogFilter.FILTER_NONE);
+        addConstraint("sequencetype", "sepa.sequencetype", "FRST");
 
         // Ziel-Datum fuer den Einzug. Default: 1999-01-01 als Platzhalter fuer "zum naechstmoeglichen Zeitpunkt
         // Datum als java.util.Date oder als ISO-Date-String im Format yyyy-MM-dd
-        addConstraint("targetdate", "sepa.targetdate", SepaUtil.DATE_UNDEFINED, LogFilter.FILTER_NONE);
+        addConstraint("targetdate", "sepa.targetdate", SepaUtil.DATE_UNDEFINED);
 
         // Der folgende Constraint muss in der jeweiligen abgeleiteten Klasse passend gesetzt werden.
         // Typ der Lastschrift. Moegliche Werte:
         // CORE = Basis-Lastschrift (Default)
         // COR1 = Basis-Lastschrift mit verkuerzter Vorlaufzeit
         // B2B  = Business-2-Business-Lastschrift mit eingeschraenkter Rueckgabe-Moeglichkeit
-        // addConstraint("type",            "sepa.type",          "CORE", LogFilter.FILTER_NONE);
+        // addConstraint("type",            "sepa.type",          "CORE");
 
     }
 

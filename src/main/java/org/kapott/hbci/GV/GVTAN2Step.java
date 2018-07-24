@@ -24,10 +24,9 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -43,44 +42,44 @@ public class GVTAN2Step extends AbstractHBCIJob {
         return "TAN2Step";
     }
 
-    public GVTAN2Step(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRSaldoReq(passport));
+    public GVTAN2Step(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRSaldoReq(passport));
 
-        addConstraint("process", "process", null, LogFilter.FILTER_NONE);
-        addConstraint("orderhash", "orderhash", "", LogFilter.FILTER_NONE);
-        addConstraint("orderref", "orderref", "", LogFilter.FILTER_NONE);
-        addConstraint("listidx", "listidx", "", LogFilter.FILTER_NONE);
-        addConstraint("notlasttan", "notlasttan", "N", LogFilter.FILTER_NONE);
-        addConstraint("info", "info", "", LogFilter.FILTER_NONE);
+        addConstraint("process", "process", null);
+        addConstraint("orderhash", "orderhash", "");
+        addConstraint("orderref", "orderref", "");
+        addConstraint("listidx", "listidx", "");
+        addConstraint("notlasttan", "notlasttan", "N");
+        addConstraint("info", "info", "");
 
-        addConstraint("storno", "storno", "", LogFilter.FILTER_NONE);
-        addConstraint("challengeklass", "challengeklass", "", LogFilter.FILTER_NONE);
-        addConstraint("ChallengeKlassParam1", "ChallengeKlassParams.param1", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam2", "ChallengeKlassParams.param2", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam3", "ChallengeKlassParams.param3", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam4", "ChallengeKlassParams.param4", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam5", "ChallengeKlassParams.param5", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam6", "ChallengeKlassParams.param6", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam7", "ChallengeKlassParams.param7", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam8", "ChallengeKlassParams.param8", "", LogFilter.FILTER_IDS);
-        addConstraint("ChallengeKlassParam9", "ChallengeKlassParams.param9", "", LogFilter.FILTER_IDS);
+        addConstraint("storno", "storno", "");
+        addConstraint("challengeklass", "challengeklass", "");
+        addConstraint("ChallengeKlassParam1", "ChallengeKlassParams.param1", "");
+        addConstraint("ChallengeKlassParam2", "ChallengeKlassParams.param2", "");
+        addConstraint("ChallengeKlassParam3", "ChallengeKlassParams.param3", "");
+        addConstraint("ChallengeKlassParam4", "ChallengeKlassParams.param4", "");
+        addConstraint("ChallengeKlassParam5", "ChallengeKlassParams.param5", "");
+        addConstraint("ChallengeKlassParam6", "ChallengeKlassParams.param6", "");
+        addConstraint("ChallengeKlassParam7", "ChallengeKlassParams.param7", "");
+        addConstraint("ChallengeKlassParam8", "ChallengeKlassParams.param8", "");
+        addConstraint("ChallengeKlassParam9", "ChallengeKlassParams.param9", "");
 
-        addConstraint("tanmedia", "tanmedia", "", LogFilter.FILTER_IDS);
+        addConstraint("tanmedia", "tanmedia", "");
 
-        addConstraint("ordersegcode", "ordersegcode", "", LogFilter.FILTER_NONE);
+        addConstraint("ordersegcode", "ordersegcode", "");
 
-        addConstraint("orderaccount.bic", "OrderAccount.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("orderaccount.iban", "OrderAccount.iban", null, LogFilter.FILTER_IDS);
-        addConstraint("orderaccount.number", "OrderAccount.number", null, LogFilter.FILTER_IDS);
-        addConstraint("orderaccount.subnumber", "OrderAccount.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("orderaccount.blz", "OrderAccount.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("orderaccount.country", "OrderAccount.KIK.country", "DE", LogFilter.FILTER_NONE);
+        addConstraint("orderaccount.bic", "OrderAccount.bic", null);
+        addConstraint("orderaccount.iban", "OrderAccount.iban", null);
+        addConstraint("orderaccount.number", "OrderAccount.number", null);
+        addConstraint("orderaccount.subnumber", "OrderAccount.subnumber", "");
+        addConstraint("orderaccount.blz", "OrderAccount.KIK.blz", null);
+        addConstraint("orderaccount.country", "OrderAccount.KIK.country", "DE");
 
         // willuhn 2011-05-17 wird noch nicht genutzt
-        // addConstraint("smsaccount.number","SMSAccount.number",null, LogFilter.FILTER_IDS);
-        // addConstraint("smsaccount.subnumber","SMSAccount.subnumber","", LogFilter.FILTER_MOST);
-        // addConstraint("smsaccount.blz","SMSAccount.KIK.blz",null, LogFilter.FILTER_MOST);
-        // addConstraint("smsaccount.country","SMSAccount.KIK.country","DE", LogFilter.FILTER_NONE);
+        // addConstraint("smsaccount.number","SMSAccount.number",null);
+        // addConstraint("smsaccount.subnumber","SMSAccount.subnumber","");
+        // addConstraint("smsaccount.blz","SMSAccount.KIK.blz",null);
+        // addConstr≤aint("smsaccount.country","SMSAccount.KIK.country","DE");
     }
 
     public void setParam(String paramName, String value) {

@@ -25,33 +25,32 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.GVRFestCondList;
 import org.kapott.hbci.GV_Result.GVRFestList;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
-public class GVFestList
-        extends AbstractHBCIJob {
+public class GVFestList extends AbstractHBCIJob {
+
     public static String getLowlevelName() {
         return "FestList";
     }
 
-    public GVFestList(String name, HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, name, new GVRFestList(passport));
+    public GVFestList(String name, HBCIPassportInternal passport) {
+        super(passport, name, new GVRFestList(passport));
     }
 
-    public GVFestList(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(getLowlevelName(), passport, msgGen);
+    public GVFestList(HBCIPassportInternal passport) {
+        this(getLowlevelName(), passport);
 
-        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("dummy", "allaccounts", "N", LogFilter.FILTER_NONE);
+        addConstraint("my.number", "KTV.number", null);
+        addConstraint("my.subnumber", "KTV.subnumber", "");
+        addConstraint("my.blz", "KTV.KIK.blz", null);
+        addConstraint("my.country", "KTV.KIK.country", "DE");
+        addConstraint("dummy", "allaccounts", "N");
 
         // TODO: kontakt fehlt
         // TODO: maxentries fehlen

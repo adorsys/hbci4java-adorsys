@@ -24,11 +24,10 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRFestCondList;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Value;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -38,11 +37,11 @@ public class GVFestCondList extends AbstractHBCIJob {
         return "FestCondList";
     }
 
-    public GVFestCondList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRFestCondList(passport));
+    public GVFestCondList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRFestCondList(passport));
 
-        addConstraint("curr", "curr", "EUR", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("curr", "curr", "EUR");
+        addConstraint("maxentries", "maxentries", "");
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

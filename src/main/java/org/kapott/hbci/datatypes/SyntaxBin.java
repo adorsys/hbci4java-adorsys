@@ -112,7 +112,7 @@ public class SyntaxBin
     }
 
     /** @see SyntaxDE */
-    public String toString(int zero)
+    public String toString()
     {
         String con=getContent();
         String header="@"+Integer.toString(con.length())+"@";

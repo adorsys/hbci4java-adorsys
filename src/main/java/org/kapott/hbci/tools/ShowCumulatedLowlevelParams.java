@@ -33,7 +33,7 @@ import java.util.*;
 
 /** Dieses Tool ist nur für interne Verwendung bei der Entwicklung von HBCI4Java
  * gedacht. Damit lässt sich prüfen, ob die Highlevel-Klassen für die einzelnen
- * GVs tatsächlich alle mÃ¶glichen Lowlevel-Parameter eines bestimmten GV
+ * GVs tatsächlich alle möglichen Lowlevel-Parameter eines bestimmten GV
  * kennen und mit richtigen Werten füllen (jeweils abhängig von den bankseitig
  * unterstützten GV-Versionen) */
 public class ShowCumulatedLowlevelParams 

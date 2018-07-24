@@ -20,7 +20,7 @@ import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.structures.Value;
 import org.kapott.hbci4java.AbstractTest;
@@ -34,26 +34,26 @@ import java.util.Properties;
 /**
  * Testet das Erstellen von SEPA-Basis-Lastschriften
  * <p>
- * Folgende Angaben sind fï¿½r das Nachrichtenformat fï¿½r SEPA-Lastschriften (pain.008) erforderlich:
+ * Folgende Angaben sind für das Nachrichtenformat für SEPA-Lastschriften (pain.008) erforderlich:
  * - Art des Verfahrens (Basis- oder Firmen-Lastschrift, <LclInstrm>)
  * - Art der Lastschrift (einmalige, erste, wieder-kehrende, letzte Lastschrift,
  * <SeqTp>)
- * - Name des Zahlungsempfï¿½ngers (<Cdtr><Nm>)
- * - Glï¿½ubiger-Identifikationsnummer des Zahlungsempfï¿½ngers (<CdtrSchmeId>)
- * - IBAN des Zahlungskontos des Zahlungsempfï¿½ngers, auf dem die Gutschrift
+ * - Name des Zahlungsempfüngers (<Cdtr><Nm>)
+ * - Glüubiger-Identifikationsnummer des Zahlungsempfüngers (<CdtrSchmeId>)
+ * - IBAN des Zahlungskontos des Zahlungsempfüngers, auf dem die Gutschrift
  * vorgenommen werden soll (<CdtrAcct>)
- * - BIC des Kreditinstituts des Zahlungsempfï¿½ngers (<CdtrAgt>)
+ * - BIC des Kreditinstituts des Zahlungsempfüngers (<CdtrAgt>)
  * - Name des Zahlungspflichtigen (<Dbtr><Nm>)
  * - IBAN des Zahlungskontos des Zahlungspflichtigen (<DbtrAcct>)
  * - BIC des Kreditinstituts des Zahlungspflichtigen (<DbtrAgt>)
  * - Eindeutige Mandatsreferenz (<MndtId>)
- * - Datum der Unterschrift des SEPA-Lastschriftmandats, sofern dieses vom Zahlungspflichtigen erteilt wird, bzw. Datum der Mitteilung ï¿½ber die Weiternutzung einer Einzugsermï¿½chtigung (<DtOfSgntr>)
- * - Hï¿½he des Einzugsbetrags (<InstdAmt>)
+ * - Datum der Unterschrift des SEPA-Lastschriftmandats, sofern dieses vom Zahlungspflichtigen erteilt wird, bzw. Datum der Mitteilung über die Weiternutzung einer Einzugsermüchtigung (<DtOfSgntr>)
+ * - Hühe des Einzugsbetrags (<InstdAmt>)
  * - Angaben zum Verwendungszweck (<RmtInf>)
  * - Name der Referenzpartei des Zahlungspflichtigen (falls im SEPALastschriftmandat vorhanden, <UltmtDbtr>)
  * - Identifikationscode der Referenzpartei des Zahlungspflichtigen
  * (falls im SEPA-Lastschriftmandat vorhanden, <Dbtr><Id>)
- * - Fï¿½lligkeitsdatum des Einzugs (<ReqdColltnDt>)
+ * - Fülligkeitsdatum des Einzugs (<ReqdColltnDt>)
  */
 public class TestGVLastSEPA extends AbstractTest {
     private final static int LOGLEVEL = HBCIUtils.LOG_INFO;
@@ -77,7 +77,7 @@ public class TestGVLastSEPA extends AbstractTest {
 
     private static File dir = null;
 
-    private HBCIPassportPinTanNoFile passport = null;
+    private PinTanPassport passport = null;
     private HBCIDialog dialog = null;
 
     /**
@@ -87,7 +87,7 @@ public class TestGVLastSEPA extends AbstractTest {
      */
     @Test
     public void test001() throws Exception {
-        AbstractHBCIJob job = HBCIJobFactory.newJob("Ueb", dialog.getPassport(), dialog.getKernel().getMsgGen());
+        AbstractHBCIJob job = HBCIJobFactory.newJob("Ueb", dialog.getPassport());
 
         // wir nehmen einfach das erste verfuegbare Konto
         job.setParam("src", passport.getAccounts()[0]);
@@ -101,7 +101,7 @@ public class TestGVLastSEPA extends AbstractTest {
 
         SEG seg = job.createJobSegment(0);
         seg.validate();
-        String msg = seg.toString(0);
+        String msg = seg.toString();
         Assert.assertEquals("HKUEB:0:5+0001956434:EUR:280:30060601+0001956434:EUR:280:30060601+TEST++0,01:EUR+51++TEST'", msg);
     }
 
@@ -140,7 +140,7 @@ public class TestGVLastSEPA extends AbstractTest {
         };
 
 //    HBCIUtils.init(props,callback);
-        this.passport = (HBCIPassportPinTanNoFile) AbstractHBCIPassport.getInstance(new HBCICallbackConsole(), props, "PinTan");
+        this.passport = (PinTanPassport) AbstractHBCIPassport.getInstance(new HBCICallbackConsole(), props, "PinTan");
 
         // init handler
         HBCIDialog dialog = new HBCIDialog(passport);

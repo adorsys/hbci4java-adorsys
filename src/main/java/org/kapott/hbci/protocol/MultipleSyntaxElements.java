@@ -55,7 +55,7 @@ public abstract class MultipleSyntaxElements {
     private int maxnum;
     private int syntaxIdx; // die Position dieses Container innerhalb
     // der Syntax-Definition des Eltern-Elementes
-    private Document syntax;
+    private Document document;
     private Node ref;
     private SyntaxElement parent;
 
@@ -65,25 +65,25 @@ public abstract class MultipleSyntaxElements {
      * idx ist die indexnummer des zu erzeugenden syntaxelementes
      * innerhalb der elementlist
      */
-    protected abstract SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document syntax);
+    protected abstract SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document);
 
     /**
      * siehe SyntaxElement::parseElementList()
      */
-    protected abstract SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids);
+    protected abstract SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids);
 
-    private void initData(Node ref, String path, Document syntax) {
+    private void initData(Node ref, String path, Document document) {
         type = ((Element) ref).getAttribute("type");
         name = ((Element) ref).getAttribute("name");
         if (name.length() == 0) {
             name = type;
         }
 
-        this.elements = new ArrayList<SyntaxElement>();
+        this.elements = new ArrayList<>();
         this.parent = null;
         this.syntaxIdx = -1;
         this.ref = ref;
-        this.syntax = syntax;
+        this.document = document;
 
         StringBuffer temppath = new StringBuffer(128);
         if (path != null && path.length() != 0)
@@ -110,14 +110,14 @@ public abstract class MultipleSyntaxElements {
             // die in Wirklichkeit gar nicht optional sind, aber mit der Option
             // DONT_TRY_TO_CREATE erzeugt werden, so dass sie also nicht angelegt
             // werden würden und somit fehlerhafte Nachrichten die Folge wären.
-            SyntaxElement child = createAndAppendNewElement(ref, path, 0, syntax);
+            SyntaxElement child = createAndAppendNewElement(ref, path, 0, document);
             if (child != null)
                 child.setParent(this);
             
             /* erzeugen sovieler syntaxelemente, bis die mindestanzahl
              aus der syntaxdefinition erreicht ist */
             for (int i = 1; i < minnum; i++) {
-                child = createAndAppendNewElement(ref, path, i, syntax);
+                child = createAndAppendNewElement(ref, path, i, document);
                 if (child != null)
                     child.setParent(this);
             }
@@ -130,12 +130,12 @@ public abstract class MultipleSyntaxElements {
      * anlegen eines neuen syntaxelementarrays fuer ein syntaxelement;
      * ref ist eine xml-node-referenz auf das syntaxelement
      */
-    protected MultipleSyntaxElements(Node ref, String path, Document syntax) {
-        initData(ref, path, syntax);
+    protected MultipleSyntaxElements(Node ref, String path, Document document) {
+        initData(ref, path, document);
     }
 
-    protected void init(Node ref, String path, Document syntax) {
-        initData(ref, path, syntax);
+    protected void init(Node ref, String path, Document document) {
+        initData(ref, path, document);
     }
 
     /**
@@ -161,7 +161,7 @@ public abstract class MultipleSyntaxElements {
                     String temppath = path.substring(0, path.lastIndexOf("."));
 
                     for (int i = elements.size(); i < number; i++) {
-                        SyntaxElement child = createAndAppendNewElement(ref, temppath, i, syntax);
+                        SyntaxElement child = createAndAppendNewElement(ref, temppath, i, document);
                         if (child != null)
                             child.setParent(this);
                     }
@@ -319,9 +319,9 @@ public abstract class MultipleSyntaxElements {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    private void initData(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    private void initData(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         this.ref = null;
-        this.syntax = null;
+        this.document = null;
         this.syntaxIdx = -1;
         this.elements = new ArrayList<SyntaxElement>();
         this.type = ((Element) ref).getAttribute("type");
@@ -362,7 +362,7 @@ public abstract class MultipleSyntaxElements {
                     // versuch, ein weiteres syntaxelement zu erzeugen
                     SyntaxElement child = parseAndAppendNewElement(ref, path,
                             (idx == 0) ? predelim0 : predelim1,
-                            idx, res, fullResLen, syntax, predefs, valids);
+                            idx, res, fullResLen, document, predefs, valids);
                     if (child != null)
                         child.setParent(this);
                 } catch (ParseErrorException e) {
@@ -382,8 +382,8 @@ public abstract class MultipleSyntaxElements {
                     // (so dass es so aussieht, als wurde das leere syntaxelement
                     // irgendwie richtig geparst)
 
-                    // die exception kann entweder durch einen syntax-fehler oder durch
-                    // ein leeres element (was ein spezieller fall eines syntax-fehlers ist)
+                    // die exception kann entweder durch einen document-fehler oder durch
+                    // ein leeres element (was ein spezieller fall eines document-fehlers ist)
                     // ausgeloest worden sein.
                     // da das entfernen von leeren elementen optional ist (und manchmal sogar
                     // sinvollerweise gar nicht stattfindet), muessen die exceptions, die wegen
@@ -443,7 +443,7 @@ public abstract class MultipleSyntaxElements {
                     // es wird nur dann aufgehoert, weitere elemente dem aktuellen container hinzu-
                     // zufuegen, wenn ein element gefunden wurde, was offentsichlich nicht mehr dazu-
                     // gehoert (exception, aber nicht leeres element) --> dann stimmt naemlich entweder
-                    // der predelimiter nicht, oder die syntax ist falsch
+                    // der predelimiter nicht, oder die document ist falsch
                     if (!emptyElementFound) {
                         ready = true;
                     }
@@ -483,12 +483,12 @@ public abstract class MultipleSyntaxElements {
      * einer msg repraesentiert), predelim1 ist allerdings immer der delimiter,
      * der fuer das aktuell uebergeordnete syntaxelement zu verwenden ist)
      */
-    protected MultipleSyntaxElements(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(ref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+    protected MultipleSyntaxElements(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
-    protected void init(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(ref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+    protected void init(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
     /**
@@ -510,7 +510,7 @@ public abstract class MultipleSyntaxElements {
         return value;
     }
 
-    public String toString(int zero) {
+    public String toString() {
         return toString();
     }
 
@@ -542,7 +542,7 @@ public abstract class MultipleSyntaxElements {
         parent = null;
         path = null;
         ref = null;
-        syntax = null;
+        document = null;
         type = null;
     }
 }

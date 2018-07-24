@@ -21,8 +21,8 @@
 
 package org.kapott.hbci.tools;
 
-import org.kapott.hbci.manager.HBCIKernel;
-import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.manager.DocumentFactory;
+import org.kapott.hbci.manager.MessageFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,7 +33,7 @@ import java.io.InputStreamReader;
 
 /**
  * <p>Dieses Tool dient zum Anzeigen der Struktur von HBCI-Job-Parametern für das
- * Erzeugen von Lowlevel-Jobs. Diese Struktur wird benÃ¶tigt, wenn Jobs über das
+ * Erzeugen von Lowlevel-Jobs. Diese Struktur wird benötigt, wenn Jobs über das
  * Lowlevel-Interface zum Erzeugen und Parametrisieren von Jobs erzeugt werden. Eine
  * Erklärung des Unterschieds zwischen High- und Lowlevel-Schnittstelle befindet sich
  * in der Dokumentation des Packages <code>org.kapott.hbci.GV</code>. </p>
@@ -41,20 +41,20 @@ import java.io.InputStreamReader;
  * <pre>java org.kapott.hbci.tools.ShowLowlevelGVs [hbciversion]</pre>Ist keine
  * <code>hbciversion</code> angegeben, so wird diese über STDIN erfragt.</p>
  * <p>Das Tool gibt eine baumartige Struktur aus, welche die Lowlevelnamen der Geschäftsvorfälle
- * sowie die Bezeichnungen für die dazugehÃ¶rigen Lowlevel-Parameter enthält. Die Struktur
+ * sowie die Bezeichnungen für die dazugehörigen Lowlevel-Parameter enthält. Die Struktur
  * für einen Datensatz beginnt immer mit einer Zeile <pre>jobname:JOBNAME version:VERSION</pre>
  * Dabei ist VERSION die Versionsnummer des Lowlevel-Jobs JOBNAME, auf die sich die folgende
  * Strukturbeschreibung bezieht. Die Strukturbeschreibung für einen Job endet bei der nächsten
  * Zeile mit diesem Format bzw. am Ende der Ausgabe.</p>
- * <p>In den eigentlichen Beschreibungszeilen kÃ¶nnen Zeilen im Format <pre>GROUP:GROUPNAME {MIN,MAX}</pre>
- * folgen. Damit wird beschrieben, dass jetzt eine Gruppe von zusammengehÃ¶rigen Jobparametern folgt.
- * Eine solche Gruppe muss mindestens MIN und darf hÃ¶chstens MAX mal als Lowlevel-Parameter auftreten.
+ * <p>In den eigentlichen Beschreibungszeilen können Zeilen im Format <pre>GROUP:GROUPNAME {MIN,MAX}</pre>
+ * folgen. Damit wird beschrieben, dass jetzt eine Gruppe von zusammengehörigen Jobparametern folgt.
+ * Eine solche Gruppe muss mindestens MIN und darf höchstens MAX mal als Lowlevel-Parameter auftreten.
  * Alle Zeilen, die nicht mit <code>GROUP:</code> beginnen, haben das Format
  * <pre>LOWLEVELNAME:DATENTYP {MIN,MAX}</pre>
  * LOWLEVELNAME ist dabei der Lowlevelname eines Parameters, wie er beim Setzen von Parametern mit
- * {@link org.kapott.hbci.GV.HBCIJob#setParam(String, String)} benutzt werden kann.
+ * {@link org.kapott.hbci.GV.AbstractHBCIJob#setParam(String, String)} benutzt werden kann.
  * DATENFORMAT ist dabei eine Kurzbezeichnung für den Datentyp, den dieser Parameter annehmen kann.
- * MIN und MAX geben an, wie oft dieser Parameter (in seiner Gruppe) mindestens bzw. hÃ¶chstens
+ * MIN und MAX geben an, wie oft dieser Parameter (in seiner Gruppe) mindestens bzw. höchstens
  * auftauchen darf.</p>
  * <p>Folgende Datentypen gibt es zur Zeit:</p>
  * <ul>
@@ -79,16 +79,16 @@ import java.io.InputStreamReader;
  * werden wird (das hängt von der aktuellen HBCI-Version und dem benutzten Passport ab, kann von
  * auÃen also nicht direkt beeinflusst werden). In der Ausgabe dieses Tool kann nun nach einem
  * bestimmten Lowlevelnamen eines Jobs und der von <em>HBCI4Java</em> dafür verwendeten Versionsnummer gesucht werden.
- * Ist der entsprechende Eintrag gefunden, so hat man eine Ãbersicht über alle mÃ¶glichen
+ * Ist der entsprechende Eintrag gefunden, so hat man eine Ãbersicht über alle möglichen
  * Lowlevel-Jobparameter und wie oft diese auftreten müssen bzw. dürfen.
- * Die gleiche Ãbersicht erhält man übrigens, wenn man innerhalb der Anwendung die Methode
+ * Die gleiche Übersicht erhält man übrigens, wenn man innerhalb der Anwendung die Methode
  * {@link org.kapott.hbci.manager.HBCIHandler#getLowlevelJobParameterNames(String)}
- * aufruft, allerdings fehlen in der Ausgabe dieser Methode die Informationen über die mÃ¶glichen
+ * aufruft, allerdings fehlen in der Ausgabe dieser Methode die Informationen über die möglichen
  * Häufigkeiten der einzelnen Parameter, dafür wird hier automatisch die richtige Versionsnummer
  * des Jobs ausgewählt.</p>
  */
-public class ShowLowlevelGVs
-        extends AbstractShowLowlevelData {
+public class ShowLowlevelGVs extends AbstractShowLowlevelData {
+
     public static void main(String[] args)
             throws Exception {
         String hbciversion;
@@ -100,11 +100,9 @@ public class ShowLowlevelGVs
             hbciversion = new BufferedReader(new InputStreamReader(System.in)).readLine();
         }
 
-        HBCIKernel kernel = new HBCIKernel(null);
-        MsgGen msggen = kernel.getMsgGen();
-        Document syntax = msggen.getSyntax();
+        Document document = DocumentFactory.createDocument(hbciversion);
 
-        Element gvlist = syntax.getElementById("GV");
+        Element gvlist = document.getElementById("GV");
         NodeList gvnodes = gvlist.getChildNodes();
         int len = gvnodes.getLength();
 
@@ -113,7 +111,7 @@ public class ShowLowlevelGVs
 
             if (gvrefnode.getNodeType() == Node.ELEMENT_NODE) {
                 String gvname = ((Element) gvrefnode).getAttribute("type");
-                showData(gvname, syntax);
+                showData(gvname, document);
             }
         }
     }

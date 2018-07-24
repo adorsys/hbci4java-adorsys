@@ -24,11 +24,10 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRCardList;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Value;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -38,13 +37,13 @@ public class GVCardList extends AbstractHBCIJob {
         return "CardList";
     }
 
-    public GVCardList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRCardList(passport));
+    public GVCardList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRCardList(passport));
 
-        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("my.country", "KTV.KIK.country", "DE");
+        addConstraint("my.blz", "KTV.KIK.blz", null);
+        addConstraint("my.number", "KTV.number", null);
+        addConstraint("my.subnumber", "KTV.subnumber", "");
     }
 
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

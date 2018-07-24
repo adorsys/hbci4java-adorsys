@@ -106,7 +106,7 @@ public class SepaUtil
     /**
      * Liefert die Summe der Beträge aller Transaktionen. Bei einer Einzeltransaktion wird der
      * Betrag zurückgeliefert. Mehrfachtransaktionen müssen die gleiche Währung verwenden, da
-     * eine Summenbildung sonst nicht mÃ¶glich ist.
+     * eine Summenbildung sonst nicht möglich ist.
      * 
      * @param sepaParams die Properties, mit denen gearbeitet werden soll
      * @param max Maximaler Index, oder {@code null} für Einzeltransaktionen

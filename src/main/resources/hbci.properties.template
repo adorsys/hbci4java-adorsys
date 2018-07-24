@@ -188,13 +188,13 @@ client.retries.passphrase=2
 # ------------------------------------------------------------------
 
 # this is the path where the kernel searches for the
-# xml-file that contains the syntax-description for the
+# xml-file that contains the document-description for the
 # requested hbci-version. when searching for the file, 
 # the kernel uses the ClassLoader.getResourceAsStream()
 # method, giving this option+filename as arguments. 
 # normally you dont have to set this option, but
 # dont forget the trailing "/" if specified
-#kernel.kernel.xmlpath=syntax/
+#kernel.kernel.xmlpath=document/
 
 # with these parameter you could change the paths
 # where the kernel looks for the blz.properties
@@ -204,8 +204,8 @@ client.retries.passphrase=2
 #kernel.kernel.challengedatapath=challengedata/
 
 # this option enables a special feature of the new message engine: when a
-# required syntax element is missing, the message engine inserts "nothing"
-# for this syntax element by default. When this kernel parameter is enabled
+# required document element is missing, the message engine inserts "nothing"
+# for this document element by default. When this kernel parameter is enabled
 # ("1"), there will be a string "[MISSING:...]" inserted.  
 # Only useful for debugging core components of HBCI4Java
 client.msgengine.insertMissingTags=1

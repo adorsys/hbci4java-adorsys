@@ -374,7 +374,7 @@ public class ChallengeInfo {
 
             SyntaxDEFactory factory = SyntaxDEFactory.getInstance();
             SyntaxDE syntax = factory.createSyntaxDE(this.type, this.path, value, 0, 0);
-            return syntax.toString(0);
+            return syntax.toString();
 
         }
     }

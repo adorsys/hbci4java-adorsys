@@ -32,15 +32,15 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Properties;
 
-public final class SF
-        extends SyntaxElement {
-    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document syntax) {
+public final class SF extends SyntaxElement {
+
+    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document document) {
         MultipleSyntaxElements ret = null;
 
         if ((ref.getNodeName()).equals("SEG"))
-            ret = new MultipleSEGs(ref, getPath(), syntax);
+            ret = new MultipleSEGs(ref, getPath(), document);
         else if ((ref.getNodeName()).equals("SF"))
-            ret = new MultipleSFs(ref, getPath(), syntax);
+            ret = new MultipleSFs(ref, getPath(), document);
 
         return ret;
     }
@@ -49,14 +49,14 @@ public final class SF
     // nicht erzeugt werden, wenn die Segmentfolge selbst optional ist. Das ist praktisch
     // nur bei den SFs GV, GVRes und GVParams der Fall (und funktioniert auch nur bei
     // diesen).
-    protected MultipleSyntaxElements createAndAppendNewChildContainer(Node ref, Document syntax) {
+    protected MultipleSyntaxElements createAndAppendNewChildContainer(Node ref, Document document) {
         MultipleSyntaxElements ret = null;
 
         if (((Element) ref).getAttribute("minnum").equals("0")) {
             HBCIUtils.log("will not create container " + getPath() + " -> " + ((Element) ref).getAttribute("type") + " with minnum=0",
                     HBCIUtils.LOG_INTERN);
         } else {
-            ret = super.createAndAppendNewChildContainer(ref, syntax);
+            ret = super.createAndAppendNewChildContainer(ref, document);
         }
 
         return ret;
@@ -66,15 +66,15 @@ public final class SF
         return "SF";
     }
 
-    public SF(String type, String name, String path, int idx, Document syntax) {
-        super(type, name, path, idx, syntax);
+    public SF(String type, String name, String path, int idx, Document document) {
+        super(type, name, path, idx, document);
     }
 
-    public void init(String type, String name, String path, int idx, Document syntax) {
-        super.init(type, name, path, idx, syntax);
+    public void init(String type, String name, String path, int idx, Document document) {
+        super.init(type, name, path, idx, document);
     }
 
-    public String toString(int zero) {
+    public String toString() {
         StringBuffer ret = new StringBuffer(256);
 
         if (isValid())
@@ -82,7 +82,7 @@ public final class SF
                 MultipleSyntaxElements list = (i.next());
 
                 if (list != null)
-                    ret.append(list.toString(0));
+                    ret.append(list.toString());
             }
 
         return ret.toString();
@@ -90,12 +90,12 @@ public final class SF
 
     // -------------------------------------------------------------------------------------------
 
-    public SF(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    public SF(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     protected char getInDelim() {
@@ -131,10 +131,10 @@ public final class SF
     }
 
     // siehe extractSegCode(). Diese Methode holt sich den SegCode des nächsten
-    // mit <SEG ...> referenzierten Segments aus der Syntax-Spez. Der gefundene
+    // mit <SEG ...> referenzierten Segments aus der document-Spez. Der gefundene
     // SegCode wird in HBCIUtils.params gecacht, so dass diese Suche nur einmal
     // erfolgen muss.
-    private String[] getRefSegId(Node segref, Document syntax) {
+    private String[] getRefSegId(Node segref, Document document) {
         String segname = ((Element) segref).getAttribute("type");
         String segnameCacheParam = "segid_" + segname;
 
@@ -145,7 +145,7 @@ public final class SF
 
         if (ret[0].equals("")) {
             // segid noch nicht im cache
-            Element segdef = syntax.getElementById(segname);
+            Element segdef = document.getElementById(segname);
             NodeList valueElems = segdef.getElementsByTagName("value");
             int len = valueElems.getLength();
             for (int i = 0; i < len; i++) {
@@ -170,19 +170,19 @@ public final class SF
         return ret;
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG")) {
-            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         } else if ((segref.getNodeName()).equals("SF")) {
-            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         }
 
         return ret;
     }
 
-    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG")) {
@@ -194,23 +194,23 @@ public final class SF
             // nicht überein, so kann das nächste response-token mit sicherheit nicht als
             // segref-segment geparst werden, und es wird erst gar nicht versucht.
             // die zuordnung "segref"-->"seghead.code" wird nicht jedesmal neu durch nachsehen
-            // in der syntax-spez aufgelÃ¶st, sondern es ist ein entsprechender cache
+            // in der document-spez aufgelöst, sondern es ist ein entsprechender cache
             // implementiert (hashtable:segname-->seghead.code).
 
             String[] nextSegId = extractSegId(res);
-            String[] segRefId = getRefSegId(segref, syntax);
+            String[] segRefId = getRefSegId(segref, document);
 
             if (segRefId[0].equals(nextSegId[0]) && segRefId[1].equals(nextSegId[1])
                     || segRefId[0].equals("")
                     || segRefId[1].equals("")) {
                 // das Segment wird nur geparst, wenn entweder segcode und segversion
-                // mit dem aus der syntax-spez übereinstimmen oder wenn in der syntax-
+                // mit dem aus der document-spez übereinstimmen oder wenn in der document-
                 // spez. keine konkreten werte dafür gefunden wurden
-                
+
                 /* this is a very ugly hack for the ugly parser code: in certain
                  * cases it may happen that hbci4java takes a HIUPA segment as
                  * a BPD-Params-Template segment. the following code tries to
-                 * avoid this, but the solution is not "general". 
+                 * avoid this, but the solution is not "general".
                  * TODO: we really should replace the ugly message engine soon! */
 
                 boolean parseNext = true;
@@ -224,11 +224,11 @@ public final class SF
                 }
 
                 if (parseNext) {
-                    ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+                    ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, fullResLen, document, predefs, valids);
                 }
             }
         } else if ((segref.getNodeName()).equals("SF")) {
-            ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         }
 
         return ret;

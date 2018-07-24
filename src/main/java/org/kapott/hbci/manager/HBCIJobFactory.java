@@ -23,7 +23,7 @@ public class HBCIJobFactory {
      * @return ein Job-Objekt, für das die entsprechenden Job-Parameter gesetzt werden müssen und
      * welches anschließend zum HBCI-Dialog hinzugefügt werden kann.
      */
-    public static AbstractHBCIJob newJob(String jobname, HBCIPassportInternal passport, MsgGen msgGen) {
+    public static AbstractHBCIJob newJob(String jobname, HBCIPassportInternal passport) {
         HBCIUtils.log("creating new job " + jobname, HBCIUtils.LOG_DEBUG);
 
         if (jobname == null || jobname.length() == 0)
@@ -34,8 +34,8 @@ public class HBCIJobFactory {
 
         try {
             Class cl = Class.forName(className);
-            Constructor cons = cl.getConstructor(new Class[]{HBCIPassportInternal.class, MsgGen.class});
-            ret = (AbstractHBCIJob) cons.newInstance(new Object[]{passport, msgGen});
+            Constructor cons = cl.getConstructor(new Class[]{HBCIPassportInternal.class});
+            ret = (AbstractHBCIJob) cons.newInstance(new Object[]{passport});
         } catch (ClassNotFoundException e) {
             throw new InvalidUserDataException("*** there is no highlevel job named " + jobname + " - need class " + className);
         } catch (Exception e) {

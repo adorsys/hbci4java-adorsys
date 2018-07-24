@@ -24,10 +24,10 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.datatypes.SyntaxWrt;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.swift.DTAUS;
 import org.kapott.hbci.swift.DTAUS.Transaction;
+import org.w3c.dom.Document;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -35,8 +35,8 @@ import java.util.Iterator;
 
 public abstract class AbstractMultiGV extends AbstractHBCIJob {
 
-    public AbstractMultiGV(HBCIPassportInternal passport, MsgGen msgGen, String jobnameLL, HBCIJobResultImpl jobResult) {
-        super(passport, msgGen, jobnameLL, jobResult);
+    public AbstractMultiGV(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
+        super(passport, jobnameLL, jobResult);
     }
 
     public String getChallengeParam(String path) {

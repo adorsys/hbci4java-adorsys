@@ -24,9 +24,8 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 public final class GVCustomMsg extends AbstractHBCIJob {
 
@@ -34,18 +33,18 @@ public final class GVCustomMsg extends AbstractHBCIJob {
         return "CustomMsg";
     }
 
-    public GVCustomMsg(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
+    public GVCustomMsg(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
 
-        addConstraint("msg", "msg", null, LogFilter.FILTER_NONE);
+        addConstraint("msg", "msg", null);
 
-        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("my.curr", "curr", "EUR", LogFilter.FILTER_NONE);
-        addConstraint("betreff", "betreff", "", LogFilter.FILTER_NONE);
-        addConstraint("recpt", "recpt", "", LogFilter.FILTER_NONE);
+        addConstraint("my.country", "KTV.KIK.country", "DE");
+        addConstraint("my.blz", "KTV.KIK.blz", null);
+        addConstraint("my.number", "KTV.number", null);
+        addConstraint("my.subnumber", "KTV.subnumber", "");
+        addConstraint("my.curr", "curr", "EUR");
+        addConstraint("betreff", "betreff", "");
+        addConstraint("recpt", "recpt", "");
     }
 
     public void setParam(String paramName, String value) {

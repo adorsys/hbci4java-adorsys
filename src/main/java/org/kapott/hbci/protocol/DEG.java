@@ -29,32 +29,32 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Properties;
 
-public final class DEG
-        extends SyntaxElement {
+public final class DEG extends SyntaxElement {
+
     protected String getElementTypeName() {
         return "DEG";
     }
 
-    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document syntax) {
+    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document document) {
         MultipleSyntaxElements ret = null;
 
         if ((ref.getNodeName()).equals("DE"))
-            ret = new MultipleDEs(ref, ':', getPath(), syntax);
+            ret = new MultipleDEs(ref, ':', getPath(), document);
         else if ((ref.getNodeName()).equals("DEG"))
-            ret = new MultipleDEGs(ref, ':', getPath(), syntax);
+            ret = new MultipleDEGs(ref, ':', getPath(), document);
 
         return ret;
     }
 
-    public DEG(String type, String name, String path, int idx, Document syntax) {
-        super(type, name, path, idx, syntax);
+    public DEG(String type, String name, String path, int idx, Document document) {
+        super(type, name, path, idx, document);
     }
 
-    public void init(String type, String name, String path, int idx, Document syntax) {
-        super.init(type, name, path, idx, syntax);
+    public void init(String type, String name, String path, int idx, Document document) {
+        super.init(type, name, path, idx, document);
     }
 
-    public String toString(int zero) {
+    public String toString() {
         StringBuffer ret = new StringBuffer(128);
         boolean first = true;
 
@@ -68,7 +68,7 @@ public final class DEG
                 saveLen = ret.length();
                 MultipleSyntaxElements dataList = i.next();
                 if (dataList != null)
-                    ret.append(dataList.toString(0));
+                    ret.append(dataList.toString());
 
                 if (ret.length() == saveLen && !first) {
                     tooMuch++;
@@ -91,13 +91,13 @@ public final class DEG
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((dataref.getNodeName()).equals("DEG"))
-            ret = new MultipleDEGs(dataref, ':', getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleDEGs(dataref, ':', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         else if ((dataref.getNodeName()).equals("DE"))
-            ret = new MultipleDEs(dataref, ':', getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleDEs(dataref, ':', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
 
         return ret;
     }
@@ -106,12 +106,12 @@ public final class DEG
         return ':';
     }
 
-    public DEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    public DEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {

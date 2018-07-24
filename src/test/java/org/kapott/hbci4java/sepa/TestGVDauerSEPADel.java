@@ -9,7 +9,7 @@ import org.kapott.hbci.manager.HBCIDialog;
 import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
@@ -39,7 +39,7 @@ public class TestGVDauerSEPADel extends AbstractTest {
 
     private static File dir = null;
 
-    private HBCIPassportPinTanNoFile passport = null;
+    private PinTanPassport passport = null;
     private HBCIDialog dialog = null;
     private Properties params = new Properties();
 
@@ -47,7 +47,7 @@ public class TestGVDauerSEPADel extends AbstractTest {
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        AbstractHBCIJob job = HBCIJobFactory.newJob("DauerSEPADel", dialog.getPassport(), dialog.getKernel().getMsgGen());
+        AbstractHBCIJob job = HBCIJobFactory.newJob("DauerSEPADel", dialog.getPassport());
 
         Konto acc = new Konto();
         acc.blz = params.getProperty("target_blz");
@@ -69,7 +69,7 @@ public class TestGVDauerSEPADel extends AbstractTest {
         job.setParam("execday", "1");
         job.setParam("orderid", params.getProperty("orderid"));
 
-        System.out.println("---------Fï¿½r Job zur Queue");
+        System.out.println("---------Für Job zur Queue");
         dialog.addTask(job);
 
 
@@ -127,7 +127,7 @@ public class TestGVDauerSEPADel extends AbstractTest {
         };
 
 //      HBCIUtils.init(props,callback);
-        this.passport = (HBCIPassportPinTanNoFile) AbstractHBCIPassport.getInstance(callback, props, "PinTan");
+        this.passport = (PinTanPassport) AbstractHBCIPassport.getInstance(callback, props, "PinTan");
 
         // init handler
         HBCIDialog dialog = new HBCIDialog(passport);

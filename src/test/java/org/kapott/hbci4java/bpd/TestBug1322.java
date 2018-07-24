@@ -7,15 +7,14 @@
 
 package org.kapott.hbci4java.bpd;
 
+import org.junit.Test;
+import org.kapott.hbci.manager.HBCIKernel;
+import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci4java.AbstractTest;
 
 import java.util.Hashtable;
 import java.util.Iterator;
-
-import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernel;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
 
 /**
  * Test fuer die neuen grossen BPD bei der GAD.
@@ -32,11 +31,8 @@ public class TestBug1322 extends AbstractTest {
     public void test001() throws Exception {
         try {
             String data = getFile("bpd/bugzilla-1322.txt");
-            HBCIKernel kernel = new HBCIKernel(null);
-            kernel.rawNewMsg("DialogInitAnon");
 
-            MsgGen gen = kernel.getMsgGen();
-            MSG msg = new MSG("DialogInitAnonRes", data, data.length(), gen, MSG.CHECK_SEQ, true);
+            Message msg = new Message("DialogInitAnonRes", data, data.length(), null, Message.CHECK_SEQ, true);
             Hashtable<String, String> ht = new Hashtable<String, String>();
             msg.extractValues(ht);
 

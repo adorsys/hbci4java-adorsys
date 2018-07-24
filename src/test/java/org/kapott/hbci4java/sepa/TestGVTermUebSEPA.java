@@ -16,7 +16,7 @@ public class TestGVTermUebSEPA extends AbstractTestGV {
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        AbstractHBCIJob job =  HBCIJobFactory.newJob("TermUebSEPA", dialog.getPassport(), dialog.getKernel().getMsgGen());
+        AbstractHBCIJob job =  HBCIJobFactory.newJob("TermUebSEPA", dialog.getPassport());
         
         Konto acc = new Konto();
         acc.blz = params.getProperty("target_blz");
@@ -35,7 +35,7 @@ public class TestGVTermUebSEPA extends AbstractTestGV {
         job.setParam("usage",params.getProperty("usage"));
         job.setParam("date", params.getProperty("date"));
         
-        System.out.println("---------Fï¿½r Job zur Queue");
+        System.out.println("---------Für Job zur Queue");
         dialog.addTask(job);
 
         

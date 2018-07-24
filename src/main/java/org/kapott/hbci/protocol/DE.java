@@ -31,14 +31,13 @@ import org.w3c.dom.Node;
 
 import java.util.*;
 
-public final class DE
-        extends SyntaxElement {
+public final class DE extends SyntaxElement {
     private SyntaxDE value;
     private int minsize;
     private int maxsize;
     private List<String> valids;
 
-    protected MultipleSyntaxElements createNewChildContainer(Node dedef, Document syntax) {
+    protected MultipleSyntaxElements createNewChildContainer(Node dedef, Document document) {
         return null;
     }
 
@@ -58,7 +57,7 @@ public final class DE
                 if (!allowOverwrite) { // überschreiben ist nicht erlaubt
                     // fehler
                     if (!HBCIUtils.ignoreError(null, "client.errors.allowOverwrites",
-                            "*** trying to overwrite " + getPath() + "=" + value.toString() + " with " + valueString))
+                            "*** trying to overwrite " + getPath() + "=" + " with " + valueString))
                         throw new OverwriteException(getPath(), value.toString(), valueString);
                 }
             }
@@ -83,12 +82,12 @@ public final class DE
         String ret = null;
 
         if (path.equals(getPath()))
-            ret = value.toString(0);
+            ret = value.toString();
 
         return ret;
     }
 
-    private void initData(Node dedef, String name, String path, int idx, Document syntax) {
+    private void initData(Node dedef, String name, String path, int idx, Document document) {
         this.value = null;
         this.valids = new ArrayList<String>();
 
@@ -105,14 +104,14 @@ public final class DE
             maxsize = Integer.parseInt(st);
     }
 
-    public DE(Node dedef, String name, String path, int idx, Document syntax) {
+    public DE(Node dedef, String name, String path, int idx, Document document) {
         super(((Element) dedef).getAttribute("type"), name, path, idx, null);
-        initData(dedef, name, path, idx, syntax);
+        initData(dedef, name, path, idx, document);
     }
 
-    public void init(Node dedef, String name, String path, int idx, Document syntax) {
+    public void init(Node dedef, String name, String path, int idx, Document document) {
         super.init(((Element) dedef).getAttribute("type"), name, path, idx, null);
-        initData(dedef, name, path, idx, syntax);
+        initData(dedef, name, path, idx, document);
     }
 
     /**
@@ -168,7 +167,7 @@ public final class DE
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         return null;
     }
 
@@ -180,10 +179,9 @@ public final class DE
      * anlegen eines de beim parsen funktioniert analog zum
      * anlegen eines de bei der message-synthese
      */
-    private void parseValue(StringBuffer res, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    private void parseValue(StringBuffer res, Hashtable<String, String> predefs, char preDelim, Hashtable<String, String> valids) {
         String temp = res.toString();
         int len = temp.length();
-        char preDelim = getPreDelim();
 
         if (preDelim != (char) 0 && temp.charAt(0) != preDelim) {
             if (len == 0) {
@@ -198,7 +196,7 @@ public final class DE
 
         this.value = SyntaxDEFactory.getInstance().createSyntaxDE(getType(), getPath(), res, minsize, maxsize);
 
-        String valueString = value.toString(0);
+        String valueString = value.toString();
         String predefined = predefs.get(getPath());
         if (predefined != null) {
             if (!valueString.equals(predefined)) {
@@ -233,7 +231,7 @@ public final class DE
         }
     }
 
-    private void initData(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    private void initData(Node dedef, StringBuffer res, Hashtable<String, String> predefs, char preDelim, Hashtable<String, String> valids) {
         setValid(false);
 
         value = null;
@@ -252,30 +250,26 @@ public final class DE
             maxsize = Integer.parseInt(st);
 
         try {
-            parseValue(res, predefs, valids);
+            parseValue(res, predefs, preDelim, valids);
             setValid(true);
         } catch (RuntimeException e) {
             throw e;
         }
     }
 
-    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         super(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, fullResLen, null, predefs, valids);
-        initData(dedef, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+        initData(dedef, res, predefs, predelim, valids);
     }
 
-    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         super.init(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, fullResLen, null, predefs, valids);
-        initData(dedef, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+        initData(dedef, res, predefs, predelim, valids);
     }
 
     public void extractValues(Hashtable<String, String> values) {
         if (isValid())
             values.put(getPath(), value.toString());
-    }
-
-    public String toString(int zero) {
-        return isValid() ? value.toString(0) : "";
     }
 
     public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {

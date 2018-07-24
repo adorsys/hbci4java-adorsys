@@ -27,6 +27,7 @@ import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.ProcessException;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.math.BigInteger;
@@ -54,7 +55,6 @@ public final class HBCIInstitute implements IHandlerData {
 
     public HBCIInstitute(HBCIKernel kernel, HBCIPassportInternal passport) {
         this.kernel = kernel;
-
         this.passport = passport;
     }
 
@@ -74,7 +74,7 @@ public final class HBCIInstitute implements IHandlerData {
         }
 
         if (p.size() != 0) {
-            p.setProperty(BPD_KEY_HBCIVERSION, kernel.getHBCIVersion());
+            p.setProperty(BPD_KEY_HBCIVERSION, passport.getHBCIVersion());
             p.setProperty(BPD_KEY_LASTUPDATE, String.valueOf(System.currentTimeMillis()));
             passport.setBPD(p);
             HBCIUtils.log("installed new BPD with version " + passport.getBPDVersion(), HBCIUtils.LOG_INFO);
@@ -137,28 +137,6 @@ public final class HBCIInstitute implements IHandlerData {
         }
     }
 
-    private void doDialogEnd(String dialogid, boolean needSig) {
-        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END, null);
-
-        kernel.rawNewMsg("DialogEndAnon");
-        kernel.rawSet("MsgHead.dialogid", dialogid);
-        kernel.rawSet("MsgHead.msgnum", "2");
-        kernel.rawSet("DialogEndS.dialogid", dialogid);
-        kernel.rawSet("MsgTail.msgnum", "2");
-        HBCIMsgStatus status = kernel.rawDoIt(HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT, needSig, HBCIKernel.DONT_NEED_CRYPT);
-        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
-
-        if (!status.isOK()) {
-            HBCIUtils.log("dialog end failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
-
-            String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreDialogEndErrors",
-                    msg + ": " + status.getErrorString())) {
-                throw new ProcessException(msg, status);
-            }
-        }
-    }
-
     /**
      * Prueft, ob die BPD abgelaufen sind und neu geladen werden muessen.
      *
@@ -208,17 +186,15 @@ public final class HBCIInstitute implements IHandlerData {
     /**
      * Aktualisiert die BPD bei Bedarf.
      */
-    public void fetchBPD() {
+    public void fetchBPDAnonymous() {
         // BPD abholen, wenn nicht vorhanden oder HBCI-Version geaendert
         Properties bpd = passport.getBPD();
         String hbciVersionOfBPD = (bpd != null) ? bpd.getProperty(BPD_KEY_HBCIVERSION) : null;
 
         final String version = passport.getBPDVersion();
-        if (version.equals("0") || isBPDExpired() || hbciVersionOfBPD == null || !hbciVersionOfBPD.equals(kernel.getHBCIVersion())) {
-
+        if (version.equals("0") || isBPDExpired() || hbciVersionOfBPD == null || !hbciVersionOfBPD.equals(passport.getHBCIVersion())) {
             try {
-
-                // Wenn wir die BPP per anonymem Dialog neu abrufen, muessen wir sicherstellen,
+                // Wenn wir die BPD per anonymem Dialog neu abrufen, muessen wir sicherstellen,
                 // dass die BPD-Version im Passport auf "0" zurueckgesetzt ist. Denn wenn die
                 // Bank den anonymen Abruf nicht unterstuetzt, wuerde dieser Abruf hier fehlschlagen,
                 // der erneute Versuch mit authentifiziertem Dialog wuerde jedoch nicht zum
@@ -238,32 +214,22 @@ public final class HBCIInstitute implements IHandlerData {
                 passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT, null);
                 HBCIUtils.log("fetching BPD", HBCIUtils.LOG_INFO);
 
-                kernel.rawNewMsg("DialogInitAnon");
-                kernel.rawSet("Idn.KIK.blz", passport.getBLZ());
-                kernel.rawSet("Idn.KIK.country", passport.getCountry());
-                kernel.rawSet("ProcPrep.BPD", "0");
-                kernel.rawSet("ProcPrep.UPD", passport.getUPDVersion());
-                kernel.rawSet("ProcPrep.lang", "0");
-                kernel.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
-                kernel.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
+                HBCIMsgStatus msgStatus = anonymousDialogInit();
 
-                HBCIMsgStatus status = kernel.rawDoIt(HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT,
-                        HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
-
-                Properties result = status.getData();
+                Properties result = msgStatus.getData();
                 updateBPD(result);
 
-                if (!status.isDialogClosed()) {
+                if (!msgStatus.isDialogClosed()) {
                     try {
-                        doDialogEnd(result.getProperty("MsgHead.dialogid"), HBCIKernel.DONT_NEED_SIG);
+                        anonymousDialogEnd(result.getProperty("MsgHead.dialogid"));
                     } catch (Exception ex) {
                         HBCIUtils.log(ex);
                     }
                 }
 
-                if (!status.isOK()) {
+                if (!msgStatus.isOK()) {
                     HBCIUtils.log("fetching BPD failed", HBCIUtils.LOG_ERR);
-                    throw new ProcessException(HBCIUtils.getLocMsg("ERR_INST_BPDFAILED"), status);
+                    throw new ProcessException(HBCIUtils.getLocMsg("ERR_INST_BPDFAILED"), msgStatus);
                 }
             } catch (Exception e) {
                 if (e instanceof HBCI_Exception) {
@@ -288,7 +254,7 @@ public final class HBCIInstitute implements IHandlerData {
                     throw new InvalidUserDataException(msg);
             }
 
-            if (!Arrays.asList(passport.getSuppVersions()).contains(kernel.getHBCIVersion(0))) {
+            if (!Arrays.asList(passport.getSuppVersions()).contains(passport.getHBCIVersion())) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_VERSIONNOTSUPP");
                 if (!HBCIUtils.ignoreError(null, "client.errors.ignoreVersionCheckErrors", msg))
                     throw new InvalidUserDataException(msg);
@@ -296,15 +262,44 @@ public final class HBCIInstitute implements IHandlerData {
         } else {
             HBCIUtils.log("can not check if requested parameters are supported", HBCIUtils.LOG_WARN);
         }
-    }
 
-    public void register() {
-        fetchBPD();
         passport.setPersistentData("_registered_institute", Boolean.TRUE);
     }
 
-    public MsgGen getMsgGen() {
-        return this.kernel.getMsgGen();
+    private HBCIMsgStatus anonymousDialogInit() {
+        Message message = MessageFactory.createMessage("DialogInitAnon", passport.getSyntaxDocument());
+        message.rawSet("Idn.KIK.blz", passport.getBLZ());
+        message.rawSet("Idn.KIK.country", passport.getCountry());
+        message.rawSet("ProcPrep.BPD", "0");
+        message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
+        message.rawSet("ProcPrep.lang", "0");
+        message.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
+        message.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
+
+        return kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT,
+                HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
+    }
+
+    private void anonymousDialogEnd(String dialogid) {
+        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END, null);
+
+        Message message = MessageFactory.createMessage("DialogEndAnon", passport.getSyntaxDocument());
+        message.rawSet("MsgHead.dialogid", dialogid);
+        message.rawSet("MsgHead.msgnum", "2");
+        message.rawSet("DialogEndS.dialogid", dialogid);
+        message.rawSet("MsgTail.msgnum", "2");
+        HBCIMsgStatus status = kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT, HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
+        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
+
+        if (!status.isOK()) {
+            HBCIUtils.log("dialog end failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
+
+            String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
+            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreDialogEndErrors",
+                    msg + ": " + status.getErrorString())) {
+                throw new ProcessException(msg, status);
+            }
+        }
     }
 
     public HBCIPassportInternal getPassport() {

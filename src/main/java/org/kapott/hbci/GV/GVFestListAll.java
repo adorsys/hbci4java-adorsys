@@ -21,9 +21,8 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 public class GVFestListAll extends GVFestList {
 
@@ -31,14 +30,14 @@ public class GVFestListAll extends GVFestList {
         return "FestList";
     }
 
-    public GVFestListAll(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(getLowlevelName(), passport, msgGen);
+    public GVFestListAll(HBCIPassportInternal passport) {
+        super(getLowlevelName(), passport);
 
-        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("dummy", "allaccounts", "J", LogFilter.FILTER_NONE);
+        addConstraint("my.number", "KTV.number", null);
+        addConstraint("my.subnumber", "KTV.subnumber", "");
+        addConstraint("my.blz", "KTV.KIK.blz", null);
+        addConstraint("my.country", "KTV.KIK.country", "DE");
+        addConstraint("dummy", "allaccounts", "J");
 
         // TODO: kontakt fehlt
         // TODO: maxentries fehlen

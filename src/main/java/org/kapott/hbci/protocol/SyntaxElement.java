@@ -35,6 +35,7 @@ import java.util.*;
     selbst, eine segmentfolge, ein einzelnes segment, eine deg oder 
     ein einzelnes de) */
 public abstract class SyntaxElement {
+
     private List<MultipleSyntaxElements> childContainers;
     /**
      * < @internal @brief alle in diesem element enthaltenen unterelemente
@@ -45,10 +46,6 @@ public abstract class SyntaxElement {
      */
     private String type;
     private String path;
-    /**
-     * < @internal @brief pfadname dieses elementes innerhalb einer MSG
-     */
-    private char predelim;
     /**
      * < @internal @brief nur beim parsen: zeichen, das vor diesem element stehen muesste
      */
@@ -68,7 +65,7 @@ public abstract class SyntaxElement {
     // Verändern ein neues MSG-Objekt erzeugt).
     private int posInMsg;
 
-    private Document syntax;
+    private Document document;
     private Node def;
 
     public final static boolean TRY_TO_CREATE = true;
@@ -94,7 +91,7 @@ public abstract class SyntaxElement {
      * xml-knoten 'ref' identifiziert wird; wird beim erzeugen von elementen
      * benutzt
      */
-    protected abstract MultipleSyntaxElements createNewChildContainer(Node ref, Document syntax);
+    protected abstract MultipleSyntaxElements createNewChildContainer(Node ref, Document document);
 
     // TODO: aus konsistenz-gründen auch in MultipleSyntaxElements create und
     // createAndAdd trennen
@@ -104,12 +101,12 @@ public abstract class SyntaxElement {
      * xml-knoten 'ref' gibt an, um welches element es sich dabei handelt; aus
      * 'res' (der zu parsende String) wird der wert fuer das element ermittelt
      * (falls es sich um ein de handelt); in 'predefined' ist der wert des
-     * elementes zu finden, der laut syntaxdefinition ('syntax') an dieser stelle
+     * elementes zu finden, der laut syntaxdefinition ('document') an dieser stelle
      * auftauchen mueste (optional; z.b. fuer segmentcodes); 'predelim*' geben
      * die delimiter an, die direkt vor dem zu erzeugenden syntaxelement
      * auftauchen muessten
      */
-    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids);
+    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids);
 
 
     /**
@@ -132,8 +129,8 @@ public abstract class SyntaxElement {
      * beim ueberpruefen, ob das aktuelle element gueltig ist (mittels @c validate() ),
      * wird neben der gueltigkeit aller unterelemente zusaetzlich ueberprueft, ob dieses
      * element ein request-tag benoetigt, und wenn ja, ob es vorhanden ist. wenn die
-     *
-     * @p needsRequestTag -bedingung nicht erfuellt ist, ist auch das element ungueltig,
+     * <p>
+     * needsRequestTag -bedingung nicht erfuellt ist, ist auch das element ungueltig,
      * und es wird nicht erzeugt.
      * <p>
      * das vorhandensein eines request-tags wird in der variablen @haveRequestTag
@@ -156,13 +153,13 @@ public abstract class SyntaxElement {
      * würde der nur bei tatsächlich gewünschten GV-Segmenten true ergeben.
      * Bei MsgHead-Segmenten z.B. würde er false ergeben (weil diese
      * Segmente niemals auf "requested" gesetzt werden). Deshalb darf diese
-     * "requested"-Ãberprüfung nur bei den Syntaxelementen stattfinden,
+     * "requested"-Überprüfung nur bei den Syntaxelementen stattfinden,
      * bei denen das explizit gewünscht ist (needsRequestTag).
      */
     private boolean needsRequestTag;
     private boolean haveRequestTag;
 
-    private void initData(String type, String name, String ppath, int idx, Document syntax) {
+    private void initData(String type, String name, String ppath, int idx, Document document) {
         if (getElementTypeName().equals("SEG"))
             HBCIUtils.log("creating segment " + ppath + " -> " + name + "(" + idx + ")", HBCIUtils.LOG_INTERN);
 
@@ -171,15 +168,14 @@ public abstract class SyntaxElement {
         this.parent = null;
         this.needsRequestTag = false;
         this.haveRequestTag = false;
-        this.childContainers = new ArrayList<MultipleSyntaxElements>();
-        this.predelim = 0;
-        this.syntax = syntax;
+        this.childContainers = new ArrayList<>();
+        this.document = document;
         this.def = null;
         
         /* der pfad wird gebildet aus bisherigem pfad
          plus name des elementes
          plus indexnummer, falls diese groesser 0 ist */
-        StringBuffer temppath = new StringBuffer(128);
+        StringBuilder temppath = new StringBuilder(128);
         if (ppath != null && ppath.length() != 0)
             temppath.append(ppath).append(".");
         temppath.append(HBCIUtils.withCounter(name, idx));
@@ -187,8 +183,8 @@ public abstract class SyntaxElement {
 
         setValid(false);
 
-        if (syntax != null) {
-            this.def = getSyntaxDef(type, syntax);
+        if (document != null) {
+            this.def = getSyntaxDef(type, document);
 
             // erzeugen der child-elemente
             String requestTag = ((Element) def).getAttribute("needsRequestTag");
@@ -198,7 +194,7 @@ public abstract class SyntaxElement {
             int syntaxIdx = 0;
             for (Node ref = def.getFirstChild(); ref != null; ref = ref.getNextSibling()) {
                 if (ref.getNodeType() == Node.ELEMENT_NODE) {
-                    MultipleSyntaxElements child = createAndAppendNewChildContainer(ref, syntax);
+                    MultipleSyntaxElements child = createAndAppendNewChildContainer(ref, document);
                     if (child != null) {
                         child.setParent(this);
                         // TODO: überprüfen, ob noch an anderen Stellen Container
@@ -238,7 +234,7 @@ public abstract class SyntaxElement {
                     throw new NoSuchPathException(destpath);
             }
 
-                /* durchlaufen aller "valids"-knoten und speichern der valid-values */
+            /* durchlaufen aller "valids"-knoten und speichern der valid-values */
             // TODO: das hier ebenfalls später machen, siehe "values"
             NodeList validNodes = ((Element) def).getElementsByTagName("valids");
             len = validNodes.getLength();
@@ -266,16 +262,16 @@ public abstract class SyntaxElement {
      * elementes innerhalb der syntaxelementliste fuer dieses element (falls ein
      * bestimmtes syntaxelement mehr als einmal auftreten kann)
      */
-    protected SyntaxElement(String type, String name, String path, int idx, Document syntax) {
-        initData(type, name, path, idx, syntax);
+    protected SyntaxElement(String type, String name, String path, int idx, Document document) {
+        initData(type, name, path, idx, document);
     }
 
-    protected void init(String type, String name, String path, int idx, Document syntax) {
-        initData(type, name, path, idx, syntax);
+    protected void init(String type, String name, String path, int idx, Document document) {
+        initData(type, name, path, idx, document);
     }
 
-    protected MultipleSyntaxElements createAndAppendNewChildContainer(Node ref, Document syntax) {
-        MultipleSyntaxElements ret = createNewChildContainer(ref, syntax);
+    protected MultipleSyntaxElements createAndAppendNewChildContainer(Node ref, Document document) {
+        MultipleSyntaxElements ret = createNewChildContainer(ref, document);
         if (ret != null)
             addChildContainer(ret);
         return ret;
@@ -307,8 +303,7 @@ public abstract class SyntaxElement {
     public int enumerateSegs(int startValue, boolean allowOverwrite) {
         int idx = startValue;
 
-        for (Iterator<MultipleSyntaxElements> i = getChildContainers().iterator(); i.hasNext(); ) {
-            MultipleSyntaxElements s = i.next();
+        for (MultipleSyntaxElements s : getChildContainers()) {
             if (s != null)
                 idx = s.enumerateSegs(idx, allowOverwrite);
         }
@@ -318,15 +313,14 @@ public abstract class SyntaxElement {
 
     // -------------------------------------------------------------------------------------------
 
-    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         this.type = type;
         this.name = name;
         this.parent = null;
-        this.childContainers = new ArrayList<MultipleSyntaxElements>();
-        this.predelim = predelim;
+        this.childContainers = new ArrayList<>();
         this.needsRequestTag = false;
         this.haveRequestTag = false;
-        this.syntax = syntax;
+        this.document = document;
         this.def = null;
         /* position des aktuellen datenelementes berechnet sich aus der
          * gesamtlänge des ursprünglichen msg-strings minus der länge des
@@ -334,7 +328,7 @@ public abstract class SyntaxElement {
          * datenelement beginnt */
         this.posInMsg = fullResLen - res.length();
 
-        StringBuffer temppath = new StringBuffer(128);
+        StringBuilder temppath = new StringBuilder(128);
         if (ppath != null && ppath.length() != 0)
             temppath.append(ppath).append(".");
         temppath.append(HBCIUtils.withCounter(name, idx));
@@ -342,8 +336,8 @@ public abstract class SyntaxElement {
 
         setValid(false);
 
-        if (syntax != null) {
-            this.def = getSyntaxDef(type, syntax);
+        if (document != null) {
+            this.def = getSyntaxDef(type, document);
             
             /* fuellen der 'predefs'-tabelle mit den in der
              syntaxbeschreibung vorgegebenen werten */
@@ -384,7 +378,7 @@ public abstract class SyntaxElement {
                     MultipleSyntaxElements child = parseAndAppendNewChildContainer(ref,
                             ((counter++) == 0) ? predelim : getInDelim(),
                             getInDelim(),
-                            res, fullResLen, syntax, predefs, valids);
+                            res, fullResLen, document, predefs, valids);
 
                     if (child != null) {
                         child.setParent(this);
@@ -417,7 +411,7 @@ public abstract class SyntaxElement {
     /**
      * beim parsen: initialisiert ein neues syntaxelement mit der id 'name'; in
      * 'path' wird der pfad bis zu dieser stelle uebergeben 'predelim' gibt das
-     * delimiter-zeichen an, das beim parsen vor diesem syntax- element stehen
+     * delimiter-zeichen an, das beim parsen vor diesem document- element stehen
      * muesste 'idx' ist die nummer des syntaxelementes innerhalb der
      * uebergeordneten liste (die liste repraesentiert das evtl. mehrmalige
      * auftreten eines syntaxelementes, siehe class syntaxelementlist) 'res' ist
@@ -425,16 +419,16 @@ public abstract class SyntaxElement {
      * enthalten, die fuer einige syntaxelemente den wert angeben, den diese
      * elemente zwingend haben muessen (z.b. ein bestimmter segmentcode o.ae.)
      */
-    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
-    protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
-    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        MultipleSyntaxElements ret = parseNewChildContainer(ref, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        MultipleSyntaxElements ret = parseNewChildContainer(ref, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         if (ret != null)
             addChildContainer(ret);
         return ret;
@@ -446,8 +440,7 @@ public abstract class SyntaxElement {
      * child-elemente durchlaufen und deren 'fillValues' methode aufgerufen
      */
     public void extractValues(Hashtable<String, String> values) {
-        for (Iterator<MultipleSyntaxElements> i = childContainers.listIterator(); i.hasNext(); ) {
-            MultipleSyntaxElements l = i.next();
+        for (MultipleSyntaxElements l : childContainers) {
             l.extractValues(values);
         }
     }
@@ -455,7 +448,7 @@ public abstract class SyntaxElement {
 
     // -------------------------------------------------------------------------------------------
 
-    protected void addChildContainer(MultipleSyntaxElements x) {
+    private void addChildContainer(MultipleSyntaxElements x) {
         childContainers.add(x);
     }
 
@@ -487,8 +480,7 @@ public abstract class SyntaxElement {
             // damit überspringen wir gleich elemente, bei denen es mit
             // sicherheit nicht funktionieren kann
             if (destPath.startsWith(getPath())) {
-                for (Iterator<MultipleSyntaxElements> i = childContainers.listIterator(); i.hasNext(); ) {
-                    MultipleSyntaxElements l = i.next();
+                for (MultipleSyntaxElements l : childContainers) {
                     if (l.propagateValue(destPath, value, tryToCreate, allowOverwrite)) {
                         ret = true;
                         break;
@@ -496,7 +488,7 @@ public abstract class SyntaxElement {
                 }
 
                 if (!ret && tryToCreate) {
-                    // der Wert konnte nicht gesetzt werden -> mÃ¶glicherweise
+                    // der Wert konnte nicht gesetzt werden -> möglicherweise
                     // existiert ja nur der entsprechende child-container noch
                     // nicht
                     HBCIUtils.log(getPath() + ": could not set value for " + destPath, HBCIUtils.LOG_INTERN);
@@ -525,8 +517,7 @@ public abstract class SyntaxElement {
                     // (msg) soll dann nicht versucht werden, das nächste sub-element
                     // (gv) anzulegen - dieser test merkt, dass es "gv" schon gibt 
                     boolean found = false;
-                    for (Iterator<MultipleSyntaxElements> i = childContainers.iterator(); i.hasNext(); ) {
-                        MultipleSyntaxElements c = i.next();
+                    for (MultipleSyntaxElements c : childContainers) {
                         if (c.getName().equals(subType)) {
                             found = true;
                             break;
@@ -538,7 +529,7 @@ public abstract class SyntaxElement {
                         // loopen und den ref-Knoten suchen, der das fehlende Element
                         // beschreibt
                         int newChildIdx = 0;
-                        Node ref = null;
+                        Node ref;
                         found = false;
                         for (ref = def.getFirstChild(); ref != null; ref = ref.getNextSibling()) {
                             if (ref.getNodeType() == Node.ELEMENT_NODE) {
@@ -557,7 +548,7 @@ public abstract class SyntaxElement {
 
                         if (found) {
                             // entsprechenden child-container erzeugen
-                            MultipleSyntaxElements child = createNewChildContainer(ref, syntax);
+                            MultipleSyntaxElements child = createNewChildContainer(ref, document);
                             child.setParent(this);
                             child.setSyntaxIdx(newChildIdx);
 
@@ -568,11 +559,10 @@ public abstract class SyntaxElement {
                             // aktuelle child-container-liste durchlaufen und den neu
                             // erzeugten child-container dort richtig einsortieren
                             int newPosi = 0;
-                            for (Iterator<MultipleSyntaxElements> i = childContainers.iterator(); i.hasNext(); ) {
-                                MultipleSyntaxElements c = i.next();
+                            for (MultipleSyntaxElements c : childContainers) {
                                 if (c.getSyntaxIdx() > newChildIdx) {
                                     // der gerade betrachtete child-container hat einen idx
-                                    // grÃ¶Ãer als den des einzufügenden elementes, also wird
+                                    // gröÃer als den des einzufügenden elementes, also wird
                                     // sich diese position gemerkt und das element hier eingefügt
                                     break;
                                 }
@@ -603,8 +593,7 @@ public abstract class SyntaxElement {
     public String getValueOfDE(String path) {
         String ret = null;
 
-        for (Iterator<MultipleSyntaxElements> i = childContainers.listIterator(); i.hasNext(); ) {
-            MultipleSyntaxElements l = i.next();
+        for (MultipleSyntaxElements l : childContainers) {
             ret = l.getValueOfDE(path);
             if (ret != null) {
                 break;
@@ -617,8 +606,7 @@ public abstract class SyntaxElement {
     public String getValueOfDE(String path, int zero) {
         String ret = null;
 
-        for (ListIterator<MultipleSyntaxElements> i = childContainers.listIterator(); i.hasNext(); ) {
-            MultipleSyntaxElements l = i.next();
+        for (MultipleSyntaxElements l : childContainers) {
             ret = l.getValueOfDE(path, 0);
             if (ret != null) {
                 break;
@@ -638,8 +626,7 @@ public abstract class SyntaxElement {
         if (getPath().equals(path)) {
             ret = this;
         } else {
-            for (ListIterator<MultipleSyntaxElements> i = childContainers.listIterator(); i.hasNext(); ) {
-                MultipleSyntaxElements l = i.next();
+            for (MultipleSyntaxElements l : childContainers) {
                 ret = l.getElement(path);
                 if (ret != null) {
                     break;
@@ -681,31 +668,15 @@ public abstract class SyntaxElement {
     }
 
     /**
-     * @return the delimiter that must be in front of this element
-     */
-    protected char getPreDelim() {
-        return predelim;
-    }
-
-    /**
-     * @param type   the name of the syntaxelement to be returned
-     * @param syntax the structure containing the current syntaxdefinition
+     * @param type     the name of the syntaxelement to be returned
+     * @param document the structure containing the current syntaxdefinition
      * @return a XML-node with the definition of the requested syntaxelement
      */
-    public final Node getSyntaxDef(String type, Document syntax) {
-        Node ret = syntax.getElementById(type);
+    public final Node getSyntaxDef(String type, Document document) {
+        Node ret = document.getElementById(type);
         if (ret == null)
             throw new org.kapott.hbci.exceptions.NoSuchElementException(getElementTypeName(), type);
         return ret;
-    }
-
-    /**
-     * diese toString() methode wird benutzt, um den wert eines
-     * de-syntaxelementes in human-readable-form zurueckzugeben. innerhalb eines
-     * de-elementes wird der wert in der hbci-form gespeichert
-     */
-    public String toString(int zero) {
-        return toString();
     }
 
     protected final void setValid(boolean valid) {
@@ -717,8 +688,7 @@ public abstract class SyntaxElement {
     }
 
     public int checkSegSeq(int value) {
-        for (Iterator<MultipleSyntaxElements> i = childContainers.iterator(); i.hasNext(); ) {
-            MultipleSyntaxElements a = i.next();
+        for (MultipleSyntaxElements a : childContainers) {
             value = a.checkSegSeq(value);
         }
 
@@ -733,8 +703,7 @@ public abstract class SyntaxElement {
      */
     public void validate() {
         if (!needsRequestTag || haveRequestTag) {
-            for (ListIterator<MultipleSyntaxElements> i = childContainers.listIterator(); i.hasNext(); ) {
-                MultipleSyntaxElements l = i.next();
+            for (MultipleSyntaxElements l : childContainers) {
                 l.validate();
             }
 
@@ -766,7 +735,7 @@ public abstract class SyntaxElement {
         parent = null;
         path = null;
         type = null;
-        syntax = null;
+        document = null;
         def = null;
     }
 }

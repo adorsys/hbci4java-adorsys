@@ -7,15 +7,15 @@
 
 package org.kapott.hbci4java.sepa;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.GV.generators.GenLastSEPA00800101;
 import org.kapott.hbci.GV.generators.GenUebSEPA00100303;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests fuer den PAIN-Version Parser 

@@ -11,8 +11,9 @@ import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.HBCIDialog;
 import org.kapott.hbci.manager.HBCIJobFactory;
+import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIExecStatus;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class AbstractTestGV extends AbstractTest {
 
     protected static File dir = null;
 
-    protected HBCIPassportPinTanNoFile passport = null;
+    protected PinTanPassport passport = null;
     protected HBCIDialog dialog = null;
     protected Properties params = new Properties();
 
@@ -46,12 +47,13 @@ public class AbstractTestGV extends AbstractTest {
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        AbstractHBCIJob job = HBCIJobFactory.newJob(getJobname(), dialog.getPassport(), dialog.getKernel().getMsgGen());
+
+        AbstractHBCIJob job = HBCIJobFactory.newJob(getJobname(), dialog.getPassport());
 
         int source_acc_idx = Integer.parseInt(params.getProperty("source_account_idx"));
         job.setParam("src", passport.getAccounts()[source_acc_idx]);
 
-        System.out.println("---------Fï¿½r Job zur Queue");
+        System.out.println("---------Für Job zur Queue");
         dialog.addTask(job);
 
 
@@ -109,7 +111,7 @@ public class AbstractTestGV extends AbstractTest {
         };
 
 //      HBCIUtils.init(props,callback);
-//      this.passport = (HBCIPassportPinTanNoFile) AbstractHBCIPassport.getInstance("PinTan");
+//      this.passport = (PinTanPassport) AbstractHBCIPassport.getInstance("PinTan");
 
         // init handler
         this.dialog = new HBCIDialog(passport);

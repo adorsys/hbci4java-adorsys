@@ -41,7 +41,7 @@ public class SyntaxDTAUS
         st=st.replace("\\","Ã"); // 0x5C
         st=st.replace("]","Ã");  // 0x5D
         st=st.replace("{","ä");  // 0x7B
-        st=st.replace("|","Ã¶");  // 0x7C
+        st=st.replace("|","ö");  // 0x7C
         st=st.replace("}","ü");  // 0x7D
         st=st.replace("~","Ã");  // 0x7E
       

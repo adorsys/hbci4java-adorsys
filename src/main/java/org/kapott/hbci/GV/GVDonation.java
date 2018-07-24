@@ -21,9 +21,8 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 public final class GVDonation extends GVUeb {
 
@@ -31,25 +30,25 @@ public final class GVDonation extends GVUeb {
         return "Ueb";
     }
 
-    public GVDonation(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName());
+    public GVDonation(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName());
 
-        addConstraint("src.number", "My.number", null, LogFilter.FILTER_IDS);
-        addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("dst.blz", "Other.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("dst.number", "Other.number", null, LogFilter.FILTER_IDS);
-        addConstraint("dst.subnumber", "Other.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("btg.value", "BTG.value", null, LogFilter.FILTER_MOST);
-        addConstraint("btg.curr", "BTG.curr", null, LogFilter.FILTER_NONE);
-        addConstraint("name", "name", null, LogFilter.FILTER_IDS);
-        addConstraint("spenderid", "usage.usage", null, LogFilter.FILTER_MOST);
-        addConstraint("plz_street", "usage.usage_2", null, LogFilter.FILTER_MOST);
-        addConstraint("name_ort", "usage.usage_3", null, LogFilter.FILTER_MOST);
+        addConstraint("src.number", "My.number", null);
+        addConstraint("src.subnumber", "My.subnumber", "");
+        addConstraint("dst.blz", "Other.KIK.blz", null);
+        addConstraint("dst.number", "Other.number", null);
+        addConstraint("dst.subnumber", "Other.subnumber", "");
+        addConstraint("btg.value", "BTG.value", null);
+        addConstraint("btg.curr", "BTG.curr", null);
+        addConstraint("name", "name", null);
+        addConstraint("spenderid", "usage.usage", null);
+        addConstraint("plz_street", "usage.usage_2", null);
+        addConstraint("name_ort", "usage.usage_3", null);
 
-        addConstraint("src.blz", "My.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("src.country", "My.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("dst.country", "Other.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("name2", "name2", "", LogFilter.FILTER_IDS);
-        addConstraint("key", "key", "69", LogFilter.FILTER_NONE);
+        addConstraint("src.blz", "My.KIK.blz", null);
+        addConstraint("src.country", "My.KIK.country", "DE");
+        addConstraint("dst.country", "Other.KIK.country", "DE");
+        addConstraint("name2", "name2", "");
+        addConstraint("key", "key", "69");
     }
 }

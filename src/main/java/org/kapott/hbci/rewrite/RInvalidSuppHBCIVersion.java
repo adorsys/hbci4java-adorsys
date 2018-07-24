@@ -22,21 +22,22 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
+import org.w3c.dom.Document;
 
-public class RInvalidSuppHBCIVersion
-        extends Rewrite {
+public class RInvalidSuppHBCIVersion extends Rewrite {
+
     // TODO: den rewriter umschreiben, so dass er nur string-operationen
     // benutzt, weil nicht sichergestellt werden kann, dass die eingehende
     // nachricht hier tatsächlich schon geparst werden kann
-    public String incomingClearText(String st, MsgGen gen) {
+    @Override
+    public String incomingClearText(String st, Document document) {
         // empfangene Nachricht parsen, dabei die validvalues-Überprüfung weglassen
-        String myMsgName = (String) getData("msgName") + "Res";
-        MSG msg = new MSG(myMsgName, st, st.length(),
-                gen,
-                MSG.DONT_CHECK_SEQ, MSG.DONT_CHECK_VALIDS);
+        String myMsgName = getData("msgName") + "Res";
+        Message msg = new Message(myMsgName, st, st.length(),
+                document,
+                Message.DONT_CHECK_SEQ, Message.DONT_CHECK_VALIDS);
 
         // in einer Schleife durch alle SuppVersions-Datensätze laufen
         for (int i = 0; ; i++) {

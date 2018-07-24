@@ -7,14 +7,13 @@
 
 package org.kapott.hbci4java.secmech;
 
-import java.util.Properties;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.manager.HHDVersion;
 import org.kapott.hbci.manager.MatrixCode;
-
 import org.kapott.hbci4java.AbstractTest;
+
+import java.util.Properties;
 
 /**
  * Testet den Parser fuer die Matrix-Codes.

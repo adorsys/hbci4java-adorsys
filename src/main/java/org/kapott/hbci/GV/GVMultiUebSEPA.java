@@ -21,9 +21,8 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 /**
  * Job-Implementierung fuer SEPA-Multi-Ueberweisungen.
@@ -46,16 +45,16 @@ public class GVMultiUebSEPA extends GVUebSEPA {
         return "UebSEPA";
     }
 
-    public GVMultiUebSEPA(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName());
+    public GVMultiUebSEPA(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName());
     }
 
-    public GVMultiUebSEPA(HBCIPassportInternal passport, MsgGen msgGen, String name) {
-        super(passport, msgGen, name);
+    public GVMultiUebSEPA(HBCIPassportInternal passport, String name) {
+        super(passport, name);
 
-        addConstraint("batchbook", "sepa.batchbook", "", LogFilter.FILTER_NONE);
-        addConstraint("Total.value", "Total.value", null, LogFilter.FILTER_MOST);
-        addConstraint("Total.curr", "Total.curr", null, LogFilter.FILTER_NONE);
+        addConstraint("batchbook", "sepa.batchbook", "");
+        addConstraint("Total.value", "Total.value", null);
+        addConstraint("Total.curr", "Total.curr", null);
     }
 
     @Override

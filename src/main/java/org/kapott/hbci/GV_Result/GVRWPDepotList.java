@@ -189,7 +189,7 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
             /**
              * Hinweise zum Preis {@link #price} (optional).
              * <ul>
-             * <li>{@link #PRICE_QUALIF_MRKT} - Marktpreis (z.B. aktueller BÃ¶rsenkurs)</li>
+             * <li>{@link #PRICE_QUALIF_MRKT} - Marktpreis (z.B. aktueller Börsenkurs)</li>
              * <li>{@link #PRICE_QUALIF_HINT} - Hinweispreis (rechnerischer bzw. ermittelter Preis)</li>
              * </ul>
              */
@@ -202,7 +202,7 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
             /**
              * Herkunft von Preis/Kurs (optional).
              * <ul>
-             * <li>{@link #SOURCE_LOC} - lokale BÃ¶rse</li>
+             * <li>{@link #SOURCE_LOC} - lokale Börse</li>
              * <li>{@link #SOURCE_THEOR} - theoretischer Wert</li>
              * <li>{@link #SOURCE_SELLER} - Verkäufer als Quelle</li>
              * </ul>
@@ -210,7 +210,7 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
             public int source;
             /**
              * Bemerkungen zur Herkunft von Preis/Kurs {@link #source} (optional).
-             * Bei {@link #source}={@link #SOURCE_LOC} kann der Name der BÃ¶rse
+             * Bei {@link #source}={@link #SOURCE_LOC} kann der Name der Börse
              * als MIC angegeben werden
              */
             public String source_comment;
@@ -408,7 +408,7 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
         /**
          * Gibt ein Array mit Informationen über alle Wertpapiergattungen
          * zurück, die in diesem Depot gehalten werden. Der Rückgabewert ist
-         * niemals <code>null</code>, die GrÃ¶Ãe des Arrays kann aber 0 sein.
+         * niemals <code>null</code>, die GröÃe des Arrays kann aber 0 sein.
          *
          * @return Array mit Informationen über Wertpapiergattungen
          */

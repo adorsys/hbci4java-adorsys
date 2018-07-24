@@ -24,37 +24,37 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.GVRWPDepotList;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.BigDecimalValue;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.swift.Swift;
 import org.kapott.hbci.swift.SwiftLegacy;
+import org.w3c.dom.Document;
 
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 public final class GVWPDepotList extends AbstractHBCIJob {
+
     private StringBuffer buffer;
 
     public static String getLowlevelName() {
         return "WPDepotList";
     }
 
-    public GVWPDepotList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRWPDepotList(passport));
+    public GVWPDepotList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRWPDepotList(passport));
         this.buffer = new StringBuffer();
 
-        addConstraint("my.number", "Depot.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "Depot.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("my.number", "Depot.number", null);
+        addConstraint("my.subnumber", "Depot.subnumber", "");
 
-        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().getProperty("KInfo.KTV.KIK.country"), LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().getProperty("KInfo.KTV.KIK.blz"), LogFilter.FILTER_MOST);
-        //addConstraint("my.curr","curr",passport.getUPD().getProperty("KInfo.cur",""), LogFilter.FILTER_NONE);
-        addConstraint("quality", "quality", "", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().getProperty("KInfo.KTV.KIK.country"));
+        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().getProperty("KInfo.KTV.KIK.blz"));
+        //addConstraint("my.curr","curr",passport.getUPD().getProperty("KInfo.cur",""));
+        addConstraint("quality", "quality", "");
+        addConstraint("maxentries", "maxentries", "");
     }
 
 

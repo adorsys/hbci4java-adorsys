@@ -22,9 +22,8 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 /**
  * Implementierung des Geschaeftsvorfalls zum Abruf von neuen Umsaetzen (HKKAN).
@@ -35,8 +34,8 @@ public final class GVKUmsNew extends GVKUmsAll {
         return "KUmsNew";
     }
 
-    public GVKUmsNew(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName());
+    public GVKUmsNew(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName());
 
         boolean sepa = false;
         try {
@@ -52,22 +51,22 @@ public final class GVKUmsNew extends GVKUmsAll {
         // SEPA-Variante noch mitgeschickt wird, wenn die Bank das zulaesst.
         // (Es scheint auch Banken zu geben, die das in dem Fall nicht nur
         // zulassen sondern erwarten).
-        boolean nat = this.canNationalAcc(passport, msgGen);
+        boolean nat = this.canNationalAcc(passport);
 
         if (sepa) {
-            addConstraint("my.bic", "KTV.bic", null, LogFilter.FILTER_MOST);
-            addConstraint("my.iban", "KTV.iban", null, LogFilter.FILTER_IDS);
+            addConstraint("my.bic", "KTV.bic", null);
+            addConstraint("my.iban", "KTV.iban", null);
         }
 
         if (nat || !sepa) {
-            addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-            addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-            addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-            addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
+            addConstraint("my.country", "KTV.KIK.country", "DE");
+            addConstraint("my.blz", "KTV.KIK.blz", null);
+            addConstraint("my.number", "KTV.number", null);
+            addConstraint("my.subnumber", "KTV.subnumber", "");
         }
 
-        addConstraint("my.curr", "curr", "EUR", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
-        addConstraint("dummyall", "allaccounts", "N", LogFilter.FILTER_NONE);
+        addConstraint("my.curr", "curr", "EUR");
+        addConstraint("maxentries", "maxentries", "");
+        addConstraint("dummyall", "allaccounts", "N");
     }
 }

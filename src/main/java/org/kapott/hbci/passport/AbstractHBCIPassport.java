@@ -26,13 +26,23 @@ import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
+import org.kapott.hbci.manager.DocumentFactory;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Limit;
 import org.kapott.hbci.structures.Value;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -58,43 +68,40 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private String customerid;
     private String sysid;
     private Long sigid;
-    private String cid;
+
+    private Document syntaxDocument;
+
     private Hashtable<String, Object> persistentData = new Hashtable<>();
 
     protected HBCICallback callback;
     protected Properties properties;
 
-    public AbstractHBCIPassport(Properties properties, HBCICallback callback) {
+    public AbstractHBCIPassport(String hbciversion, Properties properties, HBCICallback callback) {
+        this.hbciversion = hbciversion;
         this.callback = callback;
         this.properties = properties;
+
+        init();
     }
 
-    public final Properties getBPD() {
-        return bpd;
-    }
+    /* Initialisieren eines Message-Generators. Der <syntaFileStream> ist ein
+     * Stream, mit dem eine XML-Datei mit einer HBCI-Syntaxspezifikation
+     * eingelesen wird */
+    private void init() {
+        this.syntaxDocument = DocumentFactory.createDocument(hbciversion);
 
-    public final void setHBCIVersion(String hbciversion) {
-        this.hbciversion = hbciversion;
-    }
-
-    public final String getHBCIVersion() {
-        return (hbciversion != null) ? hbciversion : "";
-    }
-
-    public final Properties getUPD() {
-        return upd;
-    }
-
-    public final String getBLZ() {
-        return blz;
-    }
-
-    public final String getCountry() {
-        return country;
+        setCountry(properties.getProperty("client.passport.country"));
+        setBLZ(properties.getProperty("client.passport.blz"));
+        setCustomerId(properties.getProperty("client.passport.customerId"));
+        if (properties.getProperty("client.passport.userId") != null) {
+            setUserId(properties.getProperty("client.passport.userId"));
+        } else {
+            setUserId(getCustomerId());
+        }
     }
 
     public final Konto[] getAccounts() {
-        ArrayList<Konto> ret = new ArrayList<Konto>();
+        ArrayList<Konto> ret = new ArrayList<>();
 
         if (upd != null) {
             for (int i = 0; ; i++) {
@@ -129,7 +136,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 }
 
                 // allowedGVs
-                ArrayList<String> codes = new ArrayList<String>();
+                ArrayList<String> codes = new ArrayList<>();
                 for (int j = 0; ; j++) {
                     String gvHeader = HBCIUtils.withCounter(header + ".AllowedGV", j);
                     String code = upd.getProperty(gvHeader + ".code");
@@ -142,7 +149,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             }
         }
 
-        return ret.toArray(new Konto[ret.size()]);
+        return ret.toArray(new Konto[0]);
     }
 
     public final void fillAccountInfo(Konto account) {
@@ -153,23 +160,23 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
         Konto[] accounts = getAccounts();
 
-        for (int i = 0; i < accounts.length; i++) {
-            String temp_number = HBCIUtils.stripLeadingZeroes(accounts[i].number);
-            String temp_iban = HBCIUtils.stripLeadingZeroes(accounts[i].iban);
+        for (Konto account1 : accounts) {
+            String temp_number = HBCIUtils.stripLeadingZeroes(account1.number);
+            String temp_iban = HBCIUtils.stripLeadingZeroes(account1.iban);
 
             if (haveNumber && number.equals(temp_number) ||
                     haveIBAN && iban.equals(temp_iban)) {
-                account.blz = accounts[i].blz;
-                account.country = accounts[i].country;
-                account.number = accounts[i].number;
-                account.subnumber = accounts[i].subnumber;
-                account.type = accounts[i].type;
-                account.curr = accounts[i].curr;
-                account.customerid = accounts[i].customerid;
-                account.name = accounts[i].name;
-                account.bic = accounts[i].bic;
-                account.iban = accounts[i].iban;
-                account.acctype = accounts[i].acctype;
+                account.blz = account1.blz;
+                account.country = account1.country;
+                account.number = account1.number;
+                account.subnumber = account1.subnumber;
+                account.type = account1.type;
+                account.curr = account1.curr;
+                account.customerid = account1.customerid;
+                account.name = account1.name;
+                account.bic = account1.bic;
+                account.iban = account1.iban;
+                account.acctype = account1.acctype;
                 break;
             }
         }
@@ -189,7 +196,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             ret.name = getCustomerId();
 
             // an dieser Stelle sind jetzt alle Werte gefüllt, die teilweise
-            // zwingend benÃ¶tigt werden
+            // zwingend benötigt werden
         }
 
         return ret;
@@ -213,10 +220,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
     public String getSysId() {
         return (sysid != null && sysid.length() != 0) ? sysid : "0";
-    }
-
-    public final String getCID() {
-        return cid != null ? cid : "";
     }
 
     public final void clearMySigKey() {
@@ -260,7 +263,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         String[] ret = new String[0];
 
         if (bpd != null) {
-            ArrayList<String> temp = new ArrayList<String>();
+            ArrayList<String> temp = new ArrayList<>();
             String header;
             String value;
             int i = 0;
@@ -281,19 +284,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     public final String getDefaultLang() {
         String value = (bpd != null) ? bpd.getProperty("CommListRes.deflang") : null;
         return (value != null) ? value : "0";
-    }
-
-    public final boolean canMixSecMethods() {
-        boolean ret = false;
-
-        if (bpd != null) {
-            String value = bpd.getProperty("SecMethod.mixing");
-
-            if (value != null && value.equals("J"))
-                ret = true;
-        }
-
-        return ret;
     }
 
     public final String getLang() {
@@ -326,7 +316,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final void setBLZ(String blz) {
-        LogFilter.getInstance().addSecretData(blz, "X", LogFilter.FILTER_MOST);
         this.blz = blz;
     }
 
@@ -339,12 +328,10 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final void setUserId(String userid) {
-        LogFilter.getInstance().addSecretData(userid, "X", LogFilter.FILTER_IDS);
         this.userid = userid;
     }
 
     public final void setCustomerId(String customerid) {
-        LogFilter.getInstance().addSecretData(customerid, "X", LogFilter.FILTER_IDS);
         this.customerid = customerid;
     }
 
@@ -357,7 +344,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public void incSigId() {
-        setSigId(new Long(getSigId().longValue() + 1));
+        setSigId(getSigId() + 1);
     }
 
     public static HBCIPassport getInstance(HBCICallback callback, Properties properties, String name, Object init) {
@@ -487,41 +474,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     /**
-     * <p>Gibt alle Parameter zurück, die für einen Lowlevel-Job gesetzt
-     * werden können. Wird ein Job
-     * erzeugt, so kann der gleiche <code>gvname</code> als Argument dieser
-     * Methode verwendet werden, um eine Liste aller Parameter zu erhalten, die
-     * für diesen Job durch Aufrufe der Methode
-     * {@link org.kapott.hbci.GV.AbstractHBCIJob#setParam(String, String)}
-     * gesetzt werden können bzw. müssen.</p>
-     * <p>Aus der zurückgegebenen Liste ist nicht ersichtlich, ob ein bestimmter
-     * Parameter optional ist oder gesetzt werden <em>muss</em>. Das kann aber
-     * durch Benutzen des Tools {@link org.kapott.hbci.tools.ShowLowlevelGVs}
-     * ermittelt werden.</p>
-     * <p>Jeder Eintrag der zurückgegebenen Liste enthält einen String, welcher als
-     * erster Parameter für den Aufruf von <code>AbstractHBCIJob.setParam()</code> benutzt
-     * werden kann. </p>
-     * <p>Zur Beschreibung von High- und Lowlevel-Jobs siehe auch die Dokumentation
-     * im Package <code>org.kapott.hbci.GV</code>.</p>
-     *
-     * @param gvname der Lowlevel-Jobname, für den eine Liste der Job-Parameter
-     *               ermittelt werden soll
-     * @return eine Liste aller Parameter-Bezeichnungen, die in der Methode
-     * {@link org.kapott.hbci.GV.AbstractHBCIJob#setParam(String, String)}
-     * benutzt werden können
-     */
-    public List<String> getLowlevelJobParameterNames(String gvname, MsgGen msgGen) {
-        if (gvname == null || gvname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
-
-        String version = getSupportedLowlevelJobs(msgGen).getProperty(gvname);
-        if (version == null)
-            throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
-
-        return msgGen.getGVParameterNames(gvname, version);
-    }
-
-    /**
      * <p>Gibt eine Liste mit Strings zurück, welche Bezeichnungen für die einzelnen Rückgabedaten
      * eines Lowlevel-Jobs darstellen. Jedem {@link org.kapott.hbci.GV.AbstractHBCIJob} ist ein
      * Result-Objekt zugeordnet, welches die Rückgabedaten und Statusinformationen zu dem jeweiligen
@@ -546,15 +498,15 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * @return Liste aller möglichen Property-Keys, für die im Result-Objekt eines Lowlevel-Jobs
      * Werte vorhanden sein könnten
      */
-    public List<String> getLowlevelJobResultNames(String gvname, MsgGen msgGen) {
+    public List<String> getLowlevelJobResultNames(Document document, String gvname, Message msgGen) {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs(msgGen).getProperty(gvname);
+        String version = getSupportedLowlevelJobs(document).getProperty(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
-        return msgGen.getGVResultNames(gvname, version);
+        return getGVResultNames(document, gvname, version);
     }
 
     /**
@@ -579,7 +531,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * Geschäftsvorfallnamen (Lowlevel) mit der jeweils von <em>HBCI4Java</em>
      * verwendeten GV-Versionsnummer.
      */
-    public Properties getSupportedLowlevelJobs(MsgGen msgGen) {
+    public Properties getSupportedLowlevelJobs(Document document) {
         Properties paramSegments = getParamSegmentNames();
         Properties result = new Properties();
 
@@ -588,7 +540,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
             // überprüfen, ob parameter-segment tatsächlich zu einem GV gehört
             // gilt z.b. für "PinTan" nicht
-            if (msgGen.getLowlevelGVs().containsKey(segName))
+            if (getLowlevelGVs(document).containsKey(segName))
                 result.put(segName, paramSegments.getProperty(segName));
         }
 
@@ -618,15 +570,174 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      *               ermittelt werden sollen
      * @return Properties-Objekt mit den einzelnen Restriktionen
      */
-    public Properties getLowlevelJobRestrictions(String gvname, MsgGen msgGen) {
+    public Properties getLowlevelJobRestrictions(String gvname, Document document) {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs(msgGen).getProperty(gvname);
+        String version = getSupportedLowlevelJobs(document).getProperty(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
         return getJobRestrictions(gvname, version);
+    }
+
+    private Hashtable<String, List<String>> getLowlevelGVs(Document document) {
+        Hashtable<String, List<String>> result = new Hashtable<>();
+
+        Element gvlist = document.getElementById("GV");
+        NodeList gvs = gvlist.getChildNodes();
+        int len = gvs.getLength();
+        StringBuilder type = new StringBuilder();
+
+        for (int i = 0; i < len; i++) {
+            Node gvref = gvs.item(i);
+            if (gvref.getNodeType() == Node.ELEMENT_NODE) {
+                type.setLength(0);
+                type.append(((Element) gvref).getAttribute("type"));
+
+                int pos = type.length() - 1;
+                char ch;
+
+                while ((ch = type.charAt(pos)) >= '0' && ch <= '9') {
+                    pos--;
+                }
+
+                String gvname = type.substring(0, pos + 1);
+                List<String> entry = result.computeIfAbsent(gvname, k -> new ArrayList<>());
+
+                entry.add(type.substring(pos + 1));
+            }
+        }
+
+        return result;
+    }
+
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-parameter
+     * zurück */
+    public List<String> getGVParameterNames(Document document, String gvname, String version) {
+        ArrayList<String> ret = new ArrayList<>();
+        Element gvdef = document.getElementById(gvname + version);
+        NodeList gvcontent = gvdef.getChildNodes();
+        int len = gvcontent.getLength();
+
+        boolean first = true;
+        for (int i = 0; i < len; i++) {
+            Node contentref = gvcontent.item(i);
+
+            if (contentref.getNodeType() == Node.ELEMENT_NODE) {
+                // skip seghead
+                if (first) {
+                    first = false;
+                } else {
+                    addLowlevelProperties(document, ret, "", (Element) contentref);
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-result-parameter
+     * zurück */
+    private List<String> getGVResultNames(Document document, String gvname, String version) {
+        ArrayList<String> ret = new ArrayList<>();
+        Element gvdef = document.getElementById(gvname + "Res" + version);
+
+        if (gvdef != null) {
+            NodeList gvcontent = gvdef.getChildNodes();
+            int len = gvcontent.getLength();
+
+            boolean first = true;
+            for (int i = 0; i < len; i++) {
+                Node contentref = gvcontent.item(i);
+
+                if (contentref.getNodeType() == Node.ELEMENT_NODE) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        addLowlevelProperties(document, ret, "", (Element) contentref);
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-restriction-
+     * parameter zurück */
+    public List<String> getGVRestrictionNames(Document document, String gvname, String version) {
+        ArrayList<String> ret = new ArrayList<>();
+
+        // SEGdef id="TermUebPar1" finden
+        Element gvdef = document.getElementById(gvname + "Par" + version);
+
+        if (gvdef != null) {
+            // alle darin enthaltenen elemente durchlaufen, bis ein element
+            // DEG type="ParTermUeb1" gefunden ist
+            NodeList gvcontent = gvdef.getChildNodes();
+            int len = gvcontent.getLength();
+
+            for (int i = 0; i < len; i++) {
+                Node contentref = gvcontent.item(i);
+
+                if (contentref.getNodeType() == Node.ELEMENT_NODE) {
+                    String type = ((Element) contentref).getAttribute("type");
+                    if (type.startsWith("Par")) {
+                        // wenn ein DEG type="ParTermUeb" gefunden ist, können
+                        // alle umgebenenden schleifenvariablen wiederverwendet
+                        // werden, weil es nur *ein* solches element geben kann
+                        // und die umgebende schleife demzufolge abgebrochen werden
+                        // kann, nachdem das gefundenen element bearbeitet wurde
+
+                        // DEGdef id="ParTermUeb1" finden
+                        gvdef = document.getElementById(type);
+                        gvcontent = gvdef.getChildNodes();
+                        len = gvcontent.getLength();
+
+                        // darin alle elemente durchlaufen und deren namen
+                        // zur ergebnisliste hinzufügen
+                        for (i = 0; i < len; i++) {
+                            contentref = gvcontent.item(i);
+
+                            if (contentref.getNodeType() == Node.ELEMENT_NODE) {
+                                addLowlevelProperties(document, ret, "", (Element) contentref);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    private void addLowlevelProperties(Document document, ArrayList<String> result, String path, Element ref) {
+        if (ref.getAttribute("type").length() != 0) {
+            if (ref.getNodeName().equals("DE")) {
+                String name = ref.getAttribute("name");
+                result.add(pathWithDot(path) + name);
+            } else {
+                String name = ref.getAttribute("name");
+                if (name.length() == 0)
+                    name = ref.getAttribute("type");
+
+                Element def = document.getElementById(ref.getAttribute("type"));
+                NodeList defcontent = def.getChildNodes();
+                int len = defcontent.getLength();
+
+                for (int i = 0; i < len; i++) {
+                    Node content = defcontent.item(i);
+                    if (content.getNodeType() == Node.ELEMENT_NODE)
+                        addLowlevelProperties(document, result, pathWithDot(path) + name, (Element) content);
+                }
+            }
+        }
+    }
+
+    private static String pathWithDot(String path) {
+        return (path.length() == 0) ? path : (path + ".");
     }
 
     /**
@@ -634,14 +745,14 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * @return <code>true</code>, wenn dieser Job von der Bank unterstützt wird und
      * mit <em>HBCI4Java</em> verwendet werden kann; ansonsten <code>false</code>
      */
-    public boolean isSupported(String jobnameHL, MsgGen msgGen) {
+    public boolean isSupported(String jobnameHL, Document document) {
         if (jobnameHL == null || jobnameHL.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
         try {
             Class cl = Class.forName("org.kapott.hbci.GV.GV" + jobnameHL);
             String lowlevelName = (String) cl.getMethod("getLowlevelName", (Class[]) null).invoke(null, (Object[]) null);
-            return getSupportedLowlevelJobs(msgGen).keySet().contains(lowlevelName);
+            return getSupportedLowlevelJobs(document).keySet().contains(lowlevelName);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_HANDLER_HLCHECKERR", jobnameHL), e);
         }
@@ -654,6 +765,10 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             persistentData.remove(id);
     }
 
+    public Document getSyntaxDocument() {
+        return syntaxDocument;
+    }
+
     public void setPersistentData(Hashtable<String, Object> persistentData) {
         this.persistentData = persistentData;
     }
@@ -664,6 +779,26 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
     public Hashtable<String, Object> getPersistentData() {
         return persistentData;
+    }
+
+    public final Properties getBPD() {
+        return bpd;
+    }
+
+    public final String getHBCIVersion() {
+        return (hbciversion != null) ? hbciversion : "";
+    }
+
+    public final Properties getUPD() {
+        return upd;
+    }
+
+    public final String getBLZ() {
+        return blz;
+    }
+
+    public final String getCountry() {
+        return country;
     }
 
     public int getMaxGVSegsPerMsg() {

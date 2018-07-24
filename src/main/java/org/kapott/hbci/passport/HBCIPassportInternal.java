@@ -21,13 +21,11 @@
 
 package org.kapott.hbci.passport;
 
-import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.manager.HBCIKey;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -39,11 +37,7 @@ import java.util.Properties;
  */
 public interface HBCIPassportInternal extends HBCIPassport {
 
-    void setHBCIVersion(String hbciversion);
-
     String getSysId();
-
-    String getCID();
 
     String getSysStatus();
 
@@ -74,12 +68,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
     void setMyPublicDigKey(HBCIKey key);
 
     void setMyPrivateDigKey(HBCIKey key);
-
-    String getInstSigKeyName();
-
-    String getInstSigKeyNum();
-
-    String getInstSigKeyVersion();
 
     String getInstEncKeyName();
 
@@ -140,12 +128,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
      * legende Zugangsdaten geändert haben, secMechs neu festgelegt wurden o.ä.) */
     boolean postInitResponseHook(HBCIMsgStatus msgStatus);
 
-    /* Diese Methode wird aufgerufen, nachdem bei einem normalen Dialog die
-     * Dialog-Initialisierung abgeschlossen ist.
-     * Wird im Moment nur von PinTan-Passports benutzt, um bei
-     * Verwendung des Zweischritt-Verfahrens die Message-Liste zu patchen */
-    void afterCustomDialogInitHook(List<List<AbstractHBCIJob>> msgs);
-
     /* Gibt zurück, wieviele GV-Segmente in einer Nachricht enthalten sein dürfen.
      * Normalerweise wird das schon durch die BPD bzw. die Job-Params festgelegt,
      * deswegen geben die meisten Passport-Implementierungen hier 0 zurück (also
@@ -166,17 +148,15 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     String getProxy();
 
-    byte[] hash(byte[] bytes);
-
     byte[][] encrypt(byte[] plainString);
 
     byte[] decrypt(byte[] cryptedkey, byte[] cryptedstring);
 
     byte[] sign(byte[] hashresult);
 
-    boolean verify(byte[] hashresult, byte[] bytes);
+    Properties getSupportedLowlevelJobs(Document document);
 
-    Properties getSupportedLowlevelJobs(MsgGen msgGen);
+    Properties getLowlevelJobRestrictions(String gvname, Document document);
 
-    Properties getLowlevelJobRestrictions(String gvname, MsgGen msgGen);
+    Document getSyntaxDocument();
 }

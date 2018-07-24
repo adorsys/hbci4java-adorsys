@@ -21,9 +21,8 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 public class GVSaldoReqSEPA extends GVSaldoReq {
 
@@ -31,22 +30,22 @@ public class GVSaldoReqSEPA extends GVSaldoReq {
         return "SaldoSEPA";
     }
 
-    public GVSaldoReqSEPA(HBCIPassportInternal passport, MsgGen msgGen, String name) {
-        super(passport, msgGen, name);
+    public GVSaldoReqSEPA(HBCIPassportInternal passport, String name) {
+        super(passport, name);
     }
 
-    public GVSaldoReqSEPA(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName());
+    public GVSaldoReqSEPA(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName());
 
         /*
-        addConstraint("my.country","KTV.KIK.country","", LogFilter.FILTER_NONE);
-        addConstraint("my.blz","KTV.KIK.blz","", LogFilter.FILTER_MOST);
-        addConstraint("my.number","KTV.number","", LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber","KTV.subnumber","", LogFilter.FILTER_MOST);
+        addConstraint("my.country","KTV.KIK.country","");
+        addConstraint("my.blz","KTV.KIK.blz","");
+        addConstraint("my.number","KTV.number","");
+        addConstraint("my.subnumber","KTV.subnumber","");
         */
-        addConstraint("my.bic", "KTV.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("my.iban", "KTV.iban", null, LogFilter.FILTER_IDS);
-        addConstraint("dummyall", "allaccounts", "N", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("my.bic", "KTV.bic", null);
+        addConstraint("my.iban", "KTV.iban", null);
+        addConstraint("dummyall", "allaccounts", "N");
+        addConstraint("maxentries", "maxentries", "");
     }
 }

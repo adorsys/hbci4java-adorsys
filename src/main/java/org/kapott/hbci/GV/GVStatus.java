@@ -24,11 +24,10 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.GVRStatus;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
+import org.w3c.dom.Document;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,14 +39,14 @@ public final class GVStatus extends AbstractHBCIJob {
         return "Status";
     }
 
-    public GVStatus(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRStatus(passport));
+    public GVStatus(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRStatus(passport));
 
-        addConstraint("startdate", "startdate", "", LogFilter.FILTER_NONE);
-        addConstraint("enddate", "enddate", "", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("startdate", "startdate", "");
+        addConstraint("enddate", "enddate", "");
+        addConstraint("maxentries", "maxentries", "");
 
-        addConstraint("jobid", null, "", LogFilter.FILTER_NONE);
+        addConstraint("jobid", null, "");
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

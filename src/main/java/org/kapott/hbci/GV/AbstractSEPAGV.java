@@ -6,10 +6,10 @@ import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
+import org.w3c.dom.Document;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -47,14 +47,14 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      */
     protected abstract Type getPainType();
 
-    public AbstractSEPAGV(HBCIPassportInternal passport, MsgGen msgGen, String name) {
-        super(passport, msgGen, name, new HBCIJobResultImpl(passport));
-        this.pain = this.determinePainVersion(passport, msgGen, name);
+    public AbstractSEPAGV(HBCIPassportInternal passport, String name) {
+        super(passport, name, new HBCIJobResultImpl(passport));
+        this.pain = this.determinePainVersion(passport, name);
     }
 
-    public AbstractSEPAGV(HBCIPassportInternal passport, MsgGen msgGen, String name, HBCIJobResultImpl jobResult) {
-        super(passport, msgGen, name, jobResult);
-        this.pain = this.determinePainVersion(passport, msgGen, name);
+    public AbstractSEPAGV(HBCIPassportInternal passport, String name, HBCIJobResultImpl jobResult) {
+        super(passport, name, jobResult);
+        this.pain = this.determinePainVersion(passport, name);
     }
 
     /**
@@ -68,13 +68,13 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *                 gesucht werden soll.
      * @return die ermittelte PAIN-Version.
      */
-    private PainVersion determinePainVersion(HBCIPassportInternal passport, MsgGen msgGen, String gvName) {
+    private PainVersion determinePainVersion(HBCIPassportInternal passport, String gvName) {
         // Schritt 1: Wir holen uns die globale maximale PAIN-Version
-        PainVersion globalVersion = this.determinePainVersionInternal(passport, msgGen, GVSEPAInfo.getLowlevelName());
+        PainVersion globalVersion = this.determinePainVersionInternal(passport, GVSEPAInfo.getLowlevelName());
 
         // Schritt 2: Die des Geschaeftsvorfalls - fuer den Fall, dass die Bank
         // dort weitere Einschraenkungen hinterlegt hat
-        PainVersion jobVersion = this.determinePainVersionInternal(passport, msgGen, gvName);
+        PainVersion jobVersion = this.determinePainVersionInternal(passport, gvName);
 
         // Wir haben gar keine PAIN-Version gefunden
         if (globalVersion == null && jobVersion == null) {
@@ -105,10 +105,10 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *                 gesucht werden soll.
      * @return die ermittelte PAIN-Version oder NULL wenn keine ermittelt werden konnte.
      */
-    private PainVersion determinePainVersionInternal(HBCIPassportInternal passport, MsgGen msgGen, final String gvName) {
+    private PainVersion determinePainVersionInternal(HBCIPassportInternal passport, final String gvName) {
         HBCIUtils.log("searching for supported pain versions for GV " + gvName, HBCIUtils.LOG_DEBUG);
 
-        if (passport.getSupportedLowlevelJobs(msgGen).getProperty(gvName) == null) {
+        if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).getProperty(gvName) == null) {
             HBCIUtils.log("don't have any BPD for GV " + gvName, HBCIUtils.LOG_DEBUG);
             return null;
         }
@@ -116,7 +116,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         List<PainVersion> found = new ArrayList<PainVersion>();
 
         // GV-Restrictions laden und darüber iterieren
-        Properties props = passport.getLowlevelJobRestrictions(gvName, msgGen);
+        Properties props = passport.getLowlevelJobRestrictions(gvName, passport.getSyntaxDocument());
         Enumeration e = props.propertyNames();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
@@ -277,14 +277,14 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     }
 
     /**
-     * @see AbstractHBCIJob#addConstraint(java.lang.String, java.lang.String, java.lang.String, int, boolean)
+     * @see AbstractHBCIJob#addConstraint(java.lang.String, java.lang.String, java.lang.String)
      * Ueberschrieben, um die Default-Werte der SEPA-Parameter vorher rauszufischen und in "this.sepaParams" zu
      * speichern. Die brauchen wir "createSEPAFromParams" beim Erstellen des XML - sie wuerden dort sonst aber
      * fehlen, weil Default-Werte eigentlich erst in "verifyConstraints" uebernommen werden.
      */
     @Override
-    protected void addConstraint(String frontendName, String destinationName, String defValue, int logFilterLevel, boolean indexed) {
-        super.addConstraint(frontendName, destinationName, defValue, logFilterLevel, indexed);
+    protected void addConstraint(String frontendName, String destinationName, String defValue) {
+        super.addConstraint(frontendName, destinationName, defValue);
 
         if (destinationName.startsWith("sepa.") && defValue != null) {
             this.sepaParams.put(frontendName, defValue);

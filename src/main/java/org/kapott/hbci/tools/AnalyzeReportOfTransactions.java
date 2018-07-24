@@ -25,14 +25,12 @@ import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.callback.HBCICallbackConsole;
-import org.kapott.hbci.manager.HBCIDialog;
-import org.kapott.hbci.manager.HBCIJobFactory;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.passport.AbstractHBCIPassport;
+import org.kapott.hbci.manager.*;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.structures.Konto;
+import org.w3c.dom.Document;
 
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +56,7 @@ public final class AnalyzeReportOfTransactions {
         properties.put("client.passport.customerId", System.getProperty("login"));
 
         // Initialize User Passport
-        HBCIPassportPinTanNoFile passport = (HBCIPassportPinTanNoFile) AbstractHBCIPassport
+        PinTanPassport passport = (PinTanPassport) PinTanPassport
                 .getInstance(new HBCICallbackConsole(), properties);
         HBCIDialog dialog = new HBCIDialog(passport);
 
@@ -73,7 +71,7 @@ public final class AnalyzeReportOfTransactions {
         Konto myaccount = hbciPassport.getAccounts()[0];
 
         // Create HBCI job
-        AbstractHBCIJob bankAccountStatementJob = HBCIJobFactory.newJob("KUmsAll", hbciPassport, hbciDialog.getKernel().getMsgGen());
+        AbstractHBCIJob bankAccountStatementJob = HBCIJobFactory.newJob("KUmsAll", hbciPassport);
         bankAccountStatementJob.setParam("my", myaccount);
 
         // Set bank account statement retrieval date

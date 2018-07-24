@@ -31,12 +31,13 @@ import java.util.ListIterator;
 import java.util.Properties;
 
 public final class MultipleDEGs extends MultipleSyntaxElements {
+
     private char delimiter;
 
-    protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document syntax) {
-        SyntaxElement ret = null;
+    protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document) {
+        SyntaxElement ret = new DEG(getType(), getName(), path, idx, document);
 
-        addElement(ret = new DEG(getType(), getName(), path, idx, syntax));
+        addElement(ret);
         return ret;
     }
 
@@ -44,17 +45,17 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         this.delimiter = delimiter;
     }
 
-    public MultipleDEGs(Node degref, char delimiter, String path, Document syntax) {
-        super(degref, path, syntax);
+    public MultipleDEGs(Node degref, char delimiter, String path, Document document) {
+        super(degref, path, document);
         initData(delimiter);
     }
 
-    public void init(Node degref, char delimiter, String path, Document syntax) {
-        super.init(degref, path, syntax);
+    public void init(Node degref, char delimiter, String path, Document document) {
+        super.init(degref, path, document);
         initData(delimiter);
     }
 
-    public String toString(int zero) {
+    public String toString() {
         StringBuffer ret = new StringBuffer(128);
         boolean first = true;
 
@@ -65,7 +66,7 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
 
             DEG deg = (DEG) (i.next());
             if (deg != null)
-                ret.append(deg.toString(0));
+                ret.append(deg.toString());
         }
 
         return ret.toString();
@@ -75,25 +76,25 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             DEG deg = (DEG) (i.next());
             if (deg != null)
-                HBCIUtils.log(deg.toString(0), logLevel);
+                HBCIUtils.log(deg.toString(), logLevel);
         }
     }
 
     // --------------------------------------------------------------------------------------------------------------
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         SyntaxElement ret;
-        addElement((ret = new DEG(getType(), getName(), path, predelim, idx, res, fullResLen, syntax, predefs, valids)));
+        addElement((ret = new DEG(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs, valids)));
         return ret;
     }
 
-    public MultipleDEGs(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(degref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+    public MultipleDEGs(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(degref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         initData(delimiter);
     }
 
-    public void init(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(degref, path, predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+    public void init(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(degref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         initData(delimiter);
     }
 

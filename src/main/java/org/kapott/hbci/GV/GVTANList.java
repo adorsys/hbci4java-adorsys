@@ -24,9 +24,9 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRTANList;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -36,8 +36,8 @@ public class GVTANList extends AbstractHBCIJob {
         return "TANListList";
     }
 
-    public GVTANList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRTANList(passport));
+    public GVTANList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRTANList(passport));
     }
 
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

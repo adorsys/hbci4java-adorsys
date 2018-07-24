@@ -27,14 +27,13 @@ import org.kapott.hbci.GV_Result.GVRDauerList;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
+import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -65,23 +64,23 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         return "DauerSEPAList";
     }
 
-    public GVDauerSEPAList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRDauerList(passport));
+    public GVDauerSEPAList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRDauerList(passport));
 
-        addConstraint("src.bic", "My.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("src.iban", "My.iban", null, LogFilter.FILTER_IDS);
+        addConstraint("src.bic", "My.bic", null);
+        addConstraint("src.iban", "My.iban", null);
 
-        if (this.canNationalAcc(passport, msgGen)) // nationale Bankverbindung mitschicken, wenn erlaubt
+        if (this.canNationalAcc(passport)) // nationale Bankverbindung mitschicken, wenn erlaubt
         {
-            addConstraint("src.country", "My.KIK.country", "", LogFilter.FILTER_NONE);
-            addConstraint("src.blz", "My.KIK.blz", "", LogFilter.FILTER_MOST);
-            addConstraint("src.number", "My.number", "", LogFilter.FILTER_IDS);
-            addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
+            addConstraint("src.country", "My.KIK.country", "");
+            addConstraint("src.blz", "My.KIK.blz", "");
+            addConstraint("src.number", "My.number", "");
+            addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN(), LogFilter.FILTER_NONE);
-        addConstraint("orderid", "orderid", "", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("orderid", "orderid", "");
+        addConstraint("maxentries", "maxentries", "");
     }
 
     /**

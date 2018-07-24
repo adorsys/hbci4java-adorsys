@@ -24,10 +24,9 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRInfoOrder;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -37,29 +36,28 @@ public final class GVInfoOrder extends AbstractHBCIJob {
         return "InfoDetails";
     }
 
-    public GVInfoOrder(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRInfoOrder(passport));
+    public GVInfoOrder(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRInfoOrder(passport));
 
-        addConstraint("code", "InfoCodes.code", null, LogFilter.FILTER_NONE);
+        addConstraint("code", "InfoCodes.code", null);
 
-        addConstraint("name", "Address.name1", "", LogFilter.FILTER_IDS);
-        addConstraint("name2", "Address.name2", "", LogFilter.FILTER_IDS);
-        addConstraint("street", "Address.street_pf", "", LogFilter.FILTER_IDS);
-        addConstraint("ort", "Address.ort", "", LogFilter.FILTER_MOST);
-        addConstraint("plz", "Address.plz_ort", "", LogFilter.FILTER_MOST);
-        addConstraint("plz", "Address.plz", "", LogFilter.FILTER_MOST);
-        addConstraint("country", "Address.country", "", LogFilter.FILTER_NONE);
-        addConstraint("tel", "Address.tel", "", LogFilter.FILTER_IDS);
-        addConstraint("fax", "Address.fax", "", LogFilter.FILTER_IDS);
-        addConstraint("email", "Address.email", "", LogFilter.FILTER_IDS);
+        addConstraint("name", "Address.name1", "");
+        addConstraint("name2", "Address.name2", "");
+        addConstraint("street", "Address.street_pf", "");
+        addConstraint("ort", "Address.ort", "");
+        addConstraint("plz", "Address.plz_ort", "");
+        addConstraint("plz", "Address.plz", "");
+        addConstraint("country", "Address.country", "");
+        addConstraint("tel", "Address.tel", "");
+        addConstraint("fax", "Address.fax", "");
+        addConstraint("email", "Address.email", "");
 
         // TODO: country fehlt
 
         for (int i = 1; i < 10; i++) {
             addConstraint(HBCIUtils.withCounter("code", i),
                     HBCIUtils.withCounter("InfoCodes.code", i),
-                    "",
-                    LogFilter.FILTER_NONE);
+                    "");
         }
     }
 

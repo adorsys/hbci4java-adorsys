@@ -14,9 +14,9 @@ package org.kapott.hbci4java.bpd;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.manager.HBCIKernel;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.passport.HBCIPassportPinTanNoFile;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.passport.PinTanPassport;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci4java.AbstractTest;
 
 import java.util.Enumeration;
@@ -37,11 +37,8 @@ public class HITANSTest extends AbstractTest {
      */
     private Properties getBPD(String file, String version) throws Exception {
         String data = getFile(file);
-        HBCIKernel kernel = new HBCIKernel(null);
-        kernel.rawNewMsg("DialogInitAnon");
 
-        MsgGen gen = kernel.getMsgGen();
-        MSG msg = new MSG("DialogInitAnonRes", data, data.length(), gen, MSG.CHECK_SEQ, true);
+        Message msg = new Message("DialogInitAnonRes", data, data.length(), null, Message.CHECK_SEQ, true);
         Hashtable<String, String> ht = new Hashtable<String, String>();
         msg.extractValues(ht);
 
@@ -99,7 +96,7 @@ public class HITANSTest extends AbstractTest {
     @Test
     public void testCurrentSecMechInfo() throws Exception {
         Properties bpd = getBPD("bpd/bpd2-formatted.txt", "300");
-        HBCIPassportPinTanNoFile passport = new HBCIPassportPinTanNoFile(null, null);
+        PinTanPassport passport = new PinTanPassport(null, null, null);
         passport.setCurrentTANMethod("942");
         passport.setBPD(bpd);
 

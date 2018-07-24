@@ -11,18 +11,16 @@
 
 package org.kapott.hbci4java.msg;
 
-import org.kapott.hbci4java.AbstractTest;
-
-import java.util.Hashtable;
-
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.protocol.Message;
+import org.kapott.hbci4java.AbstractTest;
+
+import java.util.Hashtable;
 
 /**
  * Tests fuer BUGZILLA 1129.
@@ -36,11 +34,7 @@ public class TestBug1129 extends AbstractTest {
      */
     private Hashtable<String, String> parse() throws Exception {
         String data = getFile("msg/bugzilla-1129.txt");
-        HBCIKernel kernel = new HBCIKernel(null);
-        kernel.rawNewMsg("DauerList");
-
-        MsgGen gen = kernel.getMsgGen();
-        MSG msg = new MSG("CustomMsgRes", data, data.length(), gen, MSG.CHECK_SEQ, true);
+                Message msg = new Message("CustomMsgRes", data, data.length(), null, Message.CHECK_SEQ, true);
 
         Hashtable<String, String> ht = new Hashtable<String, String>();
         msg.extractValues(ht);
@@ -84,7 +78,7 @@ public class TestBug1129 extends AbstractTest {
     public void test003() throws Exception {
         HBCIUtils.setParam("client.errors.ignoreWrongDataSyntaxErrors", "yes");
         Hashtable<String, String> ht = parse();
-        Assert.assertEquals("EBï¿½HREN Z.T. IM VORAUS", ht.get("CustomMsgRes.GVRes_6.DauerListRes4.usage.usage_3"));
+        Assert.assertEquals("EBüHREN Z.T. IM VORAUS", ht.get("CustomMsgRes.GVRes_6.DauerListRes4.usage.usage_3"));
     }
 
 }

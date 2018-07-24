@@ -1,14 +1,13 @@
 package org.kapott.hbci4java.manager;
 
-import java.util.Collection;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.manager.BankInfo;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.HBCIVersion;
-
 import org.kapott.hbci4java.AbstractTest;
+
+import java.util.Collection;
 
 /**
  * Testet das Parsen der Bank-Informationen.

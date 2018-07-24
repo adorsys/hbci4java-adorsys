@@ -27,7 +27,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 /**
  * Ergebnis der Ãnderung einer terminierten Ãberweisung. Ein geänderter Auftrag kann
  * u.U. eine andere Auftrags-Identifikationsnummer erhalten als der ursprüngliche
- * Auftrag. Die neue und optional die alte Auftrags-ID kÃ¶nnen mit dieser Klasse
+ * Auftrag. Die neue und optional die alte Auftrags-ID können mit dieser Klasse
  * ermittelt werden.
  */
 public class GVRTermUebEdit extends HBCIJobResultImpl {

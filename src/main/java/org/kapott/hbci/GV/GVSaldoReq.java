@@ -24,36 +24,35 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Saldo;
 import org.kapott.hbci.structures.Value;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
-public class GVSaldoReq
-        extends AbstractHBCIJob {
+public class GVSaldoReq extends AbstractHBCIJob {
+
     public static String getLowlevelName() {
         return "Saldo";
     }
 
-    public GVSaldoReq(HBCIPassportInternal passport, MsgGen msgGen, String name) {
-        super(passport, msgGen, name, new GVRSaldoReq(passport));
+    public GVSaldoReq(HBCIPassportInternal passport, String name) {
+        super(passport, name, new GVRSaldoReq(passport));
     }
 
-    public GVSaldoReq(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName());
+    public GVSaldoReq(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName());
 
-        addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("my.curr", "curr", "EUR", LogFilter.FILTER_NONE);
-        addConstraint("dummyall", "allaccounts", "N", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("my.country", "KTV.KIK.country", "DE");
+        addConstraint("my.blz", "KTV.KIK.blz", null);
+        addConstraint("my.number", "KTV.number", null);
+        addConstraint("my.subnumber", "KTV.subnumber", "");
+        addConstraint("my.curr", "curr", "EUR");
+        addConstraint("dummyall", "allaccounts", "N");
+        addConstraint("maxentries", "maxentries", "");
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

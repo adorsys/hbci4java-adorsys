@@ -25,7 +25,7 @@ import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.IHandlerData;
-import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.*;
 import org.w3c.dom.Element;
@@ -48,7 +48,7 @@ public final class Crypt {
     public final static String ENC_KEYTYPE_DDV = "5";
 
     private IHandlerData hand2lerdata;
-    private MSG msg;
+    private Message msg;
 
     private String u_secfunc;    // 4=normal; 998=klartext
     private String u_keytype;    // 5=ddv, 6=rdh
@@ -64,7 +64,7 @@ public final class Crypt {
     private String u_mode;      // crypthead.cryptalg.mode
     private String u_compfunc;
 
-    public Crypt(MSG msg) {
+    public Crypt(Message msg) {
         this.msg = msg;
     }
 
@@ -88,7 +88,7 @@ public final class Crypt {
             /* skip one segment at start and one segment at end of message
                (msghead and msgtail), the rest will be encrypted */
             for (int i = 1; i < len - 1; i++) {
-                ret.append(childs.get(i).toString(0));
+                ret.append(childs.get(i).toString());
             }
 
             // pad message
@@ -104,12 +104,12 @@ public final class Crypt {
         }
     }
 
-    public MSG cryptIt(HBCIPassportInternal passport, MsgGen gen, String newName) {
-        MSG newmsg = msg;
+    public Message cryptIt(HBCIPassportInternal passport, Message message, String newName) {
+        Message newmsg = msg;
 
         if (passport.hasInstEncKey()) {
             String msgName = msg.getName();
-            Node msgNode = msg.getSyntaxDef(msgName, gen.getSyntax());
+            Node msgNode = msg.getSyntaxDef(msgName, message.getDocument());
             String dontcryptAttr = ((Element) msgNode).getAttribute("dontcrypt");
 
             if (dontcryptAttr.length() == 0) {
@@ -121,7 +121,7 @@ public final class Crypt {
                     setParam("keyuserid", passport.getInstEncKeyName());
                     setParam("keynum", passport.getInstEncKeyNum());
                     setParam("keyversion", passport.getInstEncKeyVersion());
-                    setParam("cid", passport.getCID());
+                    setParam("cid", "");
                     setParam("sysId", passport.getSysId());
                     setParam("role", "1");
                     setParam("alg", passport.getCryptAlg());
@@ -137,50 +137,50 @@ public final class Crypt {
 
                     Date d = new Date();
 
-                    gen.set(newName + ".CryptData.data", "B" + new String(crypteds[1], CommPinTan.ENCODING));
-                    gen.set(newName + ".CryptHead.CryptAlg.alg", u_alg);
-                    gen.set(newName + ".CryptHead.CryptAlg.mode", u_mode);
-                    gen.set(newName + ".CryptHead.CryptAlg.enckey", "B" + new String(crypteds[0], CommPinTan.ENCODING));
-                    gen.set(newName + ".CryptHead.CryptAlg.keytype", u_keytype);
-                    gen.set(newName + ".CryptHead.SecIdnDetails.func", (newmsg.getName().endsWith("Res") ? "2" : "1"));
-                    gen.set(newName + ".CryptHead.KeyName.KIK.blz", u_blz);
-                    gen.set(newName + ".CryptHead.KeyName.KIK.country", u_country);
-                    gen.set(newName + ".CryptHead.KeyName.userid", u_keyuserid);
-                    gen.set(newName + ".CryptHead.KeyName.keynum", u_keynum);
-                    gen.set(newName + ".CryptHead.KeyName.keyversion", u_keyversion);
-                    gen.set(newName + ".CryptHead.SecProfile.method", passport.getProfileMethod());
-                    gen.set(newName + ".CryptHead.SecProfile.version", passport.getProfileVersion());
+                    message.set(newName + ".CryptData.data", "B" + new String(crypteds[1], CommPinTan.ENCODING));
+                    message.set(newName + ".CryptHead.CryptAlg.alg", u_alg);
+                    message.set(newName + ".CryptHead.CryptAlg.mode", u_mode);
+                    message.set(newName + ".CryptHead.CryptAlg.enckey", "B" + new String(crypteds[0], CommPinTan.ENCODING));
+                    message.set(newName + ".CryptHead.CryptAlg.keytype", u_keytype);
+                    message.set(newName + ".CryptHead.SecIdnDetails.func", (newmsg.getName().endsWith("Res") ? "2" : "1"));
+                    message.set(newName + ".CryptHead.KeyName.KIK.blz", u_blz);
+                    message.set(newName + ".CryptHead.KeyName.KIK.country", u_country);
+                    message.set(newName + ".CryptHead.KeyName.userid", u_keyuserid);
+                    message.set(newName + ".CryptHead.KeyName.keynum", u_keynum);
+                    message.set(newName + ".CryptHead.KeyName.keyversion", u_keyversion);
+                    message.set(newName + ".CryptHead.SecProfile.method", passport.getProfileMethod());
+                    message.set(newName + ".CryptHead.SecProfile.version", passport.getProfileVersion());
                     if (passport.getSysStatus().equals("0")) {
-                        gen.set(newName + ".CryptHead.SecIdnDetails.cid", "B" + u_cid);
+                        message.set(newName + ".CryptHead.SecIdnDetails.cid", "B" + u_cid);
                     } else {
-                        gen.set(newName + ".CryptHead.SecIdnDetails.sysid", u_sysId);
+                        message.set(newName + ".CryptHead.SecIdnDetails.sysid", u_sysId);
                     }
-                    gen.set(newName + ".CryptHead.SecTimestamp.date", HBCIUtils.date2StringISO(d));
-                    gen.set(newName + ".CryptHead.SecTimestamp.time", HBCIUtils.time2StringISO(d));
-                    gen.set(newName + ".CryptHead.role", u_role);
-                    gen.set(newName + ".CryptHead.secfunc", u_secfunc);
-                    gen.set(newName + ".CryptHead.compfunc", u_compfunc);
-                    gen.set(newName + ".MsgHead.dialogid", dialogid);
-                    gen.set(newName + ".MsgHead.msgnum", msgnum);
-                    gen.set(newName + ".MsgTail.msgnum", msgnum);
+                    message.set(newName + ".CryptHead.SecTimestamp.date", HBCIUtils.date2StringISO(d));
+                    message.set(newName + ".CryptHead.SecTimestamp.time", HBCIUtils.time2StringISO(d));
+                    message.set(newName + ".CryptHead.role", u_role);
+                    message.set(newName + ".CryptHead.secfunc", u_secfunc);
+                    message.set(newName + ".CryptHead.compfunc", u_compfunc);
+                    message.set(newName + ".MsgHead.dialogid", dialogid);
+                    message.set(newName + ".MsgHead.msgnum", msgnum);
+                    message.set(newName + ".MsgTail.msgnum", msgnum);
 
                     if (newName.endsWith("Res")) {
-                        gen.set(newName + ".MsgHead.MsgRef.dialogid", dialogid);
-                        gen.set(newName + ".MsgHead.MsgRef.msgnum", msgnum);
+                        message.set(newName + ".MsgHead.MsgRef.dialogid", dialogid);
+                        message.set(newName + ".MsgHead.MsgRef.msgnum", msgnum);
                     }
 
-                    newmsg = gen.generate(newName);
+                    newmsg = MessageFactory.createMessage(newName, passport.getSyntaxDocument());
 
                     // renumerate crypto-segments
                     for (int i = 1; i <= 2; i++) {
-                        SEG seg = (SEG) (((MultipleSEGs) ((newmsg.getChildContainers()).get(i))).getElements().get(0));
+                        SEG seg = (SEG) newmsg.getChildContainers().get(i).getElements().get(0);
                         seg.setSeq(997 + i, SyntaxElement.ALLOW_OVERWRITE);
                     }
 
                     newmsg.propagateValue(newmsg.getPath() + ".MsgTail.SegHead.seq", segnum,
                             SyntaxElement.DONT_TRY_TO_CREATE,
                             SyntaxElement.ALLOW_OVERWRITE);
-                    newmsg.autoSetMsgSize(gen);
+                    newmsg.autoSetMsgSize();
                 } catch (Exception ex) {
                     throw new HBCI_Exception("*** error while encrypting", ex);
                 }
@@ -190,7 +190,7 @@ public final class Crypt {
         return newmsg;
     }
 
-    private boolean isCrypted(MsgGen gen) {
+    private boolean isCrypted() {
         boolean ret = true;
         MultipleSyntaxElements seglist = (msg.getChildContainers().get(1));
 
@@ -206,7 +206,7 @@ public final class Crypt {
             if (ret) {
                 String sigheadCode = "HNVSK";
 
-                if (!crypthead.getCode(gen).equals(sigheadCode))
+                if (!crypthead.getCode().equals(sigheadCode))
                     ret = false;
             }
         } else ret = false;
@@ -214,101 +214,60 @@ public final class Crypt {
         return ret;
     }
 
-    public String decryptIt(MsgGen gen, HBCIPassportInternal passport) {
-        StringBuffer ret = new StringBuffer(msg.toString(0));
+    public String decryptIt(HBCIPassportInternal passport) {
+        StringBuffer ret = new StringBuffer(msg.toString());
 
-        if (passport.hasMyEncKey()) {
-            if (isCrypted(gen)) {
-                try {
-                    String msgName = msg.getName();
+        if (isCrypted()) {
+            try {
+                String msgName = msg.getName();
 
-                    List<MultipleSyntaxElements> childs = msg.getChildContainers();
-                    SEG msghead = (SEG) (((childs.get(0))).getElements().get(0));
-                    SEG msgtail = (SEG) (((childs.get(childs.size() - 1))).getElements().get(0));
+                List<MultipleSyntaxElements> childs = msg.getChildContainers();
+                SEG msghead = (SEG) (((childs.get(0))).getElements().get(0));
+                SEG msgtail = (SEG) (((childs.get(childs.size() - 1))).getElements().get(0));
 
-                    // verschluesselte daten extrahieren
-                    SEG cryptdata = (SEG) (((childs.get(2))).getElements().get(0));
-                    byte[] cryptedstring = cryptdata.getValueOfDE(msgName + ".CryptData.data").getBytes(CommPinTan.ENCODING);
+                // verschluesselte daten extrahieren
+                SEG cryptdata = (SEG) (((childs.get(2))).getElements().get(0));
+                byte[] cryptedstring = cryptdata.getValueOfDE(msgName + ".CryptData.data").getBytes(CommPinTan.ENCODING);
 
-                    // key extrahieren
-                    SEG crypthead = (SEG) (((childs.get(1))).getElements().get(0));
-                    byte[] cryptedkey = crypthead.getValueOfDE(msgName +
-                            ".CryptHead.CryptAlg.enckey").getBytes(CommPinTan.ENCODING);
+                // key extrahieren
+                SEG crypthead = (SEG) (((childs.get(1))).getElements().get(0));
+                byte[] cryptedkey = crypthead.getValueOfDE(msgName +
+                        ".CryptHead.CryptAlg.enckey").getBytes(CommPinTan.ENCODING);
 
-                    // neues secfunc (klartext/encrypted)
-                    String secfunc = crypthead.getValueOfDE(msgName + ".CryptHead.secfunc");
-                    if (!secfunc.equals(passport.getCryptFunction())) {
-                        String errmsg = HBCIUtils.getLocMsg("EXCMSG_CRYPTSFFAIL", new Object[]{secfunc,
-                                passport.getCryptFunction()});
-                        if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
-                            throw new HBCI_Exception(errmsg);
-                    }
-
-                    // TODO: diese checks werden vorerst abgeschaltet, damit pin-tan reibungslos geht
-                    /*
-                                     // constraint checking
-                                     String keytype=crypthead.getValueOfDE(msgName+".CryptHead.CryptAlg.keytype");
-                         if (!keytype.equals(passport.getSecMethod56()) && !(passport instanceof HBCIPassportPinTan))
-                        throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CRYPTMETHODFAIL",new Object[] {keytype,passport.getSecMethod56()}));
-                                     String mode=crypthead.getValueOfDE(msgName+".CryptHead.CryptAlg.mode");
-                                     if (!mode.equals(passport.getCryptMode()))
-                         throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CRYPTMODEFAIL",new Object[] {keytype,passport.getCryptMode()}));
-                     */
-
-                    /* TODO: removed code because no real checks are done here
-                    if (passport.getSysStatus().equals("1")) {
-                        String sysid=null;
-                        try {
-                            // falls noch keine system-id ausgehandelt wurde, so sendet der
-                            // hbci-server auch keine... deshalb der try-catch-block
-                            sysid=crypthead.getValueOfDE(msgName+".CryptHead.SecIdnDetails.sysid");
-                        } catch (Exception e) {
-                            sysid="0";
-                        }
-                        
-                        // TODO: sysid checken (kann eigentlich auch entfallen, weil
-                        // das jeweils auf höherer ebene geschehen sollte!)
-                    } else {
-                        String cid=crypthead.getValueOfDE(msgName+".CryptHead.SecIdnDetails.cid");
-                        if (!cid.equals(passport.getCID())) {
-                            String errmsg=HBCIUtils.getLocMsg("EXCMSG_CRYPTCIDFAIL");
-                            if (!HBCIUtils.ignoreError(null,"client.errors.ignoreCryptErrors",errmsg))
-                                throw new HBCI_Exception(errmsg);
-                        }
-                        
-                        // TODO: cid checken
-                    }
-                    */
-
-                    // TODO spaeter kompression implementieren
-                    String compfunc = crypthead.getValueOfDE(msgName + ".CryptHead.compfunc");
-                    if (!compfunc.equals("0")) {
-                        String errmsg = HBCIUtils.getLocMsg("EXCMSG_CRYPTCOMPFUNCFAIL", compfunc);
-                        if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
-                            throw new HBCI_Exception(errmsg);
-                    }
-
-                    // TODO: hier auch die DEG SecProfile lesen und überprüfen
-
-                    byte[] plainMsg = passport.decrypt(cryptedkey, cryptedstring);
-                    int padLength = plainMsg[plainMsg.length - 1];
-
-                    // FileOutputStream fo=new FileOutputStream("decrypt.dat");
-                    // fo.write(plainMsg);
-                    // fo.close();
-
-                    // neuen nachrichtenstring zusammenbauen
-                    ret = new StringBuffer(1024);
-                    ret.append(msghead.toString(0)).
-                            append(new String(plainMsg, 0, plainMsg.length - padLength, CommPinTan.ENCODING)).
-                            append(msgtail.toString(0));
-
-                    HBCIUtils.log("decrypted message: " + ret, HBCIUtils.LOG_DEBUG2);
-                } catch (Exception ex) {
-                    throw new HBCI_Exception("*** error while decrypting", ex);
+                // neues secfunc (klartext/encrypted)
+                String secfunc = crypthead.getValueOfDE(msgName + ".CryptHead.secfunc");
+                if (!secfunc.equals(passport.getCryptFunction())) {
+                    String errmsg = HBCIUtils.getLocMsg("EXCMSG_CRYPTSFFAIL", new Object[]{secfunc,
+                            passport.getCryptFunction()});
+                    if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
+                        throw new HBCI_Exception(errmsg);
                 }
-            } else HBCIUtils.log("did not decrypt - message is already cleartext", HBCIUtils.LOG_DEBUG);
-        } else HBCIUtils.log("can not decrypt - no decryption key available", HBCIUtils.LOG_WARN);
+
+                // TODO spaeter kompression implementieren
+                String compfunc = crypthead.getValueOfDE(msgName + ".CryptHead.compfunc");
+                if (!compfunc.equals("0")) {
+                    String errmsg = HBCIUtils.getLocMsg("EXCMSG_CRYPTCOMPFUNCFAIL", compfunc);
+                    if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
+                        throw new HBCI_Exception(errmsg);
+                }
+
+                // TODO: hier auch die DEG SecProfile lesen und überprüfen
+
+                byte[] plainMsg = passport.decrypt(cryptedkey, cryptedstring);
+                int padLength = plainMsg[plainMsg.length - 1];
+
+                // neuen nachrichtenstring zusammenbauen
+                ret = new StringBuffer(1024);
+                ret.append(msghead.toString()).
+                        append(new String(plainMsg, 0, plainMsg.length - padLength, CommPinTan.ENCODING)).
+                        append(msgtail.toString());
+
+                HBCIUtils.log("decrypted message: " + ret, HBCIUtils.LOG_DEBUG2);
+            } catch (Exception ex) {
+                throw new HBCI_Exception("*** error while decrypting", ex);
+            }
+        } else HBCIUtils.log("did not decrypt - message is already cleartext", HBCIUtils.LOG_DEBUG);
+
 
         return ret.toString();
     }

@@ -28,11 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * <p>Menge zusammengehÃ¶riger Status-Informationen. In Objekten dieser
+ * <p>Menge zusammengehöriger Status-Informationen. In Objekten dieser
  * Klasse kann eine Menge von HBCI-Statuscodes sowie eine Menge von
  * Exceptions gespeichert werden. Der Sinn dieser Klasse ist die
  * Zusammenfassung von mehreren Status-Informationen, die logisch
- * zusammengehÃ¶ren (z.B. alle Status-Informationen, die ein bestimmtes
+ * zusammengehören (z.B. alle Status-Informationen, die ein bestimmtes
  * Nachrichtensegment betreffen).
  * </p><p>
  * Objekte dieser Klasse werden beispielsweise in
@@ -202,7 +202,7 @@ public final class HBCIStatus {
     /**
      * Gibt einen Code zurück, der den zusammengefassten Status aller in diesem
      * Objekt gespeicherten Rückgabewerte beschreibt. Dafür gibt es folgende
-     * MÃ¶glichkeiten:
+     * Möglichkeiten:
      * <ul>
      * <li><code>STATUS_OK</code> wird zurückgegeben, wenn es keine Fehlermeldungen
      * oder Exceptions gegeben hat und mindestens eine Erfolgsmeldung oder

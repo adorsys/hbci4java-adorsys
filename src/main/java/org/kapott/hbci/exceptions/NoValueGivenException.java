@@ -23,24 +23,20 @@ package org.kapott.hbci.exceptions;
 
 import org.kapott.hbci.manager.HBCIUtils;
 
-public final class NoValueGivenException
-    extends HBCI_Exception
-{
+public final class NoValueGivenException extends HBCI_Exception {
+
     private String path;
-    
-    public NoValueGivenException(String path)
-    {
-        super(HBCIUtils.getLocMsg("EXCMSG_NOVALUE",path));
-        this.path=applyLogFilter(path);
+
+    public NoValueGivenException(String path) {
+        super(HBCIUtils.getLocMsg("EXCMSG_NOVALUE", path));
+        this.path = applyLogFilter(path);
     }
 
-    public NoValueGivenException(NoValueGivenException e)
-    {
+    public NoValueGivenException(NoValueGivenException e) {
         super(e.getMessage());
     }
-    
-    public String getPath()
-    {
+
+    public String getPath() {
         return path;
     }
 }

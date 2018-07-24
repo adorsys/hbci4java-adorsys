@@ -24,10 +24,9 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRInfoList;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -37,10 +36,10 @@ public final class GVInfoList extends AbstractHBCIJob {
         return "InfoList";
     }
 
-    public GVInfoList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRInfoList(passport));
+    public GVInfoList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRInfoList(passport));
 
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("maxentries", "maxentries", "");
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

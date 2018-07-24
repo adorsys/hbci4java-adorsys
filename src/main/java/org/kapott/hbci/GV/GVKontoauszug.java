@@ -23,11 +23,10 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRKontoauszug;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.swift.Swift;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -42,21 +41,21 @@ public class GVKontoauszug extends AbstractHBCIJob {
         return "Kontoauszug";
     }
 
-    public GVKontoauszug(HBCIPassportInternal passport, MsgGen msgGen, String name) {
-        super(passport, msgGen, name, new GVRKontoauszug(passport));
+    public GVKontoauszug(HBCIPassportInternal passport, String name) {
+        super(passport, name, new GVRKontoauszug(passport));
     }
 
-    public GVKontoauszug(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName());
+    public GVKontoauszug(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName());
 
-        addConstraint("my.country", "My.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "My.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("my.number", "My.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("format", "format", "", LogFilter.FILTER_NONE);
-        addConstraint("idx", "idx", "", LogFilter.FILTER_NONE);
-        addConstraint("year", "year", "", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("my.country", "My.KIK.country", "DE");
+        addConstraint("my.blz", "My.KIK.blz", null);
+        addConstraint("my.number", "My.number", null);
+        addConstraint("my.subnumber", "My.subnumber", "");
+        addConstraint("format", "format", "");
+        addConstraint("idx", "idx", "");
+        addConstraint("year", "year", "");
+        addConstraint("maxentries", "maxentries", "");
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

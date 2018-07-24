@@ -11,15 +11,15 @@
 
 package org.kapott.hbci4java.sepa;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Properties;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.GV.generators.ISEPAGenerator;
 import org.kapott.hbci.GV.generators.SEPAGeneratorFactory;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Properties;
 
 /**
  * Testet das pure Generieren von Pain XML-Dateien - ohne HBCI-Context.
@@ -222,7 +222,7 @@ public class TestPainGen
     @Test
     public void test006() throws Exception
     {
-        String umlaute = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+        String umlaute = "üüüüüü";
         Properties props = new Properties();
         props.setProperty("src.bic",    "ABCDEFAA123");
         props.setProperty("src.iban",   "DE1234567890");

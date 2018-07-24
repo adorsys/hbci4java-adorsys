@@ -21,11 +21,10 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
+import org.w3c.dom.Document;
 
 /**
  * Job-Implementierung fuer SEPA-Ueberweisungen.
@@ -58,44 +57,44 @@ public class GVUebSEPA extends AbstractSEPAGV {
         return "UebSEPA";
     }
 
-    public GVUebSEPA(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName());
+    public GVUebSEPA(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName());
     }
 
-    public GVUebSEPA(HBCIPassportInternal passport, MsgGen msgGen, String name) {
-        super(passport, msgGen, name);
+    public GVUebSEPA(HBCIPassportInternal passport, String name) {
+        super(passport, name);
 
-        addConstraint("src.bic", "My.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("src.iban", "My.iban", null, LogFilter.FILTER_IDS);
+        addConstraint("src.bic", "My.bic", null);
+        addConstraint("src.iban", "My.iban", null);
 
-        if (this.canNationalAcc(passport, msgGen)) // nationale Bankverbindung mitschicken, wenn erlaubt
+        if (this.canNationalAcc(passport)) // nationale Bankverbindung mitschicken, wenn erlaubt
         {
-            addConstraint("src.country", "My.KIK.country", "", LogFilter.FILTER_NONE);
-            addConstraint("src.blz", "My.KIK.blz", "", LogFilter.FILTER_MOST);
-            addConstraint("src.number", "My.number", "", LogFilter.FILTER_IDS);
-            addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
+            addConstraint("src.country", "My.KIK.country", "");
+            addConstraint("src.blz", "My.KIK.blz", "");
+            addConstraint("src.number", "My.number", "");
+            addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN(), LogFilter.FILTER_NONE);
-        addConstraint("_sepapain", "sepapain", null, LogFilter.FILTER_IDS);
+        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("_sepapain", "sepapain", null);
 
         /* dummy constraints to allow an application to set these values. the
          * overriden setLowlevelParam() stores these values in a special structure
          * which is later used to create the SEPA pain document. */
-        addConstraint("src.bic", "sepa.src.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("src.iban", "sepa.src.iban", null, LogFilter.FILTER_IDS);
-        addConstraint("src.name", "sepa.src.name", null, LogFilter.FILTER_IDS);
-        addConstraint("dst.bic", "sepa.dst.bic", "", LogFilter.FILTER_MOST, true); // Kann eventuell entfallen, da BIC optional
-        addConstraint("dst.iban", "sepa.dst.iban", null, LogFilter.FILTER_IDS, true);
-        addConstraint("dst.name", "sepa.dst.name", null, LogFilter.FILTER_IDS, true);
-        addConstraint("btg.value", "sepa.btg.value", null, LogFilter.FILTER_NONE, true);
-        addConstraint("btg.curr", "sepa.btg.curr", "EUR", LogFilter.FILTER_NONE, true);
-        addConstraint("usage", "sepa.usage", "", LogFilter.FILTER_NONE, true);
+        addConstraint("src.bic", "sepa.src.bic", null);
+        addConstraint("src.iban", "sepa.src.iban", null);
+        addConstraint("src.name", "sepa.src.name", null);
+        addConstraint("dst.bic", "sepa.dst.bic", "", true); // Kann eventuell entfallen, da BIC optional
+        addConstraint("dst.iban", "sepa.dst.iban", null, true);
+        addConstraint("dst.name", "sepa.dst.name", null, true);
+        addConstraint("btg.value", "sepa.btg.value", null, true);
+        addConstraint("btg.curr", "sepa.btg.curr", "EUR", true);
+        addConstraint("usage", "sepa.usage", "", true);
 
         //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
-        addConstraint("sepaid", "sepa.sepaid", getSEPAMessageId(), LogFilter.FILTER_NONE);
-        addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId(), LogFilter.FILTER_NONE);
-        addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, LogFilter.FILTER_NONE, true);
-        addConstraint("purposecode", "sepa.purposecode", "", LogFilter.FILTER_NONE, true);
+        addConstraint("sepaid", "sepa.sepaid", getSEPAMessageId());
+        addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId());
+        addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, true);
+        addConstraint("purposecode", "sepa.purposecode", "", true);
     }
 }

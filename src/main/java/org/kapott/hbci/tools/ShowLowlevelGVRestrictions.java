@@ -21,8 +21,7 @@
 
 package org.kapott.hbci.tools;
 
-import org.kapott.hbci.manager.HBCIKernel;
-import org.kapott.hbci.manager.MsgGen;
+import org.kapott.hbci.manager.DocumentFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,12 +30,12 @@ import org.w3c.dom.NodeList;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/** TODO: doku fehlt (analog zu ShowLowlevelGVRs */
-public class ShowLowlevelGVRestrictions 
-    extends AbstractShowLowlevelData
-{
-    public static void main(String[] args) throws Exception
-    {
+/**
+ * TODO: doku fehlt (analog zu ShowLowlevelGVRs
+ */
+public class ShowLowlevelGVRestrictions
+        extends AbstractShowLowlevelData {
+    public static void main(String[] args) throws Exception {
         String hbciversion;
         if (args.length >= 1) {
             hbciversion = args[0];
@@ -47,13 +46,11 @@ public class ShowLowlevelGVRestrictions
                     .readLine();
         }
 
-        HBCIKernel kernel = new HBCIKernel(null);
-        MsgGen         msggen = kernel.getMsgGen();
-        Document       syntax = msggen.getSyntax();
+        Document syntax = DocumentFactory.createDocument(hbciversion);
 
-        Element  paramlist = syntax.getElementById("Params");
+        Element paramlist = syntax.getElementById("Params");
         NodeList paramnodes = paramlist.getChildNodes();
-        int      len = paramnodes.getLength();
+        int len = paramnodes.getLength();
 
         for (int i = 0; i < len; i++) {
             Node paramrefnode = paramnodes.item(i);

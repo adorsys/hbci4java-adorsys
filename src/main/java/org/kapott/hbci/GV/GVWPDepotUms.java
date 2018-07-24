@@ -25,14 +25,13 @@ import org.kapott.hbci.GV_Result.GVRWPDepotUms;
 import org.kapott.hbci.GV_Result.GVRWPDepotUms.Entry.FinancialInstrument;
 import org.kapott.hbci.GV_Result.GVRWPDepotUms.Entry.FinancialInstrument.Transaction;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.BigDecimalValue;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.TypedValue;
 import org.kapott.hbci.swift.Swift;
+import org.w3c.dom.Document;
 
 import java.text.SimpleDateFormat;
 import java.util.Properties;
@@ -45,23 +44,23 @@ public class GVWPDepotUms extends AbstractHBCIJob {
         return "WPDepotUms";
     }
 
-    public GVWPDepotUms(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRWPDepotUms(passport));
+    public GVWPDepotUms(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRWPDepotUms(passport));
         this.buffer = new StringBuffer();
 
-        addConstraint("my.number", "Depot.number", null, LogFilter.FILTER_IDS);
-        addConstraint("my.subnumber", "Depot.subnumber", "", LogFilter.FILTER_MOST);
+        addConstraint("my.number", "Depot.number", null);
+        addConstraint("my.subnumber", "Depot.subnumber", "");
 
-        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().getProperty("KInfo.KTV.KIK.country"), LogFilter.FILTER_NONE);
-        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().getProperty("KInfo.KTV.KIK.blz"), LogFilter.FILTER_MOST);
-        //addConstraint("my.curr","curr",passport.getUPD().getProperty("KInfo.cur",""), LogFilter.FILTER_NONE);
-        addConstraint("quality", "quality", "", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().getProperty("KInfo.KTV.KIK.country"));
+        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().getProperty("KInfo.KTV.KIK.blz"));
+        //addConstraint("my.curr","curr",passport.getUPD().getProperty("KInfo.cur",""));
+        addConstraint("quality", "quality", "");
+        addConstraint("maxentries", "maxentries", "");
 
-        addConstraint("startdate", "startdate", "", LogFilter.FILTER_NONE);
-        addConstraint("enddate", "enddate", "", LogFilter.FILTER_NONE);
+        addConstraint("startdate", "startdate", "");
+        addConstraint("enddate", "enddate", "");
 
-        addConstraint("dummy", "alldepots", "N", LogFilter.FILTER_NONE);
+        addConstraint("dummy", "alldepots", "N");
     }
 
     private TypedValue parseTypedValue(String st) {

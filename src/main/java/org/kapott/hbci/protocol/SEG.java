@@ -24,55 +24,51 @@ package org.kapott.hbci.protocol;
 import org.kapott.hbci.exceptions.InvalidSegSeqException;
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Properties;
 
-public final class SEG
-        extends SyntaxElement {
+public final class SEG extends SyntaxElement {
+
     protected String getElementTypeName() {
         return "SEG";
     }
 
-    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document syntax) {
+    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document document) {
         MultipleSyntaxElements ret = null;
 
         if ((ref.getNodeName()).equals("DE"))
-            ret = new MultipleDEs(ref, '+', getPath(), syntax);
+            ret = new MultipleDEs(ref, '+', getPath(), document);
         else if ((ref.getNodeName()).equals("DEG"))
-            ret = new MultipleDEGs(ref, '+', getPath(), syntax);
+            ret = new MultipleDEGs(ref, '+', getPath(), document);
 
         return ret;
     }
 
-    public SEG(String type, String name, String path, int idx, Document syntax) {
-        super(type, name, path, idx, syntax);
+    public SEG(String type, String name, String path, int idx, Document document) {
+        super(type, name, path, idx, document);
     }
 
-    public void init(String type, String name, String path, int idx, Document syntax) {
-        super.init(type, name, path, idx, syntax);
+    public void init(String type, String name, String path, int idx, Document document) {
+        super.init(type, name, path, idx, document);
     }
 
-    public String toString(int zero) {
-        StringBuffer ret = new StringBuffer(256);
+    public String toString() {
+        StringBuilder ret = new StringBuilder(256);
         boolean first = true;
 
         if (isValid()) {
             int tooMuch = 0;
             int saveLen;
-            for (ListIterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
+            for (MultipleSyntaxElements multipleSyntaxElements : getChildContainers()) {
                 if (!first)
                     ret.append('+');
 
                 saveLen = ret.length();
-                MultipleSyntaxElements dataList = i.next();
-                if (dataList != null)
-                    ret.append(dataList.toString(0));
+                if (multipleSyntaxElements != null)
+                    ret.append(multipleSyntaxElements.toString());
 
                 if (ret.length() == saveLen && !first) {
                     tooMuch++;
@@ -91,8 +87,7 @@ public final class SEG
     }
 
     public void log(int loglevel) {
-        for (ListIterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
-            MultipleSyntaxElements dataList = i.next();
+        for (MultipleSyntaxElements dataList : getChildContainers()) {
             if (dataList != null)
                 dataList.log(loglevel);
         }
@@ -120,7 +115,7 @@ public final class SEG
     // Wird in Crypt.isCrypted() benötigt, um anhand des SegCodes des zweiten
     // Segments festzustellen, ob die Nachricht verschlüsselt ist oder nicht.
     // analoges in Sig.hasSig()
-    public String getCode(MsgGen gen) {
+    public String getCode() {
         String codePath = "SegHead.code";
         SyntaxElement code = getElement(getPath() + "." + codePath);
         return code.toString();
@@ -128,13 +123,13 @@ public final class SEG
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((dataref.getNodeName()).equals("DEG"))
-            ret = new MultipleDEGs(dataref, '+', getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleDEGs(dataref, '+', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         else if ((dataref.getNodeName()).equals("DE"))
-            ret = new MultipleDEs(dataref, '+', getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleDEs(dataref, '+', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
 
         return ret;
     }
@@ -143,19 +138,19 @@ public final class SEG
         return '+';
     }
 
-    public SEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    public SEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(type, name, path, predelim, idx, res, fullResLen, syntax, predefs, valids);
+    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     public int checkSegSeq(int value) {
         int num = Integer.parseInt(getValueOfDE(getPath() + ".SegHead.seq"));
         if (num != value) {
             if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSegSeqErrors", HBCIUtils.getLocMsg("EXCMSG_INVSEQNUM",
-                    new Object[]{getPath(), new Integer(value), new Integer(num)})))
+                    new Object[]{getPath(), value, num})))
                 throw new InvalidSegSeqException(getPath(), value, num);
         }
         return value + 1;
@@ -167,8 +162,7 @@ public final class SEG
             degref = new int[1];
             degref[0] = 1;
 
-            for (Iterator<MultipleSyntaxElements> i = getChildContainers().iterator(); i.hasNext(); ) {
-                MultipleSyntaxElements l = i.next();
+            for (MultipleSyntaxElements l : getChildContainers()) {
                 if (l != null) {
                     l.getElementPaths(p, segref, degref, null);
                 }

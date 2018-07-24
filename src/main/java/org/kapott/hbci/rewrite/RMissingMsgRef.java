@@ -23,37 +23,35 @@ package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-public class RMissingMsgRef
-    extends Rewrite
-{
+public class RMissingMsgRef extends Rewrite {
+
     // TODO: msgsize muss angepasst werden
-    public String incomingCrypted(String st, MsgGen gen) 
-    {
-        int idx=st.indexOf("'");
-        if (idx!=-1) {
+    @Override
+    public String incomingCrypted(String st) {
+        int idx = st.indexOf("'");
+        if (idx != -1) {
             try {
-                String msghead_st=st.substring(0,idx);
-                int plusidx=0;
-                for (int i=0;i<5;i++)
-                    plusidx=msghead_st.indexOf("+",plusidx+1);
-                if (plusidx==-1) {
+                String msghead_st = st.substring(0, idx);
+                int plusidx = 0;
+                for (int i = 0; i < 5; i++)
+                    plusidx = msghead_st.indexOf("+", plusidx + 1);
+                if (plusidx == -1) {
                     HBCIUtils.log("MsgRef is missing, adding it", HBCIUtils.LOG_WARN);
-                    String[] des={"dialogid","msgnum"};
-                    for (int i=0;i<2;i++) {
-                        HBCIMsgStatus msgStatus=(HBCIMsgStatus)getData("msgStatus");
-                        String        msgName=(String)getData("msgName");
-                        String        temp=(msgStatus.getData().getProperty("orig_"+msgName+".MsgHead."+des[i]));
-                        HBCIUtils.log("setting MsgRef."+des[i]+" to "+temp,HBCIUtils.LOG_WARN);
-                        msghead_st+=(i==0?"+":":");
-                        msghead_st+=temp;
+                    String[] des = {"dialogid", "msgnum"};
+                    for (int i = 0; i < 2; i++) {
+                        HBCIMsgStatus msgStatus = (HBCIMsgStatus) getData("msgStatus");
+                        String msgName = (String) getData("msgName");
+                        String temp = (msgStatus.getData().getProperty("orig_" + msgName + ".MsgHead." + des[i]));
+                        HBCIUtils.log("setting MsgRef." + des[i] + " to " + temp, HBCIUtils.LOG_WARN);
+                        msghead_st += (i == 0 ? "+" : ":");
+                        msghead_st += temp;
                     }
-                    st=new StringBuffer(st).replace(0,idx,msghead_st).toString();
+                    st = new StringBuffer(st).replace(0, idx, msghead_st).toString();
                 }
             } catch (Exception ex) {
-                throw new HBCI_Exception("*** error while fixing missing MsgRef",ex);
+                throw new HBCI_Exception("*** error while fixing missing MsgRef", ex);
             }
         }
         return st;

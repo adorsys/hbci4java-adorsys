@@ -22,18 +22,17 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 public final class GVTemplate extends AbstractHBCIJob {
 
-    public GVTemplate(String gvname, HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, gvname, new HBCIJobResultImpl(passport));
+    public GVTemplate(String gvname, HBCIPassportInternal passport) {
+        super(passport, gvname, new HBCIJobResultImpl(passport));
     }
 
     public void setParam(String paramName, String value) {
-        addConstraint(paramName, paramName, "", LogFilter.FILTER_MOST);
+        addConstraint(paramName, paramName, "");
         super.setParam(paramName, value);
     }
 }

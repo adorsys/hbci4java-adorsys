@@ -11,13 +11,12 @@
 
 package org.kapott.hbci4java.secmech;
 
-import org.kapott.hbci4java.AbstractTest;
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.kapott.hbci.manager.FlickerCode;
-import org.kapott.hbci.manager.FlickerRenderer;
 import org.kapott.hbci.manager.FlickerCode.HHDVersion;
+import org.kapott.hbci.manager.FlickerRenderer;
+import org.kapott.hbci4java.AbstractTest;
 
 /**
  * Testet die Flicker-Codes.

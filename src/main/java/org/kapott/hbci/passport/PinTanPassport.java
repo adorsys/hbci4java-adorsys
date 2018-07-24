@@ -21,26 +21,19 @@
 
 package org.kapott.hbci.passport;
 
-import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.ChallengeInfo;
-import org.kapott.hbci.manager.HBCIKey;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.SEG;
+import org.kapott.hbci.manager.*;
 import org.kapott.hbci.security.Crypt;
 import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
-import org.kapott.hbci.structures.Konto;
 
-import java.security.MessageDigest;
 import java.util.*;
 
-public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
+public class PinTanPassport extends AbstractHBCIPassport {
 
     private String proxy;
     private String proxyuser;
@@ -56,8 +49,195 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
 
     private String pin;
 
-    public AbstractPinTanPassport(Properties properties, HBCICallback callback) {
-        super(properties, callback);
+    public PinTanPassport(String hbciversion, Properties properties, HBCICallback callback) {
+        super(hbciversion, properties, callback);
+    }
+
+    /**
+     * @see org.kapott.hbci.passport.HBCIPassportInternal#sign(byte[])
+     */
+    @Override
+    public byte[] sign(byte[] data) {
+        try {
+            // TODO: wenn die eingegebene PIN falsch war, muss die irgendwie
+            // resettet werden, damit wieder danach gefragt wird
+            if (getPIN() == null) {
+                StringBuffer s = new StringBuffer();
+
+                getCallback().callback(
+                        HBCICallback.NEED_PT_PIN,
+                        HBCIUtils.getLocMsg("CALLB_NEED_PTPIN"),
+                        HBCICallback.TYPE_SECRET,
+                        s);
+                if (s.length() == 0) {
+                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PINZERO"));
+                }
+            }
+
+            String tan = "";
+
+            // tan darf nur beim einschrittverfahren oder bei
+            // PV=1 und passport.contains(challenge)           und tan-pflichtiger auftrag oder bei
+            // PV=2 und passport.contains(challenge+reference) und HKTAN
+            // ermittelt werden
+
+            String pintanMethod = getCurrentTANMethod(false);
+
+            if (pintanMethod.equals(Sig.SECFUNC_SIG_PT_1STEP)) {
+                // nur beim normalen einschritt-verfahren muss anhand der segment-
+                // codes ermittelt werden, ob eine tan benötigt wird
+                HBCIUtils.log("onestep method - checking GVs to decide whether or not we need a TAN", HBCIUtils.LOG_DEBUG);
+
+                // segment-codes durchlaufen
+                String codes = collectSegCodes(new String(data, "ISO-8859-1"));
+                StringTokenizer tok = new StringTokenizer(codes, "|");
+
+                while (tok.hasMoreTokens()) {
+                    String code = tok.nextToken();
+                    String info = getPinTanInfo(code);
+
+                    if (info.equals("J")) {
+                        // für dieses segment wird eine tan benötigt
+                        HBCIUtils.log("the job with the code " + code + " needs a TAN", HBCIUtils.LOG_DEBUG);
+
+                        if (tan.length() == 0) {
+                            // noch keine tan bekannt --> callback
+
+                            StringBuffer s = new StringBuffer();
+                            callback.callback(
+                                    HBCICallback.NEED_PT_TAN,
+                                    HBCIUtils.getLocMsg("CALLB_NEED_PTTAN"),
+                                    HBCICallback.TYPE_TEXT,
+                                    s);
+                            if (s.length() == 0) {
+                                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_TANZERO"));
+                            }
+                            tan = s.toString();
+                        } else {
+                            HBCIUtils.log("there should be only one job that needs a TAN!", HBCIUtils.LOG_WARN);
+                        }
+
+                    } else if (info.equals("N")) {
+                        HBCIUtils.log("the job with the code " + code + " does not need a TAN", HBCIUtils.LOG_DEBUG);
+
+                    } else if (info.length() == 0) {
+                        // TODO: ist das hier dann nicht ein A-Segment? In dem Fall
+                        // wäre diese Warnung überflüssig
+                        HBCIUtils.log("the job with the code " + code + " seems not to be allowed with PIN/TAN", HBCIUtils.LOG_WARN);
+                    }
+                }
+            } else {
+                HBCIUtils.log("twostep method - checking passport(challenge) to decide whether or not we need a TAN", HBCIUtils.LOG_DEBUG);
+                Properties secmechInfo = getCurrentSecMechInfo();
+
+                // gespeicherte challenge aus passport holen
+                String challenge = (String) getPersistentData("pintan_challenge");
+                setPersistentData("pintan_challenge", null);
+
+                if (challenge == null) {
+                    // es gibt noch keine challenge
+                    HBCIUtils.log("will not sign with a TAN, because there is no challenge", HBCIUtils.LOG_DEBUG);
+                } else {
+                    HBCIUtils.log("found challenge in passport, so we ask for a TAN", HBCIUtils.LOG_DEBUG);
+
+                    // willuhn 2011-05-27 Wir versuchen, den Flickercode zu ermitteln und zu parsen
+                    String hhduc = (String) getPersistentData("pintan_challenge_hhd_uc");
+                    setPersistentData("pintan_challenge_hhd_uc", null); // gleich wieder aus dem Passport loeschen
+
+                    HHDVersion hhd = HHDVersion.find(secmechInfo);
+                    HBCIUtils.log("detected HHD version: " + hhd, HBCIUtils.LOG_DEBUG);
+
+                    final StringBuffer payload = new StringBuffer();
+                    final String msg = secmechInfo.getProperty("name") + "\n" + secmechInfo.getProperty("inputinfo") + "\n\n" + challenge;
+
+                    if (hhd.getType() == HHDVersion.Type.PHOTOTAN) {
+                        // Bei PhotoTAN haengen wir ungeparst das HHDuc an. Das kann dann auf
+                        // Anwendungsseite per MatrixCode geparst werden
+                        payload.append(hhduc);
+                        callback.callback(HBCICallback.NEED_PT_PHOTOTAN, msg, HBCICallback.TYPE_TEXT, payload);
+                    } else {
+                        // willuhn 2011-05-27: Flicker-Code anhaengen, falls vorhanden
+                        String flicker = parseFlickercode(challenge, hhduc);
+                        if (flicker != null)
+                            payload.append(flicker);
+
+                        callback.callback(HBCICallback.NEED_PT_TAN, msg, HBCICallback.TYPE_TEXT, payload);
+                    }
+
+                    setPersistentData("externalid", null); // External-ID aus Passport entfernen
+                    if (payload.length() == 0) {
+                        throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_TANZERO"));
+                    }
+                    tan = payload.toString();
+                }
+            }
+
+            return (getPIN() + "|" + tan).getBytes("ISO-8859-1");
+        } catch (Exception ex) {
+            throw new HBCI_Exception("*** signing failed", ex);
+        }
+    }
+
+    /**
+     * Versucht, aus Challenge und Challenge HHDuc den Flicker-Code zu extrahieren
+     * und ihn in einen flickerfaehigen Code umzuwandeln.
+     * Nur wenn tatsaechlich ein gueltiger Code enthalten ist, der als
+     * HHDuc-Code geparst und in einen Flicker-Code umgewandelt werden konnte,
+     * liefert die Funktion den Code. Sonst immer NULL.
+     *
+     * @param challenge der Challenge-Text. Das DE "Challenge HHDuc" gibt es
+     *                  erst seit HITAN4. Einige Banken haben aber schon vorher optisches chipTAN
+     *                  gemacht. Die haben das HHDuc dann direkt im Freitext des Challenge
+     *                  mitgeschickt (mit String-Tokens zum Extrahieren markiert). Die werden vom
+     *                  FlickerCode-Parser auch unterstuetzt.
+     * @param hhduc     das echte Challenge HHDuc.
+     * @return der geparste und in Flicker-Format konvertierte Code oder NULL.
+     */
+    private String parseFlickercode(String challenge, String hhduc) {
+        // 1. Prioritaet hat hhduc. Gibts aber erst seit HITAN4
+        if (hhduc != null && hhduc.trim().length() > 0) {
+            try {
+                FlickerCode code = new FlickerCode(hhduc);
+                return code.render();
+            } catch (Exception e) {
+                HBCIUtils.log("unable to parse Challenge HHDuc " + hhduc + ":" + HBCIUtils.exception2String(e), HBCIUtils.LOG_DEBUG);
+            }
+        }
+
+        // 2. Checken, ob im Freitext-Challenge was parse-faehiges steht.
+        // Kann seit HITAN1 auftreten
+        if (challenge != null && challenge.trim().length() > 0) {
+            try {
+                FlickerCode code = new FlickerCode(challenge);
+                return code.render();
+            } catch (Exception e) {
+                // Das darf durchaus vorkommen, weil das Challenge auch bei manuellem
+                // chipTAN- und smsTAN Verfahren verwendet wird, wo gar kein Flicker-Code enthalten ist.
+                // Wir loggen es aber trotzdem - fuer den Fall, dass tatsaechlich ein Flicker-Code
+                // enthalten ist. Sonst koennen wir das nicht debuggen.
+                HBCIUtils.log("challenge contains no HHDuc (no problem in most cases):" + HBCIUtils.exception2String(e), HBCIUtils.LOG_DEBUG2);
+            }
+        }
+        // Ne, definitiv kein Flicker-Code.
+        return null;
+    }
+
+    public byte[][] encrypt(byte[] plainMsg) {
+        try {
+            int padLength = plainMsg[plainMsg.length - 1];
+            byte[] encrypted = new String(plainMsg, 0, plainMsg.length - padLength, "ISO-8859-1").getBytes("ISO-8859-1");
+            return new byte[][]{new byte[8], encrypted};
+        } catch (Exception ex) {
+            throw new HBCI_Exception("*** encrypting message failed", ex);
+        }
+    }
+
+    public byte[] decrypt(byte[] cryptedKey, byte[] cryptedMsg) {
+        try {
+            return (new String(cryptedMsg, "ISO-8859-1") + '\001').getBytes("ISO-8859-1");
+        } catch (Exception ex) {
+            throw new HBCI_Exception("*** decrypting of message failed", ex);
+        }
     }
 
     public void setBPD(Properties p) {
@@ -154,16 +334,14 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
                 this.allowedTwostepMechanisms.clear();
 
                 int l2 = ret.params.length;
-                for (int j = 0; j < l2; j++) {
-                    this.allowedTwostepMechanisms.add(ret.params[j]);
-                }
+                this.allowedTwostepMechanisms.addAll(Arrays.asList(ret.params).subList(0, l2));
 
                 HBCIUtils.log("autosecfunc: found 3920 in response - updated list of allowed twostepmechs with " + allowedTwostepMechanisms.size() + " entries", HBCIUtils.LOG_DEBUG);
             }
         }
     }
 
-    private boolean searchFor3072s(List<HBCIRetVal> rets) {
+    private void searchFor3072s(List<HBCIRetVal> rets) {
         for (HBCIRetVal ret : rets) {
             if (ret.code.equals("3072")) {
                 String newCustomerId = "";
@@ -180,13 +358,13 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
                     HBCIUtils.log("autosecfunc: found 3072 in response - change user id", HBCIUtils.LOG_DEBUG);
                     // Aufrufer informieren, dass UserID und CustomerID geändert wurde
                     StringBuffer retData = new StringBuffer();
-                    retData.append(newUserId + "|" + newCustomerId);
+                    retData.append(newUserId)
+                            .append("|")
+                            .append(newCustomerId);
                     callback.callback(HBCICallback.USERID_CHANGED, "*** User ID changed", HBCICallback.TYPE_TEXT, retData);
-                    return true;
                 }
             }
         }
-        return false;
     }
 
     public boolean postInitResponseHook(HBCIMsgStatus msgStatus) {
@@ -197,7 +375,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
                 HBCIUtils.log("detected 'invalid PIN' error - clearing passport PIN", HBCIUtils.LOG_INFO);
                 clearPIN();
 
-                // Aufrufer informieren, dass falsche PIN eingegeben wurde (um evtl. PIN aus Puffer zu lÃ¶schen, etc.) 
+                // Aufrufer informieren, dass falsche PIN eingegeben wurde (um evtl. PIN aus Puffer zu löschen, etc.)
                 StringBuffer retData = new StringBuffer();
                 callback.callback(HBCICallback.WRONG_PIN, "*** invalid PIN entered", HBCICallback.TYPE_TEXT, retData);
             }
@@ -325,7 +503,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
             // aktuelle auswahl soll gegen die liste der tatsaechlich unterstuetzten
             // verfahren validiert werden
 
-            List<String[]> options = new ArrayList<String[]>();
+            List<String[]> options = new ArrayList<>();
 
             if (isOneStepAllowed()) {
                 // wenn einschrittverfahren unterstützt, dass zur liste hinzufügen
@@ -335,11 +513,9 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
             }
 
             // alle zweischritt-verfahren zur auswahlliste hinzufügen
-            String[] secfuncs = twostepMechanisms.keySet().toArray(new String[twostepMechanisms.size()]);
+            String[] secfuncs = twostepMechanisms.keySet().toArray(new String[0]);
             Arrays.sort(secfuncs);
-            int len = secfuncs.length;
-            for (int i = 0; i < len; i++) {
-                String secfunc = secfuncs[i];
+            for (String secfunc : secfuncs) {
                 if (allowedTwostepMechanisms.size() == 0 || allowedTwostepMechanisms.contains(secfunc)) {
                     Properties entry = twostepMechanisms.get(secfunc);
                     options.add(new String[]{secfunc, entry.getProperty("name")});
@@ -373,8 +549,8 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
                     // verfahren neu ermittelt wird
 
                     boolean ok = false;
-                    for (Iterator<String[]> i = options.iterator(); i.hasNext(); ) {
-                        if (currentTANMethod.equals((i.next())[0])) {
+                    for (String[] option : options) {
+                        if (currentTANMethod.equals((option)[0])) {
                             ok = true;
                             break;
                         }
@@ -432,12 +608,11 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
 
                         // auswahlliste als string zusammensetzen
                         StringBuffer retData = new StringBuffer();
-                        for (Iterator<String[]> i = options.iterator(); i.hasNext(); ) {
+                        for (String[] option : options) {
                             if (retData.length() != 0) {
                                 retData.append("|");
                             }
-                            String[] entry = i.next();
-                            retData.append(entry[0]).append(":").append(entry[1]);
+                            retData.append(option[0]).append(":").append(option[1]);
                         }
 
                         // callback erzeugen
@@ -450,8 +625,8 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
                         // überprüfen, ob das gewählte verfahren einem aus der liste entspricht
                         String selected = retData.toString();
                         boolean ok = false;
-                        for (Iterator<String[]> i = options.iterator(); i.hasNext(); ) {
-                            if (selected.equals((i.next())[0])) {
+                        for (String[] option : options) {
+                            if (selected.equals((option)[0])) {
                                 ok = true;
                                 break;
                             }
@@ -516,40 +691,6 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         return true;
     }
 
-    public boolean hasMySigKey() {
-        return true;
-    }
-
-    public boolean hasMyEncKey() {
-        return true;
-    }
-
-    public HBCIKey getInstSigKey() {
-        // TODO: hier müsste es eigentlich zwei antworten geben: eine für
-        // das PIN/TAN-verfahren an sich (immer null) und eine für
-        // evtl. bankensignatur-schlüssel für HITAN
-        return null;
-    }
-
-    public HBCIKey getInstEncKey() {
-        return null;
-    }
-
-    public String getInstSigKeyName() {
-        // TODO: evtl. zwei antworten: pin/tan und bankensignatur für HITAN
-        return getUserId();
-    }
-
-    public String getInstSigKeyNum() {
-        // TODO: evtl. zwei antworten: pin/tan und bankensignatur für HITAN
-        return "0";
-    }
-
-    public String getInstSigKeyVersion() {
-        // TODO: evtl. zwei antworten: pin/tan und bankensignatur für HITAN
-        return "0";
-    }
-
     public String getInstEncKeyName() {
         return getUserId();
     }
@@ -572,34 +713,6 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
 
     public String getMySigKeyVersion() {
         return "0";
-    }
-
-    public String getMyEncKeyName() {
-        return getUserId();
-    }
-
-    public String getMyEncKeyNum() {
-        return "0";
-    }
-
-    public String getMyEncKeyVersion() {
-        return "0";
-    }
-
-    public HBCIKey getMyPublicDigKey() {
-        return null;
-    }
-
-    public HBCIKey getMyPrivateDigKey() {
-        return null;
-    }
-
-    public HBCIKey getMyPublicSigKey() {
-        return null;
-    }
-
-    public HBCIKey getMyPrivateSigKey() {
-        return null;
     }
 
     public HBCIKey getMyPublicEncKey() {
@@ -678,7 +791,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
     }
 
     protected String collectSegCodes(String msg) {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         int len = msg.length();
         int posi = 0;
 
@@ -719,7 +832,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
 
                 if (key.startsWith("Params") &&
                         key.substring(key.indexOf(".") + 1).startsWith("PinTanPar") &&
-                        key.indexOf(".ParPinTan.PinTanGV") != -1 &&
+                        key.contains(".ParPinTan.PinTanGV") &&
                         key.endsWith(".segcode")) {
                     String code2 = bpd.getProperty(key);
                     if (code.equals(code2)) {
@@ -754,7 +867,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         return ret;
     }
 
-    public void deactivateTANVerifyMode() {
+    private void deactivateTANVerifyMode() {
         this.verifyTANMode = false;
     }
 
@@ -774,7 +887,7 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         return proxyuser;
     }
 
-    private String getOrderHashMode() {
+    public String getOrderHashMode() {
         String ret = null;
 
         Properties bpd = getBPD();
@@ -806,226 +919,12 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
         return ret;
     }
 
-    // das wird vor dialog.executeJobs() abstrakt aufgerufen
-    private void patchMessagesFor2StepMethods(List<List<AbstractHBCIJob>> msgs) {
-        if (!getCurrentTANMethod(false).equals(Sig.SECFUNC_SIG_PT_1STEP)) {
-            // wenn es sich um das pintan-verfahren im zweischritt-modus handelt,
-            // müssen evtl. zusätzliche nachrichten bzw. segmente eingeführt werden
-
-            HBCIUtils.log("afterCustomDialogInitHook: patching message queues for twostep method", HBCIUtils.LOG_DEBUG);
-
-            Properties secmechInfo = getCurrentSecMechInfo();
-            String segversion = secmechInfo.getProperty("segversion");
-            String process = secmechInfo.getProperty("process");
-
-            List<List<AbstractHBCIJob>> new_msgs = new ArrayList<>();
-
-            // durch alle ursprünglichen nachrichten laufen
-            for (Iterator<List<AbstractHBCIJob>> i = msgs.iterator(); i.hasNext(); ) {
-                List<AbstractHBCIJob> msg_tasks = i.next();
-                ArrayList<AbstractHBCIJob> new_msg_tasks = new ArrayList<>();
-
-                GVTAN2Step hktan2 = null;
-
-                // jeden task einer nachricht ansehen
-                for (Iterator<AbstractHBCIJob> j = msg_tasks.iterator(); j.hasNext(); ) {
-                    AbstractHBCIJob task = j.next();
-                    String segcode = task.getHBCICode();
-
-                    if (getPinTanInfo(segcode).equals("J")) {
-                        // es handelt sich um einen tan-pflichtigen task
-                        HBCIUtils.log("found task that requires a TAN: " + segcode + " - have to patch message queue", HBCIUtils.LOG_DEBUG);
-
-                        if (process.equals("1")) {
-                            // prozessvariante 1
-                            HBCIUtils.log("process #1: adding new message with HKTAN(p=1,hash=...) before current message", HBCIUtils.LOG_DEBUG);
-
-//TODO                            GVTAN2Step hktan = (GVTAN2Step) handler.newJob("TAN2Step");
-                            GVTAN2Step hktan = null;
-                            hktan.setExternalId(task.getExternalId()); // externe ID durchreichen
-
-                            // muessen wir explizit setzen, damit wir das HKTAN in der gleichen Version
-                            // schicken, in der das HITANS kam.
-                            hktan.setSegVersion(segversion);
-
-                            hktan.setParam("process", process);
-                            hktan.setParam("notlasttan", "N");
-
-                            // willuhn 2011-05-16
-                            // Siehe FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf, Seite 58
-                            int hktanVersion = Integer.parseInt(hktan.getSegVersion());
-                            if (hktanVersion >= 5) {
-                                // Bis HKTAN4/hhd1.3 wurde das noch als Challenge-Parameter uebermittelt. Jetzt hat es einen
-                                // eigenen Platz in den Job-Parametern
-                                hktan.setParam("ordersegcode", task.getHBCICode());
-
-                                // Zitat aus HITANS5: Diese Funktion ermÃ¶glicht das Sicherstellen einer gültigen Kontoverbindung
-                                // z. B. für die Abrechnung von SMS-Kosten bereits vor Erzeugen und Versenden einer
-                                // (ggf. kostenpflichtigen!) TAN.
-                                //  0: Auftraggeberkonto darf nicht angegeben werden
-                                //  2: Auftraggeberkonto muss angegeben werden, wenn im Geschäftsvorfall enthalten
-                                String noa = secmechInfo.getProperty("needorderaccount", "");
-                                HBCIUtils.log("needorderaccount=" + noa, HBCIUtils.LOG_INFO);
-                                if (noa.equals("2")) {
-                                    Konto k = task.getOrderAccount();
-                                    if (k != null) {
-                                        HBCIUtils.log("applying orderaccount to HKTAN for " + task.getHBCICode(), HBCIUtils.LOG_INFO);
-                                        hktan.setParam("orderaccount", k);
-                                    } else {
-                                        HBCIUtils.log("orderaccount needed, but not found in " + task.getHBCICode(), HBCIUtils.LOG_WARN);
-                                    }
-                                }
-                            }
-
-                            // TODO: das für mehrfachsignaturen
-                            // hktan.setParam("notlasttan","J");
-
-                            // orderhash ermitteln
-                            try {
-                                // TODO: hier wird jetzt *immer* segnum=3 angenommen,
-                                // kann in Einzelfällen evtl. auch anders sein (?)
-                                SEG seg = task.createJobSegment(3);
-                                seg.validate();
-                                String segdata = seg.toString(0);
-                                HBCIUtils.log("calculating hash for jobsegment: " + segdata, HBCIUtils.LOG_DEBUG2);
-
-                                // zu verwendenden Hash-Algorithmus von dem Wert "orderhashmode" aus den BPD abhängig machen
-                                String orderhashmode = getOrderHashMode();
-                                String alg = null;
-                                String provider = null;
-                                if (orderhashmode.equals("1")) {
-                                    alg = "RIPEMD160";
-                                    provider = "CryptAlgs4Java";
-                                } else if (orderhashmode.equals("2")) {
-                                    alg = "SHA-1";
-                                }
-                                HBCIUtils.log("using " + alg + "/" + provider + " for generating order hash", HBCIUtils.LOG_DEBUG);
-                                MessageDigest digest = MessageDigest.getInstance(alg, provider);
-
-                                digest.update(segdata.getBytes(CommPinTan.ENCODING));
-                                byte[] hash = digest.digest();
-                                hktan.setParam("orderhash", new String(hash, CommPinTan.ENCODING));
-                            } catch (Exception e) {
-                                throw new HBCI_Exception(e);
-                            }
-
-                            // TODO: evtl. listindex ermitteln
-                            // hktan.setParam("listidx","");
-
-                            // wenn needchallengeklass gesetzt ist:
-                            if (secmechInfo.getProperty("needchallengeklass", "N").equals("J")) {
-                                HBCIUtils.log("we are in PV #1, and a challenge klass is required", HBCIUtils.LOG_DEBUG);
-                                ChallengeInfo cinfo = new ChallengeInfo();
-                                cinfo.applyParams(task, hktan, secmechInfo);
-                            }
-
-                            // willuhn 2011-05-09: Bei Bedarf noch das TAN-Medium erfragen
-                            applyTanMedia(hktan);
-
-                            // diese neue msg vor der aktuellen in die msg-queue einstellen
-                            List<AbstractHBCIJob> additional_msg_tasks = new ArrayList<>();
-                            additional_msg_tasks.add(hktan2);
-                            new_msgs.add(additional_msg_tasks);
-
-                            // den aktuellen task ganz normal zur aktuellen msg hinzufügen
-                            new_msg_tasks.add(task);
-                        } else {
-                            // prozessvariante 2
-                            HBCIUtils.log("process #2: adding new task HKTAN(p=4) to current message", HBCIUtils.LOG_DEBUG);
-
-                            // den aktuellen task ganz normal zur aktuellen msg hinzufügen
-                            new_msg_tasks.add(task);
-
-                            // dazu noch einen hktan-job hinzufügen
-//TODO                            GVTAN2Step hktan1 = (GVTAN2Step) handler.newJob("TAN2Step");
-                            GVTAN2Step hktan1 = null;
-                            hktan1.setExternalId(task.getExternalId()); // externe ID durchreichen
-
-                            // muessen wir explizit setzen, damit wir das HKTAN in der gleichen Version
-                            // schicken, in der das HITANS kam.
-                            hktan1.setSegVersion(segversion);
-
-                            hktan1.setParam("process", "4");
-                            // TODO: evtl. listindex ermitteln
-                            // hktan1.setParam("listidx","");
-                            // TODO: das für mehrfachsignaturen
-                            // hktan1.setParam("notlasttan","N");
-
-                            // willuhn 2011-05-09: Bei Bedarf noch das TAN-Medium erfragen
-                            applyTanMedia(hktan1);
-
-                            // den hktan-job zusätzlich zur aktuellen msg hinzufügen
-                            new_msg_tasks.add(hktan1);
-
-                            // eine neue msg für das einreichen der tan erzeugen
-                            HBCIUtils.log("creating new msg with HKTAN(p=2,orderref=DELAYED)", HBCIUtils.LOG_DEBUG);
-
-                            // muessen wir explizit setzen, damit wir das HKTAN in der gleichen Version
-                            // schicken, in der das HITANS kam.
-                            hktan1.setSegVersion(segversion);
-
-                            // HKTAN-job für das einreichen der TAN erzeugen
-//TODO                            hktan2 = (GVTAN2Step) handler.newJob("TAN2Step");
-                            hktan2 = null;
-                            hktan2.setExternalId(task.getExternalId()); // externe ID durchreichen
-                            hktan2.setParam("process", "2");
-                            hktan2.setParam("notlasttan", "N");
-                            // TODO: evtl. listindex ermitteln
-                            // hktan2.setParam("listidx","");
-                            // TODO: das für mehrfachsignaturen
-                            // hktan2.setParam("notlasttan","J");
-
-                            // willuhn 2011-05-09 TAN-Media gibts nur bei Prozess 1,3,4 - also nicht in hktan2
-
-                            // in dem ersten HKTAN-job eine referenz auf den zweiten speichern,
-                            // damit der erste die auftragsreferenz später im zweiten speichern kann
-                            HBCIUtils.log("storing reference to this HKTAN in previous HKTAN segment", HBCIUtils.LOG_DEBUG);
-                            hktan1.storeOtherTAN2StepTask(hktan2);
-
-                            // in dem zweiten HKTAN-job eine referenz auf den originalen job
-                            // speichern, damit die antwortdaten für den job, die als antwortdaten
-                            // für hktan2 ankommen, dem richtigen job zugeordnet werden kÃ¶nnen
-                            HBCIUtils.log("storing reference to original job in new HKTAN segment", HBCIUtils.LOG_DEBUG);
-                            hktan2.storeOriginalTask(task);
-
-                            // die neue msg wird später (nach der aktuellen) zur msg-queue hinzugefügt
-                        }
-                    } else {
-                        // kein tan-pflichtiger task, also einfach zur gepatchten msg-queue hinzufügen
-                        HBCIUtils.log("found task that does not require a TAN: " + segcode + " - adding it to current msg", HBCIUtils.LOG_DEBUG);
-                        new_msg_tasks.add(task);
-                    }
-                }
-
-                msg_tasks.clear();
-                msg_tasks.addAll(new_msg_tasks);
-
-                new_msgs.add(msg_tasks);
-                if (hktan2 != null) {
-                    // wenn für prozessvariante 2 eine zusätzliche msg erzeugt
-                    // wurde, diese jetzt mit anhängen
-                    if (!callback.tanCallback(this, hktan2)) {
-                        List<AbstractHBCIJob> additional_msg_tasks = new ArrayList<>();
-                        additional_msg_tasks.add(hktan2);
-
-                        HBCIUtils.log("adding newly created message with HKTAN(p=2) after current one", HBCIUtils.LOG_DEBUG);
-                        new_msgs.add(additional_msg_tasks);
-                    }
-
-                }
-            }
-
-            msgs.clear();
-            msgs.addAll(new_msgs);
-        }
-    }
-
     /**
      * Uebernimmt das Rueckfragen und Einsetzen der TAN-Medien-Bezeichung bei Bedarf.
      *
      * @param hktan der Job, in den der Parameter eingesetzt werden soll.
      */
-    private void applyTanMedia(GVTAN2Step hktan) {
+    public void applyTanMedia(GVTAN2Step hktan) {
         if (hktan == null)
             return;
 
@@ -1055,20 +954,12 @@ public abstract class AbstractPinTanPassport extends AbstractHBCIPassport {
             if (needed.equals("2")) {
                 HBCIUtils.log("we have to add the tan media", HBCIUtils.LOG_DEBUG);
 
-                StringBuffer retData = new StringBuffer();
-                retData.append(this.getUPD().getProperty("tanmedia.names", ""));
-                callback.callback(HBCICallback.NEED_PT_TANMEDIA,
-                        "*** Enter the name of your TAN media",
-                        HBCICallback.TYPE_TEXT,
-                        retData);
-
-                hktan.setParam("tanmedia", retData.toString());
+                String tanMedia = callback.tanMediaCallback(this.getUPD().getProperty("tanmedia.names", ""));
+                if (tanMedia != null) {
+                    hktan.setParam("tanmedia", tanMedia);
+                }
             }
         }
-    }
-
-    public void afterCustomDialogInitHook(List<List<AbstractHBCIJob>> msgs) {
-        patchMessagesFor2StepMethods(msgs);
     }
 
     public void setPIN(String pin) {

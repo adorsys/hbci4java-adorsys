@@ -24,11 +24,10 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.swift.Swift;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -43,13 +42,13 @@ public class GVKUmsAll extends AbstractHBCIJob {
         return "KUmsZeit";
     }
 
-    public GVKUmsAll(HBCIPassportInternal passport, MsgGen msgGen, String name) {
-        super(passport, msgGen, name, new GVRKUms(passport));
+    public GVKUmsAll(HBCIPassportInternal passport, String name) {
+        super(passport, name, new GVRKUms(passport));
     }
 
 
-    public GVKUmsAll(HBCIPassportInternal passport, MsgGen msgGen) {
-        this(passport, msgGen, getLowlevelName());
+    public GVKUmsAll(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName());
 
 
         boolean sepa = false;
@@ -66,28 +65,28 @@ public class GVKUmsAll extends AbstractHBCIJob {
         // SEPA-Variante noch mitgeschickt wird, wenn die Bank das zulaesst.
         // (Es scheint auch Banken zu geben, die das in dem Fall nicht nur
         // zulassen sondern erwarten).
-        boolean nat = this.canNationalAcc(passport, msgGen);
+        boolean nat = this.canNationalAcc(passport);
 
         if (sepa) {
-            addConstraint("my.bic", "KTV.bic", null, LogFilter.FILTER_MOST);
-            addConstraint("my.iban", "KTV.iban", null, LogFilter.FILTER_IDS);
+            addConstraint("my.bic", "KTV.bic", null);
+            addConstraint("my.iban", "KTV.iban", null);
         }
 
         if (nat || !sepa) {
-            addConstraint("my.country", "KTV.KIK.country", "DE", LogFilter.FILTER_NONE);
-            addConstraint("my.blz", "KTV.KIK.blz", null, LogFilter.FILTER_MOST);
-            addConstraint("my.number", "KTV.number", null, LogFilter.FILTER_IDS);
-            addConstraint("my.subnumber", "KTV.subnumber", "", LogFilter.FILTER_MOST);
+            addConstraint("my.country", "KTV.KIK.country", "DE");
+            addConstraint("my.blz", "KTV.KIK.blz", null);
+            addConstraint("my.number", "KTV.number", null);
+            addConstraint("my.subnumber", "KTV.subnumber", "");
         }
 
         //currency wird in neueren Versionen nicht mehr benötigt, constraint liefert unnötige Warnung
         //im Prinzip müsste es möglich sein, die constraints versionsabhängig zu definieren
-        //addConstraint("my.curr","curr","EUR", LogFilter.FILTER_NONE);
-        addConstraint("startdate", "startdate", "", LogFilter.FILTER_NONE);
-        addConstraint("enddate", "enddate", "", LogFilter.FILTER_NONE);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
+        //addConstraint("my.curr","curr","EUR");
+        addConstraint("startdate", "startdate", "");
+        addConstraint("enddate", "enddate", "");
+        addConstraint("maxentries", "maxentries", "");
 
-        addConstraint("dummy", "allaccounts", "N", LogFilter.FILTER_NONE);
+        addConstraint("dummy", "allaccounts", "N");
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

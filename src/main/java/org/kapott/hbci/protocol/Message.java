@@ -23,27 +23,41 @@ package org.kapott.hbci.protocol;
 
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
 
-public final class MSG
-        extends SyntaxElement {
+public final class Message extends SyntaxElement {
+
     public final static boolean CHECK_SEQ = true;
     public final static boolean DONT_CHECK_SEQ = false;
-    public final static boolean CHECK_VALIDS = true;
     public final static boolean DONT_CHECK_VALIDS = false;
 
-    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document syntax) {
+    private Document document;
+    private Hashtable<String, String> clientValues = new Hashtable<>();
+
+    public Message(String type, Document document) {
+        super(type, type, null, 0, document);
+    }
+
+    public void init(String type, Document document) {
+        super.init(type, type, null, 0, document);
+    }
+
+    protected MultipleSyntaxElements createNewChildContainer(Node ref, Document document) {
+        this.document = document;
+
         MultipleSyntaxElements ret = null;
 
         if ((ref.getNodeName()).equals("SEG"))
-            ret = new MultipleSEGs(ref, getPath(), syntax);
+            ret = new MultipleSEGs(ref, getPath(), document);
         else if ((ref.getNodeName()).equals("SF"))
-            ret = new MultipleSFs(ref, getPath(), syntax);
+            ret = new MultipleSFs(ref, getPath(), document);
 
         return ret;
     }
@@ -76,7 +90,7 @@ public final class MSG
     /**
      * setzen des feldes "nachrichtengroesse" im nachrichtenkopf einer nachricht
      */
-    private void setMsgSizeValue(MsgGen gen, int value, boolean allowOverwrite) {
+    private void setMsgSizeValue(int value, boolean allowOverwrite) {
         String absPath = getPath() + ".MsgHead.msgsize";
         SyntaxElement msgsizeElem = getElement(absPath);
 
@@ -91,46 +105,31 @@ public final class MSG
             throw new NoSuchPathException(absPath);
     }
 
-    private void initMsgSize(MsgGen gen) {
-        setMsgSizeValue(gen, 0, DONT_ALLOW_OVERWRITE);
+    private void initMsgSize() {
+        setMsgSizeValue(0, DONT_ALLOW_OVERWRITE);
     }
 
-    public void autoSetMsgSize(MsgGen gen) {
-        setMsgSizeValue(gen, toString(0).length(), ALLOW_OVERWRITE);
+    public void autoSetMsgSize() {
+        setMsgSizeValue(toString().length(), ALLOW_OVERWRITE);
     }
 
-    /**
-     * @brief erstellen eines neuen nachrichten-syntaxelements
-     */
-    public MSG(String type, MsgGen gen, Hashtable<String, String> clientValues) {
-        super(type, type, null, 0, gen.getSyntax());
-        initData(gen, clientValues);
-    }
-
-    public void init(String type, MsgGen gen, Hashtable<String, String> clientValues) {
-        super.init(type, type, null, 0, gen.getSyntax());
-        initData(gen, clientValues);
-    }
-
-    private void initData(MsgGen gen, Hashtable<String, String> clientValues) {
+    public void complete() {
         propagateUserData(getName(), clientValues);
 
         enumerateSegs(0, DONT_ALLOW_OVERWRITE);
-        initMsgSize(gen);
+        initMsgSize();
         validate();
         enumerateSegs(1, ALLOW_OVERWRITE);
-        autoSetMsgSize(gen);
+        autoSetMsgSize();
     }
 
-    public String toString(int zero) {
-        StringBuffer ret = new StringBuffer(1024);
+    public String toString() {
+        StringBuilder ret = new StringBuilder(1024);
 
         if (isValid())
-            for (Iterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
-                MultipleSyntaxElements list = i.next();
-
+            for (MultipleSyntaxElements list : getChildContainers()) {
                 if (list != null)
-                    ret.append(list.toString(0));
+                    ret.append(list.toString());
             }
 
         return ret.toString();
@@ -138,44 +137,44 @@ public final class MSG
 
     public void log(int logLevel) {
         if (isValid())
-            for (Iterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
-                i.next().log(logLevel);
+            for (MultipleSyntaxElements multipleSyntaxElements : getChildContainers()) {
+                multipleSyntaxElements.log(logLevel);
             }
     }
 
     // -------------------------------------------------------------------------------------------
 
-    private void initData(String type, String res, int fullResLen, MsgGen gen, boolean checkSeq, boolean checkValids) {
+    private void initData(boolean checkSeq) {
         if (checkSeq)
             checkSegSeq(1);
     }
 
-    public MSG(String type, String res, int fullResLen, MsgGen gen, boolean checkSeq, boolean checkValids) {
+    public Message(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
         super(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
-                gen.getSyntax(),
-                new Hashtable<String, String>(),
-                checkValids ? new Hashtable<String, String>() : null);
-        initData(type, res, fullResLen, gen, checkSeq, checkValids);
+                document,
+                new Hashtable<>(),
+                checkValids ? new Hashtable<>() : null);
+        initData(checkSeq);
     }
 
-    public void init(String type, String res, int fullResLen, MsgGen gen, boolean checkSeq, boolean checkValids) {
+    public void init(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
         super.init(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
-                gen.getSyntax(), new Hashtable<String, String>(),
-                checkValids ? new Hashtable<String, String>() : null);
-        initData(type, res, fullResLen, gen, checkSeq, checkValids);
+                document, new Hashtable<>(),
+                checkValids ? new Hashtable<>() : null);
+        initData(checkSeq);
     }
 
     protected char getInDelim() {
         return '\'';
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document syntax, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG"))
-            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         else if ((segref.getNodeName()).equals("SF"))
-            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, syntax, predefs, valids);
+            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
 
         return ret;
     }
@@ -183,9 +182,7 @@ public final class MSG
     public String getValueOfDE(String path) {
         String ret = null;
 
-        for (ListIterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
-            MultipleSyntaxElements l = i.next();
-
+        for (MultipleSyntaxElements l : getChildContainers()) {
             String temp = l.getValueOfDE(path);
             if (temp != null) {
                 ret = temp;
@@ -202,7 +199,7 @@ public final class MSG
     // -------------------------------------------------------------------------------------------
 
     public Properties getData() {
-        Hashtable<String, String> hash = new Hashtable<String, String>();
+        Hashtable<String, String> hash = new Hashtable<>();
         Properties p = new Properties();
         int nameskip = getName().length() + 1;
 
@@ -220,11 +217,33 @@ public final class MSG
         segref = new int[1];
         segref[0] = 1;
 
-        for (Iterator<MultipleSyntaxElements> i = getChildContainers().iterator(); i.hasNext(); ) {
-            MultipleSyntaxElements l = i.next();
+        for (MultipleSyntaxElements l : getChildContainers()) {
             if (l != null) {
                 l.getElementPaths(p, segref, null, null);
             }
         }
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    /**
+     * @param path  The path to the document element for which the value is to be set. For
+     *              more information about paths, see
+     *              SyntaxElement::SyntaxElement()
+     * @param value The new value for the specified element.
+     *              Sets a certain property that is later used in message generation.
+     */
+    public void set(String path, String value) {
+        clientValues.put(path, value);
+    }
+
+    public void rawSet(String path, String value) {
+        set(getName() + "." + path, value);
+    }
+
+    public String get(String key) {
+        return clientValues.get(key);
     }
 }

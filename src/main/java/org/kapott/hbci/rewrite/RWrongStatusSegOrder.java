@@ -22,7 +22,6 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,166 +30,163 @@ import java.util.Properties;
 
 // dieser Rewriter muss *VOR* "WrongSequenceNumbers" ausgeführt werden,
 // weil hierbei u.U. die Segment-Sequenz-Nummern durcheinandergebracht werden
-public class RWrongStatusSegOrder 
-    extends Rewrite
-{
+public class RWrongStatusSegOrder extends Rewrite {
+
     // Liste mit segmentInfo-Properties aus der Nachricht erzeugen
-    private List<Properties> createSegmentListFromMessage(String msg)
-    {
-        List<Properties> segmentList=new ArrayList<Properties>();
-        
-        boolean quoteNext=false;
-        int     startPosi=0;
-        
-        for (int i=0;i<msg.length();i++) {
-            char ch=msg.charAt(i);
-            
-            if (!quoteNext && ch=='@') {
+    private List<Properties> createSegmentListFromMessage(String msg) {
+        List<Properties> segmentList = new ArrayList<Properties>();
+
+        boolean quoteNext = false;
+        int startPosi = 0;
+
+        for (int i = 0; i < msg.length(); i++) {
+            char ch = msg.charAt(i);
+
+            if (!quoteNext && ch == '@') {
                 // skip binary values
-                int    idx=msg.indexOf("@",i+1);
-                String len_st=msg.substring(i+1,idx);
-                i+=Integer.parseInt(len_st)+1+len_st.length();
-            } else if (!quoteNext && ch=='\'') {
+                int idx = msg.indexOf("@", i + 1);
+                String len_st = msg.substring(i + 1, idx);
+                i += Integer.parseInt(len_st) + 1 + len_st.length();
+            } else if (!quoteNext && ch == '\'') {
                 // segment-ende gefunden
-                Properties segmentInfo=new Properties();
-                segmentInfo.setProperty("code", msg.substring(startPosi, msg.indexOf(":",startPosi)));
-                segmentInfo.setProperty("start",Integer.toString(startPosi));
-                segmentInfo.setProperty("length",Integer.toString(i-startPosi+1));
-                
+                Properties segmentInfo = new Properties();
+                segmentInfo.setProperty("code", msg.substring(startPosi, msg.indexOf(":", startPosi)));
+                segmentInfo.setProperty("start", Integer.toString(startPosi));
+                segmentInfo.setProperty("length", Integer.toString(i - startPosi + 1));
+
                 segmentList.add(segmentInfo);
-                startPosi=i+1;
+                startPosi = i + 1;
             }
-            quoteNext=!quoteNext && ch=='?';
+            quoteNext = !quoteNext && ch == '?';
         }
-        
+
         return segmentList;
     }
-    
-    public String incomingClearText(String st,MsgGen gen)
-    {
-        List<Properties> segmentList=createSegmentListFromMessage(st);
-        
-        List<Properties> headerList=new ArrayList<Properties>();
-        List<Properties> HIRMGList=new ArrayList<Properties>();
-        List<Properties> HIRMSList=new ArrayList<Properties>();
-        List<Properties> dataList=new ArrayList<Properties>();
-        
-        boolean inHeader=true;
-        boolean inGlob=false;
-        boolean inSeg=false;
-        boolean inData=false;
-        boolean errorOccured=false;
-        
+
+    @Override
+    public String incomingClearText(String st) {
+        List<Properties> segmentList = createSegmentListFromMessage(st);
+
+        List<Properties> headerList = new ArrayList<Properties>();
+        List<Properties> HIRMGList = new ArrayList<Properties>();
+        List<Properties> HIRMSList = new ArrayList<Properties>();
+        List<Properties> dataList = new ArrayList<Properties>();
+
+        boolean inHeader = true;
+        boolean inGlob = false;
+        boolean inSeg = false;
+        boolean inData = false;
+        boolean errorOccured = false;
+
         // alle segmente aus der nachricht durchlaufen und der richtigen liste
         // zuordnen (header, globstatus, segstatus, rest)
-        for (Iterator<Properties> i=segmentList.iterator();i.hasNext();) {
-            Properties segmentInfo= i.next();
-            String     segmentCode=segmentInfo.getProperty("code");
-            
+        for (Iterator<Properties> i = segmentList.iterator(); i.hasNext(); ) {
+            Properties segmentInfo = i.next();
+            String segmentCode = segmentInfo.getProperty("code");
+
             if (segmentCode.equals("HNHBK") || segmentCode.equals("HNSHK")) {
                 // HNHBK und HNSHK gehören in den header-bereich
                 headerList.add(segmentInfo);
-                
+
                 if (!inHeader) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment "+segmentCode+" at invalid position",HBCIUtils.LOG_WARN);
-                    errorOccured=true;
+                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    errorOccured = true;
                 }
-                
+
             } else if (segmentCode.equals("HIRMG")) {
                 // anschliessend muss ein HIRMG folgen
                 HIRMGList.add(segmentInfo);
-                
+
                 if (inHeader) {
-                    inHeader=false;
-                    inGlob=true;
+                    inHeader = false;
+                    inGlob = true;
                 }
                 if (!inGlob) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment "+segmentCode+" at invalid position",HBCIUtils.LOG_WARN);
-                    errorOccured=true;
+                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    errorOccured = true;
                 }
-                
+
             } else if (segmentCode.equals("HIRMS")) {
                 // nach HIRMG folgen 0-n HIRMS
                 HIRMSList.add(segmentInfo);
-                
+
                 if (inGlob) {
-                    inGlob=false;
-                    inSeg=true;
+                    inGlob = false;
+                    inSeg = true;
                 }
                 if (!inSeg) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment "+segmentCode+" at invalid position",HBCIUtils.LOG_WARN);
-                    errorOccured=true;
+                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    errorOccured = true;
                 }
-                
+
             } else {
                 // nach den status-segmenten folgen die datensegmente
                 dataList.add(segmentInfo);
-                
+
                 if (inGlob || inSeg) {
-                    inGlob=false;
-                    inSeg=false;
-                    inData=true;
+                    inGlob = false;
+                    inSeg = false;
+                    inData = true;
                 }
                 if (!inData) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment "+segmentCode+" at invalid position",HBCIUtils.LOG_WARN);
-                    errorOccured=true;
+                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    errorOccured = true;
                 }
             }
         }
-        
-        StringBuffer new_msg=new StringBuffer();
+
+        StringBuffer new_msg = new StringBuffer();
         if (errorOccured) {
             // nachricht mit den richtig sortierten segmenten wieder 
             // zusammensetzen
-            int counter=1;
-            
+            int counter = 1;
+
             // alle segmente aus dem header 
-            new_msg.append(getDataForSegmentList(st,headerList,counter));
-            counter+=headerList.size();
-            
+            new_msg.append(getDataForSegmentList(st, headerList, counter));
+            counter += headerList.size();
+
             // HIRMG-segment
-            new_msg.append(getDataForSegmentList(st,HIRMGList,counter));
-            counter+=HIRMGList.size();
-            
+            new_msg.append(getDataForSegmentList(st, HIRMGList, counter));
+            counter += HIRMGList.size();
+
             // HIRMS-segmente
-            new_msg.append(getDataForSegmentList(st,HIRMSList,counter));
-            counter+=HIRMSList.size();
-            
+            new_msg.append(getDataForSegmentList(st, HIRMSList, counter));
+            counter += HIRMSList.size();
+
             // restliche daten-segmente
-            new_msg.append(getDataForSegmentList(st,dataList,counter));
-            
-            HBCIUtils.log("RWrongStatusSegOrder: new message after reordering: "+new_msg,HBCIUtils.LOG_DEBUG2);
+            new_msg.append(getDataForSegmentList(st, dataList, counter));
+
+            HBCIUtils.log("RWrongStatusSegOrder: new message after reordering: " + new_msg, HBCIUtils.LOG_DEBUG2);
         } else {
             // kein fehler aufgetreten, also originale nachricht unverändert zurückgeben
             new_msg.append(st);
         }
-        
+
         return new_msg.toString();
     }
-    
-    private String getDataForSegmentList(String origMsg,List<Properties> list,int counter)
-    {
-        StringBuffer data=new StringBuffer();
-        
-        for (Iterator<Properties> i=list.iterator();i.hasNext();) {
-            Properties segmentInfo= i.next();
-            int        start=Integer.parseInt(segmentInfo.getProperty("start"));
-            int        len=Integer.parseInt(segmentInfo.getProperty("length"));
-            
+
+    private String getDataForSegmentList(String origMsg, List<Properties> list, int counter) {
+        StringBuffer data = new StringBuffer();
+
+        for (Iterator<Properties> i = list.iterator(); i.hasNext(); ) {
+            Properties segmentInfo = i.next();
+            int start = Integer.parseInt(segmentInfo.getProperty("start"));
+            int len = Integer.parseInt(segmentInfo.getProperty("length"));
+
             // segment aus originalnachricht extrahieren
-            StringBuffer segmentData=new StringBuffer(origMsg.substring(start,start+len));
-            
+            StringBuffer segmentData = new StringBuffer(origMsg.substring(start, start + len));
+
             // TODO: hier noch die segnum korrigieren (-->counter)
             // korrektur wird nun doch nicht hier vorgenommen, sondern statt
             // muss einfach der Rewriter "WrongSequenceNumbers" nach diesem
             // Rewriter angeordnet werden
-            
+
             // segmentdaten hinten anhängen
             data.append(segmentData.toString());
-            
+
             counter++;
-         }
-        
+        }
+
         return data.toString();
     }
 }

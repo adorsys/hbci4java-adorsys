@@ -136,7 +136,7 @@ public class GVRAccInfo extends HBCIJobResultImpl {
          */
         public int type;
         /**
-         * ErÃ¶ffnungsdatum (optional)
+         * Eröffnungsdatum (optional)
          */
         public Date created;
         /**
@@ -175,7 +175,7 @@ public class GVRAccInfo extends HBCIJobResultImpl {
          * Folgende Werte sind definiert:
          * <ul>
          * <li><code>TURNUS_DAILY</code> - täglicher Kontoauszug</li>
-         * <li><code>TURNUS_WEEKLY</code> - wÃ¶chentlicher Kontoauszug</li>
+         * <li><code>TURNUS_WEEKLY</code> - wöchentlicher Kontoauszug</li>
          * <li><code>TURNUS_MONTHLY</code> - monatlicher Kontoauszug</li>
          * <li><code>TURNUS_QUARTER</code> - vierteljährlicher Kontoauszug</li>
          * <li><code>TURNUS_HALF</code> - halbjährlicher Kontoauszug</li>
@@ -202,7 +202,7 @@ public class GVRAccInfo extends HBCIJobResultImpl {
             ret.append(" (art: ").append(type).append(")").append(linesep);
 
             if (created != null)
-                ret.append("ErÃ¶ffnungsdatum: ").append(HBCIUtils.date2StringLocal(created)).append(linesep);
+                ret.append("Eröffnungsdatum: ").append(HBCIUtils.date2StringLocal(created)).append(linesep);
             ret.append("Sollzins:").append(HBCIUtils.bigDecimal2String(new BigDecimal(sollzins).divide(ONE_THOUSAND)));
             ret.append(" Habenzins:").append(HBCIUtils.bigDecimal2String(new BigDecimal(habenzins).divide(ONE_THOUSAND)));
             ret.append(" Ãberziehungszins:").append(HBCIUtils.bigDecimal2String(new BigDecimal(ueberzins).divide(ONE_THOUSAND)));

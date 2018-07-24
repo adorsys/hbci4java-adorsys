@@ -23,9 +23,9 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -35,8 +35,8 @@ public class GVSEPAInfo extends AbstractHBCIJob {
         return "SEPAInfo";
     }
 
-    public GVSEPAInfo(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
+    public GVSEPAInfo(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
     }
 
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

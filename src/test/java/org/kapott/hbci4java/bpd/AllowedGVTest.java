@@ -1,22 +1,16 @@
 package org.kapott.hbci4java.bpd;
 
-import org.kapott.hbci4java.AbstractTest;
-
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
+import org.kapott.hbci4java.AbstractTest;
+
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 public class AllowedGVTest extends AbstractTest {
 
@@ -42,17 +36,13 @@ public class AllowedGVTest extends AbstractTest {
         }
         Rewrite[] rewriters = al.toArray(new Rewrite[al.size()]);
 
-        kernel.rawNewMsg("Synch");
-
-        MsgGen gen = kernel.getMsgGen();
-
-        // alle patches fï¿½r die unverschlï¿½sselte nachricht durchlaufen
+        // alle patches für die unverschlüsselte nachricht durchlaufen
         String newmsgstring = data;
         for (int i = 0; i < rewriters.length; i++) {
-            newmsgstring = rewriters[i].incomingClearText(newmsgstring, gen);
+            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null);
         }
 
-        MSG msg = new MSG("SynchRes", newmsgstring, newmsgstring.length(), gen, MSG.CHECK_SEQ, true);
+        Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
         Hashtable<String, String> ht = new Hashtable<String, String>();
         msg.extractValues(ht);
     }
@@ -79,17 +69,13 @@ public class AllowedGVTest extends AbstractTest {
         }
         Rewrite[] rewriters = al.toArray(new Rewrite[al.size()]);
 
-        kernel.rawNewMsg("Synch");
-
-        MsgGen gen = kernel.getMsgGen();
-
-        // alle patches fï¿½r die unverschlï¿½sselte nachricht durchlaufen
+        // alle patches für die unverschlüsselte nachricht durchlaufen
         String newmsgstring = data;
         for (int i = 0; i < rewriters.length; i++) {
-            newmsgstring = rewriters[i].incomingClearText(newmsgstring, gen);
+            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null);
         }
 
-        MSG msg = new MSG("SynchRes", newmsgstring, newmsgstring.length(), gen, MSG.CHECK_SEQ, true);
+        Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
         Hashtable<String, String> ht = new Hashtable<String, String>();
         msg.extractValues(ht);
 

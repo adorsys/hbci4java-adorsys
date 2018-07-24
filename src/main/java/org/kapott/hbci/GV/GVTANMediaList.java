@@ -2,10 +2,9 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -15,10 +14,10 @@ public class GVTANMediaList extends AbstractHBCIJob {
         return "TANMediaList";
     }
 
-    public GVTANMediaList(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new GVRTANMediaList(passport));
-        addConstraint("mediatype", "mediatype", "0", LogFilter.FILTER_NONE); // "1" gibts nicht. Siehe FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf "TAN-Medium-Art"
-        addConstraint("mediacategory", "mediacategory", "A", LogFilter.FILTER_NONE);
+    public GVTANMediaList(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new GVRTANMediaList(passport));
+        addConstraint("mediatype", "mediatype", "0"); // "1" gibts nicht. Siehe FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf "TAN-Medium-Art"
+        addConstraint("mediacategory", "mediacategory", "A");
     }
 
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {

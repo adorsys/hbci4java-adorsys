@@ -1,8 +1,7 @@
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 /**
  * Umsatzabfrage eines SEPA-Kontos
@@ -17,15 +16,15 @@ public class GVKUmsZeitSEPA extends GVKUmsAll {
         return "KUmsZeitSEPA";
     }
 
-    public GVKUmsZeitSEPA(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName());
+    public GVKUmsZeitSEPA(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName());
 
-        addConstraint("my.bic", "KTV.bic", null, LogFilter.FILTER_MOST);
-        addConstraint("my.iban", "KTV.iban", null, LogFilter.FILTER_IDS);
-        addConstraint("startdate", "sepa.startdate", "", LogFilter.FILTER_IDS);
-        addConstraint("enddate", "sepa.enddate", "", LogFilter.FILTER_IDS);
-        addConstraint("maxentries", "maxentries", "", LogFilter.FILTER_NONE);
-        addConstraint("offset", "offset", "", LogFilter.FILTER_NONE);
-        addConstraint("all", "allaccounts", "N", LogFilter.FILTER_NONE);
+        addConstraint("my.bic", "KTV.bic", null);
+        addConstraint("my.iban", "KTV.iban", null);
+        addConstraint("startdate", "sepa.startdate", "");
+        addConstraint("enddate", "sepa.enddate", "");
+        addConstraint("maxentries", "maxentries", "");
+        addConstraint("offset", "offset", "");
+        addConstraint("all", "allaccounts", "N");
     }
 }

@@ -25,17 +25,13 @@ import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.CanNotParseMessageException;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
 import org.kapott.hbci.security.Crypt;
 import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -50,104 +46,15 @@ public final class HBCIKernel {
     public final static boolean NEED_CRYPT = true;
     public final static boolean DONT_NEED_CRYPT = false;
 
-    private MsgGen gen;              /* an instance of a message generator */
-    private String currentMsgName;   /* name of job currently beeing created */
-
     private HBCIPassportInternal passport;
     private CommPinTan commPinTan;
 
     public HBCIKernel(HBCIPassportInternal passport) {
         this.passport = passport;
 
-        createMsgGen();
-
-        this.commPinTan = new CommPinTan(gen,  passport.getProperties().getProperty("kernel.rewriter"), passport.getHost(), passport.getCallback())
+        this.commPinTan = new CommPinTan(passport.getProperties().getProperty("kernel.rewriter"), passport.getHost(), passport.getCallback())
                 .withProxy(passport.getProxy(), passport.getProxyUser(),
                         passport.getProxyPass());
-    }
-
-    private void createMsgGen() {
-        String xmlpath = HBCIUtils.getParam("kernel.kernel.xmlpath");
-        InputStream syntaxStream;
-        if (xmlpath == null) {
-            xmlpath = "";
-        }
-
-        ClassLoader cl = this.getClass().getClassLoader();
-        String filename = xmlpath + "hbci-" + passport.getHBCIVersion() + ".xml";
-        syntaxStream = cl.getResourceAsStream(filename);
-        if (syntaxStream == null)
-            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_KRNL_CANTLOAD_SYN", filename));
-
-        try {
-            gen = new MsgGen(syntaxStream);
-            currentMsgName = null;
-        } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_MSGGEN_INIT"), e);
-        }
-    }
-
-    public String getHBCIVersion() {
-        return passport.getHBCIVersion();
-    }
-
-    public String getHBCIVersion(int dummy) {
-        String ret = "";
-        NodeList nodes = gen.getSyntax().getElementById("MsgHeadUser").getElementsByTagName("value");
-        int len = nodes.getLength();
-
-        for (int i = 0; i < len; i++) {
-            Element node = (Element) nodes.item(i);
-            if (node.getAttribute("path").equals("hbciversion")) {
-                ret = node.getFirstChild().getNodeValue();
-                break;
-            }
-        }
-
-        return ret;
-    }
-
-    /*  Starts the creation of a new HBCI message (mid-level API).
-
-        This method initializes some internal variables that are needed
-        when you later set parameters using the rawSet() method.
-        
-        @param name Is the name of the message to be created. You can find a list
-                    of all possible names in the xml-file describing the syntax,
-                    all nodes <MSGdef id="xxx"> contain descriptions for the message
-                    with name "xxx" */
-    public void rawNewMsg(String name) {
-        if (name == null || name.length() == 0)
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_EMPTY_MSGNAME"));
-
-        currentMsgName = name;
-        HBCIUtils.log("creating new raw message " + name, HBCIUtils.LOG_DEBUG2);
-        gen.reset();
-    }
-
-    /*  Sets a parameter for the currently to be created message
-        (mid-level API).
-
-        The @p key is the path to the element to be set, with the message name
-        of the current message removed, e.g. if you want to set the value
-        of DialogInit.Idn.prodName, you have to specify Idn.prodName as @key.
-
-        @param key Path in current message to the element to be set.
-        @param value String-representation of the new value for that element */
-    public void rawSet(String key, String value) {
-        HBCIUtils.log("setting raw property " + currentMsgName + "." + key + " to \"" + value + "\"",
-                HBCIUtils.LOG_DEBUG2);
-
-        if (currentMsgName == null)
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_NORAWMSG"));
-        if (key == null)
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_KEYNULL"));
-        if (value == null)
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_VALUENULL", key));
-
-        if (value.length() != 0) {
-            gen.set(currentMsgName + "." + key, value);
-        }
     }
 
     /*  Processes the current message (mid-level API).
@@ -168,22 +75,20 @@ public final class HBCIKernel {
         @param cryptit A boolean value specifying, if the message to be sent should be encrypted.
         @return A Properties object that contains a path-value-pair for each dataelement of
                 the received message. */
-    public HBCIMsgStatus rawDoIt(boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
+    public HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
+        message.complete();
+
         HBCIMsgStatus ret = new HBCIMsgStatus();
-        MSG msg = null;
 
         try {
-            HBCIUtils.log("generating raw message " + currentMsgName, HBCIUtils.LOG_DEBUG);
-            passport.getCallback().status(HBCICallback.STATUS_MSG_CREATE, currentMsgName);
+            HBCIUtils.log("generating raw message " + message.getName(), HBCIUtils.LOG_DEBUG);
+            passport.getCallback().status(HBCICallback.STATUS_MSG_CREATE, message.getName());
 
-            // plaintextnachricht erzeugen
-            msg = gen.generate(currentMsgName);
-
-            Hashtable<String, Object> kernelData = createKernelData(ret, signit, cryptit, needSig, needCrypt);
+            Hashtable<String, Object> kernelData = createKernelData(message.getName(), ret, signit, cryptit, needSig, needCrypt);
 
             // liste der rewriter erzeugen
             String rewriters_st = passport.getProperties().getProperty("kernel.rewriter");
-            ArrayList<Rewrite> al = new ArrayList<Rewrite>();
+            ArrayList<Rewrite> al = new ArrayList<>();
             StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
             while (tok.hasMoreTokens()) {
                 String rewriterName = tok.nextToken().trim();
@@ -197,15 +102,13 @@ public final class HBCIKernel {
                     al.add(rewriter);
                 }
             }
-            Rewrite[] rewriters = al.toArray(new Rewrite[al.size()]);
+            Rewrite[] rewriters = al.toArray(new Rewrite[0]);
 
             // alle rewriter durchlaufen und plaintextnachricht patchen
-            for (int i = 0; i < rewriters.length; i++) {
-                MSG old = msg;
-                msg = rewriters[i].outgoingClearText(old, gen);
+            for (Rewrite rewriter1 : rewriters) {
+                Message old = message;
+                message = rewriter1.outgoingClearText(old);
             }
-
-            // HBCIUtils.log("sending msg: "+msg.toString(0));
 
             // wenn nachricht signiert werden soll
             if (signit) {
@@ -213,9 +116,9 @@ public final class HBCIKernel {
                 passport.getCallback().status(HBCICallback.STATUS_MSG_SIGN, null);
 
                 // signatur erzeugen und an nachricht anhängen
-                Sig sig = new Sig(msg);
+                Sig sig = new Sig(message);
 
-                if (!sig.signIt(passport, gen)) {
+                if (!sig.signIt(passport)) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTSIGN");
                     if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSignErrors", errmsg)) {
                         throw new HBCI_Exception(errmsg);
@@ -223,22 +126,21 @@ public final class HBCIKernel {
                 }
 
                 // alle rewrites erledigen, die *nach* dem hinzufügen der signatur stattfinden müssen
-                for (int i = 0; i < rewriters.length; i++) {
-                    MSG old = msg;
-                    msg = rewriters[i].outgoingSigned(old, gen);
+                for (Rewrite rewriter : rewriters) {
+                    message = rewriter.outgoingSigned(message);
                 }
             }
             
             /* zu jeder SyntaxElement-Referenz (2:3,1)==(SEG:DEG,DE) den Pfad
                des jeweiligen Elementes speichern */
             Properties paths = new Properties();
-            msg.getElementPaths(paths, null, null, null);
+            message.getElementPaths(paths, null, null, null);
             ret.addData(paths);
             
             /* für alle Elemente (Pfadnamen) die aktuellen Werte speichern,
                wie sie bei der ausgehenden Nachricht versandt werden */
-            Hashtable<String, String> current = new Hashtable<String, String>();
-            msg.extractValues(current);
+            Hashtable<String, String> current = new Hashtable<>();
+            message.extractValues(current);
             Properties origs = new Properties();
             for (Enumeration<String> e = current.keys(); e.hasMoreElements(); ) {
                 String key = e.nextElement();
@@ -248,7 +150,7 @@ public final class HBCIKernel {
             ret.addData(origs);
 
             // zu versendene nachricht loggen
-            String outstring = msg.toString(0);
+            String outstring = message.toString();
             HBCIUtils.log("sending message: " + outstring, HBCIUtils.LOG_DEBUG2);
 
             // max. nachrichtengröße aus BPD überprüfen
@@ -266,52 +168,51 @@ public final class HBCIKernel {
                 passport.getCallback().status(HBCICallback.STATUS_MSG_CRYPT, null);
 
                 // nachricht verschlüsseln
-                Crypt crypt = new Crypt(msg);
-                msg = crypt.cryptIt(passport, gen, "Crypted");
+                Crypt crypt = new Crypt(message);
+                message = crypt.cryptIt(passport, message, "Crypted");
 
-                if (!msg.getName().equals("Crypted")) {
+                if (!message.getName().equals("Crypted")) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTCRYPT");
                     if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
                         throw new HBCI_Exception(errmsg);
                 }
 
                 // verschlüsselte nachricht patchen
-                for (int i = 0; i < rewriters.length; i++) {
-                    MSG oldMsg = msg;
-                    msg = rewriters[i].outgoingCrypted(oldMsg, gen);
+                for (Rewrite rewriter : rewriters) {
+                    message = rewriter.outgoingCrypted(message);
                 }
 
-                HBCIUtils.log("encrypted message to be sent: " + msg.toString(0), HBCIUtils.LOG_DEBUG2);
+                HBCIUtils.log("encrypted message to be sent: " + message.toString(), HBCIUtils.LOG_DEBUG2);
             }
 
             // basic-values der ausgehenden nachricht merken
-            String msgPath = msg.getPath();
-            String msgnum = msg.getValueOfDE(msgPath + ".MsgHead.msgnum");
-            String dialogid = msg.getValueOfDE(msgPath + ".MsgHead.dialogid");
-            String hbciversion = msg.getValueOfDE(msgPath + ".MsgHead.hbciversion");
+            String msgPath = message.getPath();
+            String msgnum = message.getValueOfDE(msgPath + ".MsgHead.msgnum");
+            String dialogid = message.getValueOfDE(msgPath + ".MsgHead.dialogid");
+            String hbciversion = message.getValueOfDE(msgPath + ".MsgHead.hbciversion");
 
             // nachricht versenden und antwortnachricht empfangen
             HBCIUtils.log("communicating dialogid/msgnum " + dialogid + "/" + msgnum, HBCIUtils.LOG_DEBUG);
-            MSG old = msg;
-            msg = commPinTan.pingpong(kernelData, currentMsgName, old);
+            Message old = message;
+            message = commPinTan.pingpong(kernelData, old);
 
             // ist antwortnachricht verschlüsselt?
-            boolean crypted = msg.getName().equals("CryptedRes");
+            boolean crypted = message.getName().equals("CryptedRes");
             if (crypted) {
                 passport.getCallback().status(HBCICallback.STATUS_MSG_DECRYPT, null);
 
                 // wenn ja, dann nachricht entschlüsseln
                 HBCIUtils.log("acquire crypt instance", HBCIUtils.LOG_DEBUG);
-                Crypt crypt = new Crypt(msg);
+                Crypt crypt = new Crypt(message);
                 HBCIUtils.log("decrypting using " + crypt, HBCIUtils.LOG_DEBUG);
-                String newmsgstring = crypt.decryptIt(gen, passport);
-                gen.set("_origSignedMsg", newmsgstring);
+                String newmsgstring = crypt.decryptIt(passport);
+//                message.set("_origSignedMsg", newmsgstring);
 
                 // alle patches für die unverschlüsselte nachricht durchlaufen
                 HBCIUtils.log("rewriting message", HBCIUtils.LOG_DEBUG);
-                for (int i = 0; i < rewriters.length; i++) {
-                    HBCIUtils.log("applying rewriter " + rewriters[i].getClass().getSimpleName(), HBCIUtils.LOG_DEBUG);
-                    newmsgstring = rewriters[i].incomingClearText(newmsgstring, gen);
+                for (Rewrite rewriter : rewriters) {
+                    HBCIUtils.log("applying rewriter " + rewriter.getClass().getSimpleName(), HBCIUtils.LOG_DEBUG);
+                    newmsgstring = rewriter.incomingClearText(newmsgstring);
                 }
                 HBCIUtils.log("rewriting done", HBCIUtils.LOG_DEBUG);
 
@@ -319,48 +220,47 @@ public final class HBCIKernel {
 
                 // nachricht als plaintextnachricht parsen
                 try {
-                    passport.getCallback().status(HBCICallback.STATUS_MSG_PARSE, currentMsgName + "Res");
-                    HBCIUtils.log("message to pe parsed: " + msg.toString(0), HBCIUtils.LOG_DEBUG2);
-                    MSG oldMsg = msg;
-                    msg = new MSG(currentMsgName + "Res", newmsgstring, newmsgstring.length(), gen, MSG.CHECK_SEQ, true);
+                    passport.getCallback().status(HBCICallback.STATUS_MSG_PARSE, message.getName() + "Res");
+                    HBCIUtils.log("message to pe parsed: " + message.toString(), HBCIUtils.LOG_DEBUG2);
+                    message = new Message(message.getName() + "Res", newmsgstring, newmsgstring.length(), message.getDocument(), Message.CHECK_SEQ, true);
                 } catch (Exception ex) {
                     throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), newmsgstring, ex);
                 }
             }
 
-            HBCIUtils.log("received message after decryption: " + msg.toString(0), HBCIUtils.LOG_DEBUG2);
+            HBCIUtils.log("received message after decryption: " + message.toString(), HBCIUtils.LOG_DEBUG2);
 
             // alle patches für die plaintextnachricht durchlaufen
-            for (int i = 0; i < rewriters.length; i++) {
-                MSG oldMsg = msg;
-                msg = rewriters[i].incomingData(oldMsg, gen);
+            for (Rewrite rewriter : rewriters) {
+                Message oldMsg = message;
+                message = rewriter.incomingData(oldMsg);
             }
 
             // daten aus nachricht in status-objekt einstellen
             HBCIUtils.log("extracting data from received message", HBCIUtils.LOG_DEBUG);
-            Properties p = msg.getData();
-            p.setProperty("_msg", gen.get("_origSignedMsg"));
+            Properties p = message.getData();
+//            p.setProperty("_msg", message.get("_origSignedMsg"));
             ret.addData(p);
 
             // überprüfen einiger constraints, die in einer antwortnachricht eingehalten werden müssen
-            msgPath = msg.getPath();
+            msgPath = message.getPath();
             try {
-                String hbciversion2 = msg.getValueOfDE(msgPath + ".MsgHead.hbciversion");
+                String hbciversion2 = message.getValueOfDE(msgPath + ".MsgHead.hbciversion");
                 if (!hbciversion2.equals(hbciversion))
                     throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVVERSION", new Object[]{hbciversion2,
                             hbciversion}));
-                String msgnum2 = msg.getValueOfDE(msgPath + ".MsgHead.msgnum");
+                String msgnum2 = message.getValueOfDE(msgPath + ".MsgHead.msgnum");
                 if (!msgnum2.equals(msgnum))
                     throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_HEAD", new Object[]{msgnum2, msgnum}));
-                msgnum2 = msg.getValueOfDE(msgPath + ".MsgTail.msgnum");
+                msgnum2 = message.getValueOfDE(msgPath + ".MsgTail.msgnum");
                 if (!msgnum2.equals(msgnum))
                     throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_TAIL", new Object[]{msgnum2, msgnum}));
-                String dialogid2 = msg.getValueOfDE(msgPath + ".MsgHead.dialogid");
+                String dialogid2 = message.getValueOfDE(msgPath + ".MsgHead.dialogid");
                 if (!dialogid.equals("0") && !dialogid2.equals(dialogid))
                     throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVDIALOGID", new Object[]{dialogid2, dialogid}));
-                if (!dialogid.equals("0") && !msg.getValueOfDE(msgPath + ".MsgHead.MsgRef.dialogid").equals(dialogid))
+                if (!dialogid.equals("0") && !message.getValueOfDE(msgPath + ".MsgHead.MsgRef.dialogid").equals(dialogid))
                     throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVDIALOGID_REF"));
-                if (!msg.getValueOfDE(msgPath + ".MsgHead.MsgRef.msgnum").equals(msgnum))
+                if (!message.getValueOfDE(msgPath + ".MsgHead.MsgRef.msgnum").equals(msgnum))
                     throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_REF"));
             } catch (HBCI_Exception e) {
                 String errmsg = HBCIUtils.getLocMsg("EXCMSG_MSGCHECK") + ": " + HBCIUtils.exception2String(e);
@@ -372,8 +272,8 @@ public final class HBCIKernel {
             HBCIUtils.log("looking for a signature", HBCIUtils.LOG_DEBUG);
             passport.getCallback().status(HBCICallback.STATUS_MSG_VERIFY, null);
             boolean sigOk;
-            Sig sig = new Sig(msg);
-            sigOk = sig.verify(passport, gen);
+            Sig sig = new Sig(message);
+            sigOk = sig.verify(passport);
 
             // fehlermeldungen erzeugen, wenn irgendwelche fehler aufgetreten sind
             HBCIUtils.log("looking if message is encrypted", HBCIUtils.LOG_DEBUG);
@@ -395,7 +295,7 @@ public final class HBCIKernel {
             // TODO: hack to be able to "disable" HKEND response message analysis
             // because some credit institutes are buggy regarding HKEND responses
             String paramName = "client.errors.ignoreDialogEndErrors";
-            if (currentMsgName.startsWith("DialogEnd") &&
+            if (message.getName().startsWith("DialogEnd") &&
                     HBCIUtils.getParam(paramName, "no").equals("yes")) {
                 HBCIUtils.log(e);
                 HBCIUtils.log("error while receiving DialogEnd response - " +
@@ -404,31 +304,20 @@ public final class HBCIKernel {
             } else {
                 ret.addException(e);
             }
-        } finally {
-            currentMsgName = null;
-            gen.reset();
         }
 
         return ret;
     }
 
-    public void reset() {
-        gen.reset();
-        currentMsgName = null;
-    }
-
-    private Hashtable<String, Object> createKernelData(HBCIMsgStatus ret, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
+    private Hashtable<String, Object> createKernelData(String msgName, HBCIMsgStatus ret, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
         Hashtable<String, Object> kernelData = new Hashtable<>();
         kernelData.put("msgStatus", ret);
-        kernelData.put("msgName", currentMsgName);
-        kernelData.put("signIt", Boolean.valueOf(signit));
-        kernelData.put("cryptIt", Boolean.valueOf(cryptit));
-        kernelData.put("needSig", Boolean.valueOf(needSig));
-        kernelData.put("needCrypt", Boolean.valueOf(needCrypt));
+        kernelData.put("msgName", msgName);
+        kernelData.put("signIt", signit);
+        kernelData.put("cryptIt", cryptit);
+        kernelData.put("needSig", needSig);
+        kernelData.put("needCrypt", needCrypt);
         return kernelData;
     }
 
-    public MsgGen getMsgGen() {
-        return gen;
-    }
 }

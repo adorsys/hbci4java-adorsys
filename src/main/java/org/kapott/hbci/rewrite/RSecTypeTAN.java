@@ -22,10 +22,10 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
-import org.kapott.hbci.protocol.MSG;
+import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
 import org.kapott.hbci.protocol.SyntaxElement;
+import org.w3c.dom.Document;
 
 import java.util.Iterator;
 
@@ -39,17 +39,18 @@ import java.util.Iterator;
  * sein, weil einige hier vorgenommene Änderungen wiederum fehlerhafte Nachrichten
  * erzeugen, die aber durch "<code>Olly</code>" wieder korrigiert werden.</p>
  */
-public class RSecTypeTAN
-        extends Rewrite {
+public class RSecTypeTAN extends Rewrite {
+
     // TODO: den rewriter umschreiben, so dass er nur string-operationen
     // benutzt, weil nicht sichergestellt werden kann, dass die eingehende
     // nachricht hier tatsächlich schon geparst werden kann
-    public String incomingClearText(String st, MsgGen gen) {
+    @Override
+    public String incomingClearText(String st, Document document) {
         // empfangene Nachricht parsen, dabei die validvalues-Überprüfung weglassen
-        String myMsgName = (String) getData("msgName") + "Res";
-        MSG msg = new MSG(myMsgName, st, st.length(),
-                gen,
-                MSG.CHECK_SEQ, MSG.DONT_CHECK_VALIDS);
+        String myMsgName = getData("msgName") + "Res";
+        Message msg = new Message(myMsgName, st, st.length(),
+                document,
+                Message.CHECK_SEQ, Message.DONT_CHECK_VALIDS);
 
         // in einer Schleife durch alle SuppSecMethods-Datensätze laufen
         for (int i = 0; ; i++) {
@@ -83,7 +84,7 @@ public class RSecTypeTAN
 
                 int startpos;
                 int endpos;
-                
+
                 /* wenn mehr als eine SecMethod im Segment stand, dann braucht nur
                  * das eine der multiplen DEGs entfernt werden. Wenn aber nur die eine
                  * fehlerhafte Info enthalten war, dann muss das gesamte Segment
@@ -94,12 +95,12 @@ public class RSecTypeTAN
                     startpos = elem.getPosInMsg();
                     endpos = startpos
                             + 1
-                            + elem.toString(0).length()
+                            + elem.toString().length()
                             + 1
-                            + msg.getElement(elemBaseName + ".version").toString(0).length();
+                            + msg.getElement(elemBaseName + ".version").toString().length();
                 } else { // komplettes segment "SecMethod" löschen
                     startpos = parent.getPosInMsg() + 1;
-                    endpos = startpos + parent.toString(0).length();
+                    endpos = startpos + parent.toString().length();
                     /* der Fehler, der hier gemacht wird (nachfolgende Segment-
                      * Sequenznummern sind falsch), wird durch ein nachgeschaltetes
                      * Olly-Modul korrigiert */

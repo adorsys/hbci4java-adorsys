@@ -24,7 +24,6 @@ package org.kapott.hbci.security;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.*;
 import org.w3c.dom.Element;
@@ -63,7 +62,7 @@ public final class Sig {
     public final static String SIGMODE_PSS = "19";
     public final static String SIGMODE_RETAIL_MAC = "999";
 
-    private MSG msg;
+    private Message msg;
 
     private String u_secfunc;
     private String u_cid;
@@ -81,7 +80,7 @@ public final class Sig {
     private String u_hashalg;
     private String sigstring;
 
-    public Sig(MSG msg) {
+    public Sig(Message msg) {
         this.msg = msg;
     }
 
@@ -173,161 +172,154 @@ public final class Sig {
     }
 
     /* daten zusammensammeln, die signiert werden müssen; idx gibt dabei an,
-     * die wievielte signatur erzeugt werden soll - wird benÃ¶tigt, um festzustellen,
+     * die wievielte signatur erzeugt werden soll - wird benötigt, um festzustellen,
      * welche sighead- und sigtail-segmente in die signatur eingehen */
     private String collectHashData(int idx) {
         int numOfPassports = 1;
-        StringBuffer ret = new StringBuffer(1024);
+        StringBuilder ret = new StringBuilder(1024);
 
         List<MultipleSyntaxElements> msgelementslist = msg.getChildContainers();
-        List<SyntaxElement> sigheads = ((MultipleSEGs) (msgelementslist.get(1))).getElements();
-        List<SyntaxElement> sigtails = ((MultipleSEGs) (msgelementslist.get(msgelementslist.size() - 2))).getElements();
+        List<SyntaxElement> sigheads = msgelementslist.get(1).getElements();
+        List<SyntaxElement> sigtails = msgelementslist.get(msgelementslist.size() - 2).getElements();
 
-        // alle benÃ¶tigten sighead-segmente zusammensuchen
+        // alle benötigten sighead-segmente zusammensuchen
         for (int i = numOfPassports - 1 - idx; i < (u_range.equals("1") ? (numOfPassports - idx) : numOfPassports); i++) {
-            ret.append(((SEG) (sigheads.get(i))).toString(0));
+            ret.append(((SEG) (sigheads.get(i))).toString());
         }
 
         // alle nutzdaten hinzufügen
         for (int i = 2; i < msgelementslist.size() - 2; i++) {
-            ret.append(msgelementslist.get(i).toString(0));
+            ret.append(msgelementslist.get(i).toString());
         }
 
         // bei schalen-modell-signaturen alle "inneren" sigtails mit hinzufügen
         for (int i = 0; i < (u_range.equals("1") ? 0 : idx); i++) {
-            ret.append(((SEG) (sigtails.get(i))).toString(0));
+            ret.append(((SEG) (sigtails.get(i))).toString());
         }
 
         return ret.toString();
     }
 
-    public boolean signIt(HBCIPassportInternal passport, MsgGen gen) {
-        boolean ret = false;
+    public boolean signIt(HBCIPassportInternal passport) {
+        String msgName = msg.getName();
+        Node msgNode = msg.getSyntaxDef(msgName, msg.getDocument());
+        String dontsignAttr = ((Element) msgNode).getAttribute("dontsign");
 
-        if (passport.hasMySigKey()) {
-            String msgName = msg.getName();
-            Node msgNode = msg.getSyntaxDef(msgName, gen.getSyntax());
-            String dontsignAttr = ((Element) msgNode).getAttribute("dontsign");
+        if (dontsignAttr.length() == 0) {
+            try {
+                int numOfPassports = 1;
 
-            if (dontsignAttr.length() == 0) {
-                try {
-                    int numOfPassports = 1;
+                // create an empty sighead and sigtail segment for each required signature
+                for (int idx = 0; idx < numOfPassports; idx++) {
+                    SEG sighead = new SEG("SigHeadUser", "SigHead", msgName, numOfPassports - 1 - idx, msg.getDocument());
+                    SEG sigtail = new SEG("SigTailUser", "SigTail", msgName, idx, msg.getDocument());
 
-                    // create an empty sighead and sigtail segment for each required signature
-                    for (int idx = 0; idx < numOfPassports; idx++) {
-                        SEG sighead = new SEG("SigHeadUser", "SigHead", msgName, numOfPassports - 1 - idx, gen.getSyntax());
-                        SEG sigtail = new SEG("SigTailUser", "SigTail", msgName, idx, gen.getSyntax());
+                    List<MultipleSyntaxElements> msgelements = msg.getChildContainers();
+                    List<SyntaxElement> sigheads = msgelements.get(1).getElements();
+                    List<SyntaxElement> sigtails = msgelements.get(msgelements.size() - 2).getElements();
 
-                        List<MultipleSyntaxElements> msgelements = msg.getChildContainers();
-                        List<SyntaxElement> sigheads = ((MultipleSEGs) (msgelements.get(1))).getElements();
-                        List<SyntaxElement> sigtails = ((MultipleSEGs) (msgelements.get(msgelements.size() - 2))).getElements();
-
-                        // insert sighead segment in msg
-                        if ((numOfPassports - 1 - idx) < sigheads.size()) {
-                        } else {
-                            for (int i = sigheads.size() - 1; i < numOfPassports - 1 - idx; i++) {
-                                sigheads.add(null);
-                            }
+                    // insert sighead segment in msg
+                    if ((numOfPassports - 1 - idx) < sigheads.size()) {
+                    } else {
+                        for (int i = sigheads.size() - 1; i < numOfPassports - 1 - idx; i++) {
+                            sigheads.add(null);
                         }
-                        sigheads.set(numOfPassports - 1 - idx, sighead);
+                    }
+                    sigheads.set(numOfPassports - 1 - idx, sighead);
 
-                        // insert sigtail segment in message
-                        if (idx < sigtails.size()) {
-                        } else {
-                            for (int i = sigtails.size() - 1; i < idx; i++) {
-                                sigtails.add(null);
-                            }
+                    // insert sigtail segment in message
+                    if (idx < sigtails.size()) {
+                    } else {
+                        for (int i = sigtails.size() - 1; i < idx; i++) {
+                            sigtails.add(null);
                         }
-                        sigtails.set(idx, sigtail);
                     }
+                    sigtails.set(idx, sigtail);
+                }
 
-                    // fill all sighead and sigtail segments
-                    for (int idx = 0; idx < numOfPassports; idx++) {
-                        setParam("secfunc", passport.getSigFunction());
-                        setParam("cid", passport.getCID());
-                        setParam("role", "1");
-                        setParam("range", "1");
-                        setParam("keyblz", passport.getBLZ());
-                        setParam("keycountry", passport.getCountry());
-                        setParam("keyuserid", passport.getMySigKeyName());
-                        setParam("keynum", passport.getMySigKeyNum());
-                        setParam("keyversion", passport.getMySigKeyVersion());
-                        setParam("sysid", passport.getSysId());
-                        setParam("sigid", passport.getSigId().toString());
-                        setParam("sigalg", passport.getSigAlg());
-                        setParam("sigmode", passport.getSigMode());
-                        setParam("hashalg", passport.getHashAlg());
-                        passport.incSigId();
+                // fill all sighead and sigtail segments
+                for (int idx = 0; idx < numOfPassports; idx++) {
+                    setParam("secfunc", passport.getSigFunction());
+                    setParam("cid", "");
+                    setParam("role", "1");
+                    setParam("range", "1");
+                    setParam("keyblz", passport.getBLZ());
+                    setParam("keycountry", passport.getCountry());
+                    setParam("keyuserid", passport.getMySigKeyName());
+                    setParam("keynum", passport.getMySigKeyNum());
+                    setParam("keyversion", passport.getMySigKeyVersion());
+                    setParam("sysid", passport.getSysId());
+                    setParam("sigid", passport.getSigId().toString());
+                    setParam("sigalg", passport.getSigAlg());
+                    setParam("sigmode", passport.getSigMode());
+                    setParam("hashalg", passport.getHashAlg());
+                    passport.incSigId();
 
-                        List<MultipleSyntaxElements> msgelements = msg.getChildContainers();
-                        List<SyntaxElement> sigheads = ((MultipleSEGs) (msgelements.get(1))).getElements();
-                        List<SyntaxElement> sigtails = ((MultipleSEGs) (msgelements.get(msgelements.size() - 2))).getElements();
+                    List<MultipleSyntaxElements> msgelements = msg.getChildContainers();
+                    List<SyntaxElement> sigheads = msgelements.get(1).getElements();
+                    List<SyntaxElement> sigtails = msgelements.get(msgelements.size() - 2).getElements();
 
-                        SEG sighead = (SEG) sigheads.get(numOfPassports - 1 - idx);
-                        SEG sigtail = (SEG) sigtails.get(idx);
+                    SEG sighead = (SEG) sigheads.get(numOfPassports - 1 - idx);
+                    SEG sigtail = (SEG) sigtails.get(idx);
 
-                        fillSigHead(passport, sighead);
-                        fillSigTail(sighead, sigtail);
-                    }
+                    fillSigHead(passport, sighead);
+                    fillSigTail(sighead, sigtail);
+                }
 
-                    msg.enumerateSegs(0, SyntaxElement.ALLOW_OVERWRITE);
-                    msg.validate();
-                    msg.enumerateSegs(1, SyntaxElement.ALLOW_OVERWRITE);
+                msg.enumerateSegs(0, SyntaxElement.ALLOW_OVERWRITE);
+                msg.validate();
+                msg.enumerateSegs(1, SyntaxElement.ALLOW_OVERWRITE);
 
-                    // calculate signatures for each segment
-                    for (int idx = 0; idx < numOfPassports; idx++) {
-                        List<MultipleSyntaxElements> msgelements = msg.getChildContainers();
-                        List<SyntaxElement> sigtails = ((MultipleSEGs) (msgelements.get(msgelements.size() - 2))).getElements();
-                        SEG sigtail = (SEG) sigtails.get(idx);
+                // calculate signatures for each segment
+                for (int idx = 0; idx < numOfPassports; idx++) {
+                    List<MultipleSyntaxElements> msgelements = msg.getChildContainers();
+                    List<SyntaxElement> sigtails = msgelements.get(msgelements.size() - 2).getElements();
+                    SEG sigtail = (SEG) sigtails.get(idx);
 
-                        /* first calculate hash-result, then sign the hashresult. In
-                         * most cases, the hash() step will be executed by the signature
-                         * algorithm, so the hash() call returns the message as-is.
-                         * Currently the only exception is PKCS#1-10, where an extra
-                         * round of hashing must be executed before applying the
-                         * signature process */
-                        String hashdata = collectHashData(idx);
-                        byte[] hashresult = passport.hash(hashdata.getBytes(CommPinTan.ENCODING));
-                        byte[] signature = passport.sign(hashresult);
+                    /* first calculate hash-result, then sign the hashresult. In
+                     * most cases, the hash() step will be executed by the signature
+                     * algorithm, so the hash() call returns the message as-is.
+                     * Currently the only exception is PKCS#1-10, where an extra
+                     * round of hashing must be executed before applying the
+                     * signature process */
+                    byte[] hashresult = collectHashData(idx).getBytes(CommPinTan.ENCODING);
+                    byte[] signature = passport.sign(hashresult);
 
-                        if (passport.needUserSig()) {
-                            String pintan = new String(signature, CommPinTan.ENCODING);
-                            int pos = pintan.indexOf("|");
+                    if (passport.needUserSig()) {
+                        String pintan = new String(signature, CommPinTan.ENCODING);
+                        int pos = pintan.indexOf("|");
 
-                            if (pos != -1) {
-                                // wenn überhaupt eine signatur existiert
-                                // (wird für server benÃ¶tigt)
-                                String pin = pintan.substring(0, pos);
-                                msg.propagateValue(sigtail.getPath() + ".UserSig.pin", pin,
-                                        SyntaxElement.DONT_TRY_TO_CREATE,
-                                        SyntaxElement.DONT_ALLOW_OVERWRITE);
-
-                                if (pos < pintan.length() - 1) {
-                                    String tan = pintan.substring(pos + 1);
-                                    msg.propagateValue(sigtail.getPath() + ".UserSig.tan", tan,
-                                            SyntaxElement.DONT_TRY_TO_CREATE,
-                                            SyntaxElement.DONT_ALLOW_OVERWRITE);
-                                }
-                            }
-                        } else { // normale signatur
-                            msg.propagateValue(sigtail.getPath() + ".sig", "B" + new String(signature, CommPinTan.ENCODING),
+                        if (pos != -1) {
+                            // wenn überhaupt eine signatur existiert
+                            // (wird für server benötigt)
+                            String pin = pintan.substring(0, pos);
+                            msg.propagateValue(sigtail.getPath() + ".UserSig.pin", pin,
                                     SyntaxElement.DONT_TRY_TO_CREATE,
                                     SyntaxElement.DONT_ALLOW_OVERWRITE);
+
+                            if (pos < pintan.length() - 1) {
+                                String tan = pintan.substring(pos + 1);
+                                msg.propagateValue(sigtail.getPath() + ".UserSig.tan", tan,
+                                        SyntaxElement.DONT_TRY_TO_CREATE,
+                                        SyntaxElement.DONT_ALLOW_OVERWRITE);
+                            }
                         }
-
-                        msg.validate();
-                        msg.enumerateSegs(1, SyntaxElement.ALLOW_OVERWRITE);
-                        msg.autoSetMsgSize(gen);
+                    } else { // normale signatur
+                        msg.propagateValue(sigtail.getPath() + ".sig", "B" + new String(signature, CommPinTan.ENCODING),
+                                SyntaxElement.DONT_TRY_TO_CREATE,
+                                SyntaxElement.DONT_ALLOW_OVERWRITE);
                     }
-                } catch (Exception ex) {
-                    throw new HBCI_Exception("*** error while signing", ex);
+
+                    msg.validate();
+                    msg.enumerateSegs(1, SyntaxElement.ALLOW_OVERWRITE);
+                    msg.autoSetMsgSize();
                 }
-            } else HBCIUtils.log("did not sign - message does not want to be signed", HBCIUtils.LOG_DEBUG);
+            } catch (Exception ex) {
+                throw new HBCI_Exception("*** error while signing", ex);
+            }
+        } else HBCIUtils.log("did not sign - message does not want to be signed", HBCIUtils.LOG_DEBUG);
 
-            ret = true;
-        } else HBCIUtils.log("can not sign - no signature key available", HBCIUtils.LOG_WARN);
-
-        return ret;
+        return true;
     }
 
     private void readSigHead(HBCIPassportInternal passport) {
@@ -379,7 +371,7 @@ public final class Sig {
 
         if (passport.needUserSig()) {
             // TODO: bei anderen user-signaturen hier allgemeineren code schreiben
-            Hashtable<String, String> values = new Hashtable<String, String>();
+            Hashtable<String, String> values = new Hashtable<>();
             msg.extractValues(values);
 
             String pin = values.get(msg.getName() + ".SigTail.UserSig.pin");
@@ -425,7 +417,7 @@ public final class Sig {
         */
     }
 
-    private boolean hasSig(MsgGen gen) {
+    private boolean hasSig() {
         boolean ret = true;
         MultipleSyntaxElements seglist = (msg.getChildContainers().get(1));
 
@@ -441,7 +433,7 @@ public final class Sig {
             if (ret) {
                 String sigheadCode = "HNSHK";
 
-                if (!sighead.getCode(gen).equals(sigheadCode))
+                if (!sighead.getCode().equals(sigheadCode))
                     ret = false;
             }
         } else ret = false;
@@ -449,49 +441,33 @@ public final class Sig {
         return ret;
     }
 
-    public boolean verify(HBCIPassportInternal passport, MsgGen gen) {
-        boolean ret = false;
-
+    public boolean verify(HBCIPassportInternal passport) {
         if (passport.hasInstSigKey()) {
             String msgName = msg.getName();
-            Node msgNode = msg.getSyntaxDef(msgName, gen.getSyntax());
+            Node msgNode = msg.getSyntaxDef(msgName, msg.getDocument());
             String dontsignAttr = ((Element) msgNode).getAttribute("dontsign");
 
             if (dontsignAttr.length() == 0) {
-                if (hasSig(gen)) {
+                if (hasSig()) {
                     readSigHead(passport);
-                    try {
-                        /* first calculate hash-result, then verify the hashresult. In
-                         * most cases, the hash() step will be executed by the signature
-                         * algorithm, so the hash() call returns the message as-is.
-                         * Currently the only exception is PKCS#1-10, where an extra
-                         * round of hashing must be executed before applying the
-                         * signature process */
-                        String hashdata = collectHashData(0);
-                        byte[] hashresult = passport.hash(hashdata.getBytes(CommPinTan.ENCODING));
-                        ret = passport.verify(hashresult, sigstring.getBytes(CommPinTan.ENCODING));
-                    } catch (Exception e) {
-                        ret = false;
-                    }
+                    return true;
                 } else {
                     HBCIUtils.log("message has no signature", HBCIUtils.LOG_WARN);
                     /* das ist nur für den fall, dass das institut prinzipiell nicht signiert
                        (also für den client-code);
                        die verify()-funktion für den server-code überprüft selbstständig, ob
-                       tatsächlich eine benÃ¶tigte signatur vorhanden ist (verlässt sich also nicht
+                       tatsächlich eine benötigte signatur vorhanden ist (verlässt sich also nicht
                        auf dieses TRUE, was beim fehlen einer signatur zurückgegeben wird */
-                    ret = true;
+                    return true;
                 }
             } else {
                 HBCIUtils.log("message does not need a signature", HBCIUtils.LOG_DEBUG);
-                ret = true;
+                return true;
             }
         } else {
             HBCIUtils.log("can not check signature - no signature key available", HBCIUtils.LOG_WARN);
-            ret = true;
+            return true;
         }
-
-        return ret;
     }
 
     public void setParam(String key, String value) {

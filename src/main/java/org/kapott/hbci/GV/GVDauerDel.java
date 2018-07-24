@@ -24,9 +24,8 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.LogFilter;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.w3c.dom.Document;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -37,30 +36,30 @@ public final class GVDauerDel extends AbstractHBCIJob {
         return "DauerDel";
     }
 
-    public GVDauerDel(HBCIPassportInternal passport, MsgGen msgGen) {
-        super(passport, msgGen, getLowlevelName(), new HBCIJobResultImpl(passport));
+    public GVDauerDel(HBCIPassportInternal passport) {
+        super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
 
-        addConstraint("src.number", "My.number", "", LogFilter.FILTER_IDS);
-        addConstraint("src.subnumber", "My.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("dst.blz", "Other.KIK.blz", "", LogFilter.FILTER_MOST);
-        addConstraint("dst.number", "Other.number", "", LogFilter.FILTER_IDS);
-        addConstraint("dst.subnumber", "Other.subnumber", "", LogFilter.FILTER_MOST);
-        addConstraint("btg.value", "BTG.value", "", LogFilter.FILTER_MOST);
-        addConstraint("btg.curr", "BTG.curr", "", LogFilter.FILTER_NONE);
-        addConstraint("name", "name", "", LogFilter.FILTER_IDS);
-        addConstraint("firstdate", "DauerDetails.firstdate", "", LogFilter.FILTER_NONE);
-        addConstraint("timeunit", "DauerDetails.timeunit", "", LogFilter.FILTER_NONE);
-        addConstraint("turnus", "DauerDetails.turnus", "", LogFilter.FILTER_NONE);
-        addConstraint("execday", "DauerDetails.execday", "", LogFilter.FILTER_NONE);
+        addConstraint("src.number", "My.number", "");
+        addConstraint("src.subnumber", "My.subnumber", "");
+        addConstraint("dst.blz", "Other.KIK.blz", "");
+        addConstraint("dst.number", "Other.number", "");
+        addConstraint("dst.subnumber", "Other.subnumber", "");
+        addConstraint("btg.value", "BTG.value", "");
+        addConstraint("btg.curr", "BTG.curr", "");
+        addConstraint("name", "name", "");
+        addConstraint("firstdate", "DauerDetails.firstdate", "");
+        addConstraint("timeunit", "DauerDetails.timeunit", "");
+        addConstraint("turnus", "DauerDetails.turnus", "");
+        addConstraint("execday", "DauerDetails.execday", "");
 
-        addConstraint("src.blz", "My.KIK.blz", null, LogFilter.FILTER_MOST);
-        addConstraint("src.country", "My.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("dst.country", "Other.KIK.country", "DE", LogFilter.FILTER_NONE);
-        addConstraint("name2", "name2", "", LogFilter.FILTER_IDS);
-        addConstraint("key", "key", "52", LogFilter.FILTER_NONE);
-        addConstraint("date", "date", "", LogFilter.FILTER_NONE);
-        addConstraint("orderid", "orderid", "", LogFilter.FILTER_NONE);
-        addConstraint("lastdate", "DauerDetails.lastdate", "", LogFilter.FILTER_NONE);
+        addConstraint("src.blz", "My.KIK.blz", null);
+        addConstraint("src.country", "My.KIK.country", "DE");
+        addConstraint("dst.country", "Other.KIK.country", "DE");
+        addConstraint("name2", "name2", "");
+        addConstraint("key", "key", "52");
+        addConstraint("date", "date", "");
+        addConstraint("orderid", "orderid", "");
+        addConstraint("lastdate", "DauerDetails.lastdate", "");
 
         // TODO: daten fuer aussetzung fehlen
         // TODO: addkey fehlt
@@ -76,7 +75,7 @@ public final class GVDauerDel extends AbstractHBCIJob {
 
         for (int i = 0; i < maxusage; i++) {
             String name = HBCIUtils.withCounter("usage", i);
-            addConstraint(name, "usage." + name, "", LogFilter.FILTER_MOST);
+            addConstraint(name, "usage." + name, "");
         }
     }
 

@@ -17,7 +17,7 @@ public class TestGVLastSEPA2 extends AbstractTestGV {
     @Test
     public void test() {
         System.out.println("---------Erstelle Job");
-        AbstractHBCIJob job =  HBCIJobFactory.newJob("LastSEPA", null, null);
+        AbstractHBCIJob job =  HBCIJobFactory.newJob("LastSEPA", null);
         
         Konto acc = new Konto();
         acc.blz = params.getProperty("target_blz");
@@ -39,7 +39,7 @@ public class TestGVLastSEPA2 extends AbstractTestGV {
         job.setParam("mandateid", params.getProperty("mandateid"));
         job.setParam("manddateofsig", params.getProperty("date_of_sig"));
         
-        System.out.println("---------Fï¿½r Job zur Queue");
+        System.out.println("---------Für Job zur Queue");
         dialog.addTask(job);
 
         

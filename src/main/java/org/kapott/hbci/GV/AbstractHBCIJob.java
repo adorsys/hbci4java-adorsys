@@ -29,7 +29,6 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.JobNotSupportedException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MsgGen;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.SEG;
@@ -45,19 +44,12 @@ import java.util.regex.Pattern;
 
 public class AbstractHBCIJob {
 
-    private MsgGen gen;
-
     private String name;              /* Job-Name mit Versionsnummer */
     private String jobName;           /* Job-Name ohne Versionsnummer */
-
-    public String getJobName() {
-        return jobName;
-    }
-
     private String segVersion;        /* Segment-Version */
     private Properties llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
     protected HBCIJobResultImpl jobResult;         /* Objekt mit Rückgabedaten für diesen GV */
-    protected HBCIPassport passport;
+    protected HBCIPassportInternal passport;
     private int idx;                  /* idx gibt an, der wievielte task innerhalb der aktuellen message
                                          dieser GV ist */
     private boolean executed;
@@ -72,16 +64,13 @@ public class AbstractHBCIJob {
                                          default-Wert an, falls für diesen Namen *kein* Wert angebeben wurde. Ist der default-
                                          Wert="", so kann das Syntaxelement weggelassen werden. Ist der default-Wert=null,
                                          so *muss* die Anwendung einen Wert spezifizieren */
-    private Hashtable<String, Integer> logFilterLevels; /* hier wird für jeden hl-param-name gespeichert, ob der dazugehörige wert
-                                          über den logfilter-Mechanimus geschützt werden soll */
 
     private String externalId;
 
     private HashSet<String> indexedConstraints;
 
-    public AbstractHBCIJob(HBCIPassport passport, MsgGen gen, String jobnameLL, HBCIJobResultImpl jobResult) {
+    public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
         this.passport = passport;
-        this.gen = gen;
 
         findSpecNameForGV(jobnameLL);
         this.llParams = new Properties();
@@ -90,7 +79,6 @@ public class AbstractHBCIJob {
 
         this.contentCounter = 0;
         this.constraints = new Hashtable<>();
-        this.logFilterLevels = new Hashtable<>();
         this.indexedConstraints = new HashSet<>();
         this.executed = false;
 
@@ -109,7 +97,7 @@ public class AbstractHBCIJob {
         StringBuffer ret = null;
 
         // Macht aus z.Bsp. "KUmsZeit5" -> "KUmsZeitPar5.SegHead.code"
-        StringBuffer searchString = new StringBuffer(name);
+        StringBuilder searchString = new StringBuilder(name);
         for (int i = searchString.length() - 1; i >= 0; i--) {
             if (!(searchString.charAt(i) >= '0' && searchString.charAt(i) <= '9')) {
                 searchString.insert(i + 1, "Par");
@@ -118,7 +106,7 @@ public class AbstractHBCIJob {
             }
         }
 
-        StringBuffer tempkey = new StringBuffer();
+        StringBuilder tempkey = new StringBuilder();
 
         // durchsuchen aller param-segmente nach einem job mit dem jobnamen des
         // aktuellen jobs
@@ -145,6 +133,10 @@ public class AbstractHBCIJob {
         return null;
     }
 
+    public String getJobName() {
+        return jobName;
+    }
+
     /**
      * Durchsucht das BPD-Segment "HISPAS" nach dem Property "cannationalacc"
      * um herauszufinden, ob beim Versand eines SEPA-Auftrages die nationale Bankverbindung
@@ -152,11 +144,11 @@ public class AbstractHBCIJob {
      * <p>
      * Siehe FinTS_3.0_Messages_Geschaeftsvorfaelle_2013-05-28_final_version.pdf - Kapitel B.3.2
      *
-     * @param passport
+     * @param passport passport
      * @return true, wenn der BPD-Parameter von der Bank mit "J" befuellt ist und die
      * nationale Bankverbindung angegeben sein darf.
      */
-    protected boolean canNationalAcc(HBCIPassportInternal passport, MsgGen msgGen) {
+    protected boolean canNationalAcc(HBCIPassportInternal passport) {
         // Checken, ob das Flag im Passport durch die Anwendung hart codiert ist.
         // Dort kann die Entscheidung ueberschrieben werden, ob die nationale Kontoverbindung
         // mitgeschickt wird oder nicht.
@@ -178,14 +170,14 @@ public class AbstractHBCIJob {
         HBCIUtils.log("searching for value of \"cannationalacc\" in HISPAS", HBCIUtils.LOG_DEBUG);
 
         // Ansonsten suchen wir in HISPAS - aber nur, wenn wir die Daten schon haben
-        if (passport.getSupportedLowlevelJobs(msgGen).getProperty("SEPAInfo") == null) {
+        if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).getProperty("SEPAInfo") == null) {
             HBCIUtils.log("no HISPAS data found", HBCIUtils.LOG_INFO);
             return false; // Ne, noch nicht. Dann lassen wir das erstmal weg
         }
 
 
         // SEPAInfo laden und darüber iterieren
-        Properties props = passport.getLowlevelJobRestrictions("SEPAInfo", msgGen);
+        Properties props = passport.getLowlevelJobRestrictions("SEPAInfo", passport.getSyntaxDocument());
         String value = props.getProperty("cannationalacc");
         HBCIUtils.log("cannationalacc=" + value, HBCIUtils.LOG_DEBUG);
         return value != null && value.equalsIgnoreCase("J");
@@ -196,7 +188,7 @@ public class AbstractHBCIJob {
      */
     private void findSpecNameForGV(String jobnameLL) {
         int maxVersion = 0;
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
 
         // alle param-segmente durchlaufen
         Properties bpd = passport.getBPD();
@@ -296,7 +288,7 @@ public class AbstractHBCIJob {
         this.name = this.jobName + version;
 
         // Bereits gesetzte llParams fixen
-        String[] names = this.llParams.keySet().toArray(new String[this.llParams.size()]);
+        String[] names = this.llParams.keySet().toArray(new String[0]);
         for (String s : names) {
             if (!s.startsWith(oldName))
                 continue; // nicht betroffen
@@ -313,8 +305,7 @@ public class AbstractHBCIJob {
         while (e.hasMoreElements()) {
             String frontendName = e.nextElement();
             String[][] values = constraints.get(frontendName);
-            for (int i = 0; i < values.length; ++i) {
-                String[] value = values[i];
+            for (String[] value : values) {
                 // value[0] ist das Target
                 if (!value[0].startsWith(oldName))
                     continue;
@@ -328,7 +319,7 @@ public class AbstractHBCIJob {
     public int getMaxNumberPerMsg() {
         int ret = 1;
 
-        StringBuffer searchString = new StringBuffer(name);
+        StringBuilder searchString = new StringBuilder(name);
         for (int i = searchString.length() - 1; i >= 0; i--) {
             if (!(searchString.charAt(i) >= '0' && searchString.charAt(i) <= '9')) {
                 searchString.insert(i + 1, "Par");
@@ -337,7 +328,7 @@ public class AbstractHBCIJob {
             }
         }
 
-        StringBuffer tempkey = new StringBuffer();
+        StringBuilder tempkey = new StringBuilder();
 
         for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
             String key = (String) i.nextElement();
@@ -358,11 +349,11 @@ public class AbstractHBCIJob {
     }
 
 
-    protected void addConstraint(String frontendName, String destinationName, String defValue, int logFilterLevel) {
-        addConstraint(frontendName, destinationName, defValue, logFilterLevel, false);
+    protected void addConstraint(String frontendName, String destinationName, String defValue) {
+        addConstraint(frontendName, destinationName, defValue, false);
     }
 
-    protected void addConstraint(String frontendName, String destinationName, String defValue, int logFilterLevel, boolean indexed) {
+    protected void addConstraint(String frontendName, String destinationName, String defValue, boolean indexed) {
         // value ist array:(lowlevelparamname, defaultvalue)
         String[] value = new String[2];
         value[0] = getName() + "." + destinationName;
@@ -377,7 +368,7 @@ public class AbstractHBCIJob {
             values = new String[1][];
             values[0] = value;
         } else {
-            ArrayList<String[]> a = new ArrayList<String[]>(Arrays.asList(values));
+            ArrayList<String[]> a = new ArrayList<>(Arrays.asList(values));
             a.add(value);
             values = (a.toArray(values));
         }
@@ -387,43 +378,33 @@ public class AbstractHBCIJob {
         if (indexed) {
             indexedConstraints.add(frontendName);
         }
-
-        if (logFilterLevel > 0) {
-            logFilterLevels.put(frontendName, new Integer(logFilterLevel));
-        }
     }
 
     public void verifyConstraints() {
         // durch alle gespeicherten constraints durchlaufen
-        for (Iterator<String> i = constraints.keySet().iterator(); i.hasNext(); ) {
-            // den frontendnamen für das constraint ermitteln
-            String frontendName = (i.next());
-
+        for (String s : constraints.keySet()) {
             // dazu alle ziel-lowlevelparameter mit default-wert extrahieren
-            String[][] values = (constraints.get(frontendName));
+            String[][] values = constraints.get(s);
 
             // durch alle ziel-lowlevel-parameternamen durchlaufen, die gesetzt werden müssen
-            for (int j = 0; j < values.length; j++) {
+            for (String[] value : values) {
                 //Array mit Pfadname und default Wert
-                String[] value = values[j];
                 // lowlevel-name (Pfadname) des parameters (z.B. wird Frontendname src.bic zum Pfad My.bic
                 String destination = value[0];
                 // default-wert des parameters, wenn keiner angegeben wurde
                 String defValue = value[1];
 
                 String givenContent = getLowlevelParam(destination);
-                if (givenContent == null && indexedConstraints.contains(frontendName)) {
+                if (givenContent == null && indexedConstraints.contains(s)) {
                     givenContent = getLowlevelParam(insertIndex(destination, 0));
                 }
 
-                String content = null;
-
-                content = defValue;
+                String content = defValue;
                 if (givenContent != null && givenContent.length() != 0)
                     content = givenContent;
 
                 if (content == null) {
-                    String msg = HBCIUtils.getLocMsg("EXC_MISSING_HL_PROPERTY", frontendName);
+                    String msg = HBCIUtils.getLocMsg("EXC_MISSING_HL_PROPERTY", s);
                     if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
                         throw new InvalidUserDataException(msg);
                     content = "";
@@ -438,23 +419,22 @@ public class AbstractHBCIJob {
         }
 
         // verify if segment can be created
-        SEG seg = null;
         try {
-            seg = createJobSegment();
+            SEG seg = createJobSegment();
             seg.validate();
         } catch (Exception ex) {
             throw new HBCI_Exception("*** the job segment for this task can not be created", ex);
         }
     }
 
-    public SEG createJobSegment() {
+    private SEG createJobSegment() {
         return createJobSegment(0);
     }
 
     public SEG createJobSegment(int segnum) {
         SEG seg;
         try {
-            seg = new SEG(getName(), getName(), null, 0, gen.getSyntax());
+            seg = new SEG(getName(), getName(), null, 0, passport.getSyntaxDocument());
             for (Enumeration e = getLowlevelParams().propertyNames(); e.hasMoreElements(); ) {
                 String key = (String) e.nextElement();
                 String value = getLowlevelParams().getProperty(key);
@@ -648,8 +628,7 @@ public class AbstractHBCIJob {
                 throw new InvalidUserDataException(msg);
         }
 
-        for (int i = 0; i < destinations.length; i++) {
-            String[] valuePair = destinations[i];
+        for (String[] valuePair : destinations) {
             String lowlevelname = valuePair[0];
 
             if (index != null && indexedConstraints.contains(paramName)) {
@@ -711,7 +690,7 @@ public class AbstractHBCIJob {
         boolean needs = false;
 
         if (executed) {
-            HBCIRetVal retval = null;
+            HBCIRetVal retval;
             int num = jobResult.getRetNumber();
 
             for (int i = 0; i < num; i++) {
@@ -759,7 +738,7 @@ public class AbstractHBCIJob {
 
             // res-num --> segmentheader (wird für sortierung der 
             // antwort-segmente benötigt)
-            Hashtable<Integer, String> keyHeaders = new Hashtable<Integer, String>();
+            Hashtable<Integer, String> keyHeaders = new Hashtable<>();
             for (Enumeration i = result.keys(); i.hasMoreElements(); ) {
                 String key = (String) (i.nextElement());
                 if (key.startsWith("GVRes") &&
@@ -774,7 +753,7 @@ public class AbstractHBCIJob {
                         }
 
                         keyHeaders.put(
-                                new Integer(resnum),
+                                resnum,
                                 key.substring(0, key.length() - (".SegHead.ref").length()));
                     }
                 }
@@ -789,9 +768,9 @@ public class AbstractHBCIJob {
             Arrays.sort(resnums);
 
             // alle antwortsegmente durchlaufen
-            for (int i = 0; i < resnums.length; i++) {
+            for (Object resnum : resnums) {
                 // dabei reihenfolge des eintreffens beachten
-                String header = keyHeaders.get(resnums[i]);
+                String header = keyHeaders.get(resnum);
 
                 extractPlaintextResults(status, header, contentCounter);
                 extractResults(status, header, contentCounter++);
