@@ -95,12 +95,12 @@ public class RSecTypeTAN extends Rewrite {
                     startpos = elem.getPosInMsg();
                     endpos = startpos
                             + 1
-                            + elem.toString().length()
+                            + elem.toString(0).length()
                             + 1
-                            + msg.getElement(elemBaseName + ".version").toString().length();
+                            + msg.getElement(elemBaseName + ".version").toString(0).length();
                 } else { // komplettes segment "SecMethod" löschen
                     startpos = parent.getPosInMsg() + 1;
-                    endpos = startpos + parent.toString().length();
+                    endpos = startpos + parent.toString(0).length();
                     /* der Fehler, der hier gemacht wird (nachfolgende Segment-
                      * Sequenznummern sind falsch), wird durch ein nachgeschaltetes
                      * Olly-Modul korrigiert */

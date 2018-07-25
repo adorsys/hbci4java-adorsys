@@ -184,17 +184,17 @@ public final class Sig {
 
         // alle benötigten sighead-segmente zusammensuchen
         for (int i = numOfPassports - 1 - idx; i < (u_range.equals("1") ? (numOfPassports - idx) : numOfPassports); i++) {
-            ret.append(((SEG) (sigheads.get(i))).toString());
+            ret.append(((SEG) (sigheads.get(i))).toString(0));
         }
 
         // alle nutzdaten hinzufügen
         for (int i = 2; i < msgelementslist.size() - 2; i++) {
-            ret.append(msgelementslist.get(i).toString());
+            ret.append(msgelementslist.get(i).toString(0));
         }
 
         // bei schalen-modell-signaturen alle "inneren" sigtails mit hinzufügen
         for (int i = 0; i < (u_range.equals("1") ? 0 : idx); i++) {
-            ret.append(((SEG) (sigtails.get(i))).toString());
+            ret.append(((SEG) (sigtails.get(i))).toString(0));
         }
 
         return ret.toString();

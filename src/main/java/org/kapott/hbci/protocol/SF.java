@@ -74,7 +74,7 @@ public final class SF extends SyntaxElement {
         super.init(type, name, path, idx, document);
     }
 
-    public String toString() {
+    public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(256);
 
         if (isValid())
@@ -82,7 +82,7 @@ public final class SF extends SyntaxElement {
                 MultipleSyntaxElements list = (i.next());
 
                 if (list != null)
-                    ret.append(list.toString());
+                    ret.append(list.toString(0));
             }
 
         return ret.toString();

@@ -46,13 +46,17 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         super.init(segref, path, document);
     }
 
+    @Override
     public String toString() {
+        return super.toString();
+    }
+
+    public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(256);
 
-        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
-            SEG seg = (SEG) (i.next());
-            if (seg != null)
-                ret.append(seg.toString());
+        for (SyntaxElement syntaxElement : getElements()) {
+            if (syntaxElement != null)
+                ret.append(((SEG) syntaxElement).toString(0));
         }
 
         return ret.toString();
@@ -62,7 +66,7 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             SEG seg = (SEG) (i.next());
             if (seg != null)
-                HBCIUtils.log(seg.toString(), logLevel);
+                HBCIUtils.log(seg.toString(0), logLevel);
         }
     }
 

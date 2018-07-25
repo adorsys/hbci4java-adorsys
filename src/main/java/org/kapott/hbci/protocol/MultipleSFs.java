@@ -46,13 +46,13 @@ public final class MultipleSFs extends MultipleSyntaxElements {
         super.init(sfref, path, document);
     }
 
-    public String toString() {
+    public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(256);
 
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             SF sf = (SF) (i.next());
             if (sf != null)
-                ret.append(sf.toString());
+                ret.append(sf.toString(0));
         }
 
         return ret.toString();
@@ -62,7 +62,7 @@ public final class MultipleSFs extends MultipleSyntaxElements {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             SF sf = (SF) (i.next());
             if (sf != null)
-                HBCIUtils.log(sf.toString(), logLevel);
+                HBCIUtils.log(sf.toString(0), logLevel);
         }
     }
 

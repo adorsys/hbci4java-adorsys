@@ -695,6 +695,10 @@ public abstract class SyntaxElement {
         return value;
     }
 
+    public String toString(int zero) {
+        return toString();
+    }
+
     /**
      * ueberpreuft, ob das syntaxelement alle restriktionen einhaelt; ist das
      * nicht der fall, so wird eine Exception ausgeloest. die meisten

@@ -23,7 +23,6 @@ package org.kapott.hbci.tools;
 
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.manager.DocumentFactory;
-import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.protocol.Message;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,6 +38,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 public final class SyntaxCheck {
+
     private static String getArg(String[] args, int idx, String st)
             throws IOException {
         String ret = null;
@@ -81,7 +81,7 @@ public final class SyntaxCheck {
 
         if (msgName != null && msgName.length() != 0) {
             Message msg = new Message(msgName, st.toString(), st.length(), document, checkSeq, checkValids);
-            String st2 = msg.toString();
+            String st2 = msg.toString(0);
 
             if (st2.equals(st.toString())) {
                 System.out.println("ok");
@@ -116,7 +116,7 @@ public final class SyntaxCheck {
                     msg = null;
                 }
                 if (msg != null) {
-                    String st2 = msg.toString();
+                    String st2 = msg.toString(0);
 
                     if (st2.equals(st.toString())) {
                         System.out.println("ok");

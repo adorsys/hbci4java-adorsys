@@ -54,7 +54,7 @@ public final class DEG extends SyntaxElement {
         super.init(type, name, path, idx, document);
     }
 
-    public String toString() {
+    public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(128);
         boolean first = true;
 
@@ -68,7 +68,7 @@ public final class DEG extends SyntaxElement {
                 saveLen = ret.length();
                 MultipleSyntaxElements dataList = i.next();
                 if (dataList != null)
-                    ret.append(dataList.toString());
+                    ret.append(dataList.toString(0));
 
                 if (ret.length() == saveLen && !first) {
                     tooMuch++;

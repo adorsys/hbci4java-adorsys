@@ -309,7 +309,7 @@ public class ChallengeInfoTest extends AbstractTest {
 
             Message msg = new Message(name, null);
 
-            String generated = msg.toString();
+            String generated = msg.toString(0);
             String expected = "HNHBK:1:3+000000000139+300+H11051813102140+3'HKTAN:2:5+1+HKDAN+::12345678::280:12345678+@5@12345+++N+++43+:201,:12345::Param 5'HNHBS:3:1+3'";
             // ^^^^^^^^^^^^^^^^^^^^
             // Das sind die relevanten Params. Die letzten duerfen weggelassen werden, aber nicht am Anfang.

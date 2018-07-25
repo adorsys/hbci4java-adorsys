@@ -55,7 +55,7 @@ public final class SEG extends SyntaxElement {
         super.init(type, name, path, idx, document);
     }
 
-    public String toString() {
+    public String toString(int dummy) {
         StringBuilder ret = new StringBuilder(256);
         boolean first = true;
 
@@ -68,7 +68,7 @@ public final class SEG extends SyntaxElement {
 
                 saveLen = ret.length();
                 if (multipleSyntaxElements != null)
-                    ret.append(multipleSyntaxElements.toString());
+                    ret.append(multipleSyntaxElements.toString(0));
 
                 if (ret.length() == saveLen && !first) {
                     tooMuch++;

@@ -64,8 +64,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         super.validateOneElement(elem, idx);
     }
 
-    @Override
-    public String toString() {
+    public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(128);
         boolean first = true;
 
@@ -76,7 +75,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
 
             DE de = (DE) (i.next());
             if (de != null)
-                ret.append(de.toString());
+                ret.append(de.toString(0));
         }
 
         return ret.toString();
@@ -86,7 +85,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             DE de = (DE) (i.next());
             if (de != null)
-                HBCIUtils.log(de.toString(), logLevel);
+                HBCIUtils.log(de.toString(0), logLevel);
 
         }
     }
@@ -94,7 +93,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
     // -------------------------------------------------------------------------------------------------------
 
     protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        SyntaxElement ret = null;
+        SyntaxElement ret;
 
         if (idx != 0 && valids != null) {
             String header = getPath() + ".value";

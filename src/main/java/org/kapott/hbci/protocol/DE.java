@@ -82,7 +82,7 @@ public final class DE extends SyntaxElement {
         String ret = null;
 
         if (path.equals(getPath()))
-            ret = value.toString();
+            ret = value.toString(0);
 
         return ret;
     }
@@ -123,12 +123,11 @@ public final class DE extends SyntaxElement {
             throw new NoValueGivenException(getPath());
         }
 
-        int validssize = valids.size();
-        if (validssize != 0) {
+        if (valids.size() != 0) {
             boolean ok = false;
             String valString = (value != null) ? value.toString() : "";
 
-            for (int i = 0; i < validssize; i++) {
+            for (int i = 0; i < valids.size(); i++) {
                 if (valids.get(i).equals(valString)) {
                     ok = true;
                     break;
@@ -148,9 +147,8 @@ public final class DE extends SyntaxElement {
         this.valids = valids;
     }
 
-    public String toString() {
-        // return (value != null) ? value.toString() : "";
-        return isValid() ? value.toString() : "";
+    public String toString(int dummy) {
+        return isValid() ? value.toString(0) : "";
     }
 
     public int getMinSize() {
@@ -196,7 +194,7 @@ public final class DE extends SyntaxElement {
 
         this.value = SyntaxDEFactory.getInstance().createSyntaxDE(getType(), getPath(), res, minsize, maxsize);
 
-        String valueString = value.toString();
+        String valueString = value.toString(0);
         String predefined = predefs.get(getPath());
         if (predefined != null) {
             if (!valueString.equals(predefined)) {
@@ -269,7 +267,7 @@ public final class DE extends SyntaxElement {
 
     public void extractValues(Hashtable<String, String> values) {
         if (isValid())
-            values.put(getPath(), value.toString());
+            values.put(getPath(), value.toString(0));
     }
 
     public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
@@ -286,6 +284,10 @@ public final class DE extends SyntaxElement {
                     getPath());
             deref[0]++;
         }
+    }
+
+    public String toString() {
+        return isValid() ? value.toString() : "";
     }
 
     public void destroy() {

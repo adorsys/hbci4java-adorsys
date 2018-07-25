@@ -510,7 +510,7 @@ public abstract class MultipleSyntaxElements {
         return value;
     }
 
-    public String toString() {
+    public String toString(int zero) {
         return toString();
     }
 

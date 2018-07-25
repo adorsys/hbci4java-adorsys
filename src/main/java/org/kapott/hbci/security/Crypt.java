@@ -26,7 +26,10 @@ import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.protocol.*;
+import org.kapott.hbci.protocol.Message;
+import org.kapott.hbci.protocol.MultipleSyntaxElements;
+import org.kapott.hbci.protocol.SEG;
+import org.kapott.hbci.protocol.SyntaxElement;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -92,7 +95,7 @@ public final class Crypt {
             /* skip one segment at start and one segment at end of message
                (msghead and msgtail), the rest will be encrypted */
             for (int i = 1; i < len - 1; i++) {
-                ret.append(childs.get(i).toString());
+                ret.append(childs.get(i).toString(0));
             }
 
             // pad message
@@ -175,47 +178,21 @@ public final class Crypt {
         return newmsg;
     }
 
-    private boolean isCrypted(Message msg) {
-        boolean ret = true;
-        MultipleSyntaxElements seglist = (msg.getChildContainers().get(1));
-
-        if (seglist instanceof MultipleSEGs) {
-            SEG crypthead = null;
-
+    public String decryptIt(Message message) {
+        if (message.isCrypted()) {
             try {
-                crypthead = (SEG) (seglist.getElements().get(0));
-            } catch (Exception e) {
-                ret = false;
-            }
+                String msgName = message.getName();
 
-            if (ret) {
-                String sigheadCode = "HNVSK";
-
-                if (!crypthead.getCode().equals(sigheadCode))
-                    ret = false;
-            }
-        } else ret = false;
-
-        return ret;
-    }
-
-    public String decryptIt(Message msg) {
-        StringBuffer ret = new StringBuffer(msg.toString());
-
-        if (isCrypted(msg)) {
-            try {
-                String msgName = msg.getName();
-
-                List<MultipleSyntaxElements> childs = msg.getChildContainers();
-                SEG msghead = (SEG) (((childs.get(0))).getElements().get(0));
-                SEG msgtail = (SEG) (((childs.get(childs.size() - 1))).getElements().get(0));
+                List<MultipleSyntaxElements> childs = message.getChildContainers();
+                SEG msghead = (SEG) childs.get(0).getElements().get(0);
+                SEG msgtail = (SEG) childs.get(childs.size() - 1).getElements().get(0);
 
                 // verschluesselte daten extrahieren
-                SEG cryptdata = (SEG) (((childs.get(2))).getElements().get(0));
+                SEG cryptdata = (SEG) childs.get(2).getElements().get(0);
                 byte[] cryptedstring = cryptdata.getValueOfDE(msgName + ".CryptData.data").getBytes(CommPinTan.ENCODING);
 
                 // key extrahieren
-                SEG crypthead = (SEG) (((childs.get(1))).getElements().get(0));
+                SEG crypthead = (SEG) childs.get(1).getElements().get(0);
                 byte[] cryptedkey = crypthead.getValueOfDE(msgName +
                         ".CryptHead.CryptAlg.enckey").getBytes(CommPinTan.ENCODING);
 
@@ -242,18 +219,20 @@ public final class Crypt {
                 int padLength = plainMsg[plainMsg.length - 1];
 
                 // neuen nachrichtenstring zusammenbauen
-                ret = new StringBuffer(1024);
-                ret.append(msghead.toString()).
+                StringBuffer ret = new StringBuffer(1024);
+                ret.append(msghead.toString(0)).
                         append(new String(plainMsg, 0, plainMsg.length - padLength, CommPinTan.ENCODING)).
-                        append(msgtail.toString());
+                        append(msgtail.toString(0));
 
                 HBCIUtils.log("decrypted message: " + ret, HBCIUtils.LOG_DEBUG2);
+
+                return ret.toString();
             } catch (Exception ex) {
                 throw new HBCI_Exception("*** error while decrypting", ex);
             }
         } else HBCIUtils.log("did not decrypt - message is already cleartext", HBCIUtils.LOG_DEBUG);
 
 
-        return ret.toString();
+        return message.toString(0);
     }
 }

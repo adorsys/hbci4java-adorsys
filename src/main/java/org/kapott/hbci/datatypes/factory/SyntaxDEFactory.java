@@ -48,51 +48,33 @@ public class SyntaxDEFactory {
     }
 
     public SyntaxDE createSyntaxDE(String dataType, String path, String value, int minsize, int maxsize) {
-        SyntaxDE ret = null;
-        ObjectFactory factory = new ObjectFactory(Integer.parseInt(HBCIUtils.getParam("kernel.objpool.Syntax", "1024")));
+        // laden der klasse, die die syntax des de enthaelt
+        Class c;
+        try {
+            c = Class.forName("org.kapott.hbci.datatypes.Syntax" + dataType, false, this.getClass().getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new NoSuchSyntaxException(dataType, path);
+        }
 
-        ret = (SyntaxDE) factory.getFreeObject();
-        if (ret == null) {
-            // laden der klasse, die die syntax des de enthaelt
-            Class c;
-            try {
-                c = Class.forName("org.kapott.hbci.datatypes.Syntax" + dataType, false, this.getClass().getClassLoader());
-            } catch (ClassNotFoundException e) {
-                throw new NoSuchSyntaxException(dataType, path);
-            }
-
-            // holen des constructors fuer diese klasse
-            Constructor con;
-            try {
-                con = c.getConstructor(new Class[]{String.class, int.class, int.class});
-            } catch (NoSuchMethodException e) {
-                throw new NoSuchConstructorException(dataType);
-            }
+        // holen des constructors fuer diese klasse
+        Constructor con;
+        try {
+            con = c.getConstructor(new Class[]{String.class, int.class, int.class});
+        } catch (NoSuchMethodException e) {
+            throw new NoSuchConstructorException(dataType);
+        }
 
             /* anlegen einer neuen instanz der syntaxklasse und initialisieren
              mit dem uebergebenen wert */
-            try {
-                ret = (SyntaxDE) (con.newInstance(new Object[]{value, new Integer(minsize), new Integer(maxsize)}));
-            } catch (InstantiationException e) {
-            } catch (IllegalAccessException e) {
-            } catch (InvocationTargetException e) {
-                throw new InitializingException((Exception) e.getCause(), path);
-            }
-
-            if (ret != null) {
-                factory.addToUsedPool(ret);
-            }
-        } else {
-            try {
-                ret.init(value, minsize, maxsize);
-                factory.addToUsedPool(ret);
-            } catch (RuntimeException e) {
-                factory.addToFreePool(ret);
-                throw new InitializingException(e, path);
-            }
+        try {
+            return  (SyntaxDE) (con.newInstance(new Object[]{value, new Integer(minsize), new Integer(maxsize)}));
+        } catch (InstantiationException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+            throw new InitializingException((Exception) e.getCause(), path);
         }
 
-        return ret;
+        return null;
     }
 
     public SyntaxDE createSyntaxDE(String dataType, String path, StringBuffer res, int minsize, int maxsize) {

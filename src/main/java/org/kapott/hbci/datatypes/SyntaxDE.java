@@ -47,26 +47,29 @@ import org.kapott.hbci.manager.HBCIUtils;
     @author $Author: willuhn $
 */
 public abstract class SyntaxDE {
+
     private String content;
 
-    /**< @internal @brief contains the value of the DE in human readable format */
+    /**
+     * < @internal @brief contains the value of the DE in human readable format
+     */
 
     private void initData(String x, int minsize, int maxsize) {
         content = null;
         setContent(x, minsize, maxsize);
     }
 
-    /** @internal
-     @brief Creates a new instance of a datatype.
-
-     In this constructor the data element will be initialized with the given value @p x.
-     During initializing process the size constraints for this element will be verified.
-     If verification fails, an IllegalArgumentException will be thrown.
-
-     @param x The string representation of the init value.
-     @param minsize The minimum size (string length) of the init value.
-     @param maxsize The maximum size (string length) of the init value. If this is zero, no
-     checking for @p maxsize will be done.
+    /**
+     * @param x       The string representation of the init value.
+     * @param minsize The minimum size (string length) of the init value.
+     * @param maxsize The maximum size (string length) of the init value. If this is zero, no
+     *                checking for @p maxsize will be done.
+     * @internal
+     * @brief Creates a new instance of a datatype.
+     * <p>
+     * In this constructor the data element will be initialized with the given value @p x.
+     * During initializing process the size constraints for this element will be verified.
+     * If verification fails, an IllegalArgumentException will be thrown.
      */
     public SyntaxDE(String x, int minsize, int maxsize) {
         initData(x, minsize, maxsize);
@@ -84,7 +87,9 @@ public abstract class SyntaxDE {
         content = null;
     }
 
-    /** @internal @overload */
+    /**
+     * @internal @overload
+     */
     protected SyntaxDE() {
         initData();
     }
@@ -93,15 +98,15 @@ public abstract class SyntaxDE {
         initData();
     }
 
-    /** @internal
-     @brief Sets the value for a data element.
-
-     @param st The string representation of the init value.
-     @param minsize The minimum size (string length) of the init value.
-     @param maxsize The maximum size (string length) of the init value. If this is zero, no
-     checking for @p maxsize will be done.
-     @exception IllegalArgumentException when the length of @p x is not in the range
-     @p minsize ... @p maxsize
+    /**
+     * @param st      The string representation of the init value.
+     * @param minsize The minimum size (string length) of the init value.
+     * @param maxsize The maximum size (string length) of the init value. If this is zero, no
+     *                checking for @p maxsize will be done.
+     * @throws IllegalArgumentException when the length of @p x is not in the range
+     * @internal
+     * @brief Sets the value for a data element.
+     * @p minsize ... @p maxsize
      */
     protected final void setContent(String st, int minsize, int maxsize) {
         /* die stringlaenge muss zwischen minsize und maxsize liegen,
@@ -117,10 +122,10 @@ public abstract class SyntaxDE {
         content = st;
     }
 
-    /** @internal @brief Returns the current @c content. 
-
-     @return den aktuellen Inhalt des SyntaxDE in der intern gespeicherten
-     Form (human-readable)
+    /**
+     * @return den aktuellen Inhalt des SyntaxDE in der intern gespeicherten
+     * Form (human-readable)
+     * @internal @brief Returns the current @c content.
      */
     protected String getContent() {
         return content;
@@ -128,18 +133,18 @@ public abstract class SyntaxDE {
 
     // -----------------------------------------------------------------------------------
 
-    /** @internal
-     @brief Returns the index, where the next value in the HBCI message @c res
-     starts.
-
-     This method is needed when parsing HBCI messages. It checks the first
-     character of String @p res. If this character is one of the
-     HBCI-specific data-element-delimiters, 1 will be returned, else 0
-     (i.e. the return value is the index into the String @p res where we
-     can start fetching the next syntax token)
-
-     @param res A part of an HBCI message to be parsed.
-     @return Index into @p res where next token starts.
+    /**
+     * @param res A part of an HBCI message to be parsed.
+     * @return Index into @p res where next token starts.
+     * @internal
+     * @brief Returns the index, where the next value in the HBCI message @c res
+     * starts.
+     * <p>
+     * This method is needed when parsing HBCI messages. It checks the first
+     * character of String @p res. If this character is one of the
+     * HBCI-specific data-element-delimiters, 1 will be returned, else 0
+     * (i.e. the return value is the index into the String @p res where we
+     * can start fetching the next syntax token)
      */
     protected static int skipPreDelim(StringBuffer res) {
         int ret = 0;
@@ -155,19 +160,19 @@ public abstract class SyntaxDE {
         return ret;
     }
 
-    /** @internal
-     @brief Returns the index of the next delimiter token.
-
-     This method is needed when parsing an HBCI message. It scans
-     @p res starting at position @p startidx for the next occurence
-     of an HBCI-specific data-element-delimiter and returns its
-     position.
-
-     @param res Part of an HBCI-message to be parsed.
-     @param startidx Index position where to start looking for the next delimiter.
-     @return The position of the next delimiter character in @p res. If there is no
-     next delimiter character, the return value will be the next character
-     after the end of the String @p res (i.e. will equal @c res.length())
+    /**
+     * @param res      Part of an HBCI-message to be parsed.
+     * @param startidx Index position where to start looking for the next delimiter.
+     * @return The position of the next delimiter character in @p res. If there is no
+     * next delimiter character, the return value will be the next character
+     * after the end of the String @p res (i.e. will equal @c res.length())
+     * @internal
+     * @brief Returns the index of the next delimiter token.
+     * <p>
+     * This method is needed when parsing an HBCI message. It scans
+     * @p res starting at position @p startidx for the next occurence
+     * of an HBCI-specific data-element-delimiter and returns its
+     * position.
      */
     public static int findNextDelim(StringBuffer res, int startidx) {
         int ret = startidx;
@@ -207,15 +212,17 @@ public abstract class SyntaxDE {
         return ret;
     }
 
-    /** @internal @brief Returns the human-readable value of this data element. 
+    public String toString(int zero) {
+        return (content != null) ? content : "";
+    }
 
-     @return Die human-reable Repraesentation dieses Elementes
+    /**
+     * @return Die human-reable Repraesentation dieses Elementes
+     * @internal @brief Returns the human-readable value of this data element.
      */
     public String toString() {
         return (content == null) ? "" : content;
     }
 
-    public void destroy() {
-        content = null;
-    }
+
 }

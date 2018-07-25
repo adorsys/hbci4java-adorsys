@@ -110,7 +110,7 @@ public final class Message extends SyntaxElement {
     }
 
     public void autoSetMsgSize() {
-        setMsgSizeValue(toString().length(), ALLOW_OVERWRITE);
+        setMsgSizeValue(toString(0).length(), ALLOW_OVERWRITE);
     }
 
     public void complete() {
@@ -123,13 +123,13 @@ public final class Message extends SyntaxElement {
         autoSetMsgSize();
     }
 
-    public String toString() {
+    public String toString(int dummy) {
         StringBuilder ret = new StringBuilder(1024);
 
         if (isValid())
             for (MultipleSyntaxElements list : getChildContainers()) {
                 if (list != null)
-                    ret.append(list.toString());
+                    ret.append(list.toString(0));
             }
 
         return ret.toString();
@@ -223,6 +223,20 @@ public final class Message extends SyntaxElement {
             }
         }
     }
+
+    public boolean isCrypted() {
+        MultipleSyntaxElements seglist = getChildContainers().get(1);
+        if (seglist instanceof MultipleSEGs) {
+            try {
+                SEG crypthead = (SEG) (seglist.getElements().get(0));
+                if (crypthead.getCode().equals("HNVSK"))
+                    return true;
+            } catch (Exception e) {
+            }
+        }
+        return false;
+    }
+
 
     public Document getDocument() {
         return document;

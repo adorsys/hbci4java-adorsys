@@ -39,10 +39,7 @@ import java.lang.reflect.Constructor;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public final class CommPinTan {
 
@@ -111,13 +108,13 @@ public final class CommPinTan {
         return this;
     }
 
-    public Message pingpong(Hashtable<String, Object> kernelData, Message message) {
+    public Message pingpong(List<Rewrite> rewriters, Message message) {
         HBCIUtils.log("---------------- request ----------------", HBCIUtils.LOG_DEBUG);
         message.log(HBCIUtils.LOG_DEBUG);
 
         // ausgehende nachricht versenden
         callback.status(HBCICallback.STATUS_MSG_SEND, null);
-        callback.status(HBCICallback.STATUS_MSG_RAW_SEND, message.toString());
+        callback.status(HBCICallback.STATUS_MSG_RAW_SEND, message.toString(0));
         ping(message);
 
         // nachricht empfangen
@@ -131,35 +128,18 @@ public final class CommPinTan {
             HBCIUtils.log(aSplit, HBCIUtils.LOG_DEBUG);
         }
 
-        Message retmsg;
+        Message responseMessage;
 
         try {
-            // erzeugen der liste aller rewriter
-            ArrayList<Rewrite> al = new ArrayList<>();
-            StringTokenizer tok = new StringTokenizer(rewriter, ",");
-            while (tok.hasMoreTokens()) {
-                String rewriterName = tok.nextToken().trim();
-                if (rewriterName.length() != 0) {
-                    Class cl = this.getClass().getClassLoader().loadClass("org.kapott.hbci.rewrite.R" +
-                            rewriterName);
-                    Constructor con = cl.getConstructor((Class[]) null);
-                    Rewrite rewriter = (Rewrite) (con.newInstance((Object[]) null));
-                    rewriter.setKernelData(kernelData);
-                    al.add(rewriter);
-                }
-            }
-            Rewrite[] rewriters = al.toArray(new Rewrite[0]);
-
             // alle rewriter für verschlüsselte nachricht durchlaufen
             for (Rewrite rewriter1 : rewriters) {
                 st = rewriter1.incomingCrypted(st);
             }
-
             // versuche, nachricht als verschlüsselte nachricht zu parsen
             callback.status(HBCICallback.STATUS_MSG_PARSE, "CryptedRes");
             try {
                 HBCIUtils.log("trying to parse message as crypted message", HBCIUtils.LOG_DEBUG);
-                retmsg = new Message("CryptedRes", st, st.length(), message.getDocument(), Message.DONT_CHECK_SEQ, true);
+                responseMessage = new Message("CryptedRes", st, st.length(), message.getDocument(), Message.DONT_CHECK_SEQ, true);
             } catch (ParseErrorException e) {
                 // wenn das schiefgeht...
                 HBCIUtils.log("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res message", HBCIUtils.LOG_DEBUG);
@@ -172,18 +152,18 @@ public final class CommPinTan {
 
                 // versuch, nachricht als unverschlüsselte msg zu parsen
                 callback.status(HBCICallback.STATUS_MSG_PARSE, message.getName() + "Res");
-                retmsg = new Message(message.getName() + "Res", st, st.length(), message.getDocument(), Message.CHECK_SEQ, true);
+                responseMessage = new Message(message.getName() + "Res", st, st.length(), message.getDocument(), Message.CHECK_SEQ, true);
             }
         } catch (Exception ex) {
             throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), st, ex);
         }
 
-        return retmsg;
+        return responseMessage;
     }
 
     private void ping(Message msg) {
         try {
-            byte[] b = Base64.encodeBase64(msg.toString().getBytes(ENCODING));
+            byte[] b = Base64.encodeBase64(msg.toString(0).getBytes(ENCODING));
 
             HBCIUtils.log("connecting to server", HBCIUtils.LOG_DEBUG);
             conn = (HttpURLConnection) url.openConnection();

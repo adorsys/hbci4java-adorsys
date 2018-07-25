@@ -706,7 +706,7 @@ public final class HBCIDialog {
                                 // kann in Einzelfällen evtl. auch anders sein (?)
                                 SEG seg = hbciJob.createJobSegment(3);
                                 seg.validate();
-                                String segdata = seg.toString();
+                                String segdata = seg.toString(0);
                                 HBCIUtils.log("calculating hash for jobsegment: " + segdata, HBCIUtils.LOG_DEBUG2);
 
                                 // zu verwendenden Hash-Algorithmus von dem Wert "orderhashmode" aus den BPD abhängig machen

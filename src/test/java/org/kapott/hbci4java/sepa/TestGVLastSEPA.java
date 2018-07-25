@@ -101,7 +101,7 @@ public class TestGVLastSEPA extends AbstractTest {
 
         SEG seg = job.createJobSegment(0);
         seg.validate();
-        String msg = seg.toString();
+        String msg = seg.toString(0);
         Assert.assertEquals("HKUEB:0:5+0001956434:EUR:280:30060601+0001956434:EUR:280:30060601+TEST++0,01:EUR+51++TEST'", msg);
     }
 

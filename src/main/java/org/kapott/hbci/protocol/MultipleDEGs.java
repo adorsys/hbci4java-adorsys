@@ -55,19 +55,19 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         initData(delimiter);
     }
 
-    public String toString() {
+    public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(128);
         boolean first = true;
 
-        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
+        for (SyntaxElement syntaxElement :  getElements()) {
             if (!first)
                 ret.append(delimiter);
             first = false;
 
-            DEG deg = (DEG) (i.next());
-            if (deg != null)
-                ret.append(deg.toString());
+            if (syntaxElement != null)
+                ret.append(((DEG)syntaxElement).toString(0));
         }
+
 
         return ret.toString();
     }
@@ -76,7 +76,7 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             DEG deg = (DEG) (i.next());
             if (deg != null)
-                HBCIUtils.log(deg.toString(), logLevel);
+                HBCIUtils.log(deg.toString(0), logLevel);
         }
     }
 
