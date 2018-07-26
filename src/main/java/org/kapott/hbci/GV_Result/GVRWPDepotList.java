@@ -105,6 +105,7 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
          */
         public BigDecimalValue total;
         private ArrayList<Gattung> gattungen;
+
         public Entry() {
             gattungen = new ArrayList<Gattung>();
         }
@@ -277,6 +278,7 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
             public String underlyingisin;
             public BigDecimalValue kontraktbasispreis;
             private ArrayList<SubSaldo> saldi;
+
             public Gattung() {
                 saldi = new ArrayList<SubSaldo>();
             }

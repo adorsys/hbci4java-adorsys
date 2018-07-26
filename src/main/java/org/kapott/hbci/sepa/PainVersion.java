@@ -75,6 +75,7 @@ public class PainVersion implements Comparable<PainVersion> {
     private int major = 0;
     private int minor = 0;
     private int order = 0;
+
     /**
      * ct.
      * Erzeugt eine neue PAIN-Version.

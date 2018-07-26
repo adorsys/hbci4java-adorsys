@@ -1,7 +1,6 @@
 package org.kapott.hbci.GV.parsers;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 
 /**

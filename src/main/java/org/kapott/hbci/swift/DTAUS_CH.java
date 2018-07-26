@@ -38,6 +38,7 @@ public class DTAUS_CH {
     private int counter;
     private Date now;
     private long total;
+
     public DTAUS_CH(Konto myAccount, String[] myAddress) {
         if (!myAccount.country.equals("CH"))
             throw new InvalidArgumentException("*** can only be used with swiss accounts");

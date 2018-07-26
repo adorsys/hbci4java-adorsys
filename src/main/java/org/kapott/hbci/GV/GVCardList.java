@@ -28,7 +28,6 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Value;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 public class GVCardList extends AbstractHBCIJob {
 

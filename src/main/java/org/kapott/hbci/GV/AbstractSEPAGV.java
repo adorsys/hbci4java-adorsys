@@ -118,7 +118,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
 
         // GV-Restrictions laden und darüber iterieren
         HashMap<String, String> props = passport.getLowlevelJobRestrictions(gvName, passport.getSyntaxDocument());
-        for (String key: props.keySet()) {
+        for (String key : props.keySet()) {
             // Die Keys, welche die Schema-Versionen enthalten, heissen alle "suppformats*"
             if (!key.startsWith("suppformats"))
                 continue;

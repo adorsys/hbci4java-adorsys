@@ -25,7 +25,6 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 public class GVLast extends AbstractHBCIJob {
 

@@ -30,7 +30,6 @@ import org.kapott.hbci.status.HBCIRetVal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Properties;
 
 public final class GVStatus extends AbstractHBCIJob {
 

@@ -33,7 +33,6 @@ import org.kapott.hbci.swift.Swift;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Properties;
 
 public class GVWPDepotUms extends AbstractHBCIJob {
 

@@ -262,7 +262,7 @@ public class AbstractHBCIJob {
 
         StringBuilder tempkey = new StringBuilder();
 
-        for (String key: passport.getBPD().keySet()) {
+        for (String key : passport.getBPD().keySet()) {
             if (key.indexOf("Params") == 0) {
                 tempkey.setLength(0);
                 tempkey.append(key);

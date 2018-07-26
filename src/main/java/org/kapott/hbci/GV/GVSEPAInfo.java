@@ -27,7 +27,6 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 @Slf4j
 public class GVSEPAInfo extends AbstractHBCIJob {

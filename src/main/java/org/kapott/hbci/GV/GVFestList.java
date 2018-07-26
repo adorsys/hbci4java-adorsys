@@ -30,7 +30,6 @@ import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 public class GVFestList extends AbstractHBCIJob {
 
