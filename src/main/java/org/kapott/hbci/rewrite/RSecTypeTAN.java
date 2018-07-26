@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
@@ -39,6 +40,7 @@ import java.util.Iterator;
  * sein, weil einige hier vorgenommene Änderungen wiederum fehlerhafte Nachrichten
  * erzeugen, die aber durch "<code>Olly</code>" wieder korrigiert werden.</p>
  */
+@Slf4j
 public class RSecTypeTAN extends Rewrite {
 
     // TODO: den rewriter umschreiben, so dass er nur string-operationen
@@ -64,7 +66,7 @@ public class RSecTypeTAN extends Rewrite {
             // Methodenbezeichner extrahieren
             String method = elem.toString();
             if (method.equals("TAN")) { // "TAN" ist ungültiger Bezeichner
-                HBCIUtils.log("there is an invalid sec type (TAN) in this BPD - removing it", HBCIUtils.LOG_WARN);
+                log.warn("there is an invalid sec type (TAN) in this BPD - removing it");
 
                 // Elternelement finden (Segment "SecMethods")
                 SyntaxElement parent = elem.getParent().getParent().getParent().getParent();
@@ -107,7 +109,7 @@ public class RSecTypeTAN extends Rewrite {
                 }
 
                 st = new StringBuffer(st).delete(startpos, endpos).toString();
-                HBCIUtils.log("new message after removing: " + st, HBCIUtils.LOG_DEBUG);
+                log.debug("new message after removing: " + st);
                 break;
             }
         }

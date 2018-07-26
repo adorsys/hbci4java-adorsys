@@ -22,6 +22,7 @@
 package org.kapott.hbci.GV;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -33,6 +34,7 @@ import java.util.Properties;
 /**
  * @author stefan.palme
  */
+@Slf4j
 public class GVTAN2Step extends AbstractHBCIJob {
 
     private GVTAN2Step otherTAN2StepTask;
@@ -102,7 +104,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
 
         if (origTask != null) {
             int orig_segnum = Integer.parseInt(origTask.getJobResult().getSegNum());
-            HBCIUtils.log("storing return values in orig task (segnum=" + orig_segnum + ")", HBCIUtils.LOG_DEBUG);
+            log.debug("storing return values in orig task (segnum=" + orig_segnum + ")");
             origTask.saveReturnValues(status, orig_segnum);
         }
     }
@@ -110,19 +112,19 @@ public class GVTAN2Step extends AbstractHBCIJob {
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         Properties result = msgstatus.getData();
         String segcode = result.getProperty(header + ".SegHead.code");
-        HBCIUtils.log("found HKTAN response with segcode " + segcode, HBCIUtils.LOG_DEBUG);
+        log.debug("found HKTAN response with segcode " + segcode);
 
         if (origTask != null && new StringBuffer(origTask.getHBCICode()).replace(1, 2, "I").toString().equals(segcode)) {
             // das ist für PV#2, wenn nach dem nachträglichen versenden der TAN das
             // antwortsegment des jobs aus der vorherigen Nachricht zurückommt
-            HBCIUtils.log("this is a response segment for the original task - storing results in the original job", HBCIUtils.LOG_DEBUG);
+            log.debug("this is a response segment for the original task - storing results in the original job");
             origTask.extractResults(msgstatus, header, idx);
         } else {
-            HBCIUtils.log("this is a \"real\" HKTAN response - analyzing HITAN data", HBCIUtils.LOG_DEBUG);
+            log.debug("this is a \"real\" HKTAN response - analyzing HITAN data");
 
             String challenge = result.getProperty(header + ".challenge");
             if (challenge != null) {
-                HBCIUtils.log("found challenge '" + challenge + "' in HITAN - saving it temporarily in passport", HBCIUtils.LOG_DEBUG);
+                log.debug("found challenge '" + challenge + "' in HITAN - saving it temporarily in passport");
                 // das ist für PV#1 (die antwort auf das einreichen des auftrags-hashs) oder 
                 // für PV#2 (die antwort auf das einreichen des auftrages)
                 // in jedem fall muss mit der nächsten nachricht die TAN übertragen werden
@@ -143,23 +145,23 @@ public class GVTAN2Step extends AbstractHBCIJob {
             // willuhn 2011-05-27 Challenge HHDuc aus dem Reponse holen und im Passport zwischenspeichern
             String hhdUc = result.getProperty(header + ".challenge_hhd_uc");
             if (hhdUc != null) {
-                HBCIUtils.log("found Challenge HHDuc '" + hhdUc + "' in HITAN - saving it temporarily in passport", HBCIUtils.LOG_DEBUG);
+                log.debug("found Challenge HHDuc '" + hhdUc + "' in HITAN - saving it temporarily in passport");
                 passport.setPersistentData("pintan_challenge_hhd_uc", hhdUc);
             }
 
             String orderref = result.getProperty(header + ".orderref");
             if (orderref != null) {
                 // orderref ist nur für PV#2 relevant
-                HBCIUtils.log("found orderref '" + orderref + "' in HITAN", HBCIUtils.LOG_DEBUG);
+                log.debug("found orderref '" + orderref + "' in HITAN");
                 if (otherTAN2StepTask != null) {
                     // hier sind wir ganz sicher in PV#2. das hier ist die antwort auf das
                     // erste HKTAN (welches mit dem eigentlichen auftrag verschickt wird)
                     // die orderref muss im zweiten HKTAN-job gespeichert werden, weil in
                     // dieser zweiten nachricht dann die TAN mit übertragen werden muss
-                    HBCIUtils.log("storing it in following HKTAN task", HBCIUtils.LOG_DEBUG);
+                    log.debug("storing it in following HKTAN task");
                     otherTAN2StepTask.setParam("orderref", orderref);
                 } else {
-                    HBCIUtils.log("no other HKTAN task known - ignoring orderref", HBCIUtils.LOG_DEBUG);
+                    log.debug("no other HKTAN task known - ignoring orderref");
                 }
             }
 

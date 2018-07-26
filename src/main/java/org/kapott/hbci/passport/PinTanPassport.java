@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.passport;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -33,6 +34,7 @@ import org.kapott.hbci.status.HBCIRetVal;
 
 import java.util.*;
 
+@Slf4j
 public class PinTanPassport extends AbstractHBCIPassport {
 
     private String proxy;
@@ -86,7 +88,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
             if (pintanMethod.equals(Sig.SECFUNC_SIG_PT_1STEP)) {
                 // nur beim normalen einschritt-verfahren muss anhand der segment-
                 // codes ermittelt werden, ob eine tan benötigt wird
-                HBCIUtils.log("onestep method - checking GVs to decide whether or not we need a TAN", HBCIUtils.LOG_DEBUG);
+                log.debug("onestep method - checking GVs to decide whether or not we need a TAN");
 
                 // segment-codes durchlaufen
                 String codes = collectSegCodes(new String(data, "ISO-8859-1"));
@@ -98,7 +100,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
                     if (info.equals("J")) {
                         // für dieses segment wird eine tan benötigt
-                        HBCIUtils.log("the job with the code " + code + " needs a TAN", HBCIUtils.LOG_DEBUG);
+                        log.debug("the job with the code " + code + " needs a TAN");
 
                         if (tan.length() == 0) {
                             // noch keine tan bekannt --> callback
@@ -114,20 +116,20 @@ public class PinTanPassport extends AbstractHBCIPassport {
                             }
                             tan = s.toString();
                         } else {
-                            HBCIUtils.log("there should be only one job that needs a TAN!", HBCIUtils.LOG_WARN);
+                            log.warn("there should be only one job that needs a TAN!");
                         }
 
                     } else if (info.equals("N")) {
-                        HBCIUtils.log("the job with the code " + code + " does not need a TAN", HBCIUtils.LOG_DEBUG);
+                        log.debug("the job with the code " + code + " does not need a TAN");
 
                     } else if (info.length() == 0) {
                         // TODO: ist das hier dann nicht ein A-Segment? In dem Fall
                         // wäre diese Warnung überflüssig
-                        HBCIUtils.log("the job with the code " + code + " seems not to be allowed with PIN/TAN", HBCIUtils.LOG_WARN);
+                        log.warn("the job with the code " + code + " seems not to be allowed with PIN/TAN");
                     }
                 }
             } else {
-                HBCIUtils.log("twostep method - checking passport(challenge) to decide whether or not we need a TAN", HBCIUtils.LOG_DEBUG);
+                log.debug("twostep method - checking passport(challenge) to decide whether or not we need a TAN");
                 Properties secmechInfo = getCurrentSecMechInfo();
 
                 // gespeicherte challenge aus passport holen
@@ -136,16 +138,16 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
                 if (challenge == null) {
                     // es gibt noch keine challenge
-                    HBCIUtils.log("will not sign with a TAN, because there is no challenge", HBCIUtils.LOG_DEBUG);
+                    log.debug("will not sign with a TAN, because there is no challenge");
                 } else {
-                    HBCIUtils.log("found challenge in passport, so we ask for a TAN", HBCIUtils.LOG_DEBUG);
+                    log.debug("found challenge in passport, so we ask for a TAN");
 
                     // willuhn 2011-05-27 Wir versuchen, den Flickercode zu ermitteln und zu parsen
                     String hhduc = (String) getPersistentData("pintan_challenge_hhd_uc");
                     setPersistentData("pintan_challenge_hhd_uc", null); // gleich wieder aus dem Passport loeschen
 
                     HHDVersion hhd = HHDVersion.find(secmechInfo);
-                    HBCIUtils.log("detected HHD version: " + hhd, HBCIUtils.LOG_DEBUG);
+                    log.debug("detected HHD version: " + hhd);
 
                     final StringBuffer payload = new StringBuffer();
                     final String msg = secmechInfo.getProperty("name") + "\n" + secmechInfo.getProperty("inputinfo") + "\n\n" + challenge;
@@ -200,7 +202,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                 FlickerCode code = new FlickerCode(hhduc);
                 return code.render();
             } catch (Exception e) {
-                HBCIUtils.log("unable to parse Challenge HHDuc " + hhduc + ":" + HBCIUtils.exception2String(e), HBCIUtils.LOG_DEBUG);
+                log.debug("unable to parse Challenge HHDuc " + hhduc + ":" + HBCIUtils.exception2String(e));
             }
         }
 
@@ -215,7 +217,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                 // chipTAN- und smsTAN Verfahren verwendet wird, wo gar kein Flicker-Code enthalten ist.
                 // Wir loggen es aber trotzdem - fuer den Fall, dass tatsaechlich ein Flicker-Code
                 // enthalten ist. Sonst koennen wir das nicht debuggen.
-                HBCIUtils.log("challenge contains no HHDuc (no problem in most cases):" + HBCIUtils.exception2String(e), HBCIUtils.LOG_DEBUG2);
+                log.debug("challenge contains no HHDuc (no problem in most cases):" + HBCIUtils.exception2String(e));
             }
         }
         // Ne, definitiv kein Flicker-Code.
@@ -258,7 +260,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
             // kein HHD 1.4 beherrscht. Mit dem folgenden Parameter kann die Maximal-Version
             // des HITANS-Segments nach oben begrenzt werden, so dass z.Bsp. HITANS5 ausgefiltert
             // wird.
-            int maxAllowedVersion = Integer.parseInt(HBCIUtils.getParam("kernel.gv.HITANS.segversion.max", "0"));
+            int maxAllowedVersion = 0;
 
             for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
                 String key = (String) e.nextElement();
@@ -277,7 +279,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                         if (subkey.startsWith("ParTAN2Step") && subkey.endsWith(".secfunc")) {
                             // willuhn 2011-06-06 Segment-Versionen ueberspringen, die groesser als die max. zulaessige sind
                             if (maxAllowedVersion > 0 && segVersion > maxAllowedVersion) {
-                                HBCIUtils.log("skipping segversion " + segVersion + ", larger than allowed version " + maxAllowedVersion, HBCIUtils.LOG_INFO);
+                                log.info("skipping segversion " + segVersion + ", larger than allowed version " + maxAllowedVersion);
                                 continue;
                             }
 
@@ -289,7 +291,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                                 // Wir haben es schonmal. Mal sehen, welche Versionsnummer es hat
                                 int prevVersion = Integer.parseInt(prev.getProperty("segversion"));
                                 if (prevVersion > segVersion) {
-                                    HBCIUtils.log("found another twostepmech " + secfunc + " in segversion " + segVersion + ", allready have one in segversion " + prevVersion + ", ignoring segversion " + segVersion, HBCIUtils.LOG_DEBUG);
+                                    log.debug("found another twostepmech " + secfunc + " in segversion " + segVersion + ", allready have one in segversion " + prevVersion + ", ignoring segversion " + segVersion);
                                     continue;
                                 }
                             }
@@ -336,7 +338,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                 int l2 = ret.params.length;
                 this.allowedTwostepMechanisms.addAll(Arrays.asList(ret.params).subList(0, l2));
 
-                HBCIUtils.log("autosecfunc: found 3920 in response - updated list of allowed twostepmechs with " + allowedTwostepMechanisms.size() + " entries", HBCIUtils.LOG_DEBUG);
+                log.debug("autosecfunc: found 3920 in response - updated list of allowed twostepmechs with " + allowedTwostepMechanisms.size() + " entries");
             }
         }
     }
@@ -355,7 +357,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     newCustomerId = ret.params[1];
                 }
                 if (l2 > 0) {
-                    HBCIUtils.log("autosecfunc: found 3072 in response - change user id", HBCIUtils.LOG_DEBUG);
+                    log.debug("autosecfunc: found 3072 in response - change user id");
                     // Aufrufer informieren, dass UserID und CustomerID geändert wurde
                     StringBuffer retData = new StringBuffer();
                     retData.append(newUserId)
@@ -369,10 +371,10 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     public boolean postInitResponseHook(HBCIMsgStatus msgStatus) {
         if (!msgStatus.isOK()) {
-            HBCIUtils.log("dialog init ended with errors - searching for return code 'wrong PIN'", HBCIUtils.LOG_DEBUG);
+            log.debug("dialog init ended with errors - searching for return code 'wrong PIN'");
 
             if (msgStatus.isInvalidPIN()) {
-                HBCIUtils.log("detected 'invalid PIN' error - clearing passport PIN", HBCIUtils.LOG_INFO);
+                log.info("detected 'invalid PIN' error - clearing passport PIN");
                 clearPIN();
 
                 // Aufrufer informieren, dass falsche PIN eingegeben wurde (um evtl. PIN aus Puffer zu löschen, etc.)
@@ -381,7 +383,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
             }
         }
 
-        HBCIUtils.log("autosecfunc: search for 3920s in response to detect allowed twostep secmechs", HBCIUtils.LOG_DEBUG);
+        log.debug("autosecfunc: search for 3920s in response to detect allowed twostep secmechs");
 
         searchFor3920s(msgStatus.globStatus.getWarnings());
         searchFor3920s(msgStatus.segStatus.getWarnings());
@@ -398,7 +400,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
             // wenn sich das ausgewählte secmech geändert hat, müssen wir
             // einen dialog-restart fordern, weil während eines dialoges
             // das secmech nicht gewechselt werden darf
-            HBCIUtils.log("autosecfunc: after this dialog-init we had to change selected pintan method from " + oldTANMethod + " to " + updatedTANMethod + ", so a restart of this dialog is needed", HBCIUtils.LOG_INFO);
+            log.info("autosecfunc: after this dialog-init we had to change selected pintan method from " + oldTANMethod + " to " + updatedTANMethod + ", so a restart of this dialog is needed");
             return true;
         }
 
@@ -432,20 +434,20 @@ public class PinTanPassport extends AbstractHBCIPassport {
                 if (current.equals(Sig.SECFUNC_SIG_PT_1STEP)) {
                     // einschrittverfahren gewählt
                     if (!isOneStepAllowed()) {
-                        HBCIUtils.log("not supported: onestep method not allowed by BPD", HBCIUtils.LOG_ERR);
+                        log.error("not supported: onestep method not allowed by BPD");
                         ret = false;
                     } else {
-                        HBCIUtils.log("supported: pintan-onestep", HBCIUtils.LOG_DEBUG);
+                        log.debug("supported: pintan-onestep");
                     }
                 } else {
                     // irgendein zweischritt-verfahren gewählt
                     Properties entry = twostepMechanisms.get(current);
                     if (entry == null) {
                         // es gibt keinen info-eintrag für das gewählte verfahren
-                        HBCIUtils.log("not supported: twostep-method " + current + " selected, but this is not supported", HBCIUtils.LOG_ERR);
+                        log.error("not supported: twostep-method " + current + " selected, but this is not supported");
                         ret = false;
                     } else {
-                        HBCIUtils.log("selected twostep-method " + current + " (" + entry.getProperty("name") + ") is supported", HBCIUtils.LOG_DEBUG);
+                        log.debug("selected twostep-method " + current + " (" + entry.getProperty("name") + ") is supported");
                     }
                 }
             }
@@ -497,7 +499,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         // also in jedem fall weiter verwenden) (das AUTOMATISCH erkennt man daran,
         // dass recheckCurrentTANMethodNeeded==true ist)
         if (currentTANMethod == null || recheckSupportedSecMechs) {
-            HBCIUtils.log("autosecfunc: (re)checking selected pintan secmech", HBCIUtils.LOG_DEBUG);
+            log.debug("autosecfunc: (re)checking selected pintan secmech");
 
             // es ist noch kein zweischrittverfahren ausgewaehlt, oder die 
             // aktuelle auswahl soll gegen die liste der tatsaechlich unterstuetzten
@@ -526,9 +528,9 @@ public class PinTanPassport extends AbstractHBCIPassport {
                 // wenn nur ein verfahren unterstützt wird, das automatisch auswählen
                 String autoSelection = (options.get(0))[0];
 
-                HBCIUtils.log("autosecfunc: there is only one pintan method (" + autoSelection + ") supported - choosing this automatically", HBCIUtils.LOG_DEBUG);
+                log.debug("autosecfunc: there is only one pintan method (" + autoSelection + ") supported - choosing this automatically");
                 if (currentTANMethod != null && !autoSelection.equals(currentTANMethod)) {
-                    HBCIUtils.log("autosecfunc: currently selected method (" + currentTANMethod + ") differs from auto-selected method (" + autoSelection + ")", HBCIUtils.LOG_DEBUG);
+                    log.debug("autosecfunc: currently selected method (" + currentTANMethod + ") differs from auto-selected method (" + autoSelection + ")");
                 }
 
                 setCurrentTANMethod(autoSelection);
@@ -557,7 +559,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     }
 
                     if (!ok) {
-                        HBCIUtils.log("autosecfunc: currently selected pintan method (" + currentTANMethod + ") not in list of supported methods - resetting current selection", HBCIUtils.LOG_DEBUG);
+                        log.debug("autosecfunc: currently selected pintan method (" + currentTANMethod + ") not in list of supported methods - resetting current selection");
                         currentTANMethod = null;
                     }
                 }
@@ -583,7 +585,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                         // nicht haben KÃNNEN, wählen wir einen automatisch aus.
 
                         String autoSelection = (options.get(0))[0];
-                        HBCIUtils.log("autosecfunc: there are " + options.size() + " pintan methods supported, but we don't know which of them are allowed for the current user, so we automatically choose " + autoSelection, HBCIUtils.LOG_DEBUG);
+                        log.debug("autosecfunc: there are " + options.size() + " pintan methods supported, but we don't know which of them are allowed for the current user, so we automatically choose " + autoSelection);
                         setCurrentTANMethod(autoSelection);
 
                         // autosecmech: hier merken, dass dieses verfahren AUTOMATISCH
@@ -604,7 +606,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                         // wir fragen also via callback nach, welcher dieser secmechs
                         // denn nun verwendet werden soll
 
-                        HBCIUtils.log("autosecfunc: we have to callback to ask for pintan method to be used", HBCIUtils.LOG_DEBUG);
+                        log.debug("autosecfunc: we have to callback to ask for pintan method to be used");
 
                         // auswahlliste als string zusammensetzen
                         StringBuffer retData = new StringBuffer();
@@ -639,14 +641,14 @@ public class PinTanPassport extends AbstractHBCIPassport {
                         setCurrentTANMethod(selected);
                         this.currentTANMethodWasAutoSelected = false;
 
-                        HBCIUtils.log("autosecfunc: manually selected pintan method " + currentTANMethod, HBCIUtils.LOG_DEBUG);
+                        log.debug("autosecfunc: manually selected pintan method " + currentTANMethod);
                     }
                 }
 
             } else {
                 // es wird scheinbar GAR KEIN verfahren unterstuetzt. also nehmen
                 // wir automatisch 999
-                HBCIUtils.log("autosecfunc: absolutely no information about allowed pintan methods available - automatically falling back to 999", HBCIUtils.LOG_DEBUG);
+                log.debug("autosecfunc: absolutely no information about allowed pintan methods available - automatically falling back to 999");
                 setCurrentTANMethod("999");
                 this.currentTANMethodWasAutoSelected = true;
             }
@@ -939,20 +941,20 @@ public class PinTanPassport extends AbstractHBCIPassport {
         // hier zu kompliziert
 
         int hktan_version = Integer.parseInt(hktan.getSegVersion());
-        HBCIUtils.log("hktan_version: " + hktan_version, HBCIUtils.LOG_DEBUG);
+        log.debug("hktan_version: " + hktan_version);
         if (hktan_version >= 3) {
             Properties secmechInfo = getCurrentSecMechInfo();
 
             // Anzahl aktiver TAN-Medien ermitteln
             int num = Integer.parseInt(secmechInfo.getProperty("nofactivetanmedia", "0"));
             String needed = secmechInfo.getProperty("needtanmedia", "");
-            HBCIUtils.log("nofactivetanmedia: " + num + ", needtanmedia: " + needed, HBCIUtils.LOG_DEBUG);
+            log.debug("nofactivetanmedia: " + num + ", needtanmedia: " + needed);
 
             // Ich hab Mails von Usern erhalten, bei denen die Angabe des TAN-Mediums auch
             // dann noetig war, wenn nur eine Handy-Nummer hinterlegt war. Daher logen wir
             // "num" nur, bringen die Abfrage jedoch schon bei num<2 - insofern needed=2.
             if (needed.equals("2")) {
-                HBCIUtils.log("we have to add the tan media", HBCIUtils.LOG_DEBUG);
+                log.debug("we have to add the tan media");
 
                 String tanMedia = callback.tanMediaCallback(this.getUPD().getProperty("tanmedia.names", ""));
                 if (tanMedia != null) {

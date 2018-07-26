@@ -1,5 +1,6 @@
 package org.kapott.hbci.manager;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
@@ -8,6 +9,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 
 import java.lang.reflect.Constructor;
 
+@Slf4j
 public class HBCIJobFactory {
 
     /**
@@ -24,7 +26,7 @@ public class HBCIJobFactory {
      * welches anschließend zum HBCI-Dialog hinzugefügt werden kann.
      */
     public static AbstractHBCIJob newJob(String jobname, HBCIPassportInternal passport) {
-        HBCIUtils.log("creating new job " + jobname, HBCIUtils.LOG_DEBUG);
+        log.debug("creating new job " + jobname);
 
         if (jobname == null || jobname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
@@ -40,8 +42,7 @@ public class HBCIJobFactory {
             throw new InvalidUserDataException("*** there is no highlevel job named " + jobname + " - need class " + className);
         } catch (Exception e) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_JOB_CREATE_ERR", jobname);
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCreateJobErrors", msg))
-                throw new HBCI_Exception(msg, e);
+            throw new HBCI_Exception(msg, e);
         }
 
         return ret;

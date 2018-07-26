@@ -21,11 +21,9 @@
 
 package org.kapott.hbci.manager;
 
-import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.structures.Konto;
 import org.slf4j.LoggerFactory;
 
@@ -39,33 +37,8 @@ import java.util.Map.Entry;
 
 
 public final class HBCIUtils {
-    private static final String VERSION = "HBCI4Java-2.5.12";
 
-    public static final int LOG_NONE = 0;
-    /**
-     * Loglevel für Fehlerausgaben
-     */
-    public static final int LOG_ERR = 1;
-    /**
-     * Loglevel für Warnungen
-     */
-    public static final int LOG_WARN = 2;
-    /**
-     * Loglevel für Informationen
-     */
-    public static final int LOG_INFO = 3;
-    /**
-     * Loglevel für Debug-Ausgaben
-     */
-    public static final int LOG_DEBUG = 4;
-    /**
-     * Loglevel für Debug-Ausgaben für extreme-Debugging
-     */
-    public static final int LOG_DEBUG2 = 5;
-    /**
-     * Loglevel für devel-Debugging - nicht benutzen!
-     */
-    public static final int LOG_INTERN = 6;
+    private static final String VERSION = "HBCI4Java-2.5.12";
 
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("hbci4java-messages", Locale.getDefault());
 
@@ -549,72 +522,6 @@ public final class HBCIUtils {
         return result;
     }
 
-
-    private static void errDeprecated(String method) {
-        LoggerFactory.getLogger(HBCIUtils.class).info("programming error: the method " + method + "() has been deprecated, is very dangerous and will be removed soon.", HBCIUtils.LOG_ERR);
-        LoggerFactory.getLogger(HBCIUtils.class).info("programming error: please check your application to replace calls to " + method + "() with calls to either " + method + "Local() or " + method + "ISO()", HBCIUtils.LOG_ERR);
-    }
-
-    /**
-     * Wrapper für {@link #date2StringLocal(Date)}.
-     *
-     * @deprecated
-     */
-    public static String date2String(Date date) {
-        errDeprecated("date2String");
-        return date2StringLocal(date);
-    }
-
-    /**
-     * Wrapper für {@link #string2DateLocal(String)}
-     *
-     * @deprecated
-     */
-    public static Date string2Date(String st) {
-        errDeprecated("string2Date");
-        return string2DateLocal(st);
-    }
-
-    /**
-     * Wrapper für {@link #time2StringLocal(Date)}
-     *
-     * @deprecated
-     */
-    public static String time2String(Date date) {
-        errDeprecated("time2String");
-        return time2StringLocal(date);
-    }
-
-    /**
-     * Wrapper für {@link #string2TimeLocal(String)}
-     *
-     * @deprecated
-     */
-    public static Date string2Time(String st) {
-        errDeprecated("string2Time");
-        return string2TimeLocal(st);
-    }
-
-    /**
-     * Wrapper für {@link #datetime2StringLocal(Date)}
-     *
-     * @deprecated
-     */
-    public static String datetime2String(Date date) {
-        errDeprecated("datetime2String");
-        return datetime2StringLocal(date);
-    }
-
-    /**
-     * Wrapper für {@link #string2DateLocal(String)}
-     *
-     * @deprecated
-     */
-    public static Date strings2DateTime(String date, String time) {
-        errDeprecated("strings2DateTime");
-        return strings2DateTimeLocal(date, time);
-    }
-
     private static Method getAccountCRCMethodByAlg(String alg) {
         Class<AccountCRCAlgs> cl = null;
         Method method = null;
@@ -627,32 +534,6 @@ public final class HBCIUtils {
         }
 
         return method;
-    }
-
-    /**
-     * Ermittelt, ob die Kontonummern für eine bestimmte BLZ mit <em>HBCI4Java</em>
-     * überprüft werden können oder nicht. Je nach Bank werden unterschiedliche
-     * Prüf-Algorithmen verwendet. Es sind noch nicht alle Prüf-Algorithmen
-     * in <em>HBCI4Java</em> implementiert - für manche Banken existiert auch
-     * keine Information darüber, welche Prüf-Algorithmen diese verwenden.
-     * <p>Mit dieser Methode kann nun ermittelt werden, ob für eine bestimmte
-     * Bank eine Prüfung möglich ist oder nicht.</p>
-     *
-     * @param blz Die BLZ der Bank
-     * @return <code>true</code>, wenn die Kontonummern für diese Bank mit
-     * <em>HBCI4Java</em> validiert werden können, sonst <code>false</code>
-     */
-    public static boolean canCheckAccountCRC(String blz) {
-        BankInfo info = getBankInfo(blz);
-        if (info == null)
-            return false;
-
-        String alg = info.getChecksumMethod();
-        if (alg == null || alg.length() != 2)
-            return false;
-
-        Method method = getAccountCRCMethodByAlg(alg);
-        return method != null;
     }
 
     /**
@@ -876,29 +757,6 @@ public final class HBCIUtils {
         return VERSION;
     }
 
-    public static void log(String s, int logLevel) {
-        LoggerFactory.getLogger(HBCIUtils.class).info(s);
-//        switch (logLevel) {
-//            case LOG_INTERN:
-//            case LOG_NONE:
-//                LoggerFactory.getLogger(HBCIUtils.class).trace(s);
-//                break;
-//            case LOG_ERR:
-//                LoggerFactory.getLogger(HBCIUtils.class).error(s);
-//                break;
-//            case LOG_WARN:
-//                LoggerFactory.getLogger(HBCIUtils.class).warn(s);
-//                break;
-//            case LOG_INFO:
-//                LoggerFactory.getLogger(HBCIUtils.class).info(s);
-//                break;
-//            case LOG_DEBUG:
-//            case LOG_DEBUG2:
-//                LoggerFactory.getLogger(HBCIUtils.class).debug(s);
-//                break;
-//        }
-    }
-
     public static String bigDecimal2String(BigDecimal value) {
         DecimalFormat format = new DecimalFormat("0.##");
         DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
@@ -924,22 +782,6 @@ public final class HBCIUtils {
 
     public static String getLocMsg(String key, Object[] o) {
         return MessageFormat.format(getLocMsg(key), o);
-    }
-
-    public static boolean ignoreError(HBCIPassport passport, String paramName, String msg) {
-        boolean ret = false;
-        String paramValue = "no";
-        if (passport != null) {
-            paramValue = passport.getProperties().getProperty(paramName, "no");
-        }
-
-        if (paramValue.equals("yes")) {
-            LoggerFactory.getLogger(HBCIUtils.class).info(msg, HBCIUtils.LOG_ERR);
-            LoggerFactory.getLogger(HBCIUtils.class).info("ignoring error because param " + paramName + "=yes", HBCIUtils.LOG_ERR);
-            ret = true;
-        }
-
-        return ret;
     }
 
     public static long string2Long(String st, long factor) {
@@ -993,25 +835,6 @@ public final class HBCIUtils {
         }
 
         return ret;
-    }
-
-    public static void log(Exception e) {
-        LoggerFactory.getLogger(HBCIUtils.class).error(e.getMessage(), e);
-    }
-
-    public static String getParam(String s, String s1) {
-        return s1;
-    }
-
-    public static HBCICallback getCallback() {
-        return null;
-    }
-
-    public static String getParam(String s) {
-        return getParam(s, null);
-    }
-
-    public static void setParam(String s, Object o) {
     }
 
     public static Locale getLocale() {

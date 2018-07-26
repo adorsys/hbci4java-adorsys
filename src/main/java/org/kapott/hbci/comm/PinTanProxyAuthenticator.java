@@ -21,11 +21,12 @@
 
 package org.kapott.hbci.comm;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 
+@Slf4j
 public class PinTanProxyAuthenticator extends Authenticator {
 
     private String proxyUser;
@@ -37,7 +38,7 @@ public class PinTanProxyAuthenticator extends Authenticator {
     }
 
     protected PasswordAuthentication getPasswordAuthentication() {
-        HBCIUtils.log("need proxy authentication", HBCIUtils.LOG_DEBUG);
+        log.debug("need proxy authentication");
 
         return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
     }

@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.HBCIJobResult;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.callback.HBCICallback;
@@ -29,7 +30,6 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.JobNotSupportedException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.protocol.SyntaxElement;
@@ -42,6 +42,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class AbstractHBCIJob {
 
     private String name;              /* Job-Name mit Versionsnummer */
@@ -162,16 +163,16 @@ public class AbstractHBCIJob {
         Object o = passport.getPersistentData("cannationalacc");
         if (o != null) {
             String s = o.toString();
-            HBCIUtils.log("value of \"cannationalacc\" overwritten in passport, value: " + s, HBCIUtils.LOG_INFO);
+            log.info("value of \"cannationalacc\" overwritten in passport, value: " + s);
             return s.equalsIgnoreCase("J");
         }
 
 
-        HBCIUtils.log("searching for value of \"cannationalacc\" in HISPAS", HBCIUtils.LOG_DEBUG);
+        log.debug("searching for value of \"cannationalacc\" in HISPAS");
 
         // Ansonsten suchen wir in HISPAS - aber nur, wenn wir die Daten schon haben
         if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).getProperty("SEPAInfo") == null) {
-            HBCIUtils.log("no HISPAS data found", HBCIUtils.LOG_INFO);
+            log.info("no HISPAS data found");
             return false; // Ne, noch nicht. Dann lassen wir das erstmal weg
         }
 
@@ -179,7 +180,7 @@ public class AbstractHBCIJob {
         // SEPAInfo laden und darüber iterieren
         Properties props = passport.getLowlevelJobRestrictions("SEPAInfo", passport.getSyntaxDocument());
         String value = props.getProperty("cannationalacc");
-        HBCIUtils.log("cannationalacc=" + value, HBCIUtils.LOG_DEBUG);
+        log.debug("cannationalacc=" + value);
         return value != null && value.equalsIgnoreCase("J");
     }
 
@@ -210,7 +211,7 @@ public class AbstractHBCIJob {
                     // Version nach oben begrenzt werden. In AbstractPinTanPassport#setBPD() ist
                     // ein konkretes Beispiel enthalten (Bank macht HITANS5 und damit HHD 1.4, der
                     // User hat aber nur ein HHD-1.3-tauglichen TAN-Generator)
-                    int maxAllowedVersion = Integer.parseInt(HBCIUtils.getParam("kernel.gv." + bpd.getProperty(path, "default") + ".segversion.max", "0"));
+                    int maxAllowedVersion = 0;
 
                     key.delete(0, jobnameLL.length() + ("Par").length());
 
@@ -221,17 +222,17 @@ public class AbstractHBCIJob {
                     try {
                         version = Integer.parseInt(st);
                     } catch (Exception e) {
-                        HBCIUtils.log("found invalid job version: key=" + key + ", jobnameLL=" + jobnameLL + " (this is a known, but harmless bug)", HBCIUtils.LOG_WARN);
+                        log.warn("found invalid job version: key=" + key + ", jobnameLL=" + jobnameLL + " (this is a known, but harmless bug)");
                     }
 
                     // willuhn 2011-06-06 Segment-Versionen ueberspringen, die groesser als die max. zulaessige sind
                     if (maxAllowedVersion > 0 && version > maxAllowedVersion) {
-                        HBCIUtils.log("skipping segment version " + version + " for task " + jobnameLL + ", larger than allowed version " + maxAllowedVersion, HBCIUtils.LOG_INFO);
+                        log.info("skipping segment version " + version + " for task " + jobnameLL + ", larger than allowed version " + maxAllowedVersion);
                         continue;
                     }
                     // merken der größten jemals aufgetretenen versionsnummer
                     if (version != 0) {
-                        HBCIUtils.log("task " + jobnameLL + " is supported with segment version " + st, HBCIUtils.LOG_DEBUG2);
+                        log.debug("task " + jobnameLL + " is supported with segment version " + st);
                         if (version > maxVersion) {
                             maxVersion = version;
                         }
@@ -241,12 +242,9 @@ public class AbstractHBCIJob {
         }
 
         if (maxVersion == 0) {
-            String msg = HBCIUtils.getLocMsg("EXCMSG_GVNOTSUPP", jobnameLL);
-            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreJobNotSupported", msg))
-                throw new JobNotSupportedException(jobnameLL);
-
             maxVersion = 1;
-            HBCIUtils.log("Using segment version " + maxVersion + " for job " + jobnameLL + ", although not found in BPD. This may fail", HBCIUtils.LOG_WARN);
+            log.warn("Using segment version " + maxVersion + " for job " + jobnameLL + ", although not found in BPD. This may fail");
+            throw new JobNotSupportedException(jobnameLL);
         }
 
         // namen+versionsnummer speichern
@@ -269,7 +267,7 @@ public class AbstractHBCIJob {
      */
     public void setSegVersion(String version) {
         if (version == null || version.length() == 0) {
-            HBCIUtils.log("tried to change segment version for task " + this.jobName + " explicit, but no version given", HBCIUtils.LOG_WARN);
+            log.warn("tried to change segment version for task " + this.jobName + " explicit, but no version given");
             return;
         }
 
@@ -278,7 +276,7 @@ public class AbstractHBCIJob {
         if (version.equals(this.segVersion))
             return;
 
-        HBCIUtils.log("changing segment version for task " + this.jobName + " explicit from " + this.segVersion + " to " + version, HBCIUtils.LOG_INFO);
+        log.info("changing segment version for task " + this.jobName + " explicit from " + this.segVersion + " to " + version);
 
         // Der alte Name
         String oldName = this.name;
@@ -405,9 +403,7 @@ public class AbstractHBCIJob {
 
                 if (content == null) {
                     String msg = HBCIUtils.getLocMsg("EXC_MISSING_HL_PROPERTY", s);
-                    if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                        throw new InvalidUserDataException(msg);
-                    content = "";
+                    throw new InvalidUserDataException(msg);
                 }
 
                 // evtl. default-wert als aktuellen wert setzen (naemlich dann,
@@ -610,22 +606,17 @@ public class AbstractHBCIJob {
 
         if (destinations == null) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_PARAM_NOTNEEDED", new String[]{paramName, getName()});
-            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                throw new InvalidUserDataException(msg);
-            destinations = new String[0][];
+            throw new InvalidUserDataException(msg);
         }
 
         if (value == null || value.length() == 0) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_PARAM_EMPTY", new String[]{paramName, getName()});
-            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                throw new InvalidUserDataException(msg);
-            value = "";
+            throw new InvalidUserDataException(msg);
         }
 
         if (index != null && !indexedConstraints.contains(paramName)) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_PARAM_NOTINDEXED", new String[]{paramName, getName()});
-            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                throw new InvalidUserDataException(msg);
+            throw new InvalidUserDataException(msg);
         }
 
         for (String[] valuePair : destinations) {
@@ -645,7 +636,7 @@ public class AbstractHBCIJob {
     }
 
     protected void setLowlevelParam(String key, String value) {
-        HBCIUtils.log("setting lowlevel parameter " + key + " = " + value, HBCIUtils.LOG_DEBUG);
+        log.debug("setting lowlevel parameter " + key + " = " + value);
         llParams.setProperty(key, value);
     }
 
@@ -778,11 +769,7 @@ public class AbstractHBCIJob {
             }
         } catch (Exception e) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_CANTSTORERES", getName());
-            if (!HBCIUtils.ignoreError(passport,
-                    "client.errors.ignoreJobResultStoreErrors",
-                    msg + ": " + HBCIUtils.exception2String(e))) {
-                throw new HBCI_Exception(msg, e);
-            }
+            throw new HBCI_Exception(msg, e);
         }
     }
 
@@ -800,11 +787,10 @@ public class AbstractHBCIJob {
             jobResult.storeResult("basic.msgnum", result.getProperty(msgheadName + ".msgnum"));
             jobResult.storeResult("basic.segnum", Integer.toString(ref));
 
-            HBCIUtils.log("basic values for " + getName() + " set to "
-                            + jobResult.getDialogId() + "/"
-                            + jobResult.getMsgNum()
-                            + "/" + jobResult.getSegNum(),
-                    HBCIUtils.LOG_DEBUG);
+            log.debug("basic values for " + getName() + " set to "
+                    + jobResult.getDialogId() + "/"
+                    + jobResult.getMsgNum()
+                    + "/" + jobResult.getSegNum());
         }
     }
 

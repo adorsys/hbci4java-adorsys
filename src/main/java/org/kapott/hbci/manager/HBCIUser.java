@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.manager;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.ProcessException;
@@ -33,7 +34,9 @@ import java.util.Properties;
 
 /* @brief Instances of this class represent a certain user in combination with
     a certain institute. */
+@Slf4j
 public final class HBCIUser implements IHandlerData {
+
     private HBCIPassportInternal passport;
     private HBCIKernel kernel;
 
@@ -48,12 +51,12 @@ public final class HBCIUser implements IHandlerData {
     public void fetchSysId() {
         try {
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID, null);
-            HBCIUtils.log("fetching new sys-id from institute", HBCIUtils.LOG_INFO);
+            log.info("fetching new sys-id from institute");
 
             // autosecmech
-            HBCIUtils.log("checking whether passport is supported (but ignoring result)", HBCIUtils.LOG_DEBUG);
+            log.debug("checking whether passport is supported (but ignoring result)");
             boolean s = passport.isSupported();
-            HBCIUtils.log("passport supported: " + s, HBCIUtils.LOG_DEBUG);
+            log.debug("passport supported: " + s);
 
             passport.setSigId(new Long(1));
             passport.setSysId("0");
@@ -65,9 +68,9 @@ public final class HBCIUser implements IHandlerData {
 
                 boolean need_restart = passport.postInitResponseHook(msgStatus);
                 if (need_restart) {
-                    HBCIUtils.log("for some reason we have to restart this dialog", HBCIUtils.LOG_INFO);
+                    log.info("for some reason we have to restart this dialog");
                     if (restarted) {
-                        HBCIUtils.log("this dialog already has been restarted once - to avoid endless loops we stop here", HBCIUtils.LOG_WARN);
+                        log.warn("this dialog already has been restarted once - to avoid endless loops we stop here");
                         throw new HBCI_Exception("*** restart loop - aborting");
                     }
                     restarted = true;
@@ -87,7 +90,7 @@ public final class HBCIUser implements IHandlerData {
             passport.setSysId(result.getProperty("SyncRes.sysid"));
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{msgStatus, passport.getSysId()});
-            HBCIUtils.log("new sys-id is " + passport.getSysId(), HBCIUtils.LOG_DEBUG);
+            log.debug("new sys-id is " + passport.getSysId());
             doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
                     HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
@@ -98,12 +101,12 @@ public final class HBCIUser implements IHandlerData {
     public void fetchSigId() {
         try {
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID, null);
-            HBCIUtils.log("syncing signature id", HBCIUtils.LOG_INFO);
+            log.info("syncing signature id");
 
             // autosecmech
-            HBCIUtils.log("checking whether passport is supported (but ignoring result)", HBCIUtils.LOG_DEBUG);
+            log.debug("checking whether passport is supported (but ignoring result)");
             boolean s = passport.isSupported();
-            HBCIUtils.log("passport supported: " + s, HBCIUtils.LOG_DEBUG);
+            log.debug("passport supported: " + s);
 
             passport.setSigId(new Long("9999999999999999"));
 
@@ -114,9 +117,9 @@ public final class HBCIUser implements IHandlerData {
 
                 boolean need_restart = passport.postInitResponseHook(msgStatus);
                 if (need_restart) {
-                    HBCIUtils.log("for some reason we have to restart this dialog", HBCIUtils.LOG_INFO);
+                    log.info("for some reason we have to restart this dialog");
                     if (restarted) {
-                        HBCIUtils.log("this dialog already has been restarted once - to avoid endless loops we stop here", HBCIUtils.LOG_WARN);
+                        log.warn("this dialog already has been restarted once - to avoid endless loops we stop here");
                         throw new HBCI_Exception("*** restart loop - aborting");
                     }
                     restarted = true;
@@ -137,7 +140,7 @@ public final class HBCIUser implements IHandlerData {
             passport.incSigId();
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus, passport.getSigId()});
-            HBCIUtils.log("signature id set to " + passport.getSigId(), HBCIUtils.LOG_DEBUG);
+            log.debug("signature id set to " + passport.getSigId());
             doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
                     HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
@@ -146,7 +149,7 @@ public final class HBCIUser implements IHandlerData {
     }
 
     public void updateUPD(Properties result) {
-        HBCIUtils.log("extracting UPD from results", HBCIUtils.LOG_DEBUG);
+        log.debug("extracting UPD from results");
 
         Properties p = new Properties();
 
@@ -168,7 +171,7 @@ public final class HBCIUser implements IHandlerData {
             if (upd != null) {
                 String mediaInfo = upd.getProperty("tanmedia.names");
                 if (mediaInfo != null) {
-                    HBCIUtils.log("rescued TAN media info to new UPD: " + mediaInfo, HBCIUtils.LOG_INFO);
+                    log.info("rescued TAN media info to new UPD: " + mediaInfo);
                     p.setProperty("tanmedia.names", mediaInfo);
                 }
             }
@@ -176,7 +179,7 @@ public final class HBCIUser implements IHandlerData {
             String oldVersion = passport.getUPDVersion();
             passport.setUPD(p);
 
-            HBCIUtils.log("installed new UPD [old version: " + oldVersion + ", new version: " + passport.getUPDVersion() + "]", HBCIUtils.LOG_INFO);
+            log.info("installed new UPD [old version: " + oldVersion + ", new version: " + passport.getUPDVersion() + "]");
             passport.getCallback().status(HBCICallback.STATUS_INIT_UPD_DONE, passport.getUPD());
         }
     }
@@ -184,12 +187,12 @@ public final class HBCIUser implements IHandlerData {
     public void fetchUPD() {
         try {
             passport.getCallback().status(HBCICallback.STATUS_INIT_UPD, null);
-            HBCIUtils.log("fetching UPD (BPD-Version: " + passport.getBPDVersion() + ")", HBCIUtils.LOG_INFO);
+            log.info("fetching UPD (BPD-Version: " + passport.getBPDVersion() + ")");
 
             // autosecmech
-            HBCIUtils.log("checking whether passport is supported (but ignoring result)", HBCIUtils.LOG_DEBUG);
+            log.debug("checking whether passport is supported (but ignoring result)");
             boolean s = passport.isSupported();
-            HBCIUtils.log("passport supported: " + s, HBCIUtils.LOG_DEBUG);
+            log.debug("passport supported: " + s);
 
             HBCIMsgStatus msgStatus;
             boolean restarted = false;
@@ -197,9 +200,9 @@ public final class HBCIUser implements IHandlerData {
                 msgStatus = doDialogInit();
                 boolean need_restart = passport.postInitResponseHook(msgStatus);
                 if (need_restart) {
-                    HBCIUtils.log("for some reason we have to restart this dialog", HBCIUtils.LOG_INFO);
+                    log.info("for some reason we have to restart this dialog");
                     if (restarted) {
-                        HBCIUtils.log("this dialog already has been restarted once - to avoid endless loops we stop here", HBCIUtils.LOG_WARN);
+                        log.warn("this dialog already has been restarted once - to avoid endless loops we stop here");
                         throw new HBCI_Exception("*** restart loop - aborting");
                     }
                     restarted = true;
@@ -235,8 +238,8 @@ public final class HBCIUser implements IHandlerData {
         message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
         message.rawSet("ProcPrep.UPD", "0");
         message.rawSet("ProcPrep.lang", passport.getLang());
-        message.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
-        message.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
+        message.rawSet("ProcPrep.prodName", "HBCI4Java");
+        message.rawSet("ProcPrep.prodVersion", "2.5");
         return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
     }
 
@@ -254,11 +257,10 @@ public final class HBCIUser implements IHandlerData {
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {
-            HBCIUtils.log("dialog end failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
+            log.error("dialog end failed: " + status.getErrorString());
 
             String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreDialogEndErrors", msg + ": " + status.getErrorString()))
-                throw new ProcessException(msg, status);
+            throw new ProcessException(msg, status);
         }
     }
 
@@ -275,8 +277,8 @@ public final class HBCIUser implements IHandlerData {
         message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
         message.rawSet("ProcPrep.lang", "0");
-        message.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
-        message.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
+        message.rawSet("ProcPrep.prodName", "HBCI4Java");
+        message.rawSet("ProcPrep.prodVersion", "2.5");
         message.rawSet("Sync.mode", syncMode);
         return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
                 HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);

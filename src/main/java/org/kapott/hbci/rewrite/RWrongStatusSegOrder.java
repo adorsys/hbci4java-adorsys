@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.Properties;
 
 // dieser Rewriter muss *VOR* "WrongSequenceNumbers" ausgeführt werden,
 // weil hierbei u.U. die Segment-Sequenz-Nummern durcheinandergebracht werden
+@Slf4j
 public class RWrongStatusSegOrder extends Rewrite {
 
     // Liste mit segmentInfo-Properties aus der Nachricht erzeugen
@@ -89,7 +91,7 @@ public class RWrongStatusSegOrder extends Rewrite {
                 headerList.add(segmentInfo);
 
                 if (!inHeader) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    log.warn("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position");
                     errorOccured = true;
                 }
 
@@ -102,7 +104,7 @@ public class RWrongStatusSegOrder extends Rewrite {
                     inGlob = true;
                 }
                 if (!inGlob) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    log.warn("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position");
                     errorOccured = true;
                 }
 
@@ -115,7 +117,7 @@ public class RWrongStatusSegOrder extends Rewrite {
                     inSeg = true;
                 }
                 if (!inSeg) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    log.warn("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position");
                     errorOccured = true;
                 }
 
@@ -129,7 +131,7 @@ public class RWrongStatusSegOrder extends Rewrite {
                     inData = true;
                 }
                 if (!inData) {
-                    HBCIUtils.log("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position", HBCIUtils.LOG_WARN);
+                    log.warn("RWrongStatusSegOrder: found segment " + segmentCode + " at invalid position");
                     errorOccured = true;
                 }
             }
@@ -156,7 +158,7 @@ public class RWrongStatusSegOrder extends Rewrite {
             // restliche daten-segmente
             new_msg.append(getDataForSegmentList(st, dataList, counter));
 
-            HBCIUtils.log("RWrongStatusSegOrder: new message after reordering: " + new_msg, HBCIUtils.LOG_DEBUG2);
+            log.debug("RWrongStatusSegOrder: new message after reordering: " + new_msg);
         } else {
             // kein fehler aufgetreten, also originale nachricht unverändert zurückgeben
             new_msg.append(st);

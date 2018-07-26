@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRKontoauszug;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -30,7 +31,7 @@ import org.w3c.dom.Document;
 
 import java.util.Properties;
 
-// TODO: doku fehlt (html)
+@Slf4j
 public class GVKontoauszug extends AbstractHBCIJob {
 
     public final static String FORMAT_MT940 = "1";
@@ -73,9 +74,8 @@ public class GVKontoauszug extends AbstractHBCIJob {
             } else if (format.equals("3")) {
                 umsResult.appendPDFData(rawData);
             } else {
-                HBCIUtils.log(
-                        "unknown format in result for GV Kontoauszug: " + format,
-                        HBCIUtils.LOG_ERR);
+                log.error(
+                        "unknown format in result for GV Kontoauszug: " + format);
             }
         }
 

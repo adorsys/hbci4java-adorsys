@@ -11,13 +11,7 @@
 
 package org.kapott.hbci4java;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.kapott.hbci.manager.HBCIUtils;
-
 import java.io.*;
-import java.util.Locale;
-import java.util.Properties;
 
 /**
  * Abstrakte Basis-Klasse fuer HBCI4Java-Tests.
@@ -79,29 +73,6 @@ public abstract class AbstractTest {
             if (is != null)
                 is.close();
         }
-    }
-
-    /**
-     * Initialisiert HBCI4Java.
-     *
-     * @throws Exception
-     */
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        Locale.setDefault(Locale.GERMANY);
-        Properties props = new Properties();
-        props.put("log.loglevel.default", "" + HBCIUtils.LOG_DEBUG2);
-//    HBCIUtils.init(props,new HBCICallbackConsole());
-    }
-
-    /**
-     * Beendet HBCI4Java
-     *
-     * @throws Exception
-     */
-    @AfterClass
-    public static void afterClass() throws Exception {
-//    HBCIUtils.done();
     }
 }
 

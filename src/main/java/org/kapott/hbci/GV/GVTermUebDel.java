@@ -21,17 +21,18 @@
 
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 import java.util.Enumeration;
 import java.util.Properties;
 
+@Slf4j
 public final class GVTermUebDel extends AbstractHBCIJob {
-    
+
     public static String getLowlevelName() {
         return "TermUebDel";
     }
@@ -49,9 +50,7 @@ public final class GVTermUebDel extends AbstractHBCIJob {
             Properties p = (Properties) passport.getPersistentData("termueb_" + value);
             if (p == null) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS", value);
-                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                    throw new InvalidUserDataException(msg);
-                p = new Properties();
+                throw new InvalidUserDataException(msg);
             }
 
             for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {

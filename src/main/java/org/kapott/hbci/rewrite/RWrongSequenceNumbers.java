@@ -21,8 +21,10 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
+@Slf4j
 public final class RWrongSequenceNumbers extends Rewrite {
 
     @Override
@@ -47,7 +49,7 @@ public final class RWrongSequenceNumbers extends Rewrite {
                     int idx2 = sb.indexOf(":", idx + 1);
                     int seq = Integer.parseInt(sb.substring(idx + 1, idx2));
                     if (seq != correctSeq) {
-                        HBCIUtils.log("found wrong sequence number " + seq + "; replacing with " + correctSeq, HBCIUtils.LOG_WARN);
+                        log.warn("found wrong sequence number " + seq + "; replacing with " + correctSeq);
                         sb.replace(idx + 1, idx2, Integer.toString(correctSeq));
                     }
                     i = idx2;

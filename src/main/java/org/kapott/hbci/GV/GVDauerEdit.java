@@ -26,7 +26,6 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
 import java.text.DecimalFormat;
 import java.util.Enumeration;
@@ -105,15 +104,13 @@ public final class GVDauerEdit extends AbstractHBCIJob {
             String st = res.getProperty("numtermchanges");
             if (st != null && Integer.parseInt(st) == 0) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_SCHEDMODSTANDORDUNAVAIL");
-                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                    throw new InvalidUserDataException(msg);
+                throw new InvalidUserDataException(msg);
             }
             // TODO: numtermchanges richtig auswerten
         } else if (paramName.equals("timeunit")) {
             if (!(value.equals("W") || value.equals("M"))) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_INV_TIMEUNIT", value);
-                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                    throw new InvalidUserDataException(msg);
+                throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("turnus")) {
             String timeunit = getLowlevelParams().getProperty(getName() + ".DauerDetails.timeunit");
@@ -127,8 +124,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
 
                         if (!st.equals("00") && !twoDigitValueInList(value2, st)) {
                             String msg = HBCIUtils.getLocMsg("EXCMSG_INV_TURNUS", value);
-                            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                                throw new InvalidUserDataException(msg);
+                            throw new InvalidUserDataException(msg);
                         }
                     }
                 } else if (timeunit.equals("M")) {
@@ -139,8 +135,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
 
                         if (!st.equals("00") && !twoDigitValueInList(value2, st)) {
                             String msg = HBCIUtils.getLocMsg("EXCMSG_INV_TURNUS", value);
-                            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                                throw new InvalidUserDataException(msg);
+                            throw new InvalidUserDataException(msg);
                         }
                     }
                 }
@@ -154,8 +149,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
 
                     if (st != null && !st.equals("0") && st.indexOf(value) == -1) {
                         String msg = HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY", value);
-                        if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                            throw new InvalidUserDataException(msg);
+                        throw new InvalidUserDataException(msg);
                     }
                 } else if (timeunit.equals("M")) {
                     String st = res.getProperty("dayspermonth");
@@ -165,8 +159,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
 
                         if (!st.equals("00") && !twoDigitValueInList(value2, st)) {
                             String msg = HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY", value);
-                            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                                throw new InvalidUserDataException(msg);
+                            throw new InvalidUserDataException(msg);
                         }
                     }
                 }
@@ -191,8 +184,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
 
             if (atLeastOne && !found) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_INV_KEY", value);
-                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                    throw new InvalidUserDataException(msg);
+                throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("orderid")) {
             Properties p = (Properties) passport.getPersistentData("dauer_" + value);

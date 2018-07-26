@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.protocol;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.NoValueGivenException;
 import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.exceptions.PredelimErrorException;
@@ -46,6 +47,7 @@ import java.util.*;
     wobei jedes listenelement ein syntaxelementarray (mit dem ein- oder mehrmaligen 
     auftreten des eigentlichen syntaxelementes) ist. ein syntaxelementarray 
     enthaelt eine menge (1 oder mehr) von syntaxelementen des gleichen typs */
+@Slf4j
 public abstract class MultipleSyntaxElements {
     private List<SyntaxElement> elements;
     private String path;
@@ -409,7 +411,7 @@ public abstract class MultipleSyntaxElements {
                                 size = save.length();
                             String rest = save.substring(0, size);
                             if (containsOnly(rest, '+')) {
-                                HBCIUtils.log("applying shortcut for optional MultipleDEGs, have no more content in according range", HBCIUtils.LOG_DEBUG);
+                                log.debug("applying shortcut for optional MultipleDEGs, have no more content in according range");
                                 res.replace(0, res.length(), res.substring(size - 1)); // Wir schneiden die "+++++..." alle weg
                                 ready = true;
                                 continue;
@@ -514,7 +516,7 @@ public abstract class MultipleSyntaxElements {
         return toString();
     }
 
-    public abstract void log(int logLevel);
+    public abstract void log();
 
     public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
     }

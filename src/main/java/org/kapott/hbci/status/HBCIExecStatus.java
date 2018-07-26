@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.status;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
@@ -36,7 +37,9 @@ import java.util.List;
  * {@link HBCIDialogStatus}-Objekt, welches Informationen zu dem jeweiligen
  * Dialog enthält.
  */
+@Slf4j
 public class HBCIExecStatus {
+
     private HBCIDialogStatus statusData;
     private ArrayList<Exception> exceptions;
 
@@ -59,7 +62,7 @@ public class HBCIExecStatus {
             exceptions = new ArrayList<>();
             exceptions.add(e);
         }
-        HBCIUtils.log(e);
+        log.error(e.getMessage(), e);
     }
 
     /**

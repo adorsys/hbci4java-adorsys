@@ -21,8 +21,8 @@ public class TanMediaListTest extends AbstractTest {
 
 //	    Rewrite.setData("msgName","CustomMsg");
         // liste der rewriter erzeugen
-        String rewriters_st = HBCIUtils.getParam("kernel.rewriter");
-        ArrayList<Rewrite> al = new ArrayList<Rewrite>();
+        String rewriters_st = "";
+        ArrayList<Rewrite> al = new ArrayList<>();
         StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
         while (tok.hasMoreTokens()) {
             String rewriterName = tok.nextToken().trim();

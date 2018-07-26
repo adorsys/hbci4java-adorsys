@@ -25,7 +25,6 @@ import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public final class GVCustomMsg extends AbstractHBCIJob {
 
@@ -56,8 +55,7 @@ public final class GVCustomMsg extends AbstractHBCIJob {
 
                 if (value.length() > maxlen) {
                     String msg = HBCIUtils.getLocMsg("EXCMSG_TOOLONG", new String[]{paramName, value, Integer.toString(maxlen)});
-                    if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                        throw new InvalidUserDataException(msg);
+                    throw new InvalidUserDataException(msg);
                 }
             }
         }

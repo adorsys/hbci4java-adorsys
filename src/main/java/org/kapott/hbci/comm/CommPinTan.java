@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.comm;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.CanNotParseMessageException;
@@ -41,6 +42,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
+@Slf4j
 public final class CommPinTan {
 
     private String rewriter;
@@ -77,7 +79,7 @@ public final class CommPinTan {
         this.callback = callback;
 
         try {
-            HBCIUtils.log("connect: " + host, HBCIUtils.LOG_INFO);
+            log.info("connect: " + host);
             this.url = new URL(host);
 
             // creating instances of modified socket factories etc.
@@ -92,16 +94,15 @@ public final class CommPinTan {
         if (proxyHost != null) {
             String[] proxyData = proxyHost.split(":");
             if (proxyData.length == 2) {
-                HBCIUtils.log(
+                log.info(
                         "HTTPS connections will be made using proxy " +
-                                proxyData[0] + "(Port " + proxyData[1] + ")",
-                        HBCIUtils.LOG_INFO);
+                                proxyData[0] + "(Port " + proxyData[1] + ")");
 
                 Properties sysProps = System.getProperties();
                 sysProps.put("https.proxyHost", proxyData[0]);
                 sysProps.put("https.proxyPort", proxyData[1]);
 
-                HBCIUtils.log("initializing HBCI4Java proxy authentication callback", HBCIUtils.LOG_DEBUG);
+                log.debug("initializing HBCI4Java proxy authentication callback");
                 Authenticator.setDefault(new PinTanProxyAuthenticator(proxyUser, proxyPass));
             }
         }
@@ -109,8 +110,8 @@ public final class CommPinTan {
     }
 
     public Message pingpong(List<Rewrite> rewriters, Message message) {
-        HBCIUtils.log("---------------- request ----------------", HBCIUtils.LOG_DEBUG);
-        message.log(HBCIUtils.LOG_DEBUG);
+        log.debug("---------------- request ----------------");
+        message.log();
 
         // ausgehende nachricht versenden
         callback.status(HBCICallback.STATUS_MSG_SEND, null);
@@ -122,10 +123,10 @@ public final class CommPinTan {
         String st = pong().toString();
         callback.status(HBCICallback.STATUS_MSG_RAW_RECV, st);
 
-        HBCIUtils.log("---------------- response ----------------", HBCIUtils.LOG_DEBUG);
+        log.debug("---------------- response ----------------");
         String[] split = st.split("'");
         for (String aSplit : split) {
-            HBCIUtils.log(aSplit, HBCIUtils.LOG_DEBUG);
+            log.debug(aSplit);
         }
 
         Message responseMessage;
@@ -138,11 +139,11 @@ public final class CommPinTan {
             // versuche, nachricht als verschlüsselte nachricht zu parsen
             callback.status(HBCICallback.STATUS_MSG_PARSE, "CryptedRes");
             try {
-                HBCIUtils.log("trying to parse message as crypted message", HBCIUtils.LOG_DEBUG);
+                log.debug("trying to parse message as crypted message");
                 responseMessage = new Message("CryptedRes", st, st.length(), message.getDocument(), Message.DONT_CHECK_SEQ, true);
             } catch (ParseErrorException e) {
                 // wenn das schiefgeht...
-                HBCIUtils.log("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res message", HBCIUtils.LOG_DEBUG);
+                log.debug("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res message");
 
                 // alle rewriter durchlaufen, um nachricht evtl. als unverschlüsselte msg zu parsen
 //                message.set("_origSignedMsg", st);
@@ -165,27 +166,10 @@ public final class CommPinTan {
         try {
             byte[] b = Base64.encodeBase64(msg.toString(0).getBytes(ENCODING));
 
-            HBCIUtils.log("connecting to server", HBCIUtils.LOG_DEBUG);
+            log.debug("connecting to server");
             conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(HTTP_CONNECT_TIMEOUT);
             conn.setReadTimeout(HTTP_READ_TIMEOUT);
-
-            boolean debugging = ((PinTanSSLSocketFactory) this.mySocketFactory).debug();
-            if (debugging) {
-                // if we have to disable cert checking or enable ssl logging,
-                // we have to set some special SSL stuff on the connection object
-                HttpsURLConnection connSSL = (HttpsURLConnection) conn;
-
-                HBCIUtils.log("activating modified socket factory for"
-                                + " debugging=true",
-                        HBCIUtils.LOG_DEBUG);
-                connSSL.setSSLSocketFactory(this.mySocketFactory);
-
-                HBCIUtils.log("activating modified hostname verifier because cert checking is disabled",
-                        HBCIUtils.LOG_DEBUG);
-                connSSL.setHostnameVerifier(this.myHostnameVerifier);
-            }
-
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/octet-stream");
@@ -194,11 +178,11 @@ public final class CommPinTan {
             conn.connect();
             OutputStream out = conn.getOutputStream();
 
-            HBCIUtils.log("POST data to output stream", HBCIUtils.LOG_DEBUG);
+            log.debug("POST data to output stream");
             out.write(b);
             out.flush();
 
-            HBCIUtils.log("closing output stream", HBCIUtils.LOG_DEBUG);
+            log.debug("closing output stream");
             out.close();
         } catch (Exception e) {
             HBCI_Exception he = new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SENDERR"), e);
@@ -212,30 +196,30 @@ public final class CommPinTan {
             byte[] b = new byte[1024];
             StringBuilder ret = new StringBuilder();
 
-            HBCIUtils.log(HBCIUtils.getLocMsg("STATUS_MSG_RECV"), HBCIUtils.LOG_DEBUG);
+            log.debug(HBCIUtils.getLocMsg("STATUS_MSG_RECV"));
 
             int msgsize = conn.getContentLength();
             int num;
 
             if (msgsize != -1) {
-                HBCIUtils.log("found messagesize: " + msgsize, HBCIUtils.LOG_DEBUG);
+                log.debug("found messagesize: " + msgsize);
             } else {
-                HBCIUtils.log("can not determine message size, trying to detect automatically", HBCIUtils.LOG_DEBUG);
+                log.debug("can not determine message size, trying to detect automatically");
             }
             InputStream i = conn.getInputStream();
 
             while (msgsize != 0 && (num = i.read(b)) > 0) {
-                HBCIUtils.log("received " + num + " bytes", HBCIUtils.LOG_DEBUG2);
+                log.debug("received " + num + " bytes");
                 ret.append(new String(b, 0, num, ENCODING));
                 msgsize -= num;
                 if (msgsize >= 0) {
-                    HBCIUtils.log("we still need " + msgsize + " bytes", HBCIUtils.LOG_DEBUG2);
+                    log.debug("we still need " + msgsize + " bytes");
                 } else {
-                    HBCIUtils.log("read " + num + " bytes, looking for more", HBCIUtils.LOG_DEBUG2);
+                    log.debug("read " + num + " bytes, looking for more");
                 }
             }
 
-            HBCIUtils.log("closing communication line", HBCIUtils.LOG_DEBUG);
+            log.debug("closing communication line");
             conn.disconnect();
             return new StringBuffer(new String(Base64.decodeBase64(ret.toString()), ENCODING));
         } catch (Exception e) {

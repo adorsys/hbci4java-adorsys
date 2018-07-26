@@ -56,7 +56,6 @@ import java.util.Properties;
  * - Fülligkeitsdatum des Einzugs (<ReqdColltnDt>)
  */
 public class TestGVLastSEPA extends AbstractTest {
-    private final static int LOGLEVEL = HBCIUtils.LOG_INFO;
     private final static Map<Integer, String> settings = new HashMap<Integer, String>() {{
         // Demo-Konto bei der ApoBank
         put(HBCICallback.NEED_COUNTRY, "DE");
@@ -113,7 +112,6 @@ public class TestGVLastSEPA extends AbstractTest {
     @Before
     public void beforeTest() throws Exception {
         Properties props = new Properties();
-        props.put("log.loglevel.default", Integer.toString(LOGLEVEL));
         props.put("infoPoint.enabled", Boolean.FALSE.toString());
 
         props.put("client.passport.PinTan.filename", dir.getAbsolutePath() + File.separator + System.currentTimeMillis() + ".pt");

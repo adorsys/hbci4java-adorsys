@@ -21,7 +21,7 @@
 
 package org.kapott.hbci.protocol;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Properties;
 
+@Slf4j
 public final class SF extends SyntaxElement {
 
     protected MultipleSyntaxElements createNewChildContainer(Node ref, Document document) {
@@ -53,8 +54,7 @@ public final class SF extends SyntaxElement {
         MultipleSyntaxElements ret = null;
 
         if (((Element) ref).getAttribute("minnum").equals("0")) {
-            HBCIUtils.log("will not create container " + getPath() + " -> " + ((Element) ref).getAttribute("type") + " with minnum=0",
-                    HBCIUtils.LOG_INTERN);
+            log.trace("will not create container " + getPath() + " -> " + ((Element) ref).getAttribute("type") + " with minnum=0");
         } else {
             ret = super.createAndAppendNewChildContainer(ref, document);
         }
@@ -136,33 +136,26 @@ public final class SF extends SyntaxElement {
     // erfolgen muss.
     private String[] getRefSegId(Node segref, Document document) {
         String segname = ((Element) segref).getAttribute("type");
-        String segnameCacheParam = "segid_" + segname;
 
         // versuch, daten aus dem cache zu lesen
         String[] ret = new String[]{"", ""};
-        ret[0] = HBCIUtils.getParam(segnameCacheParam + "_code", "");
-        ret[1] = HBCIUtils.getParam(segnameCacheParam + "_version", "");
 
-        if (ret[0].equals("")) {
-            // segid noch nicht im cache
-            Element segdef = document.getElementById(segname);
-            NodeList valueElems = segdef.getElementsByTagName("value");
-            int len = valueElems.getLength();
-            for (int i = 0; i < len; i++) {
-                // alle value-elemente durchlaufen und seghead.code und
-                // seghead.version ermitteln
-                Node valueNode = valueElems.item(i);
-                if (valueNode.getNodeType() == Node.ELEMENT_NODE) {
-                    String pathAttr = ((Element) valueNode).getAttribute("path");
-                    if (pathAttr.equals("SegHead.code")) {
-                        // code gefunden
-                        ret[0] = valueNode.getFirstChild().getNodeValue();
-                        HBCIUtils.setParam(segnameCacheParam + "_code", ret[0]);
-                    } else if (pathAttr.equals("SegHead.version")) {
-                        // version gefunden
-                        ret[1] = valueNode.getFirstChild().getNodeValue();
-                        HBCIUtils.setParam(segnameCacheParam + "_version", ret[1]);
-                    }
+        // segid noch nicht im cache
+        Element segdef = document.getElementById(segname);
+        NodeList valueElems = segdef.getElementsByTagName("value");
+        int len = valueElems.getLength();
+        for (int i = 0; i < len; i++) {
+            // alle value-elemente durchlaufen und seghead.code und
+            // seghead.version ermitteln
+            Node valueNode = valueElems.item(i);
+            if (valueNode.getNodeType() == Node.ELEMENT_NODE) {
+                String pathAttr = ((Element) valueNode).getAttribute("path");
+                if (pathAttr.equals("SegHead.code")) {
+                    // code gefunden
+                    ret[0] = valueNode.getFirstChild().getNodeValue();
+                } else if (pathAttr.equals("SegHead.version")) {
+                    // version gefunden
+                    ret[1] = valueNode.getFirstChild().getNodeValue();
                 }
             }
         }

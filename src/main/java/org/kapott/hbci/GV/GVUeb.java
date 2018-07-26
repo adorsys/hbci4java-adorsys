@@ -25,7 +25,6 @@ import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 import java.util.Properties;
 
@@ -89,8 +88,7 @@ public class GVUeb extends AbstractHBCIJob {
 
             if (atLeastOne && !found) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_INV_KEY", value);
-                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                    throw new InvalidUserDataException(msg);
+                throw new InvalidUserDataException(msg);
             }
         }
 

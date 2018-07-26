@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.parsers.ISEPAParser;
 import org.kapott.hbci.GV.parsers.SEPAParserFactory;
 import org.kapott.hbci.GV_Result.GVRDauerList;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 
+@Slf4j
 public final class GVDauerSEPAList extends AbstractSEPAGV {
 
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
@@ -91,7 +93,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         Properties result = msgstatus.getData();
         GVRDauerList.Dauer entry = new GVRDauerList.Dauer();
 
-        HBCIUtils.log("parsing SEPA standing orders from msg data [size: " + result.size() + "]", HBCIUtils.LOG_DEBUG);
+        log.debug("parsing SEPA standing orders from msg data [size: " + result.size() + "]");
 
         entry.my = new Konto();
         entry.my.country = result.getProperty(header + ".My.KIK.country");
@@ -112,16 +114,16 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         ArrayList<Properties> sepaResults = new ArrayList<Properties>();
         try {
             // Encoding siehe GVTermUebSEPAList
-            HBCIUtils.log("  parsing sepa data: " + pain, HBCIUtils.LOG_DEBUG2);
+            log.debug("  parsing sepa data: " + pain);
             parser.parse(new ByteArrayInputStream(pain.getBytes(CommPinTan.ENCODING)), sepaResults);
-            HBCIUtils.log("  parsed sepa data, entries: " + sepaResults.size(), HBCIUtils.LOG_DEBUG2);
+            log.debug("  parsed sepa data, entries: " + sepaResults.size());
         } catch (Exception e) {
-            HBCIUtils.log("  unable to parse sepa data: " + e.getMessage(), HBCIUtils.LOG_ERR);
+            log.error("  unable to parse sepa data: " + e.getMessage());
             throw new HBCI_Exception("Error parsing SEPA pain document", e);
         }
 
         if (sepaResults.isEmpty()) {
-            HBCIUtils.log("  found no sepa data", HBCIUtils.LOG_WARN);
+            log.warn("  found no sepa data");
             return;
         }
         Properties sepaResult = sepaResults.get(0);

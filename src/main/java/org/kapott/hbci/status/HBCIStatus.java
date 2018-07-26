@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.status;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.List;
  * um globale und segmentbezogene Status-Informationen voneinander getrennt
  * zu sammeln. </p>
  */
+@Slf4j
 public final class HBCIStatus {
     /**
      * Statuscode für "alle Statusinformationen besagen OK"
@@ -68,7 +70,7 @@ public final class HBCIStatus {
      */
     public void addException(Exception e) {
         exceptions.add(e);
-        HBCIUtils.log(e);
+        log.error(e.getMessage(), e);
     }
 
     /**
@@ -77,7 +79,7 @@ public final class HBCIStatus {
     public void addRetVal(HBCIRetVal ret) {
         retVals.add(ret);
         if (ret.isError()) {
-            HBCIUtils.log("HBCI error code: " + ret.toString(), HBCIUtils.LOG_ERR);
+            log.error("HBCI error code: " + ret.toString());
         }
     }
 

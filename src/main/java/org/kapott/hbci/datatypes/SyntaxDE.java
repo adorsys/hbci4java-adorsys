@@ -115,7 +115,7 @@ public abstract class SyntaxDE {
         if (len < minsize || (maxsize != 0 && len > maxsize)) {
             String msg = HBCIUtils.getLocMsg("EXC_DT_INV_STRINGLEN", new Object[]{
                     st, Integer.toString(len), Integer.toString(minsize), Integer.toString(maxsize)});
-            if (len == 0 || !HBCIUtils.ignoreError(null, "client.errors.ignoreWrongDataLengthErrors", msg))
+            if (len == 0)
                 throw new InvalidArgumentException(msg);
         }
 

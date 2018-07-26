@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -29,6 +30,7 @@ import org.w3c.dom.Document;
 
 import java.util.Properties;
 
+@Slf4j
 public class GVSEPAInfo extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
@@ -65,8 +67,7 @@ public class GVSEPAInfo extends AbstractHBCIJob {
             String blz = result.getProperty(subheader + ".KIK.blz");
             String number = result.getProperty(subheader + ".number");
 
-            HBCIUtils.log("found BIC/IBAN = " + bic + "/" + iban + " for account " + country + "/" + blz + "/" + number,
-                    HBCIUtils.LOG_DEBUG);
+            log.debug("found BIC/IBAN = " + bic + "/" + iban + " for account " + country + "/" + blz + "/" + number);
 
             // konto in den UPD suchen und UPD-Informationen aktualisieren
             for (int j = 0; ; j++) {

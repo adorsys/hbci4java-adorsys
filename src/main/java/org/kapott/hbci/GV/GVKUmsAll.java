@@ -22,18 +22,18 @@
 package org.kapott.hbci.GV;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRKUms;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.swift.Swift;
-import org.w3c.dom.Document;
 
 import java.util.Properties;
 
 /**
  * Implementierung des Geschaeftsvorfalls zum Abruf von Umsaetzen mit Angabe des Zeitraums (HKKAZ).
  */
+@Slf4j
 public class GVKUmsAll extends AbstractHBCIJob {
     /**
      * @return der Lowlevelname.
@@ -58,7 +58,7 @@ public class GVKUmsAll extends AbstractHBCIJob {
             // Bei HKKAZ ist das ab Segment-Version 7 der Fall.
             sepa = Integer.parseInt(this.getSegVersion()) >= 7;
         } catch (Exception e) {
-            HBCIUtils.log(e);
+            log.error(e.getMessage(), e);
         }
 
         // Dennoch kann es sein, dass die nationale Bankverbindung auch bei der

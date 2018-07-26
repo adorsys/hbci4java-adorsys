@@ -1,35 +1,31 @@
 package org.kapott.hbci.GV.parsers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.sepa.PainVersion;
 
 /**
  * Factory zum Erzeugen von Parsern fuer das Einlesen von SEPA-XML-Daten.
  */
-public class SEPAParserFactory
-{
+@Slf4j
+public class SEPAParserFactory {
     /**
      * Gibt den passenden SEPA Parser für die angegebene PAIN-Version.
+     *
      * @param version die PAIN-Version.
      * @return ISEPAParser
      */
-    public static ISEPAParser get(PainVersion version)
-    {
+    public static ISEPAParser get(PainVersion version) {
         ISEPAParser parser = null;
-        
+
         String className = version.getParserClass();
-        try
-        {
-            HBCIUtils.log("trying to init SEPA parser: " + className,HBCIUtils.LOG_DEBUG);
+        try {
+            log.debug("trying to init SEPA parser: " + className);
             Class cl = Class.forName(className);
             parser = (ISEPAParser) cl.newInstance();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             String msg = "Error creating SEPA parser";
-            if (!HBCIUtils.ignoreError(null,"client.errors.ignoreCreateJobErrors",msg))
-                throw new HBCI_Exception(msg,e);
+            throw new HBCI_Exception(msg, e);
         }
         return parser;
     }

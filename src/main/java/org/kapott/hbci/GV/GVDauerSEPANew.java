@@ -7,7 +7,6 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
 import java.text.DecimalFormat;
 import java.util.Enumeration;
@@ -92,8 +91,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
         if (paramName.equals("timeunit")) {
             if (!(value.equals("W") || value.equals("M"))) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_INV_TIMEUNIT", value);
-                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                    throw new InvalidUserDataException(msg);
+                throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("turnus")) {
             String timeunit = getLowlevelParams().getProperty(getName() + ".DauerDetails.timeunit");
@@ -107,8 +105,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
 
                         if (!st.equals("00") && !twoDigitValueInList(value2, st)) {
                             String msg = HBCIUtils.getLocMsg("EXCMSG_INV_TURNUS", value);
-                            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                                throw new InvalidUserDataException(msg);
+                            throw new InvalidUserDataException(msg);
                         }
                     }
                 } else if (timeunit.equals("M")) {
@@ -119,8 +116,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
 
                         if (!st.equals("00") && !twoDigitValueInList(value2, st)) {
                             String msg = HBCIUtils.getLocMsg("EXCMSG_INV_TURNUS", value);
-                            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                                throw new InvalidUserDataException(msg);
+                            throw new InvalidUserDataException(msg);
                         }
                     }
                 }
@@ -134,8 +130,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
 
                     if (st != null && !st.equals("0") && st.indexOf(value) == -1) {
                         String msg = HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY", value);
-                        if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                            throw new InvalidUserDataException(msg);
+                        throw new InvalidUserDataException(msg);
                     }
                 } else if (timeunit.equals("M")) {
                     String st = res.getProperty("dayspermonth");
@@ -145,8 +140,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
 
                         if (!st.equals("00") && !twoDigitValueInList(value2, st)) {
                             String msg = HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY", value);
-                            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                                throw new InvalidUserDataException(msg);
+                            throw new InvalidUserDataException(msg);
                         }
                     }
                 }

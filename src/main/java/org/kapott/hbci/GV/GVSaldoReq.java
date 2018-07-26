@@ -29,7 +29,6 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Saldo;
 import org.kapott.hbci.structures.Value;
-import org.w3c.dom.Document;
 
 import java.util.Properties;
 

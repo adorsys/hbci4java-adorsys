@@ -55,10 +55,7 @@ public final class DE extends SyntaxElement {
         if (destPath.equals(getPath())) {
             if (this.value != null) { // es gibt schon einen Wert
                 if (!allowOverwrite) { // überschreiben ist nicht erlaubt
-                    // fehler
-                    if (!HBCIUtils.ignoreError(null, "client.errors.allowOverwrites",
-                            "*** trying to overwrite " + getPath() + "=" + " with " + valueString))
-                        throw new OverwriteException(getPath(), value.toString(), valueString);
+                    throw new OverwriteException(getPath(), value.toString(), valueString);
                 }
             }
 
@@ -135,8 +132,7 @@ public final class DE extends SyntaxElement {
             }
 
             if (!ok) {
-                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreValidValueErrors", "*** invalid value for " + getPath() + ": " + valString))
-                    throw new NoValidValueException(getPath(), valString);
+                throw new NoValidValueException(getPath(), valString);
             }
         }
 
@@ -186,9 +182,9 @@ public final class DE extends SyntaxElement {
                 throw new ParseErrorException(HBCIUtils.getLocMsg("EXCMSG_ENDOFSTRG", getPath()));
             }
 
-            // HBCIUtils.log("error string: "+res.toString(),HBCIUtils.LOG_ERR);
-            // HBCIUtils.log("current: "+getPath()+":"+type+"("+minsize+","+maxsize+")="+value,HBCIUtils.LOG_ERR);
-            // HBCIUtils.log("predelimiter mismatch (required:"+getPreDelim()+" found:"+temp.charAt(0)+")",HBCIUtils.LOG_ERR);
+            // log.("error string: "+res.toString(),log._ERR);
+            // log.("current: "+getPath()+":"+type+"("+minsize+","+maxsize+")="+value,log._ERR);
+            // log.("predelimiter mismatch (required:"+getPreDelim()+" found:"+temp.charAt(0)+")",log._ERR);
             throw new PredelimErrorException(getPath(), Character.toString(preDelim), Character.toString(temp.charAt(0)));
         }
 
@@ -224,8 +220,7 @@ public final class DE extends SyntaxElement {
         }
 
         if (atLeastOne && !ok) {
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreValidValueErrors", "*** invalid value for " + getPath() + ": " + valueString))
-                throw new NoValidValueException(getPath(), valueString);
+            throw new NoValidValueException(getPath(), valueString);
         }
     }
 

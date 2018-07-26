@@ -21,10 +21,12 @@
 
 package org.kapott.hbci.datatypes;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.manager.HBCIUtils;
 
 // Speicherung im HBCI-MSG-Format
+@Slf4j
 public class SyntaxDTAUS extends SyntaxAN {
 
     public static String check(String st) {
@@ -62,14 +64,11 @@ public class SyntaxDTAUS extends SyntaxAN {
                     (ch == 0x5B) || (ch == 0x5C) || (ch == 0x5D) || (ch == 0x7E))) {              // Ã Ã Ã Ã
 
                 String msg = HBCIUtils.getLocMsg("EXC_DTAUS_INV_CHAR", Character.toString(ch));
-                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreWrongDataSyntaxErrors", msg)) {
-                    // [willuhn 2012-03-06, BUG 1129] Exception als fatal markieren
-                    InvalidArgumentException e = new InvalidArgumentException(msg);
-                    e.setFatal(true);
-                    throw e;
-                }
 
-                st = st.replace(ch, ' ');
+                // [willuhn 2012-03-06, BUG 1129] Exception als fatal markieren
+                InvalidArgumentException e = new InvalidArgumentException(msg);
+                e.setFatal(true);
+                throw e;
             }
         }
 

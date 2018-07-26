@@ -1,5 +1,6 @@
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -8,6 +9,7 @@ import org.w3c.dom.Document;
 
 import java.util.Properties;
 
+@Slf4j
 public class GVTANMediaList extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
@@ -93,7 +95,7 @@ public class GVTANMediaList extends AbstractHBCIJob {
 
         String names = mediaNames.toString();
         if (names.length() > 0) {
-            HBCIUtils.log("adding TAN media names to UPD: " + names, HBCIUtils.LOG_INFO);
+            log.info("adding TAN media names to UPD: " + names);
             Properties upd = passport.getUPD();
             upd.setProperty("tanmedia.names", names);
         }

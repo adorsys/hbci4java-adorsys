@@ -21,12 +21,14 @@
 
 package org.kapott.hbci.protocol;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.*;
 
+@Slf4j
 public final class MultipleDEs extends MultipleSyntaxElements {
     private char delimiter;
     private List<String> valids;
@@ -81,11 +83,11 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         return ret.toString();
     }
 
-    public void log(int logLevel) {
+    public void log() {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             DE de = (DE) (i.next());
             if (de != null)
-                HBCIUtils.log(de.toString(0), logLevel);
+                log.trace(de.toString(0));
 
         }
     }

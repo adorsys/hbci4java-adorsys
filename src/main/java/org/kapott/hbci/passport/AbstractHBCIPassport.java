@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.passport;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -55,6 +56,7 @@ import java.util.*;
  * Aus einer HBCI-Anwendung heraus ist hier nur eine einzige Methode interessant,
  * um eine Instanz eines bestimmtes Passports zu erzeugen</p>
  */
+@Slf4j
 public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Serializable {
 
     private Properties bpd;
@@ -357,7 +359,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             if (init == null)
                 init = name;
 
-            HBCIUtils.log("creating new instance of a " + name + " passport", HBCIUtils.LOG_DEBUG);
+            log.debug("creating new instance of a " + name + " passport");
             Class cl = Class.forName(className);
             Constructor con = cl.getConstructor(new Class[]{Properties.class, HBCICallback.class, Object.class});
             HBCIPassport p = (HBCIPassport) (con.newInstance(new Object[]{properties, callback, init}));

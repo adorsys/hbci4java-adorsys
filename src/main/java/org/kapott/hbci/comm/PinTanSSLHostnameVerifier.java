@@ -21,19 +21,18 @@
 
 package org.kapott.hbci.comm;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 // modifizierter HostnameVerifier, der zum Einsatz kommt, wenn Zert.-Check
 // deaktiviert ist.
-public class PinTanSSLHostnameVerifier 
-    implements HostnameVerifier 
-{
-    public boolean verify(String hostname,SSLSession session)
-    {
-    	HBCIUtils.log("cert checking disabled -> hostname always OK", HBCIUtils.LOG_DEBUG);
+@Slf4j
+public class PinTanSSLHostnameVerifier implements HostnameVerifier {
+
+    public boolean verify(String hostname, SSLSession session) {
+        log.debug("cert checking disabled -> hostname always OK");
         return true;
     }
 }

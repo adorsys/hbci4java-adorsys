@@ -21,10 +21,12 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
+@Slf4j
 public class RMissingMsgRef extends Rewrite {
 
     // TODO: msgsize muss angepasst werden
@@ -38,13 +40,13 @@ public class RMissingMsgRef extends Rewrite {
                 for (int i = 0; i < 5; i++)
                     plusidx = msghead_st.indexOf("+", plusidx + 1);
                 if (plusidx == -1) {
-                    HBCIUtils.log("MsgRef is missing, adding it", HBCIUtils.LOG_WARN);
+                    log.warn("MsgRef is missing, adding it");
                     String[] des = {"dialogid", "msgnum"};
                     for (int i = 0; i < 2; i++) {
                         HBCIMsgStatus msgStatus = (HBCIMsgStatus) getData("msgStatus");
                         String msgName = (String) getData("msgName");
                         String temp = (msgStatus.getData().getProperty("orig_" + msgName + ".MsgHead." + des[i]));
-                        HBCIUtils.log("setting MsgRef." + des[i] + " to " + temp, HBCIUtils.LOG_WARN);
+                        log.warn("setting MsgRef." + des[i] + " to " + temp);
                         msghead_st += (i == 0 ? "+" : ":");
                         msghead_st += temp;
                     }

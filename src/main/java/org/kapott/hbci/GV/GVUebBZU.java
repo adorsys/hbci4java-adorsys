@@ -24,12 +24,11 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 import java.util.Properties;
 
 public final class GVUebBZU extends GVUeb {
-    
+
     public static String getLowlevelName() {
         return "Ueb";
     }
@@ -85,8 +84,7 @@ public final class GVUebBZU extends GVUeb {
 
         if ((s % 10) != 1) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_BZUERR", bzudata);
-            if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                throw new InvalidUserDataException(msg);
+            throw new InvalidUserDataException(msg);
         }
     }
 

@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -38,6 +39,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
  * werden (siehe dazu Beschreibung in
  * {@link org.kapott.hbci.manager.HBCIUtils})</p>
  */
+@Slf4j
 public class RHBCIVersion extends Rewrite {
 
     @Override
@@ -54,8 +56,7 @@ public class RHBCIVersion extends Rewrite {
                     String origVersion = msgStatus.getData().getProperty("orig_" + msgName + ".MsgHead.hbciversion");
 
                     if (version.length() == 0 || version.equals("0")) {
-                        HBCIUtils.log("received HBCI version of message ('" + version + "') is incorrect - replacing it with " + origVersion,
-                                HBCIUtils.LOG_WARN);
+                        log.warn("received HBCI version of message ('" + version + "') is incorrect - replacing it with " + origVersion);
                         st = new StringBuffer(st).replace(idx + 1, idx2, origVersion).toString();
                     }
                 }

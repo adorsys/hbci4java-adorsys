@@ -26,7 +26,6 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -96,9 +95,7 @@ public final class GVTermUebEdit extends AbstractHBCIJob {
             Properties p = (Properties) passport.getPersistentData("termueb_" + value);
             if (p == null) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS", value);
-                if (!HBCIUtils.ignoreError(passport, "client.errors.ignoreWrongJobDataErrors", msg))
-                    throw new InvalidUserDataException(msg);
-                p = new Properties();
+                throw new InvalidUserDataException(msg);
             }
 
             for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {

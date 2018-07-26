@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.swift;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.datatypes.SyntaxDTAUS;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
@@ -56,6 +57,7 @@ import java.util.*;
  */
 // TODO: API ändern (Setter/Getter), damit wir sauber die LogFilter für
 // kritische Daten setzen können
+@Slf4j
 public class DTAUS {
     /**
      * Daten einer einzelnen Transaktion, die in einen Sammelauftrag
@@ -457,7 +459,7 @@ public class DTAUS {
     }
 
     private void parseDTAUS(String dtaus) {
-        HBCIUtils.log("parsing DTAUS data", HBCIUtils.LOG_DEBUG);
+        log.debug("parsing DTAUS data");
 
         // satz A
         String header = dtaus.substring(0, 5);
@@ -510,7 +512,7 @@ public class DTAUS {
 
             int setCLen = Integer.parseInt(dtaus.substring(posi, posi + 4));
             posi += 4;
-            HBCIUtils.log("SetCLen = " + setCLen + " data bytes (--> " + ((setCLen - 187) / 29.0) + " extensions)", HBCIUtils.LOG_DEBUG);
+            log.debug("SetCLen = " + setCLen + " data bytes (--> " + ((setCLen - 187) / 29.0) + " extensions)");
 
             // "C" überspringen
             posi++;
@@ -568,7 +570,7 @@ public class DTAUS {
 
             int nofExtensions = Integer.parseInt(dtaus.substring(posi, posi + 2));
             posi += 2;
-            HBCIUtils.log("field 'nofExtensions' = " + nofExtensions, HBCIUtils.LOG_DEBUG);
+            log.debug("field 'nofExtensions' = " + nofExtensions);
 
             String otherName2 = null;
             for (int i = 0; i < nofExtensions; i++) {
@@ -617,6 +619,6 @@ public class DTAUS {
 
         // TODO: restliche konsistenzchecks machen
 
-        HBCIUtils.log("parsinng of DTAUS data finished", HBCIUtils.LOG_DEBUG);
+        log.debug("parsinng of DTAUS data finished");
     }
 }

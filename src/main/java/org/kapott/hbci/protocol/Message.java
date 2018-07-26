@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.protocol;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.w3c.dom.Document;
@@ -32,6 +33,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 
+@Slf4j
 public final class Message extends SyntaxElement {
 
     public final static boolean CHECK_SEQ = true;
@@ -81,7 +83,7 @@ public final class Message extends SyntaxElement {
 
             if (key.startsWith(dottedName) && value.length() != 0) {
                 if (!propagateValue(key, value, TRY_TO_CREATE, DONT_ALLOW_OVERWRITE)) {
-                    HBCIUtils.log("could not insert the following user-defined data into message: " + key + "=" + value, HBCIUtils.LOG_WARN);
+                    log.warn("could not insert the following user-defined data into message: " + key + "=" + value);
                 }
             }
         }
@@ -135,10 +137,10 @@ public final class Message extends SyntaxElement {
         return ret.toString();
     }
 
-    public void log(int logLevel) {
+    public void log() {
         if (isValid())
             for (MultipleSyntaxElements multipleSyntaxElements : getChildContainers()) {
-                multipleSyntaxElements.log(logLevel);
+                multipleSyntaxElements.log();
             }
     }
 

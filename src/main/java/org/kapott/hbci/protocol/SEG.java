@@ -23,7 +23,6 @@ package org.kapott.hbci.protocol;
 
 import org.kapott.hbci.exceptions.InvalidSegSeqException;
 import org.kapott.hbci.exceptions.NoSuchPathException;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -86,10 +85,10 @@ public final class SEG extends SyntaxElement {
         return ret.toString();
     }
 
-    public void log(int loglevel) {
+    public void log() {
         for (MultipleSyntaxElements dataList : getChildContainers()) {
             if (dataList != null)
-                dataList.log(loglevel);
+                dataList.log();
         }
     }
 
@@ -149,9 +148,7 @@ public final class SEG extends SyntaxElement {
     public int checkSegSeq(int value) {
         int num = Integer.parseInt(getValueOfDE(getPath() + ".SegHead.seq"));
         if (num != value) {
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSegSeqErrors", HBCIUtils.getLocMsg("EXCMSG_INVSEQNUM",
-                    new Object[]{getPath(), value, num})))
-                throw new InvalidSegSeqException(getPath(), value, num);
+            throw new InvalidSegSeqException(getPath(), value, num);
         }
         return value + 1;
     }

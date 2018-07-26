@@ -19,17 +19,16 @@
 
 package org.kapott.hbci.comm;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.SecureRandom;
-import java.util.Date;
 
 /* This SSLSocketFactory will be used in certain circumstances as a drop-in
  * replacement for Java's standard SSLSocketFactory:
@@ -48,15 +47,14 @@ import java.util.Date;
  * This socket factory CAN NOT BE USED WITH OPERA<10 because of a bug in operas
  * Java plugin, so when using this class in a Java Applet in Opera, the user
  * has to ENABLE certificate checking and DISABLE ssl-logging */
-public class PinTanSSLSocketFactory
-        extends SSLSocketFactory {
+@Slf4j
+public class PinTanSSLSocketFactory extends SSLSocketFactory {
+
     private SSLSocketFactory realSocketFactory;
 
     public PinTanSSLSocketFactory() {
         try {
-            HBCIUtils.log(
-                    "creating socket factory with disabled cert checking",
-                    HBCIUtils.LOG_WARN);
+            log.warn("creating socket factory with disabled cert checking");
 
             SSLContext sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null,
@@ -68,59 +66,19 @@ public class PinTanSSLSocketFactory
         }
     }
 
-
-    public boolean debug() {
-        return HBCIUtils.getParam("log.ssl.enable", "0").equals("1");
-    }
-
     private OutputStream getLogger() {
-        OutputStream result;
-        String filename = HBCIUtils.getParam("log.ssl.filename");
-
-        if (filename == null || filename.length() == 0) {
-            HBCIUtils.log("no log.ssl.filename specified - logging to HBCI4Java logger", HBCIUtils.LOG_WARN);
-            result = new HBCI4JavaLogOutputStream();
-
-        } else {
-            try {
-                result = new FileOutputStream(filename, true);
-                result.write('\n');
-                result.write(HBCIUtils.datetime2StringISO(new Date()).getBytes(
-                        "ISO-8859-1"));
-                result.write('\n');
-                result.flush();
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return result;
+        return new HBCI4JavaLogOutputStream();
     }
 
-
-    public Socket createSocket()
-            throws IOException {
-        HBCIUtils.log("createSocket()", HBCIUtils.LOG_DEBUG2);
-        Socket sock = this.realSocketFactory.createSocket();
-        if (debug()) {
-            sock = new LoggingSocket(sock, getLogger());
-        }
-        return sock;
+    public Socket createSocket() throws IOException {
+        log.debug("createSocket()");
+        return this.realSocketFactory.createSocket();
     }
-
 
     public Socket createSocket(Socket sock, String host, int port, boolean autoClose)
             throws IOException {
-        HBCIUtils.log("createSocket(sock,host,port,autoClose)", HBCIUtils.LOG_DEBUG2);
-        Socket result = this.realSocketFactory.createSocket(sock, host, port, autoClose);
-        if (debug()) {
-            result = new LoggingSocket(result, getLogger());
-        }
-        return result;
+        log.debug("createSocket(sock,host,port,autoClose)");
+        return this.realSocketFactory.createSocket(sock, host, port, autoClose);
     }
 
     public String[] getDefaultCipherSuites() {
@@ -131,43 +89,23 @@ public class PinTanSSLSocketFactory
         return this.realSocketFactory.getSupportedCipherSuites();
     }
 
-    public Socket createSocket(String host, int port)
-            throws IOException, UnknownHostException {
-        HBCIUtils.log("createSocket(host,port)", HBCIUtils.LOG_DEBUG2);
-        Socket sock = this.realSocketFactory.createSocket(host, port);
-        if (debug()) {
-            sock = new LoggingSocket(sock, getLogger());
-        }
-        return sock;
+    public Socket createSocket(String host, int port) throws IOException {
+        log.debug("createSocket(host,port)");
+        return this.realSocketFactory.createSocket(host, port);
     }
 
-    public Socket createSocket(InetAddress addr, int port)
-            throws IOException {
-        HBCIUtils.log("createSocket(addr,port)", HBCIUtils.LOG_DEBUG2);
-        Socket sock = this.realSocketFactory.createSocket(addr, port);
-        if (debug()) {
-            sock = new LoggingSocket(sock, getLogger());
-        }
-        return sock;
+    public Socket createSocket(InetAddress addr, int port) throws IOException {
+        log.debug("createSocket(addr,port)");
+        return this.realSocketFactory.createSocket(addr, port);
     }
 
-    public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
-            throws IOException, UnknownHostException {
-        HBCIUtils.log("createSocket(host,port,localHost,localPort)", HBCIUtils.LOG_DEBUG2);
-        Socket sock = this.realSocketFactory.createSocket(host, port, localHost, localPort);
-        if (debug()) {
-            sock = new LoggingSocket(sock, getLogger());
-        }
-        return sock;
+    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
+        log.debug("createSocket(host,port,localHost,localPort)");
+        return this.realSocketFactory.createSocket(host, port, localHost, localPort);
     }
 
-    public Socket createSocket(InetAddress addr, int port, InetAddress localHost, int localPort)
-            throws IOException {
-        HBCIUtils.log("createSocket(addr,port,localHost,localPort)", HBCIUtils.LOG_DEBUG2);
-        Socket sock = this.realSocketFactory.createSocket(addr, port, localHost, localPort);
-        if (debug()) {
-            sock = new LoggingSocket(sock, getLogger());
-        }
-        return sock;
+    public Socket createSocket(InetAddress addr, int port, InetAddress localHost, int localPort) throws IOException {
+        log.debug("createSocket(addr,port,localHost,localPort)");
+        return this.realSocketFactory.createSocket(addr, port, localHost, localPort);
     }
 }

@@ -21,7 +21,7 @@
 
 package org.kapott.hbci.protocol;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Properties;
 
+@Slf4j
 public final class MultipleSEGs extends MultipleSyntaxElements {
 
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document) {
@@ -62,11 +63,11 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         return ret.toString();
     }
 
-    public void log(int logLevel) {
+    public void log() {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             SEG seg = (SEG) (i.next());
             if (seg != null)
-                HBCIUtils.log(seg.toString(0), logLevel);
+                log.trace(seg.toString(0));
         }
     }
 

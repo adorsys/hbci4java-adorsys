@@ -21,8 +21,10 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
+@Slf4j
 public class RSigIdLeadingZero extends Rewrite {
 
     @Override
@@ -45,19 +47,19 @@ public class RSigIdLeadingZero extends Rewrite {
                     StringBuffer value = new StringBuffer(st.substring(firstPlus + 1, secondPlus));
 
                     if (value.length() > 1 && value.charAt(0) == '0') {
-                        HBCIUtils.log("RSigIdLeadingZero: found leading zero (" + value + "), removing it", HBCIUtils.LOG_WARN);
+                        log.warn("RSigIdLeadingZero: found leading zero (" + value + "), removing it");
                         while (value.length() > 1 && value.charAt(0) == '0') {
                             value.deleteCharAt(0);
                         }
 
                         ret.replace(firstPlus + 1, secondPlus, value.toString());
-                        HBCIUtils.log("RSigIdLeadingZero: setting new sigid: " + value, HBCIUtils.LOG_WARN);
+                        log.warn("RSigIdLeadingZero: setting new sigid: " + value);
                     }
                 } else {
-                    HBCIUtils.log("RSigIdLeadingZero: can not find end of sigid in segment", HBCIUtils.LOG_WARN);
+                    log.warn("RSigIdLeadingZero: can not find end of sigid in segment");
                 }
             } else {
-                HBCIUtils.log("RSigIdLeadingZero: can not find sigid in segment", HBCIUtils.LOG_WARN);
+                log.warn("RSigIdLeadingZero: can not find sigid in segment");
             }
         }
 

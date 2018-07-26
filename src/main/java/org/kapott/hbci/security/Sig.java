@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
@@ -35,6 +36,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 public final class Sig {
     public final static String SECFUNC_HBCI_SIG_RDH = "1";
     public final static String SECFUNC_HBCI_SIG_DDV = "2";
@@ -317,7 +319,7 @@ public final class Sig {
             } catch (Exception ex) {
                 throw new HBCI_Exception("*** error while signing", ex);
             }
-        } else HBCIUtils.log("did not sign - message does not want to be signed", HBCIUtils.LOG_DEBUG);
+        } else log.debug("did not sign - message does not want to be signed");
 
         return true;
     }
@@ -366,7 +368,7 @@ public final class Sig {
         try {
             u_keyblz = msg.getValueOfDE(sigheadName + ".KeyName.KIK.blz");
         } catch (Exception e) {
-            HBCIUtils.log("missing bank code in message signature, ignoring...", HBCIUtils.LOG_WARN);
+            log.warn("missing bank code in message signature, ignoring...");
         }
 
         if (passport.needUserSig()) {
@@ -387,8 +389,7 @@ public final class Sig {
 
         if (checkref == null || !checkref.equals(checkref2)) {
             String errmsg = HBCIUtils.getLocMsg("EXCMSG_SIGREFFAIL");
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSignErrors", errmsg))
-                throw new HBCI_Exception(errmsg);
+            throw new HBCI_Exception(errmsg);
         }
 
         // TODO: dieser test ist erst mal deaktiviert. grund: beim pin/tan-zwei-
@@ -452,7 +453,7 @@ public final class Sig {
                     readSigHead(passport);
                     return true;
                 } else {
-                    HBCIUtils.log("message has no signature", HBCIUtils.LOG_WARN);
+                    log.warn("message has no signature");
                     /* das ist nur für den fall, dass das institut prinzipiell nicht signiert
                        (also für den client-code);
                        die verify()-funktion für den server-code überprüft selbstständig, ob
@@ -461,11 +462,11 @@ public final class Sig {
                     return true;
                 }
             } else {
-                HBCIUtils.log("message does not need a signature", HBCIUtils.LOG_DEBUG);
+                log.debug("message does not need a signature");
                 return true;
             }
         } else {
-            HBCIUtils.log("can not check signature - no signature key available", HBCIUtils.LOG_WARN);
+            log.warn("can not check signature - no signature key available");
             return true;
         }
     }
@@ -473,7 +474,7 @@ public final class Sig {
     public void setParam(String key, String value) {
         try {
             Field f = this.getClass().getDeclaredField("u_" + key);
-            HBCIUtils.log("setting " + key + " to " + value, HBCIUtils.LOG_DEBUG);
+            log.debug("setting " + key + " to " + value);
             f.set(this, value);
         } catch (Exception ex) {
             throw new HBCI_Exception("*** error while setting sig parameter", ex);

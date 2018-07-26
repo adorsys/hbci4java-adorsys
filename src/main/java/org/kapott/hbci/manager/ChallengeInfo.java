@@ -20,6 +20,7 @@
 
 package org.kapott.hbci.manager;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.datatypes.SyntaxDE;
 import org.kapott.hbci.datatypes.factory.SyntaxDEFactory;
@@ -39,6 +40,7 @@ import java.util.*;
  * Diese Klasse ermittelt die noetigen HKTAN-Challenge-Parameter fuer einen
  * Geschaeftsvorfall
  */
+@Slf4j
 public class ChallengeInfo {
     /**
      * Das Singleton.
@@ -49,15 +51,13 @@ public class ChallengeInfo {
      * ct.
      */
     public ChallengeInfo() {
-        HBCIUtils.log("initializing challenge info engine", HBCIUtils.LOG_DEBUG);
-
+        log.debug("initializing challenge info engine");
 
         ////////////////////////////////////////////////////////////////////////////
         // XML-Datei lesen
-        String xmlpath = HBCIUtils.getParam("kernel.kernel.challengedatapath", "");
         InputStream dataStream = null;
 
-        String filename = xmlpath + "challengedata.xml";
+        String filename = "challengedata.xml";
         dataStream = ChallengeInfo.class.getClassLoader().getResourceAsStream(filename);
         if (dataStream == null)
             throw new InvalidUserDataException("*** can not load challenge information from " + filename);
@@ -93,7 +93,7 @@ public class ChallengeInfo {
         //
         ////////////////////////////////////////////////////////////////////////////
 
-        HBCIUtils.log("challenge information loaded", HBCIUtils.LOG_DEBUG);
+        log.debug("challenge information loaded");
     }
 
     /**
@@ -122,26 +122,26 @@ public class ChallengeInfo {
         // Den Geschaeftsvorfall kennen wir nicht. Dann brauchen wir
         // auch keine Challenge-Parameter setzen
         if (job == null) {
-            HBCIUtils.log("have no challenge data for " + code + ", will not apply challenge params", HBCIUtils.LOG_INFO);
+            log.info("have no challenge data for " + code + ", will not apply challenge params");
             return;
         }
 
         HHDVersion version = HHDVersion.find(secmech);
-        HBCIUtils.log("using hhd version " + version, HBCIUtils.LOG_DEBUG2);
+        log.debug("using hhd version " + version);
 
         // Parameter fuer die passende HHD-Version holen
         HhdVersion hhd = job.getVersion(version.getChallengeVersion());
 
         // Wir haben keine Parameter fuer diese HHD-Version
         if (hhd == null) {
-            HBCIUtils.log("have no challenge data for " + code + " in " + version + ", will not apply challenge params", HBCIUtils.LOG_INFO);
+            log.info("have no challenge data for " + code + " in " + version + ", will not apply challenge params");
             return;
         }
 
 
         // Schritt 1: Challenge-Klasse uebernehmen
         String klass = hhd.getKlass();
-        HBCIUtils.log("using challenge klass " + klass, HBCIUtils.LOG_DEBUG2);
+        log.debug("using challenge klass " + klass);
         hktan.setParam("challengeklass", klass);
 
 
@@ -153,7 +153,7 @@ public class ChallengeInfo {
 
             // Checken, ob der Parameter angewendet werden soll.
             if (!param.isComplied(secmech)) {
-                HBCIUtils.log("skipping challenge parameter " + num + " (" + param.path + "), condition " + param.conditionName + "=" + param.conditionValue + " not complied", HBCIUtils.LOG_DEBUG2);
+                log.debug("skipping challenge parameter " + num + " (" + param.path + "), condition " + param.conditionName + "=" + param.conditionValue + " not complied");
                 continue;
             }
 
@@ -162,11 +162,11 @@ public class ChallengeInfo {
             // werden dann freigelassen
             String value = param.getValue(task);
             if (value == null || value.length() == 0) {
-                HBCIUtils.log("challenge parameter " + num + " (" + param.path + ") is empty", HBCIUtils.LOG_DEBUG2);
+                log.debug("challenge parameter " + num + " (" + param.path + ") is empty");
                 continue;
             }
 
-            HBCIUtils.log("adding challenge parameter " + num + " " + param.path + "=" + value, HBCIUtils.LOG_DEBUG2);
+            log.debug("adding challenge parameter " + num + " " + param.path + "=" + value);
             hktan.setParam("ChallengeKlassParam" + num, value);
         }
     }

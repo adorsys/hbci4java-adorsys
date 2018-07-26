@@ -21,7 +21,7 @@
 
 package org.kapott.hbci.protocol;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Properties;
 
+@Slf4j
 public final class MultipleDEGs extends MultipleSyntaxElements {
 
     private char delimiter;
@@ -59,24 +60,24 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         StringBuffer ret = new StringBuffer(128);
         boolean first = true;
 
-        for (SyntaxElement syntaxElement :  getElements()) {
+        for (SyntaxElement syntaxElement : getElements()) {
             if (!first)
                 ret.append(delimiter);
             first = false;
 
             if (syntaxElement != null)
-                ret.append(((DEG)syntaxElement).toString(0));
+                ret.append(((DEG) syntaxElement).toString(0));
         }
 
 
         return ret.toString();
     }
 
-    public void log(int logLevel) {
+    public void log() {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             DEG deg = (DEG) (i.next());
             if (deg != null)
-                HBCIUtils.log(deg.toString(0), logLevel);
+                log.trace(deg.toString(0));
         }
     }
 

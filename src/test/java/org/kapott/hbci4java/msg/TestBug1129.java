@@ -65,7 +65,6 @@ public class TestBug1129 extends AbstractTest {
      */
     @Test
     public void test002() throws Exception {
-        HBCIUtils.setParam("client.errors.ignoreWrongDataSyntaxErrors", "yes");
         parse();
     }
 
@@ -76,7 +75,6 @@ public class TestBug1129 extends AbstractTest {
      */
     @Test
     public void test003() throws Exception {
-        HBCIUtils.setParam("client.errors.ignoreWrongDataSyntaxErrors", "yes");
         Hashtable<String, String> ht = parse();
         Assert.assertEquals("EBüHREN Z.T. IM VORAUS", ht.get("CustomMsgRes.GVRes_6.DauerListRes4.usage.usage_3"));
     }

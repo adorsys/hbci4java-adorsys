@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.w3c.dom.Document;
@@ -28,6 +29,7 @@ import org.w3c.dom.Document;
 /**
  * Implementierung des Geschaeftsvorfalls zum Abruf von neuen Umsaetzen (HKKAN).
  */
+@Slf4j
 public final class GVKUmsNew extends GVKUmsAll {
 
     public static String getLowlevelName() {
@@ -44,7 +46,7 @@ public final class GVKUmsNew extends GVKUmsAll {
             // Bei HKKAN ist das ab Segment-Version 7 der Fall.
             sepa = Integer.parseInt(this.getSegVersion()) >= 7;
         } catch (Exception e) {
-            HBCIUtils.log(e);
+            log.error(e.getMessage(), e);
         }
 
         // Dennoch kann es sein, dass die nationale Bankverbindung auch bei der

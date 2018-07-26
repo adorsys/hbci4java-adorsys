@@ -26,164 +26,198 @@ import org.kapott.hbci.manager.HBCIUtils;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-/** Darstellung eines Geldbetrages. */
-public final class Value
-    implements Serializable
-{
+/**
+ * Darstellung eines Geldbetrages.
+ */
+public final class Value implements Serializable {
+
     private static final BigDecimal ONE_HUNDRED = new BigDecimal("100.00");
-    
-    /** Numerischer Wert des Betrages mal 100*/
-    private long   value;
-    
-    /** Währung. Für EURO ist hier <code>EUR</code> zu benutzen. */
+
+    /**
+     * Numerischer Wert des Betrages mal 100
+     */
+    private long value;
+
+    /**
+     * Währung. Für EURO ist hier <code>EUR</code> zu benutzen.
+     */
     private String curr;
-    
-    /** Anlegen eines neuen Objektes zur Aufnahme eines Geldbetrages. Vorbelegung
-     * ist der Wert "0 EUR" */
-    public Value()
-    {
-        this(0,"EUR");
+
+    /**
+     * Anlegen eines neuen Objektes zur Aufnahme eines Geldbetrages. Vorbelegung
+     * ist der Wert "0 EUR"
+     */
+    public Value() {
+        this(0, "EUR");
     }
-    
-    /** Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
-        @param value der Geldbetrag (1.23)
-        @deprecated */
+
+    /**
+     * Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
+     *
+     * @param value der Geldbetrag (1.23)
+     * @deprecated
+     */
     @Deprecated
-    public Value(double value)
-    {
-        this(Math.round(100.0*value),"EUR");
-    }
-    
-    /** Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
-        @param value der Geldbetrag mal 100 (123) */
-    public Value(long value)
-    {
-        this(value,"EUR");
+    public Value(double value) {
+        this(Math.round(100.0 * value), "EUR");
     }
 
-    /** Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
-        @param value der Geldbetrag als String ("1.23") */
-    public Value(String value)
-    {
-        this(value,"EUR");
+    /**
+     * Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
+     *
+     * @param value der Geldbetrag mal 100 (123)
+     */
+    public Value(long value) {
+        this(value, "EUR");
     }
 
-    /** Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
-    @param value der Geldbetrag als String ("1.23") */
-    public Value(BigDecimal value)
-    {
-        this(value,"EUR");
+    /**
+     * Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
+     *
+     * @param value der Geldbetrag als String ("1.23")
+     */
+    public Value(String value) {
+        this(value, "EUR");
     }
 
-    /** Anlegen eines Geldbetrag-Objektes.
-        @param value der Geldbetrag als String ("1.23")
-        @param curr die Währung des Geldbetrages */
-    public Value(String value,String curr)
-    {
-        this(new BigDecimal(value.replace(" ","")),curr);
+    /**
+     * Anlegen eines Geldbetrag-Objektes. Die Währung wird mit <code>EUR</code> vorbelegt.
+     *
+     * @param value der Geldbetrag als String ("1.23")
+     */
+    public Value(BigDecimal value) {
+        this(value, "EUR");
     }
 
-    /** Anlegen eines Geldbetrag-Objektes.
-        @param value der Geldbetrag (1.23)
-        @param curr die Währung des Geldbetrages 
-        @deprecated */
+    /**
+     * Anlegen eines Geldbetrag-Objektes.
+     *
+     * @param value der Geldbetrag als String ("1.23")
+     * @param curr  die Währung des Geldbetrages
+     */
+    public Value(String value, String curr) {
+        this(new BigDecimal(value.replace(" ", "")), curr);
+    }
+
+    /**
+     * Anlegen eines Geldbetrag-Objektes.
+     *
+     * @param value der Geldbetrag (1.23)
+     * @param curr  die Währung des Geldbetrages
+     * @deprecated
+     */
     @Deprecated
-    public Value(double value,String curr)
-    {
-        this(Math.round(100.0*value),curr);
-    }
-    
-    /** Anlegen eines Geldbetrag-Objektes.
-        @param value der Geldbetrag mal 100 (123)
-        @param curr die Währung des Geldbetrages */
-    public Value(long value,String curr)
-    {
-        this.value=value;
-        this.curr=curr;
+    public Value(double value, String curr) {
+        this(Math.round(100.0 * value), curr);
     }
 
-    /** Anlegen eines Geldbetrag-Objektes.
-    @param value der Geldbetrag (1.23).
-    @param curr die Währung des Geldbetrages */
-    public Value(BigDecimal value,String curr)
-    {
-        this.value=value.multiply(ONE_HUNDRED).longValueExact();
-        this.curr=curr;
+    /**
+     * Anlegen eines Geldbetrag-Objektes.
+     *
+     * @param value der Geldbetrag mal 100 (123)
+     * @param curr  die Währung des Geldbetrages
+     */
+    public Value(long value, String curr) {
+        this.value = value;
+        this.curr = curr;
     }
 
-    /** Erstellt eine neue Instanz eines Geldbetrag-Objektes als Kopie
-        eines bestehenden Objektes.
-        @param v ein Objekt, welches geklont werden soll */
-    public Value(Value v)
-    {
-        this(v.value,v.curr);
+    /**
+     * Anlegen eines Geldbetrag-Objektes.
+     *
+     * @param value der Geldbetrag (1.23).
+     * @param curr  die Währung des Geldbetrages
+     */
+    public Value(BigDecimal value, String curr) {
+        this.value = value.multiply(ONE_HUNDRED).longValueExact();
+        this.curr = curr;
     }
 
-    /** Umwandeln in einen String. Die Rückgabe erfolgt im Format 
-        <pre>&lt;value> " " &lt;curr></pre>
-        @return Stringdarstellung des Geldbetrages */
+    /**
+     * Erstellt eine neue Instanz eines Geldbetrag-Objektes als Kopie
+     * eines bestehenden Objektes.
+     *
+     * @param v ein Objekt, welches geklont werden soll
+     */
+    public Value(Value v) {
+        this(v.value, v.curr);
+    }
+
+    /**
+     * Umwandeln in einen String. Die Rückgabe erfolgt im Format
+     * <pre>&lt;value> " " &lt;curr></pre>
+     *
+     * @return Stringdarstellung des Geldbetrages
+     */
     @Override
-    public String toString()
-    {
-        return HBCIUtils.bigDecimal2String(new BigDecimal(value).divide(ONE_HUNDRED))+" "+curr;
+    public String toString() {
+        return HBCIUtils.bigDecimal2String(new BigDecimal(value).divide(ONE_HUNDRED)) + " " + curr;
     }
-    
-    /** Gibt den Betrag mal 100 als Ganzzahl zurück */
-    public long getLongValue()
-    {
+
+    /**
+     * Gibt den Betrag mal 100 als Ganzzahl zurück
+     */
+    public long getLongValue() {
         return value;
     }
-    
-    /** Gibt den Betrag als Fließkommazahl zurück */
+
+    /**
+     * Gibt den Betrag als Fließkommazahl zurück
+     */
     @Deprecated
-    public double getDoubleValue()
-    {
-        return value/100.0;
+    public double getDoubleValue() {
+        return value / 100.0;
     }
-    
+
     public BigDecimal getBigDecimalValue() {
         BigDecimal result = new BigDecimal(value).divide(ONE_HUNDRED);
         result.setScale(2, BigDecimal.ROUND_HALF_EVEN);
         return result;
     }
-    
-    /** Gibt die Währung zurück */
-    public String getCurr()
-    {
+
+    /**
+     * Gibt die Währung zurück
+     */
+    public String getCurr() {
         return curr;
     }
-    
-    /** Setzt den Betrag neu.
+
+    /**
+     * Setzt den Betrag neu.
+     *
      * @param value Betrag (1.23)
-     * @deprecated */
-    public void setValue(double value)
-    {
-        setValue(Math.round(100.0*value));
+     * @deprecated
+     */
+    public void setValue(double value) {
+        setValue(Math.round(100.0 * value));
     }
-    
-    /** Setzt den Betrag neu. Der hier angegebene Wert entspricht dem 
+
+    /**
+     * Setzt den Betrag neu. Der hier angegebene Wert entspricht dem
      * eigentlichen Betrag mal 100.
-     * @param value Der Betrag mal 100 */
-    public void setValue(long value)
-    {
-        this.value=value;
+     *
+     * @param value Der Betrag mal 100
+     */
+    public void setValue(long value) {
+        this.value = value;
     }
-    
+
     /**
      * Setzt den Betrag neu. Der hier angegebene Wert entspricht dem Betrag mal 100. Wenn der
      * Wert Centbruchteile enthält, welche wegfallen würden, wird eine Exception geworfen.
-     * 
+     *
      * @param value Der Betrag mal 100
      */
-    public void setValue(BigDecimal value)
-    {
+    public void setValue(BigDecimal value) {
         this.value = value.multiply(ONE_HUNDRED).longValueExact();
     }
-    
-    /** Setzt die Währung neu.
-     * @param curr die Währung */
-    public void setCurr(String curr) 
-    {
-        this.curr=curr;
+
+    /**
+     * Setzt die Währung neu.
+     *
+     * @param curr die Währung
+     */
+    public void setCurr(String curr) {
+        this.curr = curr;
     }
 }

@@ -21,8 +21,10 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
+@Slf4j
 public class RInvalidSegment extends Rewrite {
 
     // TODO: msgsize muss angepasst werden
@@ -33,7 +35,7 @@ public class RInvalidSegment extends Rewrite {
         int idx = sb.indexOf("'IIDIA:");
         if (idx != -1) {
             int idx2 = sb.indexOf("'", idx + 1);
-            HBCIUtils.log("removing invalid segment '" + sb.substring(idx + 1, idx2 + 1) + "'", HBCIUtils.LOG_WARN);
+            log.warn("removing invalid segment '" + sb.substring(idx + 1, idx2 + 1) + "'");
             sb.delete(idx + 1, idx2 + 1);
         }
 

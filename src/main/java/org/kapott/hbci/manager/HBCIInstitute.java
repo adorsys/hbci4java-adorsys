@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.manager;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -45,10 +46,13 @@ import java.util.Properties;
     It it responsible for storing institute-specific-data (the BPD,
     the signature and encryption keys etc.) and for providing
     a Comm object for making communication with the institute */
+@Slf4j
 public final class HBCIInstitute implements IHandlerData {
 
     private final static String BPD_KEY_LASTUPDATE = "_lastupdate";
     private final static String BPD_KEY_HBCIVERSION = "_hbciversion";
+
+    private static final String maxAge = "7";
 
     private HBCIPassportInternal passport;
     private HBCIKernel kernel;
@@ -63,7 +67,7 @@ public final class HBCIInstitute implements IHandlerData {
      * passport field
      */
     void updateBPD(Properties result) {
-        HBCIUtils.log("extracting BPD from results", HBCIUtils.LOG_DEBUG);
+        log.debug("extracting BPD from results");
         Properties p = new Properties();
 
         for (Enumeration e = result.keys(); e.hasMoreElements(); ) {
@@ -77,7 +81,7 @@ public final class HBCIInstitute implements IHandlerData {
             p.setProperty(BPD_KEY_HBCIVERSION, passport.getHBCIVersion());
             p.setProperty(BPD_KEY_LASTUPDATE, String.valueOf(System.currentTimeMillis()));
             passport.setBPD(p);
-            HBCIUtils.log("installed new BPD with version " + passport.getBPDVersion(), HBCIUtils.LOG_INFO);
+            log.info("installed new BPD with version " + passport.getBPDVersion());
             passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT_DONE, passport.getBPD());
         }
     }
@@ -89,7 +93,7 @@ public final class HBCIInstitute implements IHandlerData {
         boolean foundChanges = false;
 
         try {
-            HBCIUtils.log("extracting public institute keys from results", HBCIUtils.LOG_DEBUG);
+            log.debug("extracting public institute keys from results");
 
             for (int i = 0; i < 3; i++) {
                 String head = HBCIUtils.withCounter("SendPubKey", i);
@@ -103,10 +107,9 @@ public final class HBCIInstitute implements IHandlerData {
                 String keyNum = result.getProperty(head + ".KeyName.keynum");
                 String keyVersion = result.getProperty(head + ".KeyName.keyversion");
 
-                HBCIUtils.log("found key " +
-                                keyCountry + "_" + keyBLZ + "_" + keyUserId + "_" + keyType + "_" +
-                                keyNum + "_" + keyVersion,
-                        HBCIUtils.LOG_INFO);
+                log.info("found key " +
+                        keyCountry + "_" + keyBLZ + "_" + keyUserId + "_" + keyType + "_" +
+                        keyNum + "_" + keyVersion);
 
                 byte[] keyExponent = result.getProperty(head + ".PubKey.exponent").getBytes(CommPinTan.ENCODING);
                 byte[] keyModulus = result.getProperty(head + ".PubKey.modulus").getBytes(CommPinTan.ENCODING);
@@ -126,10 +129,7 @@ public final class HBCIInstitute implements IHandlerData {
             }
         } catch (Exception e) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_EXTR_IKEYS_ERR");
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreExtractKeysErrors",
-                    msg + ": " + HBCIUtils.exception2String(e))) {
-                throw new HBCI_Exception(msg, e);
-            }
+            throw new HBCI_Exception(msg, e);
         }
 
         if (foundChanges) {
@@ -144,21 +144,20 @@ public final class HBCIInstitute implements IHandlerData {
      */
     private boolean isBPDExpired() {
         Properties bpd = passport.getBPD();
-        String maxAge = HBCIUtils.getParam("bpd.maxage.days", "7");
-        HBCIUtils.log("[BPD] max age: " + maxAge + " days", HBCIUtils.LOG_INFO);
+        log.info("[BPD] max age: " + maxAge + " days");
 
         long maxMillis = -1L;
         try {
             int days = Integer.parseInt(maxAge);
             if (days == 0) {
-                HBCIUtils.log("[BPD] auto-expiry disabled", HBCIUtils.LOG_INFO);
+                log.info("[BPD] auto-expiry disabled");
                 return false;
             }
 
             if (days > 0)
                 maxMillis = days * 24 * 60 * 60 * 1000L;
         } catch (NumberFormatException e) {
-            HBCIUtils.log(e);
+            log.error(e.getMessage(), e);
             return false;
         }
 
@@ -168,15 +167,15 @@ public final class HBCIInstitute implements IHandlerData {
             try {
                 lastUpdate = Long.parseLong(s);
             } catch (NumberFormatException e) {
-                HBCIUtils.log(e);
+                log.error(e.getMessage(), e);
                 return false;
             }
-            HBCIUtils.log("[BPD] last update: " + (lastUpdate == 0 ? "never" : new Date(lastUpdate)), HBCIUtils.LOG_INFO);
+            log.info("[BPD] last update: " + (lastUpdate == 0 ? "never" : new Date(lastUpdate)));
         }
 
         long now = System.currentTimeMillis();
         if (maxMillis < 0 || (now - lastUpdate) > maxMillis) {
-            HBCIUtils.log("[BPD] expired, will be updated now", HBCIUtils.LOG_INFO);
+            log.info("[BPD] expired, will be updated now");
             return true;
         }
 
@@ -207,12 +206,12 @@ public final class HBCIInstitute implements IHandlerData {
                 // "if" hier aus einem der anderen beiden o.g. Gruende (BPD-Expiry oder neue HBCI-Version)
                 // gelandet sind.
                 if (!version.equals("0")) {
-                    HBCIUtils.log("resetting BPD version from " + version + " to 0", HBCIUtils.LOG_INFO);
+                    log.info("resetting BPD version from " + version + " to 0");
                     passport.getBPD().setProperty("BPA.version", "0");
                 }
 
                 passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT, null);
-                HBCIUtils.log("fetching BPD", HBCIUtils.LOG_INFO);
+                log.info("fetching BPD");
 
                 HBCIMsgStatus msgStatus = anonymousDialogInit();
 
@@ -222,13 +221,13 @@ public final class HBCIInstitute implements IHandlerData {
                 if (!msgStatus.isDialogClosed()) {
                     try {
                         anonymousDialogEnd(result.getProperty("MsgHead.dialogid"));
-                    } catch (Exception ex) {
-                        HBCIUtils.log(ex);
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
                     }
                 }
 
                 if (!msgStatus.isOK()) {
-                    HBCIUtils.log("fetching BPD failed", HBCIUtils.LOG_ERR);
+                    log.error("fetching BPD failed");
                     throw new ProcessException(HBCIUtils.getLocMsg("ERR_INST_BPDFAILED"), msgStatus);
                 }
             } catch (Exception e) {
@@ -237,30 +236,28 @@ public final class HBCIInstitute implements IHandlerData {
                     if (he.isFatal())
                         throw he;
                 }
-//                HBCIUtils.log(e);
+//                log.(e);
                 // Viele Kreditinstitute unterstützen den anonymen Login nicht. Dass sollte nicht als Fehler den Anwender beunruhigen
-                HBCIUtils.log("FAILED! - maybe this institute does not support anonymous logins", HBCIUtils.LOG_INFO);
-                HBCIUtils.log("we will nevertheless go on", HBCIUtils.LOG_INFO);
+                log.info("FAILED! - maybe this institute does not support anonymous logins");
+                log.info("we will nevertheless go on");
             }
         }
 
         // ueberpruefen, ob angeforderte sicherheitsmethode auch
         // tatsaechlich unterstuetzt wird
-        HBCIUtils.log("checking if requested hbci parameters are supported", HBCIUtils.LOG_DEBUG);
+        log.debug("checking if requested hbci parameters are supported");
         if (passport.getBPD() != null) {
             if (!passport.isSupported()) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_SECMETHNOTSUPP");
-                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreSecMechCheckErrors", msg))
-                    throw new InvalidUserDataException(msg);
+                throw new InvalidUserDataException(msg);
             }
 
             if (!Arrays.asList(passport.getSuppVersions()).contains(passport.getHBCIVersion())) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_VERSIONNOTSUPP");
-                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreVersionCheckErrors", msg))
-                    throw new InvalidUserDataException(msg);
+                throw new InvalidUserDataException(msg);
             }
         } else {
-            HBCIUtils.log("can not check if requested parameters are supported", HBCIUtils.LOG_WARN);
+            log.warn("can not check if requested parameters are supported");
         }
 
         passport.setPersistentData("_registered_institute", Boolean.TRUE);
@@ -273,8 +270,8 @@ public final class HBCIInstitute implements IHandlerData {
         message.rawSet("ProcPrep.BPD", "0");
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
         message.rawSet("ProcPrep.lang", "0");
-        message.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
-        message.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
+        message.rawSet("ProcPrep.prodName", "HBCI4Java");
+        message.rawSet("ProcPrep.prodVersion", "2.5");
 
         return kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT,
                 HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
@@ -292,13 +289,10 @@ public final class HBCIInstitute implements IHandlerData {
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {
-            HBCIUtils.log("dialog end failed: " + status.getErrorString(), HBCIUtils.LOG_ERR);
+            log.error("dialog end failed: " + status.getErrorString());
 
             String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
-            if (!HBCIUtils.ignoreError(null, "client.errors.ignoreDialogEndErrors",
-                    msg + ": " + status.getErrorString())) {
-                throw new ProcessException(msg, status);
-            }
+            throw new ProcessException(msg, status);
         }
     }
 

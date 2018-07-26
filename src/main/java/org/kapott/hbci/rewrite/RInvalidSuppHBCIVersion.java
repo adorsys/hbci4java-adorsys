@@ -21,11 +21,13 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
 import org.w3c.dom.Document;
 
+@Slf4j
 public class RInvalidSuppHBCIVersion extends Rewrite {
 
     // TODO: den rewriter umschreiben, so dass er nur string-operationen
@@ -51,12 +53,12 @@ public class RInvalidSuppHBCIVersion extends Rewrite {
             // Versionsnummer extrahieren
             String version = elem.toString();
             if (version.equals("2")) { // "2" ist ungültige Versionsnummer
-                HBCIUtils.log("there is an invalid hbci version number ('2') in this BPD - replacing it with '210'", HBCIUtils.LOG_WARN);
+                log.warn("there is an invalid hbci version number ('2') in this BPD - replacing it with '210'");
 
                 // versionsnummer "2" im string durch "210" ersetzen
                 int startpos = elem.getPosInMsg() + 1;  // +1 wegen überspringen des pre-delimiters
                 st = new StringBuffer(st).replace(startpos, startpos + 1, "210").toString();
-                HBCIUtils.log("new message after replacing: " + st, HBCIUtils.LOG_DEBUG);
+                log.debug("new message after replacing: " + st);
                 break;
             }
         }

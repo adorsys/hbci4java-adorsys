@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.GV_Result;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassport;
@@ -47,9 +48,8 @@ import java.util.*;
  * <p>Es können auch alle Umsatzzeilen in einer einzigen Liste abgefragt werden (also nicht
  * in Buchungstage unterteilt .</p>
  */
+@Slf4j
 public class GVRKUms extends HBCIJobResultImpl {
-
-    private static Logger LOG = LoggerFactory.getLogger(GVRKUms.class);
 
     public GVRKUms(HBCIPassportInternal passport) {
         super(passport);
@@ -388,28 +388,28 @@ public class GVRKUms extends HBCIJobResultImpl {
         }
 
         if (restMT940 != null && restMT940.length() != 0) {
-            LOG.warn(
+            log.warn(
                     where +
                             ": mt940 has not been parsed successfully " +
                             "- probably returned data will be incomplete. " +
                             "check variable 'restMT940' (or set logging level to 4 (=DEBUG)) " +
                             "to see the data that could not be parsed.");
-            LOG.debug("restMT940: " + restMT940);
+            log.debug("restMT940: " + restMT940);
         }
 
         if (restMT942 != null && restMT942.length() != 0) {
-            LOG.warn(
+            log.warn(
                     where +
                             ": mt942 has not been parsed successfully " +
                             "- probably returned data will be incomplete. " +
                             "check variable 'restMT942' (or set logging level to 4 (=DEBUG)) " +
                             "to see the data that could not be parsed.");
-            LOG.debug("restMT942: " + restMT942);
+            log.debug("restMT942: " + restMT942);
         }
     }
 
     private void parseMT94x(StringBuffer buffer, List<BTag> tage, StringBuffer rest) {
-        LOG.debug("now parsing MT94x data");
+        log.debug("now parsing MT94x data");
         parsed = true;
 
         try {
@@ -684,7 +684,7 @@ public class GVRKUms extends HBCIJobResultImpl {
                             if (acc.blz != null) {
                                 int space = acc.blz.indexOf(" ");
                                 if (space != -1) {
-                                    LOG.debug("blz/bic \"" + acc.blz + "\" contains invalid chars, trimming after first space");
+                                    log.debug("blz/bic \"" + acc.blz + "\" contains invalid chars, trimming after first space");
                                     acc.blz = acc.blz.substring(0, space);
                                 }
                             }
@@ -783,10 +783,10 @@ public class GVRKUms extends HBCIJobResultImpl {
             }
 
             // remove this debugging output
-            // HBCIUtils.log("Parsing of MT940 ok until now; unparsed data: "+buffer,HBCIUtils.LOG_DEBUG2);
+            // log.("Parsing of MT940 ok until now; unparsed data: "+buffer);
         } catch (Exception e) {
-            LOG.error("There is unparsed MT94x data - an exception occured while parsing");
-            LOG.debug("current MT94x buffer: " + buffer, HBCIUtils.LOG_DEBUG2);
+            log.error("There is unparsed MT94x data - an exception occured while parsing");
+            log.debug("current MT94x buffer: " + buffer);
             throw new HBCI_Exception(e);
         } finally {
             rest.setLength(0);

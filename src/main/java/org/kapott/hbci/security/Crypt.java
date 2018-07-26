@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
@@ -36,6 +37,7 @@ import org.w3c.dom.Node;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 public final class Crypt {
     public final static String SECFUNC_ENC_3DES = "4";
     public final static String SECFUNC_ENC_PLAIN = "998";
@@ -172,8 +174,8 @@ public final class Crypt {
                 } catch (Exception ex) {
                     throw new HBCI_Exception("*** error while encrypting", ex);
                 }
-            } else HBCIUtils.log("did not encrypt - message does not want to be encrypted", HBCIUtils.LOG_DEBUG);
-        } else HBCIUtils.log("can not encrypt - no encryption key available", HBCIUtils.LOG_WARN);
+            } else log.debug("did not encrypt - message does not want to be encrypted");
+        } else log.warn("can not encrypt - no encryption key available");
 
         return newmsg;
     }
@@ -201,16 +203,14 @@ public final class Crypt {
                 if (!secfunc.equals(passport.getCryptFunction())) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CRYPTSFFAIL", new Object[]{secfunc,
                             passport.getCryptFunction()});
-                    if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
-                        throw new HBCI_Exception(errmsg);
+                    throw new HBCI_Exception(errmsg);
                 }
 
                 // TODO spaeter kompression implementieren
                 String compfunc = crypthead.getValueOfDE(msgName + ".CryptHead.compfunc");
                 if (!compfunc.equals("0")) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CRYPTCOMPFUNCFAIL", compfunc);
-                    if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCryptErrors", errmsg))
-                        throw new HBCI_Exception(errmsg);
+                    throw new HBCI_Exception(errmsg);
                 }
 
                 // TODO: hier auch die DEG SecProfile lesen und überprüfen
@@ -224,13 +224,13 @@ public final class Crypt {
                         append(new String(plainMsg, 0, plainMsg.length - padLength, CommPinTan.ENCODING)).
                         append(msgtail.toString(0));
 
-                HBCIUtils.log("decrypted message: " + ret, HBCIUtils.LOG_DEBUG2);
+                log.debug("decrypted message: " + ret);
 
                 return ret.toString();
             } catch (Exception ex) {
                 throw new HBCI_Exception("*** error while decrypting", ex);
             }
-        } else HBCIUtils.log("did not decrypt - message is already cleartext", HBCIUtils.LOG_DEBUG);
+        } else log.debug("did not decrypt - message is already cleartext");
 
 
         return message.toString(0);

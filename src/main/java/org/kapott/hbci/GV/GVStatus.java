@@ -27,7 +27,6 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
-import org.w3c.dom.Document;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -75,11 +74,7 @@ public final class GVStatus extends AbstractHBCIJob {
                 setParam("enddate", dateOfJob);
             } catch (Exception e) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_CANTEXTRACTDATE", value);
-                if (!HBCIUtils.ignoreError(passport,
-                        "client.errors.ignoreWrongJobDataErrors",
-                        msg + ": " + HBCIUtils.exception2String(e))) {
-                    throw new InvalidUserDataException(msg, e);
-                }
+                throw new InvalidUserDataException(msg, e);
             }
         } else {
             super.setParam(paramName, value);

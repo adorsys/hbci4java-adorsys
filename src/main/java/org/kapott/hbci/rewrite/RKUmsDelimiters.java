@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.rewrite;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
@@ -35,10 +36,11 @@ import java.util.Properties;
  * korrigiert die Fehler in den Kontoauszugsdaten, so dass Kontoauszüge mit
  * <em>HBCI4Java</em> wieder zu parsen sind.
  */
+@Slf4j
 public final class RKUmsDelimiters extends Rewrite {
 
     private String rewriteKUms(String st) {
-        HBCIUtils.log("rewriting statement of account", HBCIUtils.LOG_DEBUG);
+        log.debug("rewriting statement of account");
 
         StringBuffer temp = new StringBuffer(st);
         int posi = 0;
@@ -78,13 +80,11 @@ public final class RKUmsDelimiters extends Rewrite {
                 if (posi != temp.length() - 1) {
                     temp.replace(posi + 1, temp.length(), "\r\n-");
                 } else {
-                    HBCIUtils.log("absolutely no ending sequence found - " +
-                                    "maybe statement of account splitted at wrong position?",
-                            HBCIUtils.LOG_DEBUG);
+                    log.debug("absolutely no ending sequence found - " +
+                                    "maybe statement of account splitted at wrong position?");
                 }
             } else {
-                HBCIUtils.log("statement of account seems to be empty",
-                        HBCIUtils.LOG_WARN);
+                log.warn("statement of account seems to be empty");
             }
         }
 
@@ -107,13 +107,12 @@ public final class RKUmsDelimiters extends Rewrite {
         }
 
         if (!temp.toString().equals(st)) {
-            HBCIUtils.log("this institute produces buggy account statements!", HBCIUtils.LOG_DEBUG);
-            HBCIUtils.log("wrongCRLF:" + wrongCRLF
+            log.debug("this institute produces buggy account statements!");
+            log.debug("wrongCRLF:" + wrongCRLF
                             + " wrongDelimiterChars:" + wrongDelimiter
                             + " wrongEnd:" + wrongEndSequence
                             + " missingMinusBetweenCRLFs:" + missingMinusBetweenCRLFs
-                            + " missingCRLFMinus:" + missingCRLFMinus,
-                    HBCIUtils.LOG_DEBUG);
+                            + " missingCRLFMinus:" + missingCRLFMinus);
         }
         return temp.toString();
     }

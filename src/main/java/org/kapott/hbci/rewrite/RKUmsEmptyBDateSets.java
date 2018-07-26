@@ -21,13 +21,14 @@
 
 package org.kapott.hbci.rewrite;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
 
 import java.util.Enumeration;
 import java.util.Properties;
 
+@Slf4j
 public class RKUmsEmptyBDateSets extends Rewrite {
 
     private String rewriteKUms(String st) {
@@ -40,9 +41,10 @@ public class RKUmsEmptyBDateSets extends Rewrite {
             foundError = true;
         }
 
-        HBCIUtils.log(
-                "rewriter KUmsEmptyBDateSets: found empty bdate sets: " + foundError,
-                foundError ? HBCIUtils.LOG_WARN : HBCIUtils.LOG_DEBUG);
+        if (foundError)
+            log.error("rewriter KUmsEmptyBDateSets: found empty bdate sets: " + foundError);
+        else
+            log.warn("rewriter KUmsEmptyBDateSets: found empty bdate sets: " + foundError);
 
         return temp.toString();
     }

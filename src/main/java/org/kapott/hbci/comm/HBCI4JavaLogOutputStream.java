@@ -21,14 +21,15 @@
 
 package org.kapott.hbci.comm;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class HBCI4JavaLogOutputStream
-        extends OutputStream {
+@Slf4j
+public class HBCI4JavaLogOutputStream extends OutputStream {
+
     private ByteArrayOutputStream logdata;
 
     public HBCI4JavaLogOutputStream() {
@@ -57,7 +58,7 @@ public class HBCI4JavaLogOutputStream
     public void flush()
             throws IOException {
         if (this.logdata.size() != 0) {
-            HBCIUtils.log("socket log: " + this.logdata.toString(CommPinTan.ENCODING), HBCIUtils.LOG_DEBUG2);
+            log.debug("socket log: " + this.logdata.toString(CommPinTan.ENCODING));
         }
         this.logdata.reset();
     }

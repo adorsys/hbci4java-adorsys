@@ -21,7 +21,7 @@ public class AllowedGVTest extends AbstractTest {
 
 //	    Rewrite.setData("msgName","Synch");
         // liste der rewriter erzeugen
-        String rewriters_st = HBCIUtils.getParam("kernel.rewriter");
+        String rewriters_st = "";
         ArrayList<Rewrite> al = new ArrayList<Rewrite>();
         StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
         while (tok.hasMoreTokens()) {
@@ -54,7 +54,7 @@ public class AllowedGVTest extends AbstractTest {
 
 //	        Rewrite.setData("msgName","Synch");
         // liste der rewriter erzeugen
-        String rewriters_st = HBCIUtils.getParam("kernel.rewriter");
+        String rewriters_st = "";
         ArrayList<Rewrite> al = new ArrayList<Rewrite>();
         StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
         while (tok.hasMoreTokens()) {

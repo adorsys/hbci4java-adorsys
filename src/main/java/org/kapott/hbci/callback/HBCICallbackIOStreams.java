@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.callback;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -42,6 +43,7 @@ import java.util.StringTokenizer;
  * ist eine abgeleitete Klasse, welche STDOUT und STDIN für die beiden
  * I/O-Streams verwendet.
  */
+@Slf4j
 public class HBCICallbackIOStreams extends AbstractHBCICallback {
 
     private PrintStream outStream;
@@ -151,11 +153,11 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
                     break;
 
                 case HAVE_HARDPIN:
-                    HBCIUtils.log("end of entering hardpin", HBCIUtils.LOG_DEBUG);
+                    log.debug("end of entering hardpin");
                     break;
 
                 case HAVE_CHIPCARD:
-                    HBCIUtils.log("end of waiting for chipcard", HBCIUtils.LOG_DEBUG);
+                    log.debug("end of waiting for chipcard");
                     break;
 
                 case NEED_COUNTRY:

@@ -1,5 +1,6 @@
 package org.kapott.hbci.GV;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.generators.ISEPAGenerator;
 import org.kapott.hbci.GV.generators.SEPAGeneratorFactory;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
@@ -9,7 +10,6 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
-import org.w3c.dom.Document;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -19,6 +19,7 @@ import java.util.*;
 /**
  * Abstrakte Basis-Klasse fuer JAXB-basierte SEPA-Jobs.
  */
+@Slf4j
 public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     /**
      * Token, der als End-to-End ID Platzhalter verwendet wird, wenn keine angegeben wurde.
@@ -79,18 +80,18 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         // Wir haben gar keine PAIN-Version gefunden
         if (globalVersion == null && jobVersion == null) {
             PainVersion def = this.getDefaultPainVersion();
-            HBCIUtils.log("unable to determine matching pain version, using default: " + def, HBCIUtils.LOG_WARN);
+            log.warn("unable to determine matching pain version, using default: " + def);
             return def;
         }
 
         // Wenn wir keine GV-spezifische haben, dann nehmen wir die globale
         if (jobVersion == null) {
-            HBCIUtils.log("have no job-specific pain version, using global pain version: " + globalVersion, HBCIUtils.LOG_DEBUG);
+            log.debug("have no job-specific pain version, using global pain version: " + globalVersion);
             return globalVersion;
         }
 
         // Ansonsten hat die vom Job Vorrang:
-        HBCIUtils.log("using job-specific pain version: " + jobVersion, HBCIUtils.LOG_DEBUG);
+        log.debug("using job-specific pain version: " + jobVersion);
         return jobVersion;
     }
 
@@ -106,10 +107,10 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * @return die ermittelte PAIN-Version oder NULL wenn keine ermittelt werden konnte.
      */
     private PainVersion determinePainVersionInternal(HBCIPassportInternal passport, final String gvName) {
-        HBCIUtils.log("searching for supported pain versions for GV " + gvName, HBCIUtils.LOG_DEBUG);
+        log.debug("searching for supported pain versions for GV " + gvName);
 
         if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).getProperty(gvName) == null) {
-            HBCIUtils.log("don't have any BPD for GV " + gvName, HBCIUtils.LOG_DEBUG);
+            log.debug("don't have any BPD for GV " + gvName);
             return null;
         }
 
@@ -130,7 +131,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
                 PainVersion version = PainVersion.byURN(urn);
                 if (version.getType() == this.getPainType()) {
                     if (!version.isSupported(this.getPainJobName())) {
-                        HBCIUtils.log("  unsupported " + version, HBCIUtils.LOG_DEBUG);
+                        log.debug("  unsupported " + version);
                         continue;
                     }
 
@@ -142,12 +143,12 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
                     // macht - wenn wir die PAIN-Version kennen, nehmen wir gleich die
                     // eigene Instanz. Siehe auch
                     // TestPainVersion#test011 bzw. http://www.onlinebanking-forum.de/phpBB2/viewtopic.php?p=95160#95160
-                    HBCIUtils.log("  found " + version, HBCIUtils.LOG_DEBUG);
+                    log.debug("  found " + version);
                     found.add(version);
                 }
             } catch (Exception ex) {
-                HBCIUtils.log("ignoring invalid pain version " + urn, HBCIUtils.LOG_WARN);
-                HBCIUtils.log(ex);
+                log.warn("ignoring invalid pain version " + urn);
+                log.error(ex.getMessage(), e);
             }
         }
 
@@ -166,7 +167,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         if (key.startsWith(intern)) {
             String realKey = key.substring(intern.length());
             this.sepaParams.setProperty(realKey, value);
-            HBCIUtils.log("setting SEPA param " + realKey + " = " + value, HBCIUtils.LOG_DEBUG);
+            log.debug("setting SEPA param " + realKey + " = " + value);
         } else {
             super.setLowlevelParam(key, value);
         }
@@ -224,8 +225,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
                 this.generator = SEPAGeneratorFactory.get(this, this.getPainVersion());
             } catch (Exception e) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_JOB_CREATE_ERR", this.getPainJobName());
-                if (!HBCIUtils.ignoreError(null, "client.errors.ignoreCreateJobErrors", msg))
-                    throw new HBCI_Exception(msg, e);
+                throw new HBCI_Exception(msg, e);
             }
 
         }
@@ -254,9 +254,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
 
         // Die XML in den baos schreiben, ggf fehler behandeln
         try {
-            boolean validate = HBCIUtils.getParam("sepa.schema.validation", "0").equals("1");
-            HBCIUtils.log("schema validation enabled: " + validate, HBCIUtils.LOG_DEBUG);
-            gen.generate(this.sepaParams, o, validate);
+            gen.generate(this.sepaParams, o, false);
         } catch (HBCI_Exception he) {
             throw he;
         } catch (Exception e) {
@@ -269,7 +267,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
 
         try {
             String xml = o.toString(CommPinTan.ENCODING);
-            HBCIUtils.log("generated XML:\n" + xml, HBCIUtils.LOG_DEBUG);
+            log.debug("generated XML:\n" + xml);
             setParam("_sepapain", "B" + xml);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);

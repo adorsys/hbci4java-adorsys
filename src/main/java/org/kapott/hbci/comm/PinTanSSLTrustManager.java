@@ -21,28 +21,25 @@
 
 package org.kapott.hbci.comm;
 
-import org.kapott.hbci.manager.HBCIUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.X509TrustManager;
 import java.security.cert.X509Certificate;
 
 // trust-manager, der verwendet wird, wenn keine server-certs geprueft werden sollen
-public class PinTanSSLTrustManager 
-    implements X509TrustManager 
-{
-    public X509Certificate[] getAcceptedIssuers() 
-    {
-    	HBCIUtils.log("cert checking disabled -> will return 'accepted issuers'", HBCIUtils.LOG_DEBUG);
+@Slf4j
+public class PinTanSSLTrustManager implements X509TrustManager {
+
+    public X509Certificate[] getAcceptedIssuers() {
+        log.debug("cert checking disabled -> will return 'accepted issuers'");
         return null;
     }
-    
-    public void checkClientTrusted(X509Certificate[] chain,String authType) 
-    {
-    	HBCIUtils.log("cert checking disabled -> client cert always OK", HBCIUtils.LOG_DEBUG);
+
+    public void checkClientTrusted(X509Certificate[] chain, String authType) {
+        log.debug("cert checking disabled -> client cert always OK");
     }
-    
-    public void checkServerTrusted(X509Certificate[] chain,String authType) 
-    {
-    	HBCIUtils.log("cert checking disabled -> server cert always OK", HBCIUtils.LOG_DEBUG);
+
+    public void checkServerTrusted(X509Certificate[] chain, String authType) {
+        log.debug("cert checking disabled -> server cert always OK");
     }
 }

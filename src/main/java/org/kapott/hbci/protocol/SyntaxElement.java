@@ -21,6 +21,7 @@
 
 package org.kapott.hbci.protocol;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.kapott.hbci.manager.HBCIUtils;
@@ -34,6 +35,7 @@ import java.util.*;
 /* ein syntaxelement ist ein strukturelement einer hbci-nachricht (die nachricht
     selbst, eine segmentfolge, ein einzelnes segment, eine deg oder 
     ein einzelnes de) */
+@Slf4j
 public abstract class SyntaxElement {
 
     private List<MultipleSyntaxElements> childContainers;
@@ -161,7 +163,7 @@ public abstract class SyntaxElement {
 
     private void initData(String type, String name, String ppath, int idx, Document document) {
         if (getElementTypeName().equals("SEG"))
-            HBCIUtils.log("creating segment " + ppath + " -> " + name + "(" + idx + ")", HBCIUtils.LOG_INTERN);
+            log.trace("creating segment " + ppath + " -> " + name + "(" + idx + ")");
 
         this.type = type;
         this.name = name;
@@ -203,7 +205,7 @@ public abstract class SyntaxElement {
                         child.setSyntaxIdx(syntaxIdx);
 
                         if (getElementTypeName().equals("MSG"))
-                            HBCIUtils.log("child container " + child.getPath() + " has syntaxIdx=" + child.getSyntaxIdx(), HBCIUtils.LOG_INTERN);
+                            log.trace("child container " + child.getPath() + " has syntaxIdx=" + child.getSyntaxIdx());
                     }
                     syntaxIdx++;
                 }
@@ -491,22 +493,22 @@ public abstract class SyntaxElement {
                     // der Wert konnte nicht gesetzt werden -> möglicherweise
                     // existiert ja nur der entsprechende child-container noch
                     // nicht
-                    HBCIUtils.log(getPath() + ": could not set value for " + destPath, HBCIUtils.LOG_INTERN);
+                    log.trace(getPath() + ": could not set value for " + destPath);
 
                     // Namen des fehlenden Elementes ermitteln
                     String subPath = destPath.substring(getPath().length() + 1);
-                    HBCIUtils.log("  subpath is " + subPath, HBCIUtils.LOG_INTERN);
+                    log.trace("  subpath is " + subPath);
                     int dotPos = subPath.indexOf('.');
                     if (dotPos == -1) {
                         dotPos = subPath.length();
                     }
                     String subType = subPath.substring(0, dotPos);
-                    HBCIUtils.log("  subname is " + subType, HBCIUtils.LOG_INTERN);
+                    log.trace("  subname is " + subType);
                     int counterPos = subType.indexOf('_');
                     if (counterPos != -1) {
                         subType = subType.substring(0, counterPos);
                     }
-                    HBCIUtils.log("  subType is " + subType, HBCIUtils.LOG_INTERN);
+                    log.trace("  subType is " + subType);
 
                     // hier überprüfen, ob es wirklich noch keinen child-container
                     // mit diesem Namen gibt. Wenn z.B. der pfad msg.gv.ueb.kik.blz
@@ -553,8 +555,7 @@ public abstract class SyntaxElement {
                             child.setSyntaxIdx(newChildIdx);
 
                             if (getElementTypeName().equals("MSG"))
-                                HBCIUtils.log("child container " + child.getPath() + " has syntaxIdx=" + child.getSyntaxIdx(),
-                                        HBCIUtils.LOG_INTERN);
+                                log.trace("child container " + child.getPath() + " has syntaxIdx=" + child.getSyntaxIdx());
 
                             // aktuelle child-container-liste durchlaufen und den neu
                             // erzeugten child-container dort richtig einsortieren
@@ -568,16 +569,14 @@ public abstract class SyntaxElement {
                                 }
                                 newPosi++;
                             }
-                            HBCIUtils.log("  inserting child container with syntaxIdx " + newChildIdx + " at position " + newPosi,
-                                    HBCIUtils.LOG_INTERN);
+                            log.trace("  inserting child container with syntaxIdx " + newChildIdx + " at position " + newPosi);
                             childContainers.add(newPosi, child);
 
                             // now try to propagate the value to the newly created child
                             ret = child.propagateValue(destPath, value, tryToCreate, allowOverwrite);
                         }
                     } else {
-                        HBCIUtils.log("  subtype " + subType + " already existing - will not try to create",
-                                HBCIUtils.LOG_INTERN);
+                        log.trace("  subtype " + subType + " already existing - will not try to create");
                     }
                 }
             }

@@ -53,8 +53,8 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
         message.rawSet("ProcPrep.lang", passport.getDefaultLang());
-        message.rawSet("ProcPrep.prodName", HBCIUtils.getParam("client.product.name", "HBCI4Java"));
-        message.rawSet("ProcPrep.prodVersion", HBCIUtils.getParam("client.product.version", "2.5"));
+        message.rawSet("ProcPrep.prodName", "HBCI4Java");
+        message.rawSet("ProcPrep.prodVersion", "2.5");
 
         return message;
     }
