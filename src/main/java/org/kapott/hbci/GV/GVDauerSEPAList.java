@@ -36,7 +36,6 @@ import org.kapott.hbci.structures.Value;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -171,7 +170,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         if (entry.orderid != null && entry.orderid.length() != 0) {
             Properties p2 = new Properties();
 
-            for (String key: result.keySet()) {
+            for (String key : result.keySet()) {
                 if (key.startsWith(header + ".") &&
                         !key.startsWith(header + ".SegHead.") &&
                         !key.endsWith(".orderid")) {

@@ -23,7 +23,10 @@ package org.kapott.hbci.protocol;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 public final class DEG extends SyntaxElement {
 

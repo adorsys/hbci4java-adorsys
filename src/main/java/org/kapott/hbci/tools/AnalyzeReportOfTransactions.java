@@ -35,7 +35,6 @@ import org.kapott.hbci.structures.Konto;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 public final class AnalyzeReportOfTransactions {
     public static void main(String[] args)

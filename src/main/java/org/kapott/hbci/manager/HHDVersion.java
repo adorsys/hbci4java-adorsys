@@ -10,7 +10,6 @@ package org.kapott.hbci.manager;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Kapselt die Erkennung der verschiedenen HHD-Versionen.
@@ -50,6 +49,7 @@ public enum HHDVersion {
     private String versionStart = null;
     private int segVersion = 0;
     private String challengeVersion = null;
+
     /**
      * ct.
      *

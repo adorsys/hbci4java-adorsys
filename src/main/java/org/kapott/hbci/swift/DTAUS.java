@@ -85,6 +85,7 @@ public class DTAUS {
     private long sumEUR;
     private long sumBLZ;
     private long sumNumber;
+
     /**
      * Entspricht {@link #DTAUS(Konto, int, Date) DTAUS(myAccount,type,null)}
      */

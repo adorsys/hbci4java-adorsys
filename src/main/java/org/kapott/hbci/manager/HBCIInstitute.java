@@ -38,7 +38,6 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Properties;
 
 /* @brief Class representing an HBCI institute.
 

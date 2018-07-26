@@ -3,7 +3,6 @@ package org.kapott.hbci.GV.parsers;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Basis-Interface der SEPA-XML Parser.

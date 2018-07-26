@@ -29,7 +29,6 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 /* @brief Instances of this class represent a certain user in combination with
     a certain institute. */

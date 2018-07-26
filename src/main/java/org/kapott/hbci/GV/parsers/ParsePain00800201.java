@@ -8,7 +8,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Parser-Implementierung fuer Pain 008.002.01.

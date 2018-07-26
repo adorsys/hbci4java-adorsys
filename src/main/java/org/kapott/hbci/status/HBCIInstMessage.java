@@ -25,7 +25,6 @@ import org.kapott.hbci.manager.HBCIUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Properties;
 
 public final class HBCIInstMessage
         implements Serializable {

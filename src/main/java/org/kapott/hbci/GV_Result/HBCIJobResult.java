@@ -25,7 +25,6 @@ import org.kapott.hbci.status.HBCIRetVal;
 import org.kapott.hbci.status.HBCIStatus;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Basis-Interface für die Rückgabedaten von

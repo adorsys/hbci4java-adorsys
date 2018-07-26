@@ -28,7 +28,6 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.swift.Swift;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Implementierung des Geschaeftsvorfalls zum Abruf von Umsaetzen mit Angabe des Zeitraums (HKKAZ).

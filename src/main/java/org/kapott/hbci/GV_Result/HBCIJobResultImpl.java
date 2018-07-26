@@ -29,7 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Properties;
 
 public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
 

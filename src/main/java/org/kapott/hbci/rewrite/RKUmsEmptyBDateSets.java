@@ -24,9 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
 
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
 
 @Slf4j
 public class RKUmsEmptyBDateSets extends Rewrite {
@@ -54,7 +52,7 @@ public class RKUmsEmptyBDateSets extends Rewrite {
         String header = "GVRes";
         HashMap<String, String> data = msg.getData();
 
-        for (String key: data.keySet()) {
+        for (String key : data.keySet()) {
             if (key.startsWith(header) &&
                     key.indexOf("KUms") != -1 &&
                     key.endsWith(".booked")) {
