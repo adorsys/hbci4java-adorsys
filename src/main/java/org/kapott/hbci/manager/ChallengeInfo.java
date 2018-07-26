@@ -34,7 +34,10 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Diese Klasse ermittelt die noetigen HKTAN-Challenge-Parameter fuer einen
@@ -113,7 +116,7 @@ public class ChallengeInfo {
      * @param hktan   der HKTAN-Geschaeftsvorfall, in dem die Parameter gesetzt werden sollen.
      * @param secmech die BPD-Informationen zum TAN-Verfahren.
      */
-    public void applyParams(AbstractHBCIJob task, AbstractHBCIJob hktan, Properties secmech) {
+    public void applyParams(AbstractHBCIJob task, AbstractHBCIJob hktan, HashMap<String, String> secmech) {
         String code = task.getHBCICode(); // Code des Geschaeftsvorfalls
 
         // Job-Parameter holen
@@ -304,12 +307,12 @@ public class ChallengeInfo {
          * @param secmech die BPD-Informationen zum TAN-Verfahren.
          * @return true, wenn der Parameter verwendet werden kann.
          */
-        public boolean isComplied(Properties secmech) {
+        public boolean isComplied(HashMap<String, String> secmech) {
             if (this.conditionName == null || this.conditionName.length() == 0)
                 return true;
 
             // Wir haben eine Bedingung. Mal schauen, ob sie erfuellt ist.
-            String value = secmech.getProperty(this.conditionName, "");
+            String value = secmech.get(this.conditionName) != null ? secmech.get(this.conditionName) : "";
             return value.equals(this.conditionValue);
         }
 
@@ -372,8 +375,7 @@ public class ChallengeInfo {
             if (this.type == null || this.type.trim().length() == 0)
                 return value;
 
-            SyntaxDEFactory factory = SyntaxDEFactory.getInstance();
-            SyntaxDE syntax = factory.createSyntaxDE(this.type, this.path, value, 0, 0);
+            SyntaxDE syntax = SyntaxDEFactory.createSyntaxDE(this.type, this.path, value, 0, 0);
             return syntax.toString(0);
 
         }

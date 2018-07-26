@@ -10,36 +10,12 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.text.DecimalFormat;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVDauerSEPANew extends AbstractSEPAGV {
 
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
-    }
-
-    /**
-     * Liefert den Lowlevel-Namen des Jobs.
-     *
-     * @return der Lowlevel-Namen des Jobs.
-     */
-    public static String getLowlevelName() {
-        return "DauerSEPANew";
-    }
 
     public GVDauerSEPANew(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRDauerNew(passport));
@@ -85,8 +61,33 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
         addConstraint("lastdate", "DauerDetails.lastdate", "");
     }
 
+    /**
+     * Liefert den Lowlevel-Namen des Jobs.
+     *
+     * @return der Lowlevel-Namen des Jobs.
+     */
+    public static String getLowlevelName() {
+        return "DauerSEPANew";
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_001;
+    }
+
     public void setParam(String paramName, String value) {
-        Properties res = getJobRestrictions();
+        HashMap<String, String> res = getJobRestrictions();
 
         if (paramName.equals("timeunit")) {
             if (!(value.equals("W") || value.equals("M"))) {
@@ -98,7 +99,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
-                    String st = res.getProperty("turnusweeks");
+                    String st = res.get("turnusweeks");
 
                     if (st != null) {
                         String value2 = new DecimalFormat("00").format(Integer.parseInt(value));
@@ -109,7 +110,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
                         }
                     }
                 } else if (timeunit.equals("M")) {
-                    String st = res.getProperty("turnusmonths");
+                    String st = res.get("turnusmonths");
 
                     if (st != null) {
                         String value2 = new DecimalFormat("00").format(Integer.parseInt(value));
@@ -126,14 +127,14 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
-                    String st = res.getProperty("daysperweek");
+                    String st = res.get("daysperweek");
 
                     if (st != null && !st.equals("0") && st.indexOf(value) == -1) {
                         String msg = HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY", value);
                         throw new InvalidUserDataException(msg);
                     }
                 } else if (timeunit.equals("M")) {
-                    String st = res.getProperty("dayspermonth");
+                    String st = res.get("dayspermonth");
 
                     if (st != null) {
                         String value2 = new DecimalFormat("00").format(Integer.parseInt(value));
@@ -151,8 +152,8 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String orderid = result.getProperty(header + ".orderid");
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
         ((GVRDauerNew) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {

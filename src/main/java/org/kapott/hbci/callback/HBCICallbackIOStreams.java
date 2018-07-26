@@ -1,4 +1,3 @@
-
 /*  $Id: HBCICallbackIOStreams.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -61,13 +60,6 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     }
 
     /**
-     * TODO: doc
-     */
-    protected void setInStream(BufferedReader in) {
-        this.inStream = in;
-    }
-
-    /**
      * Gibt des INPUT-Stream zurück.
      */
     protected BufferedReader getInStream() {
@@ -77,8 +69,8 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     /**
      * TODO: doc
      */
-    protected void setOutStream(PrintStream out) {
-        this.outStream = out;
+    protected void setInStream(BufferedReader in) {
+        this.inStream = in;
     }
 
     /**
@@ -86,6 +78,13 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
      */
     protected PrintStream getOutStream() {
         return outStream;
+    }
+
+    /**
+     * TODO: doc
+     */
+    protected void setOutStream(PrintStream out) {
+        this.outStream = out;
     }
 
     /**

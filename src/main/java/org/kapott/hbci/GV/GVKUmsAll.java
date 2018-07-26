@@ -1,4 +1,3 @@
-
 /*  $Id: GVKUmsAll.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,6 +27,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.swift.Swift;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -35,17 +35,9 @@ import java.util.Properties;
  */
 @Slf4j
 public class GVKUmsAll extends AbstractHBCIJob {
-    /**
-     * @return der Lowlevelname.
-     */
-    public static String getLowlevelName() {
-        return "KUmsZeit";
-    }
-
     public GVKUmsAll(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRKUms(passport));
     }
-
 
     public GVKUmsAll(HBCIPassportInternal passport) {
         this(passport, getLowlevelName());
@@ -89,24 +81,31 @@ public class GVKUmsAll extends AbstractHBCIJob {
         addConstraint("dummy", "allaccounts", "N");
     }
 
+    /**
+     * @return der Lowlevelname.
+     */
+    public static String getLowlevelName() {
+        return "KUmsZeit";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRKUms umsResult = (GVRKUms) jobResult;
 
         StringBuffer paramName = new StringBuffer(header).append(".booked");
-        String rawData = result.getProperty(paramName.toString());
+        String rawData = result.get(paramName.toString());
         if (rawData != null) {
             umsResult.appendMT940Data(Swift.decodeUmlauts(rawData));
         }
 
         paramName = new StringBuffer(header).append(".notbooked");
-        rawData = result.getProperty(paramName.toString());
+        rawData = result.get(paramName.toString());
         if (rawData != null) {
             umsResult.appendMT942Data(Swift.decodeUmlauts(rawData));
         }
 
         // TODO: this is for compatibility reasons only
-        jobResult.storeResult("notbooked", result.getProperty(header + ".notbooked"));
+        jobResult.storeResult("notbooked", result.get(header + ".notbooked"));
     }
 
     public void verifyConstraints() {

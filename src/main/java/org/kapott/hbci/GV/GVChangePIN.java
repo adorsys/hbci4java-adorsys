@@ -1,4 +1,3 @@
-
 /*  $Id: GVChangePIN.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,16 +22,15 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public class GVChangePIN extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "ChangePIN";
-    }
 
     public GVChangePIN(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
         addConstraint("newpin", "newpin", null);
+    }
+
+    public static String getLowlevelName() {
+        return "ChangePIN";
     }
 }

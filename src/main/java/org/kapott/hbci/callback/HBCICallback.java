@@ -1,4 +1,3 @@
-
 /*  $Id: HBCICallback.java,v 1.2 2011/05/09 15:07:02 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,7 +23,6 @@ package org.kapott.hbci.callback;
 import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.passport.HBCIPassport;
 
-import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -120,7 +118,7 @@ public interface HBCICallback {
      * Chipkarte die Benutzerkennung noch nicht gespeichert ist.
      */
     int NEED_USERID = 11;
-    
+
     /**
      * Ursache des Callback-Aufrufes: Institutsnachricht erhalten. Tritt dieser Callback auf, so enthält
      * der <code>msg</code>-Parameter der <code>callback</code>-Methode (siehe
@@ -673,7 +671,7 @@ public interface HBCICallback {
 
     /**
      * @param passport
-     * @param hktan  GVTAN2Step für spätere Einreichung
+     * @param hktan    GVTAN2Step für spätere Einreichung
      */
     void tanCallback(HBCIPassport passport, GVTAN2Step hktan);
 

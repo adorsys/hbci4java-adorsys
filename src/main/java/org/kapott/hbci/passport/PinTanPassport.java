@@ -1,4 +1,3 @@
-
 /*  $Id: AbstractPinTanPassport.java,v 1.6 2011/06/06 10:30:31 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,7 +25,10 @@ import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.*;
+import org.kapott.hbci.manager.FlickerCode;
+import org.kapott.hbci.manager.HBCIKey;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.HHDVersion;
 import org.kapott.hbci.security.Crypt;
 import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -43,7 +45,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     private boolean verifyTANMode;
 
-    private Hashtable<String, Properties> twostepMechanisms = new Hashtable<>();
+    private HashMap<String, HashMap<String, String>> twostepMechanisms = new HashMap<>();
     private List<String> allowedTwostepMechanisms = new ArrayList<>();
 
     private String currentTANMethod;
@@ -51,7 +53,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     private String pin;
 
-    public PinTanPassport(String hbciversion, Properties properties, HBCICallback callback) {
+    public PinTanPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
         super(hbciversion, properties, callback);
     }
 
@@ -130,7 +132,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                 }
             } else {
                 log.debug("twostep method - checking passport(challenge) to decide whether or not we need a TAN");
-                Properties secmechInfo = getCurrentSecMechInfo();
+                HashMap<String, String> secmechInfo = getCurrentSecMechInfo();
 
                 // gespeicherte challenge aus passport holen
                 String challenge = (String) getPersistentData("pintan_challenge");
@@ -150,7 +152,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     log.debug("detected HHD version: " + hhd);
 
                     final StringBuffer payload = new StringBuffer();
-                    final String msg = secmechInfo.getProperty("name") + "\n" + secmechInfo.getProperty("inputinfo") + "\n\n" + challenge;
+                    final String msg = secmechInfo.get("name") + "\n" + secmechInfo.get("inputinfo") + "\n\n" + challenge;
 
                     if (hhd.getType() == HHDVersion.Type.PHOTOTAN) {
                         // Bei PhotoTAN haengen wir ungeparst das HHDuc an. Das kann dann auf
@@ -242,7 +244,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    public void setBPD(Properties p) {
+    public void setBPD(HashMap<String, String> p) {
         super.setBPD(p);
 
         if (p != null && p.size() != 0) {
@@ -262,9 +264,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
             // wird.
             int maxAllowedVersion = 0;
 
-            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
 
+            for (String key : p.keySet()) {
                 // p.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.TAN2StepParamsX_z.*")
                 if (key.startsWith("Params")) {
                     String subkey = key.substring(key.indexOf('.') + 1);
@@ -283,20 +284,20 @@ public class PinTanPassport extends AbstractHBCIPassport {
                                 continue;
                             }
 
-                            String secfunc = p.getProperty(key);
+                            String secfunc = p.get(key);
 
                             // willuhn 2011-05-13 Checken, ob wir das Verfahren schon aus einer aktuelleren Segment-Version haben
-                            Properties prev = twostepMechanisms.get(secfunc);
+                            HashMap<String, String> prev = twostepMechanisms.get(secfunc);
                             if (prev != null) {
                                 // Wir haben es schonmal. Mal sehen, welche Versionsnummer es hat
-                                int prevVersion = Integer.parseInt(prev.getProperty("segversion"));
+                                int prevVersion = Integer.parseInt(prev.get("segversion"));
                                 if (prevVersion > segVersion) {
                                     log.debug("found another twostepmech " + secfunc + " in segversion " + segVersion + ", allready have one in segversion " + prevVersion + ", ignoring segversion " + segVersion);
                                     continue;
                                 }
                             }
 
-                            Properties entry = new Properties();
+                            HashMap<String, String> entry = new HashMap<>();
 
                             // willuhn 2011-05-13 Wir merken uns die Segment-Version in dem Zweischritt-Verfahren
                             // Daran koennen wir erkennen, ob wir ein mehrfach auftretendes
@@ -309,15 +310,14 @@ public class PinTanPassport extends AbstractHBCIPassport {
                             // alle properties durchlaufen und alle suchen, die mit dem
                             // paramheader beginnen, und die entsprechenden werte im
                             // entry abspeichern
-                            for (Enumeration e2 = p.propertyNames(); e2.hasMoreElements(); ) {
-                                String key2 = (String) e2.nextElement();
+                            for (String key2 : p.keySet()) {
 
                                 if (key2.startsWith(paramHeader + ".")) {
                                     int dotPos = key2.lastIndexOf('.');
 
-                                    entry.setProperty(
+                                    entry.put(
                                             key2.substring(dotPos + 1),
-                                            p.getProperty(key2));
+                                            p.get(key2));
                                 }
                             }
 
@@ -409,12 +409,11 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     public boolean isSupported() {
         boolean ret = false;
-        Properties bpd = getBPD();
+        HashMap<String, String> bpd = getBPD();
 
         if (bpd != null && bpd.size() != 0) {
             // loop through bpd and search for PinTanPar segment
-            for (Enumeration e = bpd.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
+            for (String key : bpd.keySet()) {
 
                 if (key.startsWith("Params")) {
                     int posi = key.indexOf(".");
@@ -441,13 +440,13 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     }
                 } else {
                     // irgendein zweischritt-verfahren gewählt
-                    Properties entry = twostepMechanisms.get(current);
+                    HashMap<String, String> entry = twostepMechanisms.get(current);
                     if (entry == null) {
                         // es gibt keinen info-eintrag für das gewählte verfahren
                         log.error("not supported: twostep-method " + current + " selected, but this is not supported");
                         ret = false;
                     } else {
-                        log.debug("selected twostep-method " + current + " (" + entry.getProperty("name") + ") is supported");
+                        log.debug("selected twostep-method " + current + " (" + entry.get("name") + ") is supported");
                     }
                 }
             }
@@ -463,11 +462,9 @@ public class PinTanPassport extends AbstractHBCIPassport {
         // stützt wird oder keine BPD vorhanden sind, um das zu entscheiden
         boolean ret = true;
 
-        Properties bpd = getBPD();
+        HashMap<String, String> bpd = getBPD();
         if (bpd != null) {
-            for (Enumeration e = bpd.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-
+            for (String key : bpd.keySet()) {
                 // TODO: willuhn 2011-05-13: Das nimmt einfach den ersten gefundenen Parameter, liefert
                 // jedoch faelschlicherweise false, wenn das erste gefundene kein Einschritt-Verfahren ist
                 // Hier muesste man durch alle iterieren und dann true liefern, wenn wenigstens
@@ -478,7 +475,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     String subkey = key.substring(key.indexOf('.') + 1);
                     if (subkey.startsWith("TAN2StepPar") &&
                             subkey.endsWith(".can1step")) {
-                        String value = bpd.getProperty(key);
+                        String value = bpd.get(key);
                         ret = value.equals("J");
                         break;
                     }
@@ -519,8 +516,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
             Arrays.sort(secfuncs);
             for (String secfunc : secfuncs) {
                 if (allowedTwostepMechanisms.size() == 0 || allowedTwostepMechanisms.contains(secfunc)) {
-                    Properties entry = twostepMechanisms.get(secfunc);
-                    options.add(new String[]{secfunc, entry.getProperty("name")});
+                    HashMap<String, String> entry = twostepMechanisms.get(secfunc);
+                    options.add(new String[]{secfunc, entry.get("name")});
                 }
             }
 
@@ -657,11 +654,11 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return currentTANMethod;
     }
 
-    public Properties getCurrentSecMechInfo() {
+    public HashMap<String, String> getCurrentSecMechInfo() {
         return twostepMechanisms.get(getCurrentTANMethod(false));
     }
 
-    public Hashtable<String, Properties> getTwostepMechanisms() {
+    public HashMap<String, HashMap<String, String>> getTwostepMechanisms() {
         return twostepMechanisms;
     }
 
@@ -721,8 +718,14 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return null;
     }
 
+    public void setMyPublicEncKey(HBCIKey key) {
+    }
+
     public HBCIKey getMyPrivateEncKey() {
         return null;
+    }
+
+    public void setMyPrivateEncKey(HBCIKey key) {
     }
 
     public String getCryptMode() {
@@ -782,12 +785,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
     public void setMyPrivateSigKey(HBCIKey key) {
     }
 
-    public void setMyPublicEncKey(HBCIKey key) {
-    }
-
-    public void setMyPrivateEncKey(HBCIKey key) {
-    }
-
     public void incSigId() {
         // for PinTan we always use the same sigid
     }
@@ -823,29 +820,27 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     public String getPinTanInfo(String code) {
         String ret = "";
-        Properties bpd = getBPD();
+        HashMap<String, String> bpd = getBPD();
 
         if (bpd != null) {
             boolean isGV = false;
             StringBuffer paramCode = new StringBuffer(code).replace(1, 2, "I").append("S");
 
-            for (Enumeration e = bpd.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-
+            for (String key : bpd.keySet()) {
                 if (key.startsWith("Params") &&
                         key.substring(key.indexOf(".") + 1).startsWith("PinTanPar") &&
                         key.contains(".ParPinTan.PinTanGV") &&
                         key.endsWith(".segcode")) {
-                    String code2 = bpd.getProperty(key);
+                    String code2 = bpd.get(key);
                     if (code.equals(code2)) {
                         key = key.substring(0, key.length() - ("segcode").length()) + "needtan";
-                        ret = bpd.getProperty(key);
+                        ret = bpd.get(key);
                         break;
                     }
                 } else if (key.startsWith("Params") &&
                         key.endsWith(".SegHead.code")) {
 
-                    String code2 = bpd.getProperty(key);
+                    String code2 = bpd.get(key);
                     if (paramCode.equals(code2)) {
                         isGV = true;
                     }
@@ -892,15 +887,13 @@ public class PinTanPassport extends AbstractHBCIPassport {
     public String getOrderHashMode() {
         String ret = null;
 
-        Properties bpd = getBPD();
+        HashMap<String, String> bpd = getBPD();
         if (bpd != null) {
-            for (Enumeration<?> e = bpd.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-
-                Properties props = getCurrentSecMechInfo();
+            for (String key : bpd.keySet()) {
+                HashMap<String, String> props = getCurrentSecMechInfo();
                 String segVersion = "";
                 try {
-                    int value = Integer.parseInt(props.getProperty("segversion"));
+                    int value = Integer.parseInt(props.get("segversion"));
                     segVersion += value;
                 } catch (NumberFormatException nfe) {
                     //Not an integer, hence ignored
@@ -911,7 +904,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     String subkey = key.substring(key.indexOf('.') + 1);
                     if (subkey.startsWith("TAN2StepPar" + segVersion) &&
                             subkey.endsWith(".orderhashmode")) {
-                        ret = bpd.getProperty(key);
+                        ret = bpd.get(key);
                         break;
                     }
                 }
@@ -943,11 +936,11 @@ public class PinTanPassport extends AbstractHBCIPassport {
         int hktan_version = Integer.parseInt(hktan.getSegVersion());
         log.debug("hktan_version: " + hktan_version);
         if (hktan_version >= 3) {
-            Properties secmechInfo = getCurrentSecMechInfo();
+            HashMap<String, String> secmechInfo = getCurrentSecMechInfo();
 
             // Anzahl aktiver TAN-Medien ermitteln
-            int num = Integer.parseInt(secmechInfo.getProperty("nofactivetanmedia", "0"));
-            String needed = secmechInfo.getProperty("needtanmedia", "");
+            int num = Integer.parseInt(secmechInfo.get("nofactivetanmedia") != null ? secmechInfo.get("nofactivetanmedia") : "0");
+            String needed = secmechInfo.get("needtanmedia") != null ? secmechInfo.get("needtanmedia") : "";
             log.debug("nofactivetanmedia: " + num + ", needtanmedia: " + needed);
 
             // Ich hab Mails von Usern erhalten, bei denen die Angabe des TAN-Mediums auch
@@ -956,7 +949,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
             if (needed.equals("2")) {
                 log.debug("we have to add the tan media");
 
-                String tanMedia = callback.tanMediaCallback(this.getUPD().getProperty("tanmedia.names", ""));
+                String tanMediaNames = this.getUPD().get("tanmedia.names");
+                String tanMedia = callback.tanMediaCallback(tanMediaNames != null ? tanMediaNames : "");
                 if (tanMedia != null) {
                     hktan.setParam("tanmedia", tanMedia);
                 }
@@ -964,12 +958,12 @@ public class PinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    public void setPIN(String pin) {
-        this.pin = pin;
-    }
-
     public String getPIN() {
         return this.pin;
+    }
+
+    public void setPIN(String pin) {
+        this.pin = pin;
     }
 
     public void clearPIN() {

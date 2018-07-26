@@ -1,4 +1,3 @@
-
 /*  $Id: HBCICallbackConsole.java,v 1.1 2011/05/04 22:37:51 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -25,15 +24,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 
-
-/** Default-Implementation einer Callback-Klasse für textbasierte Anwendungen. Diese Klasse
-    ist eine vollständig funktionsfähige Callback-Klasse und kann direkt in eigenen
-    Anwendungen benutzt werden. Sie basiert auf der Klasse {@link HBCICallbackIOStreams} 
-    für Stream-basierte Ein-/Ausgabe und verwendet STDIN bzw. STDOUT als
-    Input- resp. Output-Streams. */
+/**
+ * Default-Implementation einer Callback-Klasse für textbasierte Anwendungen. Diese Klasse
+ * ist eine vollständig funktionsfähige Callback-Klasse und kann direkt in eigenen
+ * Anwendungen benutzt werden. Sie basiert auf der Klasse {@link HBCICallbackIOStreams}
+ * für Stream-basierte Ein-/Ausgabe und verwendet STDIN bzw. STDOUT als
+ * Input- resp. Output-Streams.
+ */
 public class HBCICallbackConsole
-    extends HBCICallbackIOStreams
-{
+        extends HBCICallbackIOStreams {
     public HBCICallbackConsole() {
         super(System.out, new BufferedReader(new InputStreamReader(System.in)));
     }

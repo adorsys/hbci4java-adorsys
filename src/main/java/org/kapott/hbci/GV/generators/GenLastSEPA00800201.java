@@ -15,14 +15,12 @@ import java.util.Properties;
 /**
  * SEPA-Geneator fuer pain.008.002.01.
  */
-public class GenLastSEPA00800201 extends AbstractSEPAGenerator
-{
+public class GenLastSEPA00800201 extends AbstractSEPAGenerator {
     /**
      * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getPainVersion()
      */
     @Override
-    public PainVersion getPainVersion()
-    {
+    public PainVersion getPainVersion() {
         return PainVersion.PAIN_008_002_01;
     }
 
@@ -30,8 +28,7 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator
      * @see org.kapott.hbci.GV.generators.ISEPAGenerator#generate(java.util.Properties, java.io.OutputStream, boolean)
      */
     @Override
-    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception
-    {
+    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
 
         //Document
@@ -41,12 +38,12 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator
         //Customer Credit Transfer Initiation
         doc.setPain00800101(new Pain00800101());
         doc.getPain00800101().setGrpHdr(new GroupHeaderSDD());
-        
-        String batch = SepaUtil.getProperty(sepaParams,"batchbook",null);
+
+        String batch = SepaUtil.getProperty(sepaParams, "batchbook", null);
         if (batch != null)
             doc.getPain00800101().getGrpHdr().setBtchBookg(batch.equals("1"));
 
-        final String sepaId   = sepaParams.getProperty("sepaid");
+        final String sepaId = sepaParams.getProperty("sepaid");
         final String pmtInfId = sepaParams.getProperty("pmtinfid");
 
         //Group Header
@@ -92,28 +89,21 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator
         pmtInf.getPmtTpInf().setSvcLvl(new ServiceLevelSDD());
         pmtInf.getPmtTpInf().getSvcLvl().setCd(ServiceLevelSDDCode.SEPA);
         pmtInf.getPmtTpInf().setLclInstrm(new LocalInstrumentSDD());
-        
+
         String type = sepaParams.getProperty("type");
-        try
-        {
+        try {
             pmtInf.getPmtTpInf().getLclInstrm().setCd(LocalInstrumentCodeSDD.fromValue(type));
+        } catch (IllegalArgumentException e) {
+            throw new HBCI_Exception("Lastschrift-Art " + type + " wird in der SEPA-Version 008.002.01 Ihrer Bank noch nicht unterstützt", e);
         }
-        catch (IllegalArgumentException e)
-        {
-            throw new HBCI_Exception("Lastschrift-Art " + type + " wird in der SEPA-Version 008.002.01 Ihrer Bank noch nicht unterstützt",e);
-        }
-        
+
         //Payment Information - Credit Transfer Transaction Information
         ArrayList<DirectDebitTransactionInformationSDD> drctDbtTxInfs = (ArrayList<DirectDebitTransactionInformationSDD>) pmtInf.getDrctDbtTxInf();
-        if (maxIndex != null)
-        {
-            for (int tnr = 0; tnr <= maxIndex; tnr++)
-            {
+        if (maxIndex != null) {
+            for (int tnr = 0; tnr <= maxIndex; tnr++) {
                 drctDbtTxInfs.add(createDirectDebitTransactionInformationSDD(sepaParams, tnr));
             }
-        }
-        else
-        {
+        } else {
             drctDbtTxInfs.add(createDirectDebitTransactionInformationSDD(sepaParams, null));
         }
 
@@ -121,8 +111,7 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator
         this.marshal(of.createDocument(doc), os, validate);
     }
 
-    private DirectDebitTransactionInformationSDD createDirectDebitTransactionInformationSDD(Properties sepaParams, Integer index) throws Exception
-    {
+    private DirectDebitTransactionInformationSDD createDirectDebitTransactionInformationSDD(Properties sepaParams, Integer index) throws Exception {
         DirectDebitTransactionInformationSDD drctDbtTxInf = new DirectDebitTransactionInformationSDD();
 
         drctDbtTxInf.setDrctDbtTx(new DirectDebitTransactionSDD());
@@ -142,8 +131,7 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator
 
         drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().setAmdmntInd(amend);
 
-        if (amend)
-        {
+        if (amend) {
             drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().setAmdmntInfDtls(new AmendmentInformationDetailsSDD());
             drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().getAmdmntInfDtls().setOrgnlDbtrAgt(new BranchAndFinancialInstitutionIdentificationSDD2());
             drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().getAmdmntInfDtls().getOrgnlDbtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSDD2());
@@ -154,7 +142,7 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator
 
         //Payment Information - Credit Transfer Transaction Information - Payment Identification
         drctDbtTxInf.setPmtId(new PaymentIdentification1());
-        drctDbtTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams,SepaUtil.insertIndex("endtoendid", index),AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
+        drctDbtTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams, SepaUtil.insertIndex("endtoendid", index), AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
 
 
         //Payment Information - Credit Transfer Transaction Information - Creditor
@@ -180,20 +168,18 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator
 
         //Payment Information - Credit Transfer Transaction Information - Usage
         String usage = sepaParams.getProperty(SepaUtil.insertIndex("usage", index));
-        if (usage != null && usage.length() > 0)
-        {
+        if (usage != null && usage.length() > 0) {
             drctDbtTxInf.setRmtInf(new RemittanceInformationSDDChoice());
             drctDbtTxInf.getRmtInf().setUstrd(usage);
         }
-        
+
         String purposeCode = sepaParams.getProperty(SepaUtil.insertIndex("purposecode", index));
-        if (purposeCode != null && purposeCode.length() > 0)
-        {
+        if (purposeCode != null && purposeCode.length() > 0) {
             PurposeSDD p = new PurposeSDD();
             p.setCd(purposeCode);
             drctDbtTxInf.setPurp(p);
         }
-        
+
 
         return drctDbtTxInf;
     }

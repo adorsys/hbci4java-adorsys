@@ -1,4 +1,3 @@
-
 /*  $Id: Sig.java,v 1.2 2012/03/27 21:33:13 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -31,10 +30,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Slf4j
 public final class Sig {
@@ -373,7 +369,7 @@ public final class Sig {
 
         if (passport.needUserSig()) {
             // TODO: bei anderen user-signaturen hier allgemeineren code schreiben
-            Hashtable<String, String> values = new Hashtable<>();
+            HashMap<String, String> values = new HashMap<>();
             msg.extractValues(values);
 
             String pin = values.get(msg.getName() + ".SigTail.UserSig.pin");

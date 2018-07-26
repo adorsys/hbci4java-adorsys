@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxCtr.java,v 1.1 2011/05/04 22:37:55 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -32,6 +31,14 @@ import org.kapott.hbci.manager.HBCIUtils;
 */
 // Speicherung des HBCI-MSG-Formats
 public final class SyntaxCtr extends SyntaxDE {
+    public SyntaxCtr(String x, int minsize, int maxsize) {
+        super(getCode(x.trim()), 3, 3);
+    }
+
+    public SyntaxCtr(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
+
     /**
      * @param x String-representation of the country (e.g. DE or US).
      * @return ISO-three-digit-code for this country
@@ -113,14 +120,6 @@ public final class SyntaxCtr extends SyntaxDE {
         return ret;
     }
 
-    public SyntaxCtr(String x, int minsize, int maxsize) {
-        super(getCode(x.trim()), 3, 3);
-    }
-
-    public void init(String x, int minsize, int maxsize) {
-        super.init(getCode(x.trim()), 3, 3);
-    }
-
     // --------------------------------------------------------------------------------
 
     public static String getName(String x) {
@@ -199,6 +198,10 @@ public final class SyntaxCtr extends SyntaxDE {
         return ret;
     }
 
+    public void init(String x, int minsize, int maxsize) {
+        super.init(getCode(x.trim()), 3, 3);
+    }
+
     private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
@@ -207,10 +210,6 @@ public final class SyntaxCtr extends SyntaxDE {
         getName(st);
         setContent(st, 3, 3);
         res.delete(0, endidx);
-    }
-
-    public SyntaxCtr(StringBuffer res, int minsize, int maxsize) {
-        initData(res, minsize, maxsize);
     }
 
     public void init(StringBuffer res, int minsize, int maxsize) {

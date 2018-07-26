@@ -1,4 +1,3 @@
-
 /*  $Id: GVTermUebDel.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -33,14 +32,14 @@ import java.util.Properties;
 @Slf4j
 public final class GVTermUebDel extends AbstractHBCIJob {
 
-    public static String getLowlevelName() {
-        return "TermUebDel";
-    }
-
     public GVTermUebDel(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
 
         addConstraint("orderid", "id", null);
+    }
+
+    public static String getLowlevelName() {
+        return "TermUebDel";
     }
 
     public void setParam(String paramName, String value) {

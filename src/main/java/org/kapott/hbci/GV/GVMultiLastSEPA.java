@@ -9,21 +9,11 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.AbstractGVRLastSEPA;
 import org.kapott.hbci.GV_Result.GVRLastSEPA;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 /**
  * Implementierung des HBCI-Jobs fuer die SEPA-Basis-Multi-Lastschrift.
  */
 public class GVMultiLastSEPA extends GVLastSEPA {
-    /**
-     * Liefert den Lowlevel-Jobnamen.
-     *
-     * @return der Lowlevel-Jobname.
-     */
-    public static String getLowlevelName() {
-        return "SammelLastSEPA";
-    }
-
     public GVMultiLastSEPA(HBCIPassportInternal passport) {
         this(passport, getLowlevelName(), new GVRLastSEPA(passport));
     }
@@ -34,6 +24,15 @@ public class GVMultiLastSEPA extends GVLastSEPA {
         addConstraint("batchbook", "sepa.batchbook", "");
         addConstraint("Total.value", "Total.value", null);
         addConstraint("Total.curr", "Total.curr", null);
+    }
+
+    /**
+     * Liefert den Lowlevel-Jobnamen.
+     *
+     * @return der Lowlevel-Jobname.
+     */
+    public static String getLowlevelName() {
+        return "SammelLastSEPA";
     }
 
     @Override

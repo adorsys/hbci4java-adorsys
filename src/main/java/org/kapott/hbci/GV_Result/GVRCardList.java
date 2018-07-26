@@ -1,4 +1,3 @@
-
 /*  $Id: GVRCardList.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -43,6 +42,34 @@ public class GVRCardList extends HBCIJobResultImpl {
 
     public GVRCardList(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addEntry(CardInfo info) {
+        entries.add(info);
+    }
+
+    /**
+     * Gibt eine Liste aller empfangenen Karteninformations-Einträge zurück.
+     *
+     * @return Array mit Karteninformationsdaten. Das Array selbst ist niemals
+     * <code>null</code>, kann aber die Länge <code>0</code> haben
+     */
+    public CardInfo[] getEntries() {
+        return entries.toArray(new CardInfo[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        int num = 0;
+        for (Iterator<CardInfo> i = entries.iterator(); i.hasNext(); ) {
+            num++;
+            ret.append("Karteninfo #").append(num).append(linesep);
+            ret.append(i.next().toString() + linesep);
+        }
+
+        return ret.toString().trim();
     }
 
     /**
@@ -100,33 +127,5 @@ public class GVRCardList extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
-
-    public void addEntry(CardInfo info) {
-        entries.add(info);
-    }
-
-    /**
-     * Gibt eine Liste aller empfangenen Karteninformations-Einträge zurück.
-     *
-     * @return Array mit Karteninformationsdaten. Das Array selbst ist niemals
-     * <code>null</code>, kann aber die Länge <code>0</code> haben
-     */
-    public CardInfo[] getEntries() {
-        return entries.toArray(new CardInfo[entries.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
-
-        int num = 0;
-        for (Iterator<CardInfo> i = entries.iterator(); i.hasNext(); ) {
-            num++;
-            ret.append("Karteninfo #").append(num).append(linesep);
-            ret.append(i.next().toString() + linesep);
-        }
-
-        return ret.toString().trim();
     }
 }

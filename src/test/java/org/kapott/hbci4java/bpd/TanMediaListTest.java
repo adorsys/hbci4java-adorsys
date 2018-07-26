@@ -10,6 +10,7 @@ import org.kapott.hbci4java.AbstractTest;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -45,7 +46,7 @@ public class TanMediaListTest extends AbstractTest {
         }
 
         Message msg = new Message("CustomMsgRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
     }
 

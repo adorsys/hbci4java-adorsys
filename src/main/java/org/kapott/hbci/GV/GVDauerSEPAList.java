@@ -1,4 +1,3 @@
-
 /*  $Id: GVDauerList.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -34,37 +33,17 @@ import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
-import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 @Slf4j
 public final class GVDauerSEPAList extends AbstractSEPAGV {
 
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
-    }
-
-    public static String getLowlevelName() {
-        return "DauerSEPAList";
-    }
 
     public GVDauerSEPAList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRDauerList(passport));
@@ -85,33 +64,53 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         addConstraint("maxentries", "maxentries", "");
     }
 
+    public static String getLowlevelName() {
+        return "DauerSEPAList";
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_001;
+    }
+
     /**
      * @see AbstractHBCIJob#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
      */
     @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRDauerList.Dauer entry = new GVRDauerList.Dauer();
 
         log.debug("parsing SEPA standing orders from msg data [size: " + result.size() + "]");
 
         entry.my = new Konto();
-        entry.my.country = result.getProperty(header + ".My.KIK.country");
-        entry.my.blz = result.getProperty(header + ".My.KIK.blz");
-        entry.my.number = result.getProperty(header + ".My.number");
-        entry.my.subnumber = result.getProperty(header + ".My.subnumber");
-        entry.my.iban = result.getProperty(header + ".My.iban");
-        entry.my.bic = result.getProperty(header + ".My.bic");
+        entry.my.country = result.get(header + ".My.KIK.country");
+        entry.my.blz = result.get(header + ".My.KIK.blz");
+        entry.my.number = result.get(header + ".My.number");
+        entry.my.subnumber = result.get(header + ".My.subnumber");
+        entry.my.iban = result.get(header + ".My.iban");
+        entry.my.bic = result.get(header + ".My.bic");
         passport.fillAccountInfo(entry.my);
 
         entry.other = new Konto();
 
-        final String sepadescr = result.getProperty(header + ".sepadescr");
-        final String pain = result.getProperty(header + ".sepapain");
+        final String sepadescr = result.get(header + ".sepadescr");
+        final String pain = result.get(header + ".sepapain");
         final PainVersion version = PainVersion.choose(sepadescr, pain);
 
         ISEPAParser parser = SEPAParserFactory.get(version);
-        ArrayList<Properties> sepaResults = new ArrayList<Properties>();
+        ArrayList<HashMap<String, String>> sepaResults = new ArrayList<>();
         try {
             // Encoding siehe GVTermUebSEPAList
             log.debug("  parsing sepa data: " + pain);
@@ -126,60 +125,58 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
             log.warn("  found no sepa data");
             return;
         }
-        Properties sepaResult = sepaResults.get(0);
-        entry.other.iban = sepaResult.getProperty("dst.iban");
-        entry.other.bic = sepaResult.getProperty("dst.bic");
-        entry.other.name = sepaResult.getProperty("dst.name");
-        entry.pmtinfid = sepaResult.getProperty("pmtinfid");
-        entry.purposecode = sepaResult.getProperty("purposecode");
+        HashMap<String, String> separesult = sepaResults.get(0);
+        entry.other.iban = separesult.get("dst.iban");
+        entry.other.bic = separesult.get("dst.bic");
+        entry.other.name = separesult.get("dst.name");
+        entry.pmtinfid = separesult.get("pmtinfid");
+        entry.purposecode = separesult.get("purposecode");
 
         entry.value = new Value(
-                sepaResult.getProperty("value"),
-                sepaResult.getProperty("curr"));
-        entry.addUsage(sepaResult.getProperty("usage"));
+                separesult.get("value"),
+                separesult.get("curr"));
+        entry.addUsage(separesult.get("usage"));
 
         String st;
-        entry.orderid = result.getProperty(header + ".orderid");
+        entry.orderid = result.get(header + ".orderid");
 
-        entry.firstdate = HBCIUtils.string2DateISO(result.getProperty(header + ".DauerDetails.firstdate"));
-        entry.timeunit = result.getProperty(header + ".DauerDetails.timeunit");
-        entry.turnus = Integer.parseInt(result.getProperty(header + ".DauerDetails.turnus"));
-        entry.execday = Integer.parseInt(result.getProperty(header + ".DauerDetails.execday"));
-        if ((st = result.getProperty(header + ".DauerDetails.lastdate")) != null)
+        entry.firstdate = HBCIUtils.string2DateISO(result.get(header + ".DauerDetails.firstdate"));
+        entry.timeunit = result.get(header + ".DauerDetails.timeunit");
+        entry.turnus = Integer.parseInt(result.get(header + ".DauerDetails.turnus"));
+        entry.execday = Integer.parseInt(result.get(header + ".DauerDetails.execday"));
+        if ((st = result.get(header + ".DauerDetails.lastdate")) != null)
             entry.lastdate = HBCIUtils.string2DateISO(st);
 
-        entry.aus_available = result.getProperty(header + ".Aussetzung.annual") != null;
+        entry.aus_available = result.get(header + ".Aussetzung.annual") != null;
         if (entry.aus_available) {
-            entry.aus_annual = result.getProperty(header + ".Aussetzung.annual").equals("J");
-            if ((st = result.getProperty(header + ".Aussetzung.startdate")) != null)
+            entry.aus_annual = result.get(header + ".Aussetzung.annual").equals("J");
+            if ((st = result.get(header + ".Aussetzung.startdate")) != null)
                 entry.aus_start = HBCIUtils.string2DateISO(st);
-            if ((st = result.getProperty(header + ".Aussetzung.enddate")) != null)
+            if ((st = result.get(header + ".Aussetzung.enddate")) != null)
                 entry.aus_end = HBCIUtils.string2DateISO(st);
-            entry.aus_breakcount = result.getProperty(header + ".Aussetzung.number");
-            if ((st = result.getProperty(header + ".Aussetzung.newvalue.value")) != null) {
+            entry.aus_breakcount = result.get(header + ".Aussetzung.number");
+            if ((st = result.get(header + ".Aussetzung.newvalue.value")) != null) {
                 entry.aus_newvalue = new Value(
                         st,
-                        result.getProperty(header + ".Aussetzung.newvalue.curr"));
+                        result.get(header + ".Aussetzung.newvalue.curr"));
             }
         }
 
-        entry.can_change = result.getProperty(header + ".canchange") == null || result.getProperty(header + ".canchange").equals("J");
-        entry.can_skip = result.getProperty(header + ".canskip") == null || result.getProperty(header + ".canskip").equals("J");
-        entry.can_delete = result.getProperty(header + ".candel") == null || result.getProperty(header + ".candel").equals("J");
+        entry.can_change = result.get(header + ".canchange") == null || result.get(header + ".canchange").equals("J");
+        entry.can_skip = result.get(header + ".canskip") == null || result.get(header + ".canskip").equals("J");
+        entry.can_delete = result.get(header + ".candel") == null || result.get(header + ".candel").equals("J");
 
         ((GVRDauerList) (jobResult)).addEntry(entry);
 
         if (entry.orderid != null && entry.orderid.length() != 0) {
             Properties p2 = new Properties();
 
-            for (Enumeration e = result.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-
+            for (String key: result.keySet()) {
                 if (key.startsWith(header + ".") &&
                         !key.startsWith(header + ".SegHead.") &&
                         !key.endsWith(".orderid")) {
                     p2.setProperty(key.substring(header.length() + 1),
-                            result.getProperty(key));
+                            result.get(key));
                 }
             }
 

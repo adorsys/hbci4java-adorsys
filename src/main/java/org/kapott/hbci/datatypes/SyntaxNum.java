@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxNum.java,v 1.1 2011/05/04 22:37:56 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,6 +27,14 @@ import org.kapott.hbci.manager.HBCIUtils;
 /* the class for representing the datatype "num" */
 // interne Speicherung im HBCI-Nachrichten-Format
 public final class SyntaxNum extends SyntaxDE {
+    public SyntaxNum(String st, int minsize, int maxsize) {
+        super(check(st), minsize, maxsize);
+    }
+
+    public SyntaxNum(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
+
     private static String check(String st) {
         try {
             new Long(st);
@@ -44,15 +51,11 @@ public final class SyntaxNum extends SyntaxDE {
         }
     }
 
-    public SyntaxNum(String st, int minsize, int maxsize) {
-        super(check(st), minsize, maxsize);
-    }
+    // --------------------------------------------------------------------------------
 
     public void init(String st, int minsize, int maxsize) {
         super.init(check(st), minsize, maxsize);
     }
-
-    // --------------------------------------------------------------------------------
 
     private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
@@ -69,10 +72,6 @@ public final class SyntaxNum extends SyntaxDE {
 
         setContent(st, minsize, maxsize);
         res.delete(0, endidx);
-    }
-
-    public SyntaxNum(StringBuffer res, int minsize, int maxsize) {
-        initData(res, minsize, maxsize);
     }
 
     public void init(StringBuffer res, int minsize, int maxsize) {

@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIMsgStatus.java,v 1.1 2011/05/04 22:38:02 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,7 +22,7 @@ package org.kapott.hbci.status;
 
 import org.kapott.hbci.manager.HBCIUtils;
 
-import java.util.Properties;
+import java.util.HashMap;
 
 /**
  * <p>Enthält alle Status-Informationen zu genau einem Nachrichtenaustausch.
@@ -50,12 +49,12 @@ public final class HBCIMsgStatus {
      */
     public HBCIStatus segStatus;
 
-    private Properties data;
+    private HashMap<String, String> data;
 
     public HBCIMsgStatus() {
         this.globStatus = new HBCIStatus();
         this.segStatus = new HBCIStatus();
-        this.data = new Properties();
+        this.data = new HashMap<>();
     }
 
     /**
@@ -68,15 +67,7 @@ public final class HBCIMsgStatus {
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
-    public void setData(Properties data) {
-        this.data = data;
-        extractStatusData();
-    }
-
-    /**
-     * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
-     */
-    public void addData(Properties _data) {
+    public void addData(HashMap<String, String> _data) {
         this.data.putAll(_data);
         extractStatusData();
     }
@@ -101,7 +92,7 @@ public final class HBCIMsgStatus {
         // segment-codes extrahieren
         for (int i = 0; true; i++) {
             String segheader = HBCIUtils.withCounter("RetSeg", i);
-            String segref = data.getProperty(segheader + ".SegHead.ref");
+            String segref = data.get(segheader + ".SegHead.ref");
             if (segref == null) {
                 break;
             }
@@ -130,8 +121,16 @@ public final class HBCIMsgStatus {
      * zur Unterscheidung mit den Datenelementen der empfangenen Nachricht das
      * Prefix "<code>orig_</code>".</p>
      */
-    public Properties getData() {
+    public HashMap<String, String> getData() {
         return data;
+    }
+
+    /**
+     * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
+     */
+    public void setData(HashMap<String, String> data) {
+        this.data = data;
+        extractStatusData();
     }
 
     /**
@@ -221,7 +220,7 @@ public final class HBCIMsgStatus {
      * @return <code>true</code> oder <code>false</code>
      */
     public boolean isInvalidPIN() {
-        for (HBCIRetVal hbciRetVal: globStatus.getErrors()) {
+        for (HBCIRetVal hbciRetVal : globStatus.getErrors()) {
             if (hbciRetVal.code.equals("9931") || hbciRetVal.code.equals("9942") ||      // PIN falsch (konkret)
                     hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
             {
@@ -229,7 +228,7 @@ public final class HBCIMsgStatus {
             }
         }
 
-        for (HBCIRetVal hbciRetVal: segStatus.getErrors()) {
+        for (HBCIRetVal hbciRetVal : segStatus.getErrors()) {
             if (hbciRetVal.code.equals("9931") || hbciRetVal.code.equals("9942") ||      // PIN falsch (konkret)
                     hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
             {
@@ -246,14 +245,14 @@ public final class HBCIMsgStatus {
      * @return <code>true</code> oder <code>false</code>
      */
     public boolean isDialogClosed() {
-        for (HBCIRetVal hbciRetVal: globStatus.getErrors()) {
-            if (hbciRetVal.code.equals("9800")){
+        for (HBCIRetVal hbciRetVal : globStatus.getErrors()) {
+            if (hbciRetVal.code.equals("9800")) {
                 return true;
             }
         }
 
-        for (HBCIRetVal hbciRetVal: segStatus.getErrors()) {
-            if (hbciRetVal.code.equals("9800")){
+        for (HBCIRetVal hbciRetVal : segStatus.getErrors()) {
+            if (hbciRetVal.code.equals("9800")) {
                 return true;
             }
         }

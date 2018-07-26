@@ -5,9 +5,9 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -15,30 +15,6 @@ import java.util.Properties;
  */
 public abstract class AbstractGVLastSEPA extends AbstractSEPAGV {
     private final static PainVersion DEFAULT = PainVersion.PAIN_008_001_01;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_008;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainJobName()
-     */
-    @Override
-    public String getPainJobName() {
-        return "LastSEPA";
-    }
 
     public AbstractGVLastSEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
         super(passport, lowlevelName, result);
@@ -104,11 +80,35 @@ public abstract class AbstractGVLastSEPA extends AbstractSEPAGV {
     }
 
     /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_008;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainJobName()
+     */
+    @Override
+    public String getPainJobName() {
+        return "LastSEPA";
+    }
+
+    /**
      * @see AbstractHBCIJob#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
      */
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String orderid = result.getProperty(header + ".orderid");
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
         ((AbstractGVRLastSEPA) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {

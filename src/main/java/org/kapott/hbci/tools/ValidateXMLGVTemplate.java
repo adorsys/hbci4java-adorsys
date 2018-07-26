@@ -1,4 +1,3 @@
-
 /*  $Id: ValidateXMLGVTemplate.java,v 1.1 2011/05/04 22:37:45 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -32,94 +31,93 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/** Dieses Tool ist nur für die interne Verwendung für die Entwicklung von
+/**
+ * Dieses Tool ist nur für die interne Verwendung für die Entwicklung von
  * HBCI4Java gedacht.
  * Die XML-Dateien mit den HBCI-Syntax-Beschreibungen werden zum Teil automatisch
  * erzeugt. Mit diesem Tool können die dafür benötigten Templates auf Konsistenz
- * geprüft werden. */
-public class ValidateXMLGVTemplate 
-{
-    private static void validateRefs(Element sfelem, List<String> deflist)
-    {
-        String   sfname=sfelem.getAttribute("id");
-        NodeList refs=sfelem.getElementsByTagName("SEG");
-        int      l=refs.getLength();
-        for (int i=0; i<l; i++) {
-            Element ref=(Element)refs.item(i);
-            String  refid=ref.getAttribute("type");
+ * geprüft werden.
+ */
+public class ValidateXMLGVTemplate {
+    private static void validateRefs(Element sfelem, List<String> deflist) {
+        String sfname = sfelem.getAttribute("id");
+        NodeList refs = sfelem.getElementsByTagName("SEG");
+        int l = refs.getLength();
+        for (int i = 0; i < l; i++) {
+            Element ref = (Element) refs.item(i);
+            String refid = ref.getAttribute("type");
             if (!deflist.remove(refid)) {
-                System.out.println("warning: in SF '"+sfname+"': referenced SEG '"+refid+"' does not exist");
+                System.out.println("warning: in SF '" + sfname + "': referenced SEG '" + refid + "' does not exist");
             }
         }
-        if (deflist.size()!=0) {
-            for (Iterator<String> i=deflist.iterator(); i.hasNext();) {
-                System.out.println("warning: defined "+sfname+" '"+i.next()+"' not referenced in SF '"+sfname+"'");
+        if (deflist.size() != 0) {
+            for (Iterator<String> i = deflist.iterator(); i.hasNext(); ) {
+                System.out.println("warning: defined " + sfname + " '" + i.next() + "' not referenced in SF '" + sfname + "'");
             }
         }
     }
-    
+
     public static void main(String[] args)
-        throws Exception
-    {
-        DocumentBuilderFactory fac=DocumentBuilderFactory.newInstance();
+            throws Exception {
+        DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
         fac.setIgnoringComments(true);
         fac.setIgnoringElementContentWhitespace(true);
         fac.setNamespaceAware(false);
         fac.setValidating(false);
-        
-        DocumentBuilder builder=fac.newDocumentBuilder();
-        File            f=new File(args[0]);
-        Document        doc=builder.parse(f);
-        
-        Element  root=doc.getDocumentElement();
-        NodeList segdefs=root.getElementsByTagName("SEGdef");
-        int      l=segdefs.getLength();
-        List<String>     seen=new ArrayList<String>();
-        List<String>     gvs=new ArrayList<String>();
-        List<String>     gvrs=new ArrayList<String>();
-        List<String>     params=new ArrayList<String>();
-        for (int i=0; i<l; i++) {
-            Element  segdef=(Element)segdefs.item(i);
-            String   segdefid=segdef.getAttribute("id");
-            
-            String segcode=null;
-            String segversion=null;
-            
-            NodeList values=segdef.getElementsByTagName("value");
-            int      l2=values.getLength();
-            for (int j=0; j<l2; j++) {
-                Element value=(Element)values.item(j);
-                String  path=value.getAttribute("path");
+
+        DocumentBuilder builder = fac.newDocumentBuilder();
+        File f = new File(args[0]);
+        Document doc = builder.parse(f);
+
+        Element root = doc.getDocumentElement();
+        NodeList segdefs = root.getElementsByTagName("SEGdef");
+        int l = segdefs.getLength();
+        List<String> seen = new ArrayList<String>();
+        List<String> gvs = new ArrayList<String>();
+        List<String> gvrs = new ArrayList<String>();
+        List<String> params = new ArrayList<String>();
+        for (int i = 0; i < l; i++) {
+            Element segdef = (Element) segdefs.item(i);
+            String segdefid = segdef.getAttribute("id");
+
+            String segcode = null;
+            String segversion = null;
+
+            NodeList values = segdef.getElementsByTagName("value");
+            int l2 = values.getLength();
+            for (int j = 0; j < l2; j++) {
+                Element value = (Element) values.item(j);
+                String path = value.getAttribute("path");
                 if (path.equals("SegHead.code")) {
-                    segcode=value.getFirstChild().getNodeValue();
+                    segcode = value.getFirstChild().getNodeValue();
                 } else if (path.equals("SegHead.version")) {
-                    segversion=value.getFirstChild().getNodeValue();
+                    segversion = value.getFirstChild().getNodeValue();
                 }
             }
-            
-            if (segcode==null || segversion==null) {
-                System.out.println("warning: SEGdef with id "+segdefid+" has no segcode or no segversion");
-                
-                segcode="";
-                segversion="";
+
+            if (segcode == null || segversion == null) {
+                System.out.println("warning: SEGdef with id " + segdefid + " has no segcode or no segversion");
+
+                segcode = "";
+                segversion = "";
             } else {
-                String key=segcode+":"+segversion;
+                String key = segcode + ":" + segversion;
                 if (seen.contains(key)) {
-                    System.out.println("warning: segment "+key+" appears more than once");
+                    System.out.println("warning: segment " + key + " appears more than once");
                 } else {
                     seen.add(key);
                 }
             }
-            
-            if (segdefid.endsWith("Res"+segversion)) {
+
+            if (segdefid.endsWith("Res" + segversion)) {
                 gvrs.add(segdefid);
-            } else if (segdefid.endsWith("Par"+segversion)) {
+            } else if (segdefid.endsWith("Par" + segversion)) {
                 params.add(segdefid);
             } else {
                 gvs.add(segdefid);
             }
         }
-        
+
         validateRefs(doc.getElementById("GV"), gvs);
         validateRefs(doc.getElementById("GVRes"), gvrs);
         validateRefs(doc.getElementById("Params"), params);

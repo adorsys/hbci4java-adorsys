@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIUser.java,v 1.2 2011/08/31 14:05:21 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -29,7 +28,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 /* @brief Instances of this class represent a certain user in combination with
@@ -79,7 +78,7 @@ public final class HBCIUser implements IHandlerData {
                 }
             }
 
-            Properties result = msgStatus.getData();
+            HashMap<String, String> result = msgStatus.getData();
 
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), msgStatus);
@@ -87,11 +86,11 @@ public final class HBCIUser implements IHandlerData {
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
             inst.updateBPD(result);
             updateUPD(result);
-            passport.setSysId(result.getProperty("SyncRes.sysid"));
+            passport.setSysId(result.get("SyncRes.sysid"));
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{msgStatus, passport.getSysId()});
             log.debug("new sys-id is " + passport.getSysId());
-            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+            doDialogEnd(result.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
                     HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
@@ -128,7 +127,7 @@ public final class HBCIUser implements IHandlerData {
                 }
             }
 
-            Properties result = msgStatus.getData();
+            HashMap<String, String> result = msgStatus.getData();
 
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
@@ -136,43 +135,42 @@ public final class HBCIUser implements IHandlerData {
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
             inst.updateBPD(result);
             updateUPD(result);
-            passport.setSigId(new Long(result.getProperty("SyncRes.sigid", "1")));
+            passport.setSigId(new Long(result.get("SyncRes.sigid") != null ? result.get("SyncRes.sigid") : "1"));
             passport.incSigId();
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus, passport.getSigId()});
             log.debug("signature id set to " + passport.getSigId());
-            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+            doDialogEnd(result.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
                     HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), e);
         }
     }
 
-    public void updateUPD(Properties result) {
+    public void updateUPD(HashMap<String, String> result) {
         log.debug("extracting UPD from results");
 
-        Properties p = new Properties();
+        HashMap<String, String> p = new HashMap<>();
 
-        for (Enumeration e = result.keys(); e.hasMoreElements(); ) {
-            String key = (String) (e.nextElement());
+        result.forEach((key, value) -> {
             if (key.startsWith("UPD.")) {
-                p.setProperty(key.substring(("UPD.").length()), result.getProperty(key));
+                p.put(key.substring(("UPD.").length()), value);
             }
-        }
+        });
 
         if (p.size() != 0) {
-            p.setProperty("_hbciversion", passport.getHBCIVersion());
+            p.put("_hbciversion", passport.getHBCIVersion());
 
             // Wir sichern wenigstens noch die TAN-Media-Infos, die vom HBCIHandler vorher abgerufen wurden
             // Das ist etwas unschoen. Sinnvollerweise sollten die SEPA-Infos und TAN-Medien nicht in den
             // UPD gespeichert werden. Dann gehen die auch nicht jedesmal wieder verloren und muessen nicht
             // dauernd neu abgerufen werden. Das wuerde aber einen groesseren Umbau erfordern
-            Properties upd = passport.getUPD();
+            HashMap<String, String> upd = passport.getUPD();
             if (upd != null) {
-                String mediaInfo = upd.getProperty("tanmedia.names");
+                String mediaInfo = upd.get("tanmedia.names");
                 if (mediaInfo != null) {
                     log.info("rescued TAN media info to new UPD: " + mediaInfo);
-                    p.setProperty("tanmedia.names", mediaInfo);
+                    p.put("tanmedia.names", mediaInfo);
                 }
             }
 
@@ -211,7 +209,7 @@ public final class HBCIUser implements IHandlerData {
                 }
             }
 
-            Properties result = msgStatus.getData();
+            HashMap<String, String> result = msgStatus.getData();
 
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), msgStatus);
@@ -221,7 +219,7 @@ public final class HBCIUser implements IHandlerData {
 
             updateUPD(result);
 
-            doDialogEnd(result.getProperty("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+            doDialogEnd(result.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
                     HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), e);
@@ -292,9 +290,9 @@ public final class HBCIUser implements IHandlerData {
                 fetchSigId();
         }
 
-        Properties upd = passport.getUPD();
-        Properties bpd = passport.getBPD();
-        String hbciVersionOfUPD = upd != null ? upd.getProperty("_hbciversion") : null;
+        HashMap<String, String> upd = passport.getUPD();
+        HashMap<String, String> bpd = passport.getBPD();
+        String hbciVersionOfUPD = upd != null ? upd.get("_hbciversion") : null;
 
         // Wir haben noch keine BPD. Offensichtlich unterstuetzt die Bank
         // das Abrufen von BPDs ueber einen anonymen Dialog nicht. Also machen

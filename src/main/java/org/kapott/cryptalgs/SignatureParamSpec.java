@@ -1,4 +1,3 @@
-
 /*  $Id: SignatureParamSpec.java,v 1.1 2011/05/04 22:37:58 willuhn Exp $
 
     This file is part of CryptAlgs4Java
@@ -24,30 +23,25 @@ package org.kapott.cryptalgs;
 import java.security.spec.AlgorithmParameterSpec;
 
 public final class SignatureParamSpec
-     implements AlgorithmParameterSpec
-{
+        implements AlgorithmParameterSpec {
     private String hashAlg;
     private String provider;
 
-    public SignatureParamSpec(String hashAlg,String provider)
-    {
+    public SignatureParamSpec(String hashAlg, String provider) {
         this.hashAlg = hashAlg;
         this.provider = provider;
     }
 
-    public String getHashAlg()
-    {
+    public String getHashAlg() {
         return this.hashAlg;
     }
 
-    public String getProvider()
-    {
+    public String getProvider() {
         return this.provider;
     }
 
     @Override
-    public String toString()
-    {
-        return getProvider()+":"+getHashAlg();
+    public String toString() {
+        return getProvider() + ":" + getHashAlg();
     }
 }

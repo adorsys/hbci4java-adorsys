@@ -1,4 +1,3 @@
-
 /*  $Id: DEG.java,v 1.1 2011/05/04 22:38:02 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,12 +23,17 @@ package org.kapott.hbci.protocol;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Properties;
+import java.util.*;
 
 public final class DEG extends SyntaxElement {
+
+    public DEG(String type, String name, String path, int idx, Document document) {
+        super(type, name, path, idx, document);
+    }
+
+    public DEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    }
 
     protected String getElementTypeName() {
         return "DEG";
@@ -46,13 +50,11 @@ public final class DEG extends SyntaxElement {
         return ret;
     }
 
-    public DEG(String type, String name, String path, int idx, Document document) {
-        super(type, name, path, idx, document);
-    }
-
     public void init(String type, String name, String path, int idx, Document document) {
         super.init(type, name, path, idx, document);
     }
+
+    // ---------------------------------------------------------------------------------------------------------------
 
     public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(128);
@@ -89,8 +91,6 @@ public final class DEG extends SyntaxElement {
         return ret.toString();
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-
     protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
@@ -106,17 +106,13 @@ public final class DEG extends SyntaxElement {
         return ':';
     }
 
-    public DEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
-    }
-
     public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
         if (deref == null) {
-            p.setProperty(Integer.toString(segref[0]) +
+            p.put(Integer.toString(segref[0]) +
                     ":" + Integer.toString(degref[0]), getPath());
 
             deref = new int[1];
@@ -131,7 +127,7 @@ public final class DEG extends SyntaxElement {
 
             degref[0]++;
         } else {
-            p.setProperty(Integer.toString(segref[0]) +
+            p.put(Integer.toString(segref[0]) +
                             ":" +
                             Integer.toString(degref[0]) +
                             "," +

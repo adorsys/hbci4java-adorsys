@@ -1,4 +1,3 @@
-
 /*  $Id: SEG.java,v 1.1 2011/05/04 22:38:03 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,10 +25,19 @@ import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
 
 public final class SEG extends SyntaxElement {
+
+    public SEG(String type, String name, String path, int idx, Document document) {
+        super(type, name, path, idx, document);
+    }
+
+    public SEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    }
 
     protected String getElementTypeName() {
         return "SEG";
@@ -44,10 +52,6 @@ public final class SEG extends SyntaxElement {
             ret = new MultipleDEGs(ref, '+', getPath(), document);
 
         return ret;
-    }
-
-    public SEG(String type, String name, String path, int idx, Document document) {
-        super(type, name, path, idx, document);
     }
 
     public void init(String type, String name, String path, int idx, Document document) {
@@ -111,6 +115,8 @@ public final class SEG extends SyntaxElement {
         return idx;
     }
 
+    // ---------------------------------------------------------------------------------------------------------------
+
     // Wird in Crypt.isCrypted() benötigt, um anhand des SegCodes des zweiten
     // Segments festzustellen, ob die Nachricht verschlüsselt ist oder nicht.
     // analoges in Sig.hasSig()
@@ -119,8 +125,6 @@ public final class SEG extends SyntaxElement {
         SyntaxElement code = getElement(getPath() + "." + codePath);
         return code.toString();
     }
-
-    // ---------------------------------------------------------------------------------------------------------------
 
     protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
@@ -137,10 +141,6 @@ public final class SEG extends SyntaxElement {
         return '+';
     }
 
-    public SEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
-    }
-
     public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
@@ -153,9 +153,9 @@ public final class SEG extends SyntaxElement {
         return value + 1;
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
         if (isValid()) {
-            p.setProperty(Integer.toString(segref[0]), getPath());
+            p.put(Integer.toString(segref[0]), getPath());
             degref = new int[1];
             degref[0] = 1;
 

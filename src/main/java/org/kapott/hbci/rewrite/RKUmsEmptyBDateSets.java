@@ -1,4 +1,3 @@
-
 /*  $Id: RKUmsEmptyBDateSets.java,v 1.1 2011/05/04 22:37:57 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,6 +25,7 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 @Slf4j
@@ -52,11 +52,9 @@ public class RKUmsEmptyBDateSets extends Rewrite {
     @Override
     public Message incomingData(Message msg) {
         String header = "GVRes";
-        Properties data = msg.getData();
+        HashMap<String, String> data = msg.getData();
 
-        for (Enumeration i = data.propertyNames(); i.hasMoreElements(); ) {
-            String key = (String) i.nextElement();
-
+        for (String key: data.keySet()) {
             if (key.startsWith(header) &&
                     key.indexOf("KUms") != -1 &&
                     key.endsWith(".booked")) {

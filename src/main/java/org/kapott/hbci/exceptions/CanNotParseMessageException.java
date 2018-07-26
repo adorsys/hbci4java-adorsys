@@ -1,4 +1,3 @@
-
 /*  $Id: CanNotParseMessageException.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,19 +21,16 @@
 package org.kapott.hbci.exceptions;
 
 
-public final class CanNotParseMessageException 
-    extends HBCI_Exception
-{
+public final class CanNotParseMessageException
+        extends HBCI_Exception {
     private String message;
-    
-    public CanNotParseMessageException(String txt,String message,Exception e)
-    {
-        super(txt,e);
-        this.message=applyLogFilter(message);
+
+    public CanNotParseMessageException(String txt, String message, Exception e) {
+        super(txt, e);
+        this.message = applyLogFilter(message);
     }
-    
-    public String getMessage()
-    {
+
+    public String getMessage() {
         return this.message;
     }
 }

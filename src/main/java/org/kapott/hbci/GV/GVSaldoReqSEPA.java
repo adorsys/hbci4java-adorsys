@@ -1,4 +1,3 @@
-
 /*  $Id: GVSaldoReqSEPA.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,13 +21,8 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public class GVSaldoReqSEPA extends GVSaldoReq {
-
-    public static String getLowlevelName() {
-        return "SaldoSEPA";
-    }
 
     public GVSaldoReqSEPA(HBCIPassportInternal passport, String name) {
         super(passport, name);
@@ -47,5 +41,9 @@ public class GVSaldoReqSEPA extends GVSaldoReq {
         addConstraint("my.iban", "KTV.iban", null);
         addConstraint("dummyall", "allaccounts", "N");
         addConstraint("maxentries", "maxentries", "");
+    }
+
+    public static String getLowlevelName() {
+        return "SaldoSEPA";
     }
 }

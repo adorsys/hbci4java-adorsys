@@ -1,4 +1,3 @@
-
 /*  $Id: AbstractMultiGV.java,v 1.2 2011/05/17 16:39:07 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -27,7 +26,6 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.swift.DTAUS;
 import org.kapott.hbci.swift.DTAUS.Transaction;
-import org.w3c.dom.Document;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

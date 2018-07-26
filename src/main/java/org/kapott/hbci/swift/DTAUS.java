@@ -1,4 +1,3 @@
-
 /*  $Id: DTAUS.java,v 1.1 2011/05/04 22:38:03 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,7 +25,6 @@ import org.kapott.hbci.datatypes.SyntaxDTAUS;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
@@ -60,168 +58,6 @@ import java.util.*;
 @Slf4j
 public class DTAUS {
     /**
-     * Daten einer einzelnen Transaktion, die in einen Sammelauftrag
-     * übernommen werden soll. Vor dem Hinzufügen dieser Transaktion zum
-     * Sammelauftrag müssen alle Felder dieses Transaktions-Objektes mit den
-     * jeweiligen Auftragsdaten gefüllt werden.
-     */
-    public class Transaction {
-        /**
-         * <p>Konto des Zahlungsempfängers bzw. des Zahlungspflichtigen. Soll
-         * dieser Einzelauftrag in eine Sammelüberweisung eingestellt werden,
-         * so muss in diesem Feld die Kontoverbindung des Zahlungsempfängers
-         * eingestellt werden. Bei Sammellastschriften ist hier die
-         * Kontoverbindung des Zahlungspflichtigen einzustellen.</p>
-         * <p>Von dem verwendeten {@link Konto}-Objekt müssen mindestens die
-         * Felder <code>blz</code>, <code>number</code> und <code>name</code>
-         * richtig belegt sein.</p>
-         */
-        public Konto otherAccount;
-
-        /**
-         * interne Kunden-ID. Wie die verwendet wird weiß ich leider nicht
-         * genau, kann im Prinzip leer gelassen werden (ansonsten Maximallänge
-         * 11 Zeichen).
-         */
-        public String internalCustomerId;
-
-        /**
-         * Textschlüssel für den Auftrag. Bei Sammelüberweisungen ist dieses
-         * Feld mit '51' vorbelegt, bei Sammellastschriften mit '05'. Dieser
-         * Wert kann überschrieben werden, gültige Werte finden sich in den
-         * Job-Restrictions
-         * (siehe {@link org.kapott.hbci.GV.HBCIJob#getJobRestrictions()}).
-         */
-        public String key;
-
-        /**
-         * Zusätzlicher Textschlüssel (wird i.d.R. bankintern verwendet).
-         * Dieser Wert muss aus drei Ziffern bestehen und ist mit '000'
-         * vorbelegt. Das manuelle Setzen dieses Wertes ist in den meisten
-         * Fällen nicht nötig (außer für Leute, die wissen was sie tun ;-) ).
-         */
-        public String addkey;
-
-        /**
-         * Geldbetrag, der bei diesem Einzelauftrag überwiesen (Sammelüberweisungen)
-         * bzw. eingezogen (Sammellastschriften) werden soll
-         */
-        public Value value;
-
-        private ArrayList<String> usage;
-
-        /**
-         * Erzeugen eine neuen Objektes für die Aufnahme von Daten für eine
-         * Transaktion
-         */
-        public Transaction() {
-            addkey = "000";
-            key = (type == TYPE_CREDIT ? "51" : "05");
-            usage = new ArrayList<String>();
-        }
-
-        /**
-         * Hinzufügen einer Verwendungszweckzeile zu diesem Auftrag.
-         */
-        public void addUsage(String st) {
-            usage.add(st);
-        }
-
-        /**
-         * Gibt eine Liste der Verwendungszweckzeilen (String) zurück.
-         */
-        public List<String> getUsage() {
-            return usage;
-        }
-
-        public String toString() {
-            StringBuffer ret = new StringBuffer();
-
-            try {
-                ret.append("0000C");
-                ret.append(expand(myAccount.blz, 8, (byte) 0x20, ALIGN_RIGHT));
-                ret.append(expand(otherAccount.blz, 8, (byte) 0x20, ALIGN_RIGHT));
-                ret.append(expand(otherAccount.number, 10, (byte) 0x30, ALIGN_RIGHT));
-
-                sumBLZ += Long.parseLong(otherAccount.blz);
-                sumNumber += Long.parseLong(otherAccount.number);
-
-                if (internalCustomerId == null) {
-                    ret.append(expand("", 13, (byte) 0x30, ALIGN_LEFT));
-                } else {
-                    ret.append((char) 0);
-                    ret.append(expand(SyntaxDTAUS.check(internalCustomerId), 11, (byte) 0x30, ALIGN_LEFT));
-                    ret.append((char) 0);
-                }
-
-                ret.append(expand(key, 2, (byte) 0x30, ALIGN_RIGHT));
-                ret.append(expand(addkey, 3, (byte) 0x30, ALIGN_RIGHT));
-                ret.append((char) 0x20);
-                ret.append(expand(Long.toString(value.getCurr().equals("DEM") ? value.getLongValue() : 0), 11, (byte) 0x30, ALIGN_RIGHT));
-                ret.append(expand(myAccount.blz, 8, (byte) 0x20, ALIGN_RIGHT));
-                ret.append(expand(myAccount.number, 10, (byte) 0x30, ALIGN_RIGHT));
-                ret.append(expand(Long.toString(value.getCurr().equals("EUR") ? value.getLongValue() : 0), 11, (byte) 0x30, ALIGN_RIGHT));
-                ret.append(expand("", 3, (byte) 0x20, ALIGN_LEFT));
-                ret.append(expand(SyntaxDTAUS.check(otherAccount.name), 27, (byte) 0x20, ALIGN_LEFT));
-                ret.append(expand("", 8, (byte) 0x20, ALIGN_LEFT));
-
-                if (value.getCurr().equals("EUR"))
-                    sumEUR += value.getLongValue();
-                else if (value.getCurr().equals("DEM"))
-                    sumDM += value.getLongValue();
-
-                ret.append(expand(SyntaxDTAUS.check(myAccount.name), 27, (byte) 0x20, ALIGN_LEFT));
-
-                String st = "";
-                if (usage.size() != 0)
-                    st = SyntaxDTAUS.check(usage.get(0));
-                ret.append(expand(st, 27, (byte) 0x20, ALIGN_LEFT));
-
-                ret.append((char) curr);
-                ret.append(expand("", 2, (byte) 0x20, ALIGN_LEFT));
-
-                int posForNumOfExt = ret.length();
-                ret.append("00");
-
-                int basicLenOfCSet = 128 + 27 + 27 + 5;
-                int realLenOfCSet = basicLenOfCSet;
-                int numOfExt = 0;
-
-                // erweiterungsteile
-                // TODO: name2 für myAccount und otherAccount vorerst weggelassen
-
-                for (int i = 1; i < usage.size(); i++) {
-                    st = SyntaxDTAUS.check(usage.get(i));
-
-                    if (((realLenOfCSet % 128) + 29) > 128) {
-                        int diff = 128 - (realLenOfCSet % 128);
-                        ret.append(expand("", diff, (byte) 0x20, ALIGN_LEFT));
-                        realLenOfCSet += diff;
-                    }
-
-                    ret.append("02");
-                    ret.append(expand(st, 27, (byte) 0x20, ALIGN_LEFT));
-                    realLenOfCSet += 29;
-                    numOfExt++;
-                }
-
-                if ((realLenOfCSet % 128) != 0) {
-                    int diff = 128 - (realLenOfCSet % 128);
-                    ret.append(expand("", diff, (byte) 0x20, ALIGN_LEFT));
-                    realLenOfCSet += diff;
-                }
-
-                ret.replace(posForNumOfExt, posForNumOfExt + 2, expand(Integer.toString(numOfExt), 2, (byte) 0x30, ALIGN_RIGHT));
-                ret.replace(0, 4, expand(Integer.toString(basicLenOfCSet + 29 * numOfExt), 4, (byte) 0x30, ALIGN_RIGHT));
-            } catch (NullPointerException e) {
-                throw new HBCI_Exception("probably one or more DTAUS values which MUST be set are null - please refer the API doc", e);
-            }
-
-            return ret.toString();
-        }
-    }
-
-    /**
      * Typ des Sammelauftrages: Sammelüberweisung
      */
     public static final int TYPE_CREDIT = 1;
@@ -229,7 +65,6 @@ public class DTAUS {
      * Typ des Sammelauftrages: Sammellastschrift
      */
     public static final int TYPE_DEBIT = 2;
-
     /**
      * TODO: doku fehlt
      */
@@ -238,22 +73,18 @@ public class DTAUS {
      * TODO: doku fehlt
      */
     public static final byte CURR_EUR = 0x31;
-
     private static final byte ALIGN_LEFT = 1;
     private static final byte ALIGN_RIGHT = 2;
-
     private Konto myAccount;
     private int type;
     private Date execdate;
     private byte curr;
     private String referenceId;
     private ArrayList<Transaction> entries;
-
     private long sumDM;
     private long sumEUR;
     private long sumBLZ;
     private long sumNumber;
-
     /**
      * Entspricht {@link #DTAUS(Konto, int, Date) DTAUS(myAccount,type,null)}
      */
@@ -350,17 +181,17 @@ public class DTAUS {
     }
 
     /**
-     * Setzt das Feld Nr 10 ("Referennummer des Einreichers")
-     */
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
-    }
-
-    /**
      * Gibt den Wert von Feld Nr 10 ("Referenznummer des Einreichers") zurück
      */
     public String getReferenceId() {
         return (this.referenceId != null) ? this.referenceId : "";
+    }
+
+    /**
+     * Setzt das Feld Nr 10 ("Referennummer des Einreichers")
+     */
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
     }
 
     /**
@@ -620,5 +451,167 @@ public class DTAUS {
         // TODO: restliche konsistenzchecks machen
 
         log.debug("parsinng of DTAUS data finished");
+    }
+
+    /**
+     * Daten einer einzelnen Transaktion, die in einen Sammelauftrag
+     * übernommen werden soll. Vor dem Hinzufügen dieser Transaktion zum
+     * Sammelauftrag müssen alle Felder dieses Transaktions-Objektes mit den
+     * jeweiligen Auftragsdaten gefüllt werden.
+     */
+    public class Transaction {
+        /**
+         * <p>Konto des Zahlungsempfängers bzw. des Zahlungspflichtigen. Soll
+         * dieser Einzelauftrag in eine Sammelüberweisung eingestellt werden,
+         * so muss in diesem Feld die Kontoverbindung des Zahlungsempfängers
+         * eingestellt werden. Bei Sammellastschriften ist hier die
+         * Kontoverbindung des Zahlungspflichtigen einzustellen.</p>
+         * <p>Von dem verwendeten {@link Konto}-Objekt müssen mindestens die
+         * Felder <code>blz</code>, <code>number</code> und <code>name</code>
+         * richtig belegt sein.</p>
+         */
+        public Konto otherAccount;
+
+        /**
+         * interne Kunden-ID. Wie die verwendet wird weiß ich leider nicht
+         * genau, kann im Prinzip leer gelassen werden (ansonsten Maximallänge
+         * 11 Zeichen).
+         */
+        public String internalCustomerId;
+
+        /**
+         * Textschlüssel für den Auftrag. Bei Sammelüberweisungen ist dieses
+         * Feld mit '51' vorbelegt, bei Sammellastschriften mit '05'. Dieser
+         * Wert kann überschrieben werden, gültige Werte finden sich in den
+         * Job-Restrictions
+         * (siehe {@link org.kapott.hbci.GV.HBCIJob#getJobRestrictions()}).
+         */
+        public String key;
+
+        /**
+         * Zusätzlicher Textschlüssel (wird i.d.R. bankintern verwendet).
+         * Dieser Wert muss aus drei Ziffern bestehen und ist mit '000'
+         * vorbelegt. Das manuelle Setzen dieses Wertes ist in den meisten
+         * Fällen nicht nötig (außer für Leute, die wissen was sie tun ;-) ).
+         */
+        public String addkey;
+
+        /**
+         * Geldbetrag, der bei diesem Einzelauftrag überwiesen (Sammelüberweisungen)
+         * bzw. eingezogen (Sammellastschriften) werden soll
+         */
+        public Value value;
+
+        private ArrayList<String> usage;
+
+        /**
+         * Erzeugen eine neuen Objektes für die Aufnahme von Daten für eine
+         * Transaktion
+         */
+        public Transaction() {
+            addkey = "000";
+            key = (type == TYPE_CREDIT ? "51" : "05");
+            usage = new ArrayList<String>();
+        }
+
+        /**
+         * Hinzufügen einer Verwendungszweckzeile zu diesem Auftrag.
+         */
+        public void addUsage(String st) {
+            usage.add(st);
+        }
+
+        /**
+         * Gibt eine Liste der Verwendungszweckzeilen (String) zurück.
+         */
+        public List<String> getUsage() {
+            return usage;
+        }
+
+        public String toString() {
+            StringBuffer ret = new StringBuffer();
+
+            try {
+                ret.append("0000C");
+                ret.append(expand(myAccount.blz, 8, (byte) 0x20, ALIGN_RIGHT));
+                ret.append(expand(otherAccount.blz, 8, (byte) 0x20, ALIGN_RIGHT));
+                ret.append(expand(otherAccount.number, 10, (byte) 0x30, ALIGN_RIGHT));
+
+                sumBLZ += Long.parseLong(otherAccount.blz);
+                sumNumber += Long.parseLong(otherAccount.number);
+
+                if (internalCustomerId == null) {
+                    ret.append(expand("", 13, (byte) 0x30, ALIGN_LEFT));
+                } else {
+                    ret.append((char) 0);
+                    ret.append(expand(SyntaxDTAUS.check(internalCustomerId), 11, (byte) 0x30, ALIGN_LEFT));
+                    ret.append((char) 0);
+                }
+
+                ret.append(expand(key, 2, (byte) 0x30, ALIGN_RIGHT));
+                ret.append(expand(addkey, 3, (byte) 0x30, ALIGN_RIGHT));
+                ret.append((char) 0x20);
+                ret.append(expand(Long.toString(value.getCurr().equals("DEM") ? value.getLongValue() : 0), 11, (byte) 0x30, ALIGN_RIGHT));
+                ret.append(expand(myAccount.blz, 8, (byte) 0x20, ALIGN_RIGHT));
+                ret.append(expand(myAccount.number, 10, (byte) 0x30, ALIGN_RIGHT));
+                ret.append(expand(Long.toString(value.getCurr().equals("EUR") ? value.getLongValue() : 0), 11, (byte) 0x30, ALIGN_RIGHT));
+                ret.append(expand("", 3, (byte) 0x20, ALIGN_LEFT));
+                ret.append(expand(SyntaxDTAUS.check(otherAccount.name), 27, (byte) 0x20, ALIGN_LEFT));
+                ret.append(expand("", 8, (byte) 0x20, ALIGN_LEFT));
+
+                if (value.getCurr().equals("EUR"))
+                    sumEUR += value.getLongValue();
+                else if (value.getCurr().equals("DEM"))
+                    sumDM += value.getLongValue();
+
+                ret.append(expand(SyntaxDTAUS.check(myAccount.name), 27, (byte) 0x20, ALIGN_LEFT));
+
+                String st = "";
+                if (usage.size() != 0)
+                    st = SyntaxDTAUS.check(usage.get(0));
+                ret.append(expand(st, 27, (byte) 0x20, ALIGN_LEFT));
+
+                ret.append((char) curr);
+                ret.append(expand("", 2, (byte) 0x20, ALIGN_LEFT));
+
+                int posForNumOfExt = ret.length();
+                ret.append("00");
+
+                int basicLenOfCSet = 128 + 27 + 27 + 5;
+                int realLenOfCSet = basicLenOfCSet;
+                int numOfExt = 0;
+
+                // erweiterungsteile
+                // TODO: name2 für myAccount und otherAccount vorerst weggelassen
+
+                for (int i = 1; i < usage.size(); i++) {
+                    st = SyntaxDTAUS.check(usage.get(i));
+
+                    if (((realLenOfCSet % 128) + 29) > 128) {
+                        int diff = 128 - (realLenOfCSet % 128);
+                        ret.append(expand("", diff, (byte) 0x20, ALIGN_LEFT));
+                        realLenOfCSet += diff;
+                    }
+
+                    ret.append("02");
+                    ret.append(expand(st, 27, (byte) 0x20, ALIGN_LEFT));
+                    realLenOfCSet += 29;
+                    numOfExt++;
+                }
+
+                if ((realLenOfCSet % 128) != 0) {
+                    int diff = 128 - (realLenOfCSet % 128);
+                    ret.append(expand("", diff, (byte) 0x20, ALIGN_LEFT));
+                    realLenOfCSet += diff;
+                }
+
+                ret.replace(posForNumOfExt, posForNumOfExt + 2, expand(Integer.toString(numOfExt), 2, (byte) 0x30, ALIGN_RIGHT));
+                ret.replace(0, 4, expand(Integer.toString(basicLenOfCSet + 29 * numOfExt), 4, (byte) 0x30, ALIGN_RIGHT));
+            } catch (NullPointerException e) {
+                throw new HBCI_Exception("probably one or more DTAUS values which MUST be set are null - please refer the API doc", e);
+            }
+
+            return ret.toString();
+        }
     }
 }

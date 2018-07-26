@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIJobImpl.java,v 1.5 2011/06/06 10:30:31 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -45,19 +44,20 @@ import java.util.regex.Pattern;
 @Slf4j
 public class AbstractHBCIJob {
 
+    private static final Pattern INDEX_PATTERN = Pattern.compile("(\\w+\\.\\w+\\.\\w+)(\\.\\w+)?");
+    protected HBCIJobResultImpl jobResult;         /* Objekt mit Rückgabedaten für diesen GV */
+    protected HBCIPassportInternal passport;
     private String name;              /* Job-Name mit Versionsnummer */
     private String jobName;           /* Job-Name ohne Versionsnummer */
     private String segVersion;        /* Segment-Version */
     private Properties llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
-    protected HBCIJobResultImpl jobResult;         /* Objekt mit Rückgabedaten für diesen GV */
-    protected HBCIPassportInternal passport;
     private int idx;                  /* idx gibt an, der wievielte task innerhalb der aktuellen message
                                          dieser GV ist */
     private boolean executed;
-    private int contentCounter;       /* Zähler, wie viele Rückgabedaten bereits in outStore eingetragen wurden 
+    private int contentCounter;       /* Zähler, wie viele Rückgabedaten bereits in outStore eingetragen wurden
                                            (entspricht der anzahl der antwort-segmente!)*/
     private Hashtable<String, String[][]> constraints;    /* Festlegungen, welche Parameter eine Anwendung setzen muss, wie diese im
-                                         HBCI-Kernel umgesetzt werden und welche default-Werte vorgesehen sind; 
+                                         HBCI-Kernel umgesetzt werden und welche default-Werte vorgesehen sind;
                                          die Hashtable hat als Schlüssel einen String, der angibt, wie ein Wert aus einer
                                          Anwendung heraus zu setzen ist. Der dazugehörige Value ist ein Array. Jedes Element
                                          dieses Arrays ist ein String[2], wobei das erste Element angibt, wie der Pfadname heisst,
@@ -65,9 +65,7 @@ public class AbstractHBCIJob {
                                          default-Wert an, falls für diesen Namen *kein* Wert angebeben wurde. Ist der default-
                                          Wert="", so kann das Syntaxelement weggelassen werden. Ist der default-Wert=null,
                                          so *muss* die Anwendung einen Wert spezifizieren */
-
     private String externalId;
-
     private HashSet<String> indexedConstraints;
 
     public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
@@ -111,16 +109,14 @@ public class AbstractHBCIJob {
 
         // durchsuchen aller param-segmente nach einem job mit dem jobnamen des
         // aktuellen jobs
-        for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
-            String key = (String) i.nextElement();
-
+        for (String key : passport.getBPD().keySet()) {
             if (key.indexOf("Params") == 0) {
                 tempkey.setLength(0);
                 tempkey.append(key);
                 tempkey.delete(0, tempkey.indexOf(".") + 1);
 
                 if (tempkey.toString().equals(searchString.toString())) {
-                    ret = new StringBuffer(passport.getBPD().getProperty(key));
+                    ret = new StringBuffer(passport.getBPD().get(key));
                     ret.replace(1, 2, "K");
                     ret.deleteCharAt(ret.length() - 1);
                     break;
@@ -171,15 +167,15 @@ public class AbstractHBCIJob {
         log.debug("searching for value of \"cannationalacc\" in HISPAS");
 
         // Ansonsten suchen wir in HISPAS - aber nur, wenn wir die Daten schon haben
-        if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).getProperty("SEPAInfo") == null) {
+        if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).get("SEPAInfo") == null) {
             log.info("no HISPAS data found");
             return false; // Ne, noch nicht. Dann lassen wir das erstmal weg
         }
 
 
         // SEPAInfo laden und darüber iterieren
-        Properties props = passport.getLowlevelJobRestrictions("SEPAInfo", passport.getSyntaxDocument());
-        String value = props.getProperty("cannationalacc");
+        HashMap<String, String> props = passport.getLowlevelJobRestrictions("SEPAInfo", passport.getSyntaxDocument());
+        String value = props.get("cannationalacc");
         log.debug("cannationalacc=" + value);
         return value != null && value.equalsIgnoreCase("J");
     }
@@ -192,9 +188,8 @@ public class AbstractHBCIJob {
         StringBuilder key = new StringBuilder();
 
         // alle param-segmente durchlaufen
-        Properties bpd = passport.getBPD();
-        for (Enumeration i = bpd.propertyNames(); i.hasMoreElements(); ) {
-            String path = (String) i.nextElement();
+        HashMap<String, String> bpd = passport.getBPD();
+        for (String path : bpd.keySet()) {
             key.setLength(0);
             key.append(path);
 
@@ -253,67 +248,6 @@ public class AbstractHBCIJob {
         this.name = jobnameLL + this.segVersion;
     }
 
-    /**
-     * Legt die Versionsnummer des Segments manuell fest.
-     * Ist u.a. noetig, um HKTAN-Segmente in genau der Version zu senden, in der
-     * auch die HITANS empfangen wurden. Andernfalls koennte es passieren, dass
-     * wir ein HKTAN mit einem TAN-Verfahren senden, welches in dieser HKTAN-Version
-     * gar nicht von der Bank unterstuetzt wird. Das ist ein Dirty-Hack, ich weiss ;)
-     * Falls das noch IRGENDWO anders verwendet wird, muss man hoellisch aufpassen,
-     * dass alle Stellen, wo "this.name" bzw. "this.segVersion" direkt oder indirekt
-     * verwendet wurde, ebenfalls beruecksichtigt werden.
-     *
-     * @param version die neue Versionsnummer.
-     */
-    public void setSegVersion(String version) {
-        if (version == null || version.length() == 0) {
-            log.warn("tried to change segment version for task " + this.jobName + " explicit, but no version given");
-            return;
-        }
-
-        // Wenn sich die Versionsnummer nicht geaendert hat, muessen wir die
-        // Huehner ja nicht verrueckt machen ;)
-        if (version.equals(this.segVersion))
-            return;
-
-        log.info("changing segment version for task " + this.jobName + " explicit from " + this.segVersion + " to " + version);
-
-        // Der alte Name
-        String oldName = this.name;
-
-        // Neuer Name und neue Versionsnummer
-        this.segVersion = version;
-        this.name = this.jobName + version;
-
-        // Bereits gesetzte llParams fixen
-        String[] names = this.llParams.keySet().toArray(new String[0]);
-        for (String s : names) {
-            if (!s.startsWith(oldName))
-                continue; // nicht betroffen
-
-            // Alten Schluessel entfernen und neuen einfuegen
-            String value = this.llParams.getProperty(s);
-            String newName = s.replaceFirst(oldName, this.name);
-            this.llParams.remove(s);
-            this.llParams.setProperty(newName, value);
-        }
-
-        // Destination-Namen in den LowLevel-Parameter auf den neuen Namen umbiegen
-        Enumeration<String> e = constraints.keys();
-        while (e.hasMoreElements()) {
-            String frontendName = e.nextElement();
-            String[][] values = constraints.get(frontendName);
-            for (String[] value : values) {
-                // value[0] ist das Target
-                if (!value[0].startsWith(oldName))
-                    continue;
-
-                // Hier ersetzen wir z.Bsp. "TAN2Step5.process" gegen "TAN2Step3.process"
-                value[0] = value[0].replaceFirst(oldName, this.name);
-            }
-        }
-    }
-
     public int getMaxNumberPerMsg() {
         int ret = 1;
 
@@ -328,16 +262,14 @@ public class AbstractHBCIJob {
 
         StringBuilder tempkey = new StringBuilder();
 
-        for (Enumeration i = passport.getBPD().propertyNames(); i.hasMoreElements(); ) {
-            String key = (String) i.nextElement();
-
+        for (String key: passport.getBPD().keySet()) {
             if (key.indexOf("Params") == 0) {
                 tempkey.setLength(0);
                 tempkey.append(key);
                 tempkey.delete(0, tempkey.indexOf(".") + 1);
 
                 if (tempkey.toString().equals(searchString.toString())) {
-                    ret = Integer.parseInt(passport.getBPD().getProperty(key));
+                    ret = Integer.parseInt(passport.getBPD().get(key));
                     break;
                 }
             }
@@ -464,7 +396,7 @@ public class AbstractHBCIJob {
      *
      * @return Properties-Objekt mit den einzelnen Restriktionen
      */
-    public Properties getJobRestrictions() {
+    public HashMap<String, String> getJobRestrictions() {
         return passport.getJobRestrictions(name);
     }
 
@@ -674,6 +606,67 @@ public class AbstractHBCIJob {
         return this.segVersion;
     }
 
+    /**
+     * Legt die Versionsnummer des Segments manuell fest.
+     * Ist u.a. noetig, um HKTAN-Segmente in genau der Version zu senden, in der
+     * auch die HITANS empfangen wurden. Andernfalls koennte es passieren, dass
+     * wir ein HKTAN mit einem TAN-Verfahren senden, welches in dieser HKTAN-Version
+     * gar nicht von der Bank unterstuetzt wird. Das ist ein Dirty-Hack, ich weiss ;)
+     * Falls das noch IRGENDWO anders verwendet wird, muss man hoellisch aufpassen,
+     * dass alle Stellen, wo "this.name" bzw. "this.segVersion" direkt oder indirekt
+     * verwendet wurde, ebenfalls beruecksichtigt werden.
+     *
+     * @param version die neue Versionsnummer.
+     */
+    public void setSegVersion(String version) {
+        if (version == null || version.length() == 0) {
+            log.warn("tried to change segment version for task " + this.jobName + " explicit, but no version given");
+            return;
+        }
+
+        // Wenn sich die Versionsnummer nicht geaendert hat, muessen wir die
+        // Huehner ja nicht verrueckt machen ;)
+        if (version.equals(this.segVersion))
+            return;
+
+        log.info("changing segment version for task " + this.jobName + " explicit from " + this.segVersion + " to " + version);
+
+        // Der alte Name
+        String oldName = this.name;
+
+        // Neuer Name und neue Versionsnummer
+        this.segVersion = version;
+        this.name = this.jobName + version;
+
+        // Bereits gesetzte llParams fixen
+        String[] names = this.llParams.keySet().toArray(new String[0]);
+        for (String s : names) {
+            if (!s.startsWith(oldName))
+                continue; // nicht betroffen
+
+            // Alten Schluessel entfernen und neuen einfuegen
+            String value = this.llParams.getProperty(s);
+            String newName = s.replaceFirst(oldName, this.name);
+            this.llParams.remove(s);
+            this.llParams.setProperty(newName, value);
+        }
+
+        // Destination-Namen in den LowLevel-Parameter auf den neuen Namen umbiegen
+        Enumeration<String> e = constraints.keys();
+        while (e.hasMoreElements()) {
+            String frontendName = e.nextElement();
+            String[][] values = constraints.get(frontendName);
+            for (String[] value : values) {
+                // value[0] ist das Target
+                if (!value[0].startsWith(oldName))
+                    continue;
+
+                // Hier ersetzen wir z.Bsp. "TAN2Step5.process" gegen "TAN2Step3.process"
+                value[0] = value[0].replaceFirst(oldName, this.name);
+            }
+        }
+    }
+
     /* stellt fest, ob für diesen Task ein neues Auftragssegment generiert werden muss.
        Das ist in zwei Fällen der Fall: der Task wurde noch nie ausgeführt; oder der Task
        wurde bereits ausgeführt, hat aber eine "offset"-Meldung zurückgegeben */
@@ -722,20 +715,17 @@ public class AbstractHBCIJob {
     public void fillJobResult(HBCIMsgStatus status, int offset) {
         try {
             executed = true;
-            Properties result = status.getData();
+            HashMap<String, String> result = status.getData();
 
             // nachsehen, welche antwortsegmente ueberhaupt
             // zu diesem task gehoeren
 
-            // res-num --> segmentheader (wird für sortierung der 
+            // res-num --> segmentheader (wird für sortierung der
             // antwort-segmente benötigt)
             Hashtable<Integer, String> keyHeaders = new Hashtable<>();
-            for (Enumeration i = result.keys(); i.hasMoreElements(); ) {
-                String key = (String) (i.nextElement());
-                if (key.startsWith("GVRes") &&
-                        key.endsWith(".SegHead.ref")) {
-
-                    String segref = result.getProperty(key);
+            result.keySet().forEach(key -> {
+                if (key.startsWith("GVRes") && key.endsWith(".SegHead.ref")) {
+                    String segref = result.get(key);
                     if ((Integer.parseInt(segref)) - offset == idx) {
                         // nummer des antwortsegments ermitteln
                         int resnum = 0;
@@ -748,7 +738,7 @@ public class AbstractHBCIJob {
                                 key.substring(0, key.length() - (".SegHead.ref").length()));
                     }
                 }
-            }
+            });
 
             saveBasicValues(result, idx + offset);
             saveReturnValues(status, idx + offset);
@@ -776,15 +766,15 @@ public class AbstractHBCIJob {
     /* wenn wenigstens ein HBCI-Rückgabewert für den aktuellen GV gefunden wurde,
        so werden im outStore zusätzlich die entsprechenden Dialog-Parameter
        gespeichert (Property @c basic.*) */
-    private void saveBasicValues(Properties result, int ref) {
+    private void saveBasicValues(HashMap<String, String> result, int ref) {
         // wenn noch keine basic-daten gespeichert sind
         if (jobResult.getDialogId() == null) {
             // Pfad des originalen MsgHead-Segmentes holen und um "orig_" ergaenzen,
             // um den Key fuer die entsprechenden Daten in das result-Property zu erhalten
-            String msgheadName = "orig_" + result.getProperty("1");
+            String msgheadName = "orig_" + result.get("1");
 
-            jobResult.storeResult("basic.dialogid", result.getProperty(msgheadName + ".dialogid"));
-            jobResult.storeResult("basic.msgnum", result.getProperty(msgheadName + ".msgnum"));
+            jobResult.storeResult("basic.dialogid", result.get(msgheadName + ".dialogid"));
+            jobResult.storeResult("basic.msgnum", result.get(msgheadName + ".msgnum"));
             jobResult.storeResult("basic.segnum", Integer.toString(ref));
 
             log.debug("basic values for " + getName() + " set to "
@@ -826,15 +816,14 @@ public class AbstractHBCIJob {
     }
 
     private void extractPlaintextResults(HBCIMsgStatus status, String header, int idx) {
-        Properties result = status.getData();
-        for (Enumeration e = result.keys(); e.hasMoreElements(); ) {
-            String key = (String) (e.nextElement());
+        HashMap<String, String> result = status.getData();
+        result.keySet().forEach(key -> {
             if (key.startsWith(header + ".")) {
                 jobResult.storeResult(HBCIUtils.withCounter("content", idx) +
                         "." +
-                        key.substring(header.length() + 1), result.getProperty(key));
+                        key.substring(header.length() + 1), result.get(key));
             }
-        }
+        });
     }
 
     public HBCIJobResult getJobResult() {
@@ -1031,8 +1020,6 @@ public class AbstractHBCIJob {
 
         return found;
     }
-
-    private static final Pattern INDEX_PATTERN = Pattern.compile("(\\w+\\.\\w+\\.\\w+)(\\.\\w+)?");
 
     private String insertIndex(String key, Integer index) {
         if (index != null) {

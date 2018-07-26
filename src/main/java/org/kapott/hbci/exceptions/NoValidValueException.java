@@ -1,4 +1,3 @@
-
 /*  $Id: NoValidValueException.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,10 +23,8 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NoValidValueException
-    extends HBCI_Exception
-{
-    public NoValidValueException(String path,String value)
-    {
-        super(HBCIUtils.getLocMsg("EXCMSG_INVVALUE",new Object[] {path,value}));
+        extends HBCI_Exception {
+    public NoValidValueException(String path, String value) {
+        super(HBCIUtils.getLocMsg("EXCMSG_INVVALUE", new Object[]{path, value}));
     }
 }

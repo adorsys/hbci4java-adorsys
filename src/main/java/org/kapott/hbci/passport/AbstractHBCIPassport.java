@@ -1,4 +1,3 @@
-
 /*  $Id: AbstractHBCIPassport.java,v 1.4 2012/03/13 22:07:43 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -29,7 +28,6 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.DocumentFactory;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Limit;
@@ -39,11 +37,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -59,8 +52,10 @@ import java.util.*;
 @Slf4j
 public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Serializable {
 
-    private Properties bpd;
-    private Properties upd;
+    protected HBCICallback callback;
+    protected HashMap<String, String> properties;
+    private HashMap<String, String> bpd;
+    private HashMap<String, String> upd;
     private String hbciversion;
     private String country;
     private String blz;
@@ -70,20 +65,73 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private String customerid;
     private String sysid;
     private Long sigid;
-
     private Document syntaxDocument;
-
     private Hashtable<String, Object> persistentData = new Hashtable<>();
 
-    protected HBCICallback callback;
-    protected Properties properties;
-
-    public AbstractHBCIPassport(String hbciversion, Properties properties, HBCICallback callback) {
+    public AbstractHBCIPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
         this.hbciversion = hbciversion;
         this.callback = callback;
         this.properties = properties;
 
         init();
+    }
+
+    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties, String name, Object init) {
+        if (name == null) {
+            throw new NullPointerException("name of passport implementation must not be null");
+        }
+
+        String className = "org.kapott.hbci.passport.HBCIPassport" + name;
+        try {
+            if (init == null)
+                init = name;
+
+            log.debug("creating new instance of a " + name + " passport");
+            Class cl = Class.forName(className);
+            Constructor con = cl.getConstructor(new Class[]{Properties.class, HBCICallback.class, Object.class});
+            HBCIPassport p = (HBCIPassport) (con.newInstance(new Object[]{properties, callback, init}));
+            return p;
+        } catch (ClassNotFoundException e) {
+            throw new InvalidUserDataException("*** No passport implementation '" + name + "' found - there must be a class " + className);
+        } catch (InvocationTargetException ite) {
+            Throwable cause = ite.getCause();
+            if (cause instanceof HBCI_Exception)
+                throw (HBCI_Exception) cause;
+
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_INST", name), ite);
+        } catch (HBCI_Exception he) {
+            throw he;
+        } catch (Exception e) {
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_INST", name), e);
+        }
+    }
+
+    /**
+     * Erzeugt eine Instanz eines HBCI-Passports. Der Typ der erzeugten
+     * Passport-Instanz wird hierbei dem Wert des HBCI-Parameters
+     * <code>client.passport.default</code> entnommen. Gültige Werte für diesen
+     * HBCI-Parameter sind die gleichen wie beim Aufruf der Methode
+     *
+     * @return Instanz eines HBCI-Passports
+     */
+    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties, Object init) {
+        String passportName = properties.get("client.passport.default");
+        if (passportName == null)
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_NODEFPASS"));
+
+        return getInstance(callback, properties, passportName, init);
+    }
+
+    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties, String name) {
+        return getInstance(callback, properties, name, null);
+    }
+
+    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties) {
+        return getInstance(callback, properties, (Object) null);
+    }
+
+    private static String pathWithDot(String path) {
+        return (path.length() == 0) ? path : (path + ".");
     }
 
     /* Initialisieren eines Message-Generators. Der <syntaFileStream> ist ein
@@ -92,11 +140,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private void init() {
         this.syntaxDocument = DocumentFactory.createDocument(hbciversion);
 
-        setCountry(properties.getProperty("client.passport.country"));
-        setBLZ(properties.getProperty("client.passport.blz"));
-        setCustomerId(properties.getProperty("client.passport.customerId"));
-        if (properties.getProperty("client.passport.userId") != null) {
-            setUserId(properties.getProperty("client.passport.userId"));
+        setCountry(properties.get("client.passport.country"));
+        setBLZ(properties.get("client.passport.blz"));
+        setCustomerId(properties.get("client.passport.customerId"));
+        if (properties.get("client.passport.userId") != null) {
+            setUserId(properties.get("client.passport.userId"));
         } else {
             setUserId(getCustomerId());
         }
@@ -108,32 +156,32 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         if (upd != null) {
             for (int i = 0; ; i++) {
                 String header = HBCIUtils.withCounter("KInfo", i);
-                String number = upd.getProperty(header + ".KTV.number");
+                String number = upd.get(header + ".KTV.number");
 
                 if (number == null)
                     break;
 
                 Konto entry = new Konto();
-                entry.blz = upd.getProperty(header + ".KTV.KIK.blz");
-                entry.country = upd.getProperty(header + ".KTV.KIK.country");
+                entry.blz = upd.get(header + ".KTV.KIK.blz");
+                entry.country = upd.get(header + ".KTV.KIK.country");
                 entry.number = number;
-                entry.subnumber = upd.getProperty(header + ".KTV.subnumber");
-                entry.curr = upd.getProperty(header + ".cur");
-                entry.type = upd.getProperty(header + ".konto");
-                entry.customerid = upd.getProperty(header + ".customerid");
-                entry.name = upd.getProperty(header + ".name1");
-                entry.name2 = upd.getProperty(header + ".name2");
-                entry.bic = upd.getProperty(header + ".KTV.bic");
-                entry.iban = upd.getProperty(header + ".KTV.iban");
-                entry.acctype = upd.getProperty(header + ".acctype");
+                entry.subnumber = upd.get(header + ".KTV.subnumber");
+                entry.curr = upd.get(header + ".cur");
+                entry.type = upd.get(header + ".konto");
+                entry.customerid = upd.get(header + ".customerid");
+                entry.name = upd.get(header + ".name1");
+                entry.name2 = upd.get(header + ".name2");
+                entry.bic = upd.get(header + ".KTV.bic");
+                entry.iban = upd.get(header + ".KTV.iban");
+                entry.acctype = upd.get(header + ".acctype");
 
                 String st;
-                if ((st = upd.getProperty(header + ".KLimit.limittype")) != null) {
+                if ((st = upd.get(header + ".KLimit.limittype")) != null) {
                     Limit limit = new Limit();
                     limit.type = st.charAt(0);
-                    limit.value = new Value(upd.getProperty(header + ".KLimit.BTG.value"),
-                            upd.getProperty(header + ".KLimit.BTG.curr"));
-                    if ((st = upd.getProperty(header + ".KLimit.limitdays")) != null)
+                    limit.value = new Value(upd.get(header + ".KLimit.BTG.value"),
+                            upd.get(header + ".KLimit.BTG.curr"));
+                    if ((st = upd.get(header + ".KLimit.limitdays")) != null)
                         limit.days = Integer.parseInt(st);
                 }
 
@@ -141,7 +189,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 ArrayList<String> codes = new ArrayList<>();
                 for (int j = 0; ; j++) {
                     String gvHeader = HBCIUtils.withCounter(header + ".AllowedGV", j);
-                    String code = upd.getProperty(gvHeader + ".code");
+                    String code = upd.get(gvHeader + ".code");
                     if (code == null) break;
                     codes.add(code);
                 }
@@ -208,20 +256,40 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return host;
     }
 
+    public final void setHost(String host) {
+        this.host = host;
+    }
+
     public final Integer getPort() {
         return (port != null) ? port : new Integer(0);
+    }
+
+    public final void setPort(Integer port) {
+        this.port = port;
     }
 
     public String getUserId() {
         return userid;
     }
 
+    public final void setUserId(String userid) {
+        this.userid = userid;
+    }
+
     public String getCustomerId() {
         return (customerid != null && customerid.length() != 0) ? customerid : getUserId();
     }
 
+    public final void setCustomerId(String customerid) {
+        this.customerid = customerid;
+    }
+
     public String getSysId() {
         return (sysid != null && sysid.length() != 0) ? sysid : "0";
+    }
+
+    public final void setSysId(String sysid) {
+        this.sysid = sysid;
     }
 
     public final void clearMySigKey() {
@@ -240,25 +308,28 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final String getBPDVersion() {
-        String version = ((bpd != null) ? bpd.getProperty("BPA.version") : null);
+        String version = ((bpd != null) ? bpd.get("BPA.version") : null);
         return ((version != null) ? version : "0");
     }
 
     public final String getUPDVersion() {
-        String version = ((upd != null) ? upd.getProperty("UPA.version") : null);
+        String version = ((upd != null) ? upd.get("UPA.version") : null);
         return ((version != null) ? version : "0");
     }
 
     public final String getInstName() {
-        return (bpd != null) ? bpd.getProperty("BPA.kiname") : null;
+        return (bpd != null) ? bpd.get("BPA.kiname") : null;
     }
 
     public int getMaxGVperMsg() {
-        return (bpd != null) ? Integer.parseInt(bpd.getProperty("BPA.numgva")) : -1;
+        return (bpd != null) ? Integer.parseInt(bpd.get("BPA.numgva")) : -1;
     }
 
     public final int getMaxMsgSizeKB() {
-        return (bpd != null) ? Integer.parseInt(bpd.getProperty("BPA.maxmsgsize", "0")) : 0;
+        if (bpd != null && bpd.get("BPA.maxmsgsize") != null) {
+            return Integer.parseInt(bpd.get("BPA.maxmsgsize"));
+        }
+        return 0;
     }
 
     public final String[] getSuppVersions() {
@@ -271,7 +342,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             int i = 0;
 
             while ((header = HBCIUtils.withCounter("BPA.SuppVersions.version", i)) != null &&
-                    (value = bpd.getProperty(header)) != null) {
+                    (value = bpd.get(header)) != null) {
                 temp.add(value);
                 i++;
             }
@@ -284,12 +355,12 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final String getDefaultLang() {
-        String value = (bpd != null) ? bpd.getProperty("CommListRes.deflang") : null;
+        String value = (bpd != null) ? bpd.get("CommListRes.deflang") : null;
         return (value != null) ? value : "0";
     }
 
     public final String getLang() {
-        String value = (bpd != null) ? bpd.getProperty("CommListRes.deflang") : null;
+        String value = (bpd != null) ? bpd.get("CommListRes.deflang") : null;
         return (value != null) ? value : "0";
     }
 
@@ -297,118 +368,18 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return sigid != null ? sigid : new Long(1);
     }
 
-    public final void clearBPD() {
-        setBPD(null);
-    }
-
-    public void setBPD(Properties bpd) {
-        this.bpd = bpd;
-    }
-
-    public final void clearUPD() {
-        setUPD(null);
-    }
-
-    public final void setUPD(Properties upd) {
-        this.upd = upd;
-    }
-
-    public final void setCountry(String country) {
-        this.country = country;
-    }
-
-    public final void setBLZ(String blz) {
-        this.blz = blz;
-    }
-
-    public final void setHost(String host) {
-        this.host = host;
-    }
-
-    public final void setPort(Integer port) {
-        this.port = port;
-    }
-
-    public final void setUserId(String userid) {
-        this.userid = userid;
-    }
-
-    public final void setCustomerId(String customerid) {
-        this.customerid = customerid;
-    }
-
     public final void setSigId(Long sigid) {
         this.sigid = sigid;
-    }
-
-    public final void setSysId(String sysid) {
-        this.sysid = sysid;
     }
 
     public void incSigId() {
         setSigId(getSigId() + 1);
     }
 
-    public static HBCIPassport getInstance(HBCICallback callback, Properties properties, String name, Object init) {
-        if (name == null) {
-            throw new NullPointerException("name of passport implementation must not be null");
-        }
+    public HashMap<String, String> getParamSegmentNames() {
+        HashMap<String, String> ret = new HashMap<>();
 
-        String className = "org.kapott.hbci.passport.HBCIPassport" + name;
-        try {
-            if (init == null)
-                init = name;
-
-            log.debug("creating new instance of a " + name + " passport");
-            Class cl = Class.forName(className);
-            Constructor con = cl.getConstructor(new Class[]{Properties.class, HBCICallback.class, Object.class});
-            HBCIPassport p = (HBCIPassport) (con.newInstance(new Object[]{properties, callback, init}));
-            return p;
-        } catch (ClassNotFoundException e) {
-            throw new InvalidUserDataException("*** No passport implementation '" + name + "' found - there must be a class " + className);
-        } catch (InvocationTargetException ite) {
-            Throwable cause = ite.getCause();
-            if (cause instanceof HBCI_Exception)
-                throw (HBCI_Exception) cause;
-
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_INST", name), ite);
-        } catch (HBCI_Exception he) {
-            throw he;
-        } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PASSPORT_INST", name), e);
-        }
-    }
-
-    /**
-     * Erzeugt eine Instanz eines HBCI-Passports. Der Typ der erzeugten
-     * Passport-Instanz wird hierbei dem Wert des HBCI-Parameters
-     * <code>client.passport.default</code> entnommen. Gültige Werte für diesen
-     * HBCI-Parameter sind die gleichen wie beim Aufruf der Methode
-     *
-     * @return Instanz eines HBCI-Passports
-     */
-    public static HBCIPassport getInstance(HBCICallback callback, Properties properties, Object init) {
-        String passportName = properties.getProperty("client.passport.default");
-        if (passportName == null)
-            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_NODEFPASS"));
-
-        return getInstance(callback, properties, passportName, init);
-    }
-
-    public static HBCIPassport getInstance(HBCICallback callback, Properties properties, String name) {
-        return getInstance(callback, properties, name, null);
-    }
-
-    public static HBCIPassport getInstance(HBCICallback callback, Properties properties) {
-        return getInstance(callback, properties, (Object) null);
-    }
-
-    public Properties getParamSegmentNames() {
-        Properties ret = new Properties();
-
-        for (Enumeration e = bpd.propertyNames(); e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
-
+        bpd.keySet().forEach(key -> {
             if (key.startsWith("Params") &&
                     key.endsWith(".SegHead.code")) {
                 int dotPos = key.indexOf('.');
@@ -434,16 +405,16 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
                     if (knownVersion == null ||
                             Integer.parseInt(version) > Integer.parseInt(knownVersion)) {
-                        ret.setProperty(gvname, version);
+                        ret.put(gvname, version);
                     }
                 }
             }
-        }
+        });
 
         return ret;
     }
 
-    public Properties getJobRestrictions(String specname) {
+    public HashMap<String, String> getJobRestrictions(String specname) {
         int versionPos = specname.length() - 1;
         char ch;
 
@@ -456,21 +427,19 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 specname.substring(versionPos + 1));
     }
 
-    public Properties getJobRestrictions(String gvname, String version) {
-        Properties result = new Properties();
+    public HashMap<String, String> getJobRestrictions(String gvname, String version) {
+        HashMap<String, String> result = new HashMap<>();
 
         String searchstring = gvname + "Par" + version;
-        for (Enumeration e = bpd.propertyNames(); e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
-
+        bpd.keySet().forEach(key -> {
             if (key.startsWith("Params") &&
                     key.indexOf("." + searchstring + ".Par") != -1) {
                 int searchIdx = key.indexOf(searchstring);
-                result.setProperty(key.substring(key.indexOf(".",
+                result.put(key.substring(key.indexOf(".",
                         searchIdx + searchstring.length() + 4) + 1),
-                        bpd.getProperty(key));
+                        bpd.get(key));
             }
-        }
+        });
 
         return result;
     }
@@ -504,7 +473,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs(document).getProperty(gvname);
+        String version = getSupportedLowlevelJobs(document).get(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
@@ -533,18 +502,16 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * Geschäftsvorfallnamen (Lowlevel) mit der jeweils von <em>HBCI4Java</em>
      * verwendeten GV-Versionsnummer.
      */
-    public Properties getSupportedLowlevelJobs(Document document) {
-        Properties paramSegments = getParamSegmentNames();
-        Properties result = new Properties();
+    public HashMap<String, String> getSupportedLowlevelJobs(Document document) {
+        HashMap<String, String> paramSegments = getParamSegmentNames();
+        HashMap<String, String> result = new HashMap<>();
 
-        for (Enumeration e = paramSegments.propertyNames(); e.hasMoreElements(); ) {
-            String segName = (String) e.nextElement();
-
+        paramSegments.keySet().forEach(segName -> {
             // überprüfen, ob parameter-segment tatsächlich zu einem GV gehört
             // gilt z.b. für "PinTan" nicht
             if (getLowlevelGVs(document).containsKey(segName))
-                result.put(segName, paramSegments.getProperty(segName));
-        }
+                result.put(segName, paramSegments.get(segName));
+        });
 
         return result;
     }
@@ -572,11 +539,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      *               ermittelt werden sollen
      * @return Properties-Objekt mit den einzelnen Restriktionen
      */
-    public Properties getLowlevelJobRestrictions(String gvname, Document document) {
+    public HashMap<String, String> getLowlevelJobRestrictions(String gvname, Document document) {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs(document).getProperty(gvname);
+        String version = getSupportedLowlevelJobs(document).get(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
@@ -738,10 +705,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         }
     }
 
-    private static String pathWithDot(String path) {
-        return (path.length() == 0) ? path : (path + ".");
-    }
-
     /**
      * @param jobnameHL der Highlevel-Name des Jobs, dessen Unterstützung überprüft werden soll
      * @return <code>true</code>, wenn dieser Job von der Bank unterstützt wird und
@@ -771,10 +734,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return syntaxDocument;
     }
 
-    public void setPersistentData(Hashtable<String, Object> persistentData) {
-        this.persistentData = persistentData;
-    }
-
     public Object getPersistentData(String id) {
         return persistentData.get(id);
     }
@@ -783,31 +742,51 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return persistentData;
     }
 
-    public final Properties getBPD() {
+    public void setPersistentData(Hashtable<String, Object> persistentData) {
+        this.persistentData = persistentData;
+    }
+
+    public final HashMap<String, String> getBPD() {
         return bpd;
+    }
+
+    public void setBPD(HashMap<String, String> bpd) {
+        this.bpd = bpd;
     }
 
     public final String getHBCIVersion() {
         return (hbciversion != null) ? hbciversion : "";
     }
 
-    public final Properties getUPD() {
+    public final HashMap<String, String> getUPD() {
         return upd;
+    }
+
+    public final void setUPD(HashMap<String, String> upd) {
+        this.upd = upd;
     }
 
     public final String getBLZ() {
         return blz;
     }
 
+    public final void setBLZ(String blz) {
+        this.blz = blz;
+    }
+
     public final String getCountry() {
         return country;
+    }
+
+    public final void setCountry(String country) {
+        this.country = country;
     }
 
     public int getMaxGVSegsPerMsg() {
         return 0;
     }
 
-    public Properties getProperties() {
+    public HashMap<String, String> getProperties() {
         return properties;
     }
 

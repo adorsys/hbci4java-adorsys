@@ -1,4 +1,3 @@
-
 /*  $Id: MultipleSyntaxElements.java,v 1.2 2012/03/06 23:18:26 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,7 +25,6 @@ import org.kapott.hbci.exceptions.NoValueGivenException;
 import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.exceptions.PredelimErrorException;
 import org.kapott.hbci.exceptions.TooMuchElementsException;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -60,6 +58,32 @@ public abstract class MultipleSyntaxElements {
     private Document document;
     private Node ref;
     private SyntaxElement parent;
+
+    /**
+     * anlegen eines neuen syntaxelementarrays fuer ein syntaxelement;
+     * ref ist eine xml-node-referenz auf das syntaxelement
+     */
+    protected MultipleSyntaxElements(Node ref, String path, Document document) {
+        initData(ref, path, document);
+    }
+
+    /**
+     * anlegen einer neuen syntaxelementlist beim parsen des strings res;
+     * - ref ist dabei die referenz auf einen xml-node, der das
+     * syntaxelement festlegt, fuer den die syntaxelementlist erzeugt werden soll;
+     * - predefs siehe SyntaxElement()
+     * - predelim0 ist der delimiter, der vor dem ersten element innerhalb dieser
+     * syntaxelementlist auftreten muesste;
+     * - predelim1 ist der delimiter, der vor dem zweiten, dritten, usw. element in der
+     * syntaxelementlist auftreten muesste (der unterschied zwischen predelim0 und
+     * predelim1 ist der, dass predelim0 evtl. von uebergeordneten elementen
+     * propagiert wird (z.b. wenn die syntaxelementlist selbst das erste syntaxelement
+     * einer msg repraesentiert), predelim1 ist allerdings immer der delimiter,
+     * der fuer das aktuell uebergeordnete syntaxelement zu verwenden ist)
+     */
+    protected MultipleSyntaxElements(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    }
 
     /**
      * erzeugt einen neuen eintrag in der elements liste; dabei wird ein
@@ -115,7 +139,7 @@ public abstract class MultipleSyntaxElements {
             SyntaxElement child = createAndAppendNewElement(ref, path, 0, document);
             if (child != null)
                 child.setParent(this);
-            
+
             /* erzeugen sovieler syntaxelemente, bis die mindestanzahl
              aus der syntaxdefinition erreicht ist */
             for (int i = 1; i < minnum; i++) {
@@ -126,14 +150,6 @@ public abstract class MultipleSyntaxElements {
         } catch (RuntimeException e) {
             throw e;
         }
-    }
-
-    /**
-     * anlegen eines neuen syntaxelementarrays fuer ein syntaxelement;
-     * ref ist eine xml-node-referenz auf das syntaxelement
-     */
-    protected MultipleSyntaxElements(Node ref, String path, Document document) {
-        initData(ref, path, document);
     }
 
     protected void init(Node ref, String path, Document document) {
@@ -185,20 +201,20 @@ public abstract class MultipleSyntaxElements {
         return ret;
     }
 
-    public void setParent(SyntaxElement parent) {
-        this.parent = parent;
-    }
-
     public SyntaxElement getParent() {
         return parent;
     }
 
-    public void setSyntaxIdx(int syntaxIdx) {
-        this.syntaxIdx = syntaxIdx;
+    public void setParent(SyntaxElement parent) {
+        this.parent = parent;
     }
 
     public int getSyntaxIdx() {
         return this.syntaxIdx;
+    }
+
+    public void setSyntaxIdx(int syntaxIdx) {
+        this.syntaxIdx = syntaxIdx;
     }
 
     protected boolean storeValidValueInDE(String destPath, String value) {
@@ -307,6 +323,8 @@ public abstract class MultipleSyntaxElements {
         return type;
     }
 
+    // ---------------------------------------------------------------------------------------------------------------
+
     protected int enumerateSegs(int startValue, boolean allowOverwrite) {
         int idx = startValue;
 
@@ -318,8 +336,6 @@ public abstract class MultipleSyntaxElements {
 
         return idx;
     }
-
-    // ---------------------------------------------------------------------------------------------------------------
 
     private void initData(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         this.ref = null;
@@ -373,7 +389,7 @@ public abstract class MultipleSyntaxElements {
                     if (e.isFatal())
                         throw e;
 
-                    // wenn das nicht klappt, dann reststring zuruecksetzen, aber nur, 
+                    // wenn das nicht klappt, dann reststring zuruecksetzen, aber nur,
                     //   wenn naechstes zeichen nicht wieder ein delimiter ist
                     //   dann war naemlich das zu generierende DE leer!!!
 
@@ -471,24 +487,6 @@ public abstract class MultipleSyntaxElements {
         }
     }
 
-    /**
-     * anlegen einer neuen syntaxelementlist beim parsen des strings res;
-     * - ref ist dabei die referenz auf einen xml-node, der das
-     * syntaxelement festlegt, fuer den die syntaxelementlist erzeugt werden soll;
-     * - predefs siehe SyntaxElement()
-     * - predelim0 ist der delimiter, der vor dem ersten element innerhalb dieser
-     * syntaxelementlist auftreten muesste;
-     * - predelim1 ist der delimiter, der vor dem zweiten, dritten, usw. element in der
-     * syntaxelementlist auftreten muesste (der unterschied zwischen predelim0 und
-     * predelim1 ist der, dass predelim0 evtl. von uebergeordneten elementen
-     * propagiert wird (z.b. wenn die syntaxelementlist selbst das erste syntaxelement
-     * einer msg repraesentiert), predelim1 ist allerdings immer der delimiter,
-     * der fuer das aktuell uebergeordnete syntaxelement zu verwenden ist)
-     */
-    protected MultipleSyntaxElements(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
-    }
-
     protected void init(Node ref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
@@ -496,17 +494,15 @@ public abstract class MultipleSyntaxElements {
     /**
      * siehe SyntaxElement.fillValues()
      */
-    protected void extractValues(Hashtable<String, String> values) {
+    protected void extractValues(HashMap<String, String> values) {
         for (Iterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
-            e.extractValues(values);
+            i.next().extractValues(values);
         }
     }
 
     protected int checkSegSeq(int value) {
         for (Iterator<SyntaxElement> i = elements.iterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
-            value = e.checkSegSeq(value);
+            value = i.next().checkSegSeq(value);
         }
 
         return value;
@@ -518,7 +514,7 @@ public abstract class MultipleSyntaxElements {
 
     public abstract void log();
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
     }
 
     /**

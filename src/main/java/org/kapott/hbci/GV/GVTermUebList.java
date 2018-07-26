@@ -1,4 +1,3 @@
-
 /*  $Id: GVTermUebList.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -27,16 +26,12 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
-import org.w3c.dom.Document;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVTermUebList extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "TermUebList";
-    }
 
     public GVTermUebList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTermUebList(passport));
@@ -50,37 +45,41 @@ public final class GVTermUebList extends AbstractHBCIJob {
         addConstraint("maxentries", "maxentries", "");
     }
 
+    public static String getLowlevelName() {
+        return "TermUebList";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRTermUebList.Entry entry = new GVRTermUebList.Entry();
 
         entry.my = new Konto();
-        entry.my.blz = result.getProperty(header + ".My.KIK.blz");
-        entry.my.country = result.getProperty(header + ".My.KIK.country");
-        entry.my.number = result.getProperty(header + ".My.number");
-        entry.my.subnumber = result.getProperty(header + ".My.subnumber");
+        entry.my.blz = result.get(header + ".My.KIK.blz");
+        entry.my.country = result.get(header + ".My.KIK.country");
+        entry.my.number = result.get(header + ".My.number");
+        entry.my.subnumber = result.get(header + ".My.subnumber");
         passport.fillAccountInfo(entry.my);
 
         entry.other = new Konto();
-        entry.other.blz = result.getProperty(header + ".Other.KIK.blz");
-        entry.other.country = result.getProperty(header + ".Other.KIK.country");
-        entry.other.number = result.getProperty(header + ".Other.number");
-        entry.other.subnumber = result.getProperty(header + ".Other.subnumber");
-        entry.other.name = result.getProperty(header + ".name");
-        entry.other.name2 = result.getProperty(header + ".name2");
+        entry.other.blz = result.get(header + ".Other.KIK.blz");
+        entry.other.country = result.get(header + ".Other.KIK.country");
+        entry.other.number = result.get(header + ".Other.number");
+        entry.other.subnumber = result.get(header + ".Other.subnumber");
+        entry.other.name = result.get(header + ".name");
+        entry.other.name2 = result.get(header + ".name2");
         passport.fillAccountInfo(entry.other);
 
-        entry.key = result.getProperty(header + ".key");
-        entry.addkey = result.getProperty(header + ".addkey");
-        entry.orderid = result.getProperty(header + ".id");
-        entry.date = HBCIUtils.string2DateISO(result.getProperty(header + ".date"));
+        entry.key = result.get(header + ".key");
+        entry.addkey = result.get(header + ".addkey");
+        entry.orderid = result.get(header + ".id");
+        entry.date = HBCIUtils.string2DateISO(result.get(header + ".date"));
 
         entry.value = new Value(
-                result.getProperty(header + ".BTG.value"),
-                result.getProperty(header + ".BTG.curr"));
+                result.get(header + ".BTG.value"),
+                result.get(header + ".BTG.curr"));
 
         for (int i = 0; ; i++) {
-            String usage = result.getProperty(HBCIUtils.withCounter(header + ".usage.usage", i));
+            String usage = result.get(HBCIUtils.withCounter(header + ".usage.usage", i));
             if (usage == null) {
                 break;
             }
@@ -92,14 +91,12 @@ public final class GVTermUebList extends AbstractHBCIJob {
         if (entry.orderid != null && entry.orderid.length() != 0) {
             Properties p2 = new Properties();
 
-            for (Enumeration e = result.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-
+            for (String key: result.keySet()) {
                 if (key.startsWith(header + ".") &&
                         !key.startsWith(header + ".SegHead.") &&
                         !key.endsWith(".id")) {
                     p2.setProperty(key.substring(header.length() + 1),
-                            result.getProperty(key));
+                            result.get(key));
                 }
             }
 

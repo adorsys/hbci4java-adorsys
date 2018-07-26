@@ -1,4 +1,3 @@
-
 /*  $Id: GVFestList.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -29,15 +28,11 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVFestList extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "FestList";
-    }
 
     public GVFestList(String name, HBCIPassportInternal passport) {
         super(passport, name, new GVRFestList(passport));
@@ -56,76 +51,80 @@ public class GVFestList extends AbstractHBCIJob {
         // TODO: maxentries fehlen
     }
 
+    public static String getLowlevelName() {
+        return "FestList";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRFestList.Entry entry = new GVRFestList.Entry();
 
         entry.anlagebetrag = new Value(
-                result.getProperty(header + ".Anlagebetrag.value"),
-                result.getProperty(header + ".Anlagebetrag.curr"));
+                result.get(header + ".Anlagebetrag.value"),
+                result.get(header + ".Anlagebetrag.curr"));
 
-        if (result.getProperty(header + ".Anlagekto.number") != null) {
+        if (result.get(header + ".Anlagekto.number") != null) {
             entry.anlagekonto = new Konto();
-            entry.anlagekonto.blz = result.getProperty(header + ".Anlagekto.KIK.blz");
-            entry.anlagekonto.country = result.getProperty(header + ".Anlagekto.KIK.country");
-            entry.anlagekonto.number = result.getProperty(header + ".Anlagekto.number");
-            entry.anlagekonto.subnumber = result.getProperty(header + ".Anlagekto.subnumber");
+            entry.anlagekonto.blz = result.get(header + ".Anlagekto.KIK.blz");
+            entry.anlagekonto.country = result.get(header + ".Anlagekto.KIK.country");
+            entry.anlagekonto.number = result.get(header + ".Anlagekto.number");
+            entry.anlagekonto.subnumber = result.get(header + ".Anlagekto.subnumber");
             passport.fillAccountInfo(entry.anlagekonto);
         }
 
-        if (result.getProperty(header + ".Ausbuchungskto.number") != null) {
+        if (result.get(header + ".Ausbuchungskto.number") != null) {
             entry.ausbuchungskonto = new Konto();
-            entry.ausbuchungskonto.blz = result.getProperty(header + ".Ausbuchungskto.KIK.blz");
-            entry.ausbuchungskonto.country = result.getProperty(header + ".Ausbuchungskto.KIK.country");
-            entry.ausbuchungskonto.number = result.getProperty(header + ".Ausbuchungskto.number");
-            entry.ausbuchungskonto.subnumber = result.getProperty(header + ".Ausbuchungskto.subnumber");
+            entry.ausbuchungskonto.blz = result.get(header + ".Ausbuchungskto.KIK.blz");
+            entry.ausbuchungskonto.country = result.get(header + ".Ausbuchungskto.KIK.country");
+            entry.ausbuchungskonto.number = result.get(header + ".Ausbuchungskto.number");
+            entry.ausbuchungskonto.subnumber = result.get(header + ".Ausbuchungskto.subnumber");
             passport.fillAccountInfo(entry.ausbuchungskonto);
         }
 
         entry.belastungskonto = new Konto();
-        entry.belastungskonto.blz = result.getProperty(header + ".Belastungskto.KIK.blz");
-        entry.belastungskonto.country = result.getProperty(header + ".Belastungskto.KIK.country");
-        entry.belastungskonto.number = result.getProperty(header + ".Belastungskto.number");
-        entry.belastungskonto.subnumber = result.getProperty(header + ".Belastungskto.subnumber");
+        entry.belastungskonto.blz = result.get(header + ".Belastungskto.KIK.blz");
+        entry.belastungskonto.country = result.get(header + ".Belastungskto.KIK.country");
+        entry.belastungskonto.number = result.get(header + ".Belastungskto.number");
+        entry.belastungskonto.subnumber = result.get(header + ".Belastungskto.subnumber");
         passport.fillAccountInfo(entry.belastungskonto);
 
-        if (result.getProperty(header + ".Zinskto.number") != null) {
+        if (result.get(header + ".Zinskto.number") != null) {
             entry.zinskonto = new Konto();
-            entry.zinskonto.blz = result.getProperty(header + ".Zinskto.KIK.blz");
-            entry.zinskonto.country = result.getProperty(header + ".Zinskto.KIK.country");
-            entry.zinskonto.number = result.getProperty(header + ".Zinskto.number");
-            entry.zinskonto.subnumber = result.getProperty(header + ".Zinskto.subnumber");
+            entry.zinskonto.blz = result.get(header + ".Zinskto.KIK.blz");
+            entry.zinskonto.country = result.get(header + ".Zinskto.KIK.country");
+            entry.zinskonto.number = result.get(header + ".Zinskto.number");
+            entry.zinskonto.subnumber = result.get(header + ".Zinskto.subnumber");
             passport.fillAccountInfo(entry.zinskonto);
         }
 
-        entry.id = result.getProperty(header + ".kontakt");
+        entry.id = result.get(header + ".kontakt");
 
-        String st = result.getProperty(header + ".kontoauszug");
+        String st = result.get(header + ".kontoauszug");
         entry.kontoauszug = (st != null) ? Integer.parseInt(st) : 0;
-        st = result.getProperty(header + ".status");
+        st = result.get(header + ".status");
         entry.status = (st != null) ? Integer.parseInt(st) : 0;
 
-        entry.verlaengern = result.getProperty(header + ".wiederanlage").equals("2");
+        entry.verlaengern = result.get(header + ".wiederanlage").equals("2");
 
-        if (result.getProperty(header + ".Zinsbetrag.value") != null) {
+        if (result.get(header + ".Zinsbetrag.value") != null) {
             entry.zinsbetrag = new Value(
-                    result.getProperty(header + ".Zinsbetrag.value"),
-                    result.getProperty(header + ".Zinsbetrag.curr"));
+                    result.get(header + ".Zinsbetrag.value"),
+                    result.get(header + ".Zinsbetrag.curr"));
         }
 
         entry.konditionen = new GVRFestCondList.Cond();
-        entry.konditionen.ablaufdatum = HBCIUtils.string2DateISO(result.getProperty(header + ".FestCond.ablaufdate"));
-        entry.konditionen.anlagedatum = HBCIUtils.string2DateISO(result.getProperty(header + ".FestCond.anlagedate"));
-        entry.konditionen.id = result.getProperty(header + ".FestCond.condid");
-        entry.konditionen.name = result.getProperty(header + ".FestCond.condbez");
+        entry.konditionen.ablaufdatum = HBCIUtils.string2DateISO(result.get(header + ".FestCond.ablaufdate"));
+        entry.konditionen.anlagedatum = HBCIUtils.string2DateISO(result.get(header + ".FestCond.anlagedate"));
+        entry.konditionen.id = result.get(header + ".FestCond.condid");
+        entry.konditionen.name = result.get(header + ".FestCond.condbez");
 
-        if (result.getProperty(header + ".FestCondVersion.version") != null) {
-            entry.konditionen.date = HBCIUtils.strings2DateTimeISO(result.getProperty(header + ".FestCondVersion.date"),
-                    result.getProperty(header + ".FestCondVersion.time"));
-            entry.konditionen.version = result.getProperty(header + ".FestCondVersion.version");
+        if (result.get(header + ".FestCondVersion.version") != null) {
+            entry.konditionen.date = HBCIUtils.strings2DateTimeISO(result.get(header + ".FestCondVersion.date"),
+                    result.get(header + ".FestCondVersion.time"));
+            entry.konditionen.version = result.get(header + ".FestCondVersion.version");
         }
 
-        st = result.getProperty(header + ".FestCond.zinsmethode");
+        st = result.get(header + ".FestCond.zinsmethode");
         if (st.equals("A"))
             entry.konditionen.zinsmethode = GVRFestCondList.Cond.METHOD_30_360;
         else if (st.equals("B"))
@@ -139,25 +138,25 @@ public class GVFestList extends AbstractHBCIJob {
         else if (st.equals("F"))
             entry.konditionen.zinsmethode = GVRFestCondList.Cond.METHOD_30_365;
 
-        entry.konditionen.zinssatz = HBCIUtils.string2Long(result.getProperty(header + ".FestCond.zinssatz"), 1000);
+        entry.konditionen.zinssatz = HBCIUtils.string2Long(result.get(header + ".FestCond.zinssatz"), 1000);
         entry.konditionen.minbetrag = new Value(
-                result.getProperty(header + ".FestCond.MinBetrag.value"),
-                result.getProperty(header + ".FestCond.MinBetrag.curr"));
-        entry.konditionen.name = result.getProperty(header + ".FestCond.condbez");
+                result.get(header + ".FestCond.MinBetrag.value"),
+                result.get(header + ".FestCond.MinBetrag.curr"));
+        entry.konditionen.name = result.get(header + ".FestCond.condbez");
 
-        if (result.getProperty(header + ".FestCond.MaxBetrag.value") != null) {
+        if (result.get(header + ".FestCond.MaxBetrag.value") != null) {
             entry.konditionen.maxbetrag = new Value(
-                    result.getProperty(header + ".FestCond.MaxBetrag.value"),
-                    result.getProperty(header + ".FestCond.MaxBetrag.curr"));
+                    result.get(header + ".FestCond.MaxBetrag.value"),
+                    result.get(header + ".FestCond.MaxBetrag.curr"));
         }
 
-        if (result.getProperty(header + ".Prolong.laufzeit") != null) {
+        if (result.get(header + ".Prolong.laufzeit") != null) {
             entry.verlaengerung = new GVRFestList.Entry.Prolong();
             entry.verlaengerung.betrag = new Value(
-                    result.getProperty(header + ".Prolong.BTG.value"),
-                    result.getProperty(header + ".Prolong.BTG.curr"));
-            entry.verlaengerung.laufzeit = Integer.parseInt(result.getProperty(header + ".Prolong.laufzeit"));
-            entry.verlaengerung.verlaengern = result.getProperty(header + ".Prolong.wiederanlage").equals("2");
+                    result.get(header + ".Prolong.BTG.value"),
+                    result.get(header + ".Prolong.BTG.curr"));
+            entry.verlaengerung.laufzeit = Integer.parseInt(result.get(header + ".Prolong.laufzeit"));
+            entry.verlaengerung.verlaengern = result.get(header + ".Prolong.wiederanlage").equals("2");
         }
 
         ((GVRFestList) jobResult).addEntry(entry);

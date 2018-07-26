@@ -1,4 +1,3 @@
-
 /*  $Id: GVInfoList.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,15 +25,11 @@ import org.kapott.hbci.GV_Result.GVRInfoList;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVInfoList extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "InfoList";
-    }
 
     public GVInfoList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRInfoList(passport));
@@ -42,23 +37,27 @@ public final class GVInfoList extends AbstractHBCIJob {
         addConstraint("maxentries", "maxentries", "");
     }
 
+    public static String getLowlevelName() {
+        return "InfoList";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         for (int i = 0; ; i++) {
             GVRInfoList.Info entry = new GVRInfoList.Info();
             String header2 = HBCIUtils.withCounter(header + ".InfoInfo", i);
 
-            if (result.getProperty(header2 + ".code") == null)
+            if (result.get(header2 + ".code") == null)
                 break;
 
-            entry.code = result.getProperty(header2 + ".code");
-            entry.date = HBCIUtils.string2DateISO(result.getProperty(header2 + ".version"));
-            entry.description = result.getProperty(header2 + ".descr");
-            entry.format = result.getProperty(header2 + ".format");
-            entry.type = result.getProperty(header2 + ".type");
+            entry.code = result.get(header2 + ".code");
+            entry.date = HBCIUtils.string2DateISO(result.get(header2 + ".version"));
+            entry.description = result.get(header2 + ".descr");
+            entry.format = result.get(header2 + ".format");
+            entry.type = result.get(header2 + ".type");
 
             for (int j = 0; ; j++) {
-                String hint = result.getProperty(header2 + HBCIUtils.withCounter(".comment", j));
+                String hint = result.get(header2 + HBCIUtils.withCounter(".comment", j));
                 if (hint == null)
                     break;
                 entry.addComment(hint);

@@ -1,4 +1,3 @@
-
 /*  $Id: GVSaldoReqAll.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,13 +21,8 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public final class GVSaldoReqAll extends GVSaldoReq {
-
-    public static String getLowlevelName() {
-        return "Saldo";
-    }
 
     public GVSaldoReqAll(HBCIPassportInternal passport) {
         super(passport, getLowlevelName());
@@ -40,6 +34,10 @@ public final class GVSaldoReqAll extends GVSaldoReq {
         addConstraint("my.subnumber", "KTV.subnumber", "");
         addConstraint("my.curr", "curr", "EUR");
         addConstraint("dummyall", "allaccounts", "J");
+    }
+
+    public static String getLowlevelName() {
+        return "Saldo";
     }
 
     public void verifyConstraints() {

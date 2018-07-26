@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxCheck.java,v 1.1 2011/05/04 22:37:45 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -32,10 +31,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.*;
 
 public final class SyntaxCheck {
 
@@ -90,16 +86,15 @@ public final class SyntaxCheck {
                 System.out.println(st2);
             }
 
-            Properties p = msg.getData();
+            HashMap<String, String> p = msg.getData();
             ArrayList al = new ArrayList();
-            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                al.add(e.nextElement());
-            }
+            al.addAll(p.keySet());
+
             String[] sa = (String[]) al.toArray(new String[al.size()]);
             Arrays.sort(sa);
 
             for (int i = 0; i < sa.length; i++) {
-                String value = p.getProperty(sa[i]);
+                String value = p.get(sa[i]);
                 System.out.println(sa[i] + " = " + value + " (" + value.length() + " Bytes)");
             }
         } else {

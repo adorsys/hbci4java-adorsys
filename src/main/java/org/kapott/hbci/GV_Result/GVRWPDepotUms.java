@@ -1,4 +1,3 @@
-
 /*  $Id: GVRWPDepotList.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -41,7 +40,6 @@ import java.util.List;
  */
 public final class GVRWPDepotUms extends HBCIJobResultImpl {
 
-    private List<Entry> entries = new ArrayList<>();
     /**
      * Dieses Feld enthält einen String, der den nicht-auswertbaren Teil der gelieferten Informationen
      * enthält. Es dient nur zu Debugging-Zwecken und sollte eigentlich immer <code>null</code>
@@ -50,15 +48,49 @@ public final class GVRWPDepotUms extends HBCIJobResultImpl {
      * "Schwanz" der Daten, bei dem das Parsing-Problem aufgetreten ist.
      */
     public String rest;
+    private List<Entry> entries = new ArrayList<>();
 
     public GVRWPDepotUms(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addEntry(Entry ums) {
+        entries.add(ums);
+    }
+
+    /**
+     * Gibt ein Array mit Depotdaten zurück, wobei jeder Eintrag
+     * Informationen zu genau einem Depot enthält.
+     *
+     * @return Array mit Depotinformationen
+     */
+    public Entry[] getEntries() {
+        return entries.toArray(new Entry[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        for (int i = 0; i < entries.size(); i++) {
+            Entry e = entries.get(i);
+            ret.append("Entry #").append(i).append(":").append(linesep);
+            ret.append(e.toString() + linesep + linesep);
+        }
+
+        ret.append("rest: ").append(rest);
+
+        return ret.toString().trim();
     }
 
     /**
      * Ein Eintrag zu genau einem Depot
      */
     public static final class Entry {
+        /**
+         * Liste der Wertpapiere mit Umsätzen
+         */
+        public final List<FinancialInstrument> instruments = new ArrayList<FinancialInstrument>();
         /**
          * Zeitpunkt der Erstellung dieser Daten
          */
@@ -67,12 +99,28 @@ public final class GVRWPDepotUms extends HBCIJobResultImpl {
          * Depotkonto, auf das sich der Eintrag bezieht.
          */
         public Konto depot;
-        /**
-         * Liste der Wertpapiere mit Umsätzen
-         */
-        public final List<FinancialInstrument> instruments = new ArrayList<FinancialInstrument>();
+
+        @Override
+        public String toString() {
+            StringBuilder rv = new StringBuilder();
+            String sep = System.getProperty("line.separator");
+            rv.append("timestamp: ").append(this.timestamp).append(sep);
+            rv.append("depot: ").append(depot).append(sep);
+
+            for (int i = 0; i < instruments.size(); i++) {
+                rv.append("====> Instrument ").append(i).append(":").append(sep);
+                rv.append(instruments.get(i));
+                rv.append("<====").append(sep);
+            }
+
+            return rv.toString();
+        }
 
         public static class FinancialInstrument {
+            /**
+             * Liste der Transaktionen/Umsätze
+             **/
+            public final List<Transaction> transactions = new ArrayList<Transaction>();
             /**
              * ISIN des Wertpapiers (optional)
              */
@@ -85,7 +133,6 @@ public final class GVRWPDepotUms extends HBCIJobResultImpl {
              * Wertpapierbezeichnung
              */
             public String name;
-
             /**
              * Startsaldo des Finanzinstruments
              **/
@@ -94,7 +141,6 @@ public final class GVRWPDepotUms extends HBCIJobResultImpl {
              * Endsaldo des Finanzinstruments
              **/
             public TypedValue endSaldo;
-
             /**
              * Endsaldo des Finanzinstruments
              **/
@@ -104,10 +150,26 @@ public final class GVRWPDepotUms extends HBCIJobResultImpl {
              */
             public Date preisdatum;
 
-            /**
-             * Liste der Transaktionen/Umsätze
-             **/
-            public final List<Transaction> transactions = new ArrayList<Transaction>();
+            @Override
+            public String toString() {
+                StringBuilder rv = new StringBuilder();
+                String sep = System.getProperty("line.separator");
+                rv.append("isin: ").append(isin).append(sep);
+                rv.append("wkn: ").append(wkn).append(sep);
+                rv.append("name: ").append(name).append(sep);
+                rv.append("startSaldo: ").append(startSaldo).append(sep);
+                rv.append("endSaldo: ").append(endSaldo).append(sep);
+                rv.append("preis: ").append(preis).append(sep);
+                rv.append("preisdatum: ").append(preisdatum).append(sep);
+
+                for (int i = 0; i < transactions.size(); i++) {
+                    rv.append("--> Transaction ").append(i).append(":").append(sep);
+                    rv.append(transactions.get(i));
+                    rv.append("<--").append(sep);
+                }
+
+                return rv.toString();
+            }
 
             public static class Transaction {
                 /**
@@ -275,72 +337,6 @@ public final class GVRWPDepotUms extends HBCIJobResultImpl {
                     return rv.toString();
                 }
             }
-
-            @Override
-            public String toString() {
-                StringBuilder rv = new StringBuilder();
-                String sep = System.getProperty("line.separator");
-                rv.append("isin: ").append(isin).append(sep);
-                rv.append("wkn: ").append(wkn).append(sep);
-                rv.append("name: ").append(name).append(sep);
-                rv.append("startSaldo: ").append(startSaldo).append(sep);
-                rv.append("endSaldo: ").append(endSaldo).append(sep);
-                rv.append("preis: ").append(preis).append(sep);
-                rv.append("preisdatum: ").append(preisdatum).append(sep);
-
-                for (int i = 0; i < transactions.size(); i++) {
-                    rv.append("--> Transaction ").append(i).append(":").append(sep);
-                    rv.append(transactions.get(i));
-                    rv.append("<--").append(sep);
-                }
-
-                return rv.toString();
-            }
         }
-
-        @Override
-        public String toString() {
-            StringBuilder rv = new StringBuilder();
-            String sep = System.getProperty("line.separator");
-            rv.append("timestamp: ").append(this.timestamp).append(sep);
-            rv.append("depot: ").append(depot).append(sep);
-
-            for (int i = 0; i < instruments.size(); i++) {
-                rv.append("====> Instrument ").append(i).append(":").append(sep);
-                rv.append(instruments.get(i));
-                rv.append("<====").append(sep);
-            }
-
-            return rv.toString();
-        }
-    }
-
-    public void addEntry(Entry ums) {
-        entries.add(ums);
-    }
-
-    /**
-     * Gibt ein Array mit Depotdaten zurück, wobei jeder Eintrag
-     * Informationen zu genau einem Depot enthält.
-     *
-     * @return Array mit Depotinformationen
-     */
-    public Entry[] getEntries() {
-        return entries.toArray(new Entry[entries.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
-
-        for (int i = 0; i < entries.size(); i++) {
-            Entry e = entries.get(i);
-            ret.append("Entry #").append(i).append(":").append(linesep);
-            ret.append(e.toString() + linesep + linesep);
-        }
-
-        ret.append("rest: ").append(rest);
-
-        return ret.toString().trim();
     }
 }

@@ -1,4 +1,3 @@
-
 /*  $Id: HBCI_Exception.java,v 1.2 2012/03/06 23:18:26 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -47,10 +46,6 @@ package org.kapott.hbci.exceptions;
 public class HBCI_Exception extends RuntimeException {
     private boolean fatal = false;
 
-    protected static String applyLogFilter(String st) {
-        return st;
-    }
-
     /**
      * Erzeugen einer neuen HBCI_Exception ohne Message und
      * ohne Cause
@@ -92,13 +87,8 @@ public class HBCI_Exception extends RuntimeException {
         super(applyLogFilter(st), e);
     }
 
-    /**
-     * Markiert eine Exception als fatal.
-     *
-     * @param b true, wenn sie fatal ist.
-     */
-    public void setFatal(boolean b) {
-        this.fatal = b;
+    protected static String applyLogFilter(String st) {
+        return st;
     }
 
     /**
@@ -117,5 +107,14 @@ public class HBCI_Exception extends RuntimeException {
             return ((HBCI_Exception) t).isFatal();
 
         return false;
+    }
+
+    /**
+     * Markiert eine Exception als fatal.
+     *
+     * @param b true, wenn sie fatal ist.
+     */
+    public void setFatal(boolean b) {
+        this.fatal = b;
     }
 }

@@ -1,4 +1,3 @@
-
 /*  $Id: NoSuchSyntaxException.java,v 1.1 2011/05/04 22:38:00 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,10 +23,8 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NoSuchSyntaxException
-     extends HBCI_Exception
-{
-    public NoSuchSyntaxException(String type, String path)
-    {
-        super(HBCIUtils.getLocMsg("EXCMSG_NOSUCHSYNTAX",new Object[] {type,path}));
+        extends HBCI_Exception {
+    public NoSuchSyntaxException(String type, String path) {
+        super(HBCIUtils.getLocMsg("EXCMSG_NOSUCHSYNTAX", new Object[]{type, path}));
     }
 }

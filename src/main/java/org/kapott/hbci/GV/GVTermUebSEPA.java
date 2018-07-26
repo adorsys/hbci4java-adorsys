@@ -1,4 +1,3 @@
-
 /*  $Id: GVUebSEPA.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,9 +25,9 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -37,31 +36,6 @@ import java.util.Properties;
 public class GVTermUebSEPA extends AbstractSEPAGV {
 
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
-    }
-
-    /**
-     * Liefert den Lowlevel-Namen des Jobs.
-     *
-     * @return der Lowlevel-Namen des Jobs.
-     */
-    public static String getLowlevelName() {
-        return "TermUebSEPA";
-    }
 
     public GVTermUebSEPA(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTermUeb(passport));
@@ -101,9 +75,34 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         addConstraint("purposecode", "sepa.purposecode", "");
     }
 
+    /**
+     * Liefert den Lowlevel-Namen des Jobs.
+     *
+     * @return der Lowlevel-Namen des Jobs.
+     */
+    public static String getLowlevelName() {
+        return "TermUebSEPA";
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_001;
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String orderid = result.getProperty(header + ".orderid");
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
         ((GVRTermUeb) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {

@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIPassportInternal.java,v 1.1 2011/05/04 22:37:43 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,7 +25,7 @@ import org.kapott.hbci.manager.HBCIKey;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
 
-import java.util.Properties;
+import java.util.HashMap;
 
 /**
  * Interface, welches alle Passport-Varianten implementieren müssen.
@@ -38,6 +37,8 @@ import java.util.Properties;
 public interface HBCIPassportInternal extends HBCIPassport {
 
     String getSysId();
+
+    void setSysId(String sysid);
 
     String getSysStatus();
 
@@ -85,6 +86,8 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     Long getSigId();
 
+    void setSigId(Long sigid);
+
     String getCryptKeyType();
 
     String getCryptFunction();
@@ -101,21 +104,17 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     String getHashAlg();
 
-    void setBPD(Properties bpd);
+    void setBPD(HashMap<String, String> bpd);
 
-    void setUPD(Properties upd);
-
-    void setSigId(Long sigid);
-
-    void setSysId(String sysid);
+    void setUPD(HashMap<String, String> upd);
 
     void incSigId();
 
-    Properties getParamSegmentNames();
+    HashMap<String, String> getParamSegmentNames();
 
-    Properties getJobRestrictions(String specname);
+    HashMap<String, String> getJobRestrictions(String specname);
 
-    Properties getJobRestrictions(String gvname, String version);
+    HashMap<String, String> getJobRestrictions(String gvname, String version);
 
     void setPersistentData(String id, Object o);
 
@@ -142,7 +141,7 @@ public interface HBCIPassportInternal extends HBCIPassport {
      */
     int getMaxGVSegsPerMsg();
 
-    Properties getProperties();
+    HashMap<String, String> getProperties();
 
     HBCICallback getCallback();
 
@@ -154,9 +153,9 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     byte[] sign(byte[] hashresult);
 
-    Properties getSupportedLowlevelJobs(Document document);
+    HashMap<String, String> getSupportedLowlevelJobs(Document document);
 
-    Properties getLowlevelJobRestrictions(String gvname, Document document);
+    HashMap<String, String> getLowlevelJobRestrictions(String gvname, Document document);
 
     Document getSyntaxDocument();
 }

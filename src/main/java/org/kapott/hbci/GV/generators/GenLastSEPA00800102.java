@@ -14,14 +14,12 @@ import java.util.Properties;
 /**
  * SEPA-Generator fuer pain.008.001.02.
  */
-public class GenLastSEPA00800102 extends AbstractSEPAGenerator
-{
+public class GenLastSEPA00800102 extends AbstractSEPAGenerator {
     /**
      * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getPainVersion()
      */
     @Override
-    public PainVersion getPainVersion()
-    {
+    public PainVersion getPainVersion() {
         return PainVersion.PAIN_008_001_02;
     }
 
@@ -29,8 +27,7 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
      * @see org.kapott.hbci.GV.generators.ISEPAGenerator#generate(java.util.Properties, java.io.OutputStream, boolean)
      */
     @Override
-    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception
-    {
+    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
 
         //Document
@@ -41,7 +38,7 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
         doc.setCstmrDrctDbtInitn(new CustomerDirectDebitInitiationV02());
         doc.getCstmrDrctDbtInitn().setGrpHdr(new GroupHeaderSDD());
 
-        final String sepaId   = sepaParams.getProperty("sepaid");
+        final String sepaId = sepaParams.getProperty("sepaid");
         final String pmtInfId = sepaParams.getProperty("pmtinfid");
 
         //Group Header
@@ -82,9 +79,7 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
         if (srcBic != null && srcBic.length() > 0) // BIC ist inzwischen optional
         {
             pmtInf.getCdtrAgt().getFinInstnId().setBIC(srcBic);
-        }
-        else
-        {
+        } else {
             pmtInf.getCdtrAgt().getFinInstnId().setOthr(new OthrIdentification());
             pmtInf.getCdtrAgt().getFinInstnId().getOthr().setId(OthrIdentificationCode.NOTPROVIDED);
         }
@@ -102,19 +97,15 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
 
         //Payment Information - Credit Transfer Transaction Information
         ArrayList<DirectDebitTransactionInformationSDD> drctDbtTxInfs = (ArrayList<DirectDebitTransactionInformationSDD>) pmtInf.getDrctDbtTxInf();
-        if (maxIndex != null)
-        {
-            for (int tnr = 0; tnr <= maxIndex; tnr++)
-            {
+        if (maxIndex != null) {
+            for (int tnr = 0; tnr <= maxIndex; tnr++) {
                 drctDbtTxInfs.add(createDirectDebitTransactionInformationSDD(sepaParams, tnr));
             }
-        }
-        else
-        {
+        } else {
             drctDbtTxInfs.add(createDirectDebitTransactionInformationSDD(sepaParams, null));
         }
 
-        String batch = SepaUtil.getProperty(sepaParams,"batchbook",null);
+        String batch = SepaUtil.getProperty(sepaParams, "batchbook", null);
         if (batch != null)
             pmtInf.setBtchBookg(batch.equals("1"));
 
@@ -122,8 +113,7 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
         this.marshal(of.createDocument(doc), os, validate);
     }
 
-    private DirectDebitTransactionInformationSDD createDirectDebitTransactionInformationSDD(Properties sepaParams, Integer index) throws Exception
-    {
+    private DirectDebitTransactionInformationSDD createDirectDebitTransactionInformationSDD(Properties sepaParams, Integer index) throws Exception {
         DirectDebitTransactionInformationSDD drctDbtTxInf = new DirectDebitTransactionInformationSDD();
         drctDbtTxInf.setDrctDbtTx(new DirectDebitTransactionSDD());
         drctDbtTxInf.getDrctDbtTx().setCdtrSchmeId(new PartyIdentificationSEPA3());
@@ -141,8 +131,7 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
 
         boolean amend = Boolean.valueOf(sepaParams.getProperty(SepaUtil.insertIndex("amendmandindic", index)));
         drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().setAmdmntInd(amend);
-        if (amend)
-        {
+        if (amend) {
             drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().setAmdmntInfDtls(new AmendmentInformationDetailsSDD());
             drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().getAmdmntInfDtls().setOrgnlDbtrAcct(new CashAccountSEPAMandate());
             drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().getAmdmntInfDtls().getOrgnlDbtrAcct().setId(new AccountIdentificationSEPAMandate());
@@ -152,13 +141,12 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
 
         //Payment Information - Credit Transfer Transaction Information - Payment Identification
         drctDbtTxInf.setPmtId(new PaymentIdentificationSEPA());
-        drctDbtTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams,SepaUtil.insertIndex("endtoendid", index),AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
+        drctDbtTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams, SepaUtil.insertIndex("endtoendid", index), AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
 
 
         //Payment Information - Credit Transfer Transaction Information - Creditor
         drctDbtTxInf.setDbtr(new PartyIdentificationSEPA2());
         drctDbtTxInf.getDbtr().setNm(sepaParams.getProperty(SepaUtil.insertIndex("dst.name", index)));
-
 
 
         //Payment Information - Credit Transfer Transaction Information - Creditor Account
@@ -171,12 +159,9 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
         drctDbtTxInf.getDbtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSEPA3());
 
         String bic = sepaParams.getProperty(SepaUtil.insertIndex("dst.bic", index));
-        if (bic != null && bic.length() > 0)
-        {
+        if (bic != null && bic.length() > 0) {
             drctDbtTxInf.getDbtrAgt().getFinInstnId().setBIC(bic);
-        }
-        else
-        {
+        } else {
             drctDbtTxInf.getDbtrAgt().getFinInstnId().setOthr(new OthrIdentification());
             drctDbtTxInf.getDbtrAgt().getFinInstnId().getOthr().setId(OthrIdentificationCode.NOTPROVIDED);
         }
@@ -190,15 +175,13 @@ public class GenLastSEPA00800102 extends AbstractSEPAGenerator
 
         //Payment Information - Credit Transfer Transaction Information - Usage
         String usage = sepaParams.getProperty(SepaUtil.insertIndex("usage", index));
-        if (usage != null && usage.length() > 0)
-        {
+        if (usage != null && usage.length() > 0) {
             drctDbtTxInf.setRmtInf(new RemittanceInformationSEPA1Choice());
             drctDbtTxInf.getRmtInf().setUstrd(usage);
         }
 
         String purposeCode = sepaParams.getProperty(SepaUtil.insertIndex("purposecode", index));
-        if (purposeCode != null && purposeCode.length() > 0)
-        {
+        if (purposeCode != null && purposeCode.length() > 0) {
             PurposeSEPA p = new PurposeSEPA();
             p.setCd(purposeCode);
             drctDbtTxInf.setPurp(p);

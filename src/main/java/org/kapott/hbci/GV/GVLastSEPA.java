@@ -9,20 +9,11 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.AbstractGVRLastSEPA;
 import org.kapott.hbci.GV_Result.GVRLastSEPA;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 /**
  * Implementierung des HBCI-Jobs fuer die SEPA-Basis-Lastschrift.
  */
 public class GVLastSEPA extends AbstractGVLastSEPA {
-    /**
-     * Liefert den Lowlevel-Jobnamen.
-     * @return der Lowlevel-Jobname.
-     */
-    public static String getLowlevelName() {
-        return "LastSEPA";
-    }
-
     public GVLastSEPA(HBCIPassportInternal passport) {
         this(passport, getLowlevelName(), new GVRLastSEPA(passport));
     }
@@ -38,5 +29,14 @@ public class GVLastSEPA extends AbstractGVLastSEPA {
         // TODO: Wobei eigentlich nur "CORE" erlaubt ist, da dieser GV nur die CORE-Lastschrift
         // kapselt. Eigentlich sollte das gar nicht konfigurierbar sein
         addConstraint("type", "sepa.type", "CORE");
+    }
+
+    /**
+     * Liefert den Lowlevel-Jobnamen.
+     *
+     * @return der Lowlevel-Jobname.
+     */
+    public static String getLowlevelName() {
+        return "LastSEPA";
     }
 }

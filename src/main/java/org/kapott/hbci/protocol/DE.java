@@ -1,4 +1,3 @@
-
 /*  $Id: DE.java,v 1.1 2011/05/04 22:38:02 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -32,15 +31,28 @@ import org.w3c.dom.Node;
 import java.util.*;
 
 public final class DE extends SyntaxElement {
+
     private SyntaxDE value;
     private int minsize;
     private int maxsize;
     private List<String> valids;
 
+    public DE(Node dedef, String name, String path, int idx, Document document) {
+        super(((Element) dedef).getAttribute("type"), name, path, idx, null);
+        initData(dedef, name, path, idx, document);
+    }
+
+    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, fullResLen, null, predefs, valids);
+        initData(dedef, res, predefs, predelim, valids);
+    }
+
+    @Override
     protected MultipleSyntaxElements createNewChildContainer(Node dedef, Document document) {
         return null;
     }
 
+    @Override
     protected String getElementTypeName() {
         return "DE";
     }
@@ -48,6 +60,7 @@ public final class DE extends SyntaxElement {
     /**
      * setzen des wertes des de
      */
+    @Override
     public boolean propagateValue(String destPath, String valueString, boolean tryToCreate, boolean allowOverwrite) {
         boolean ret = false;
 
@@ -66,6 +79,7 @@ public final class DE extends SyntaxElement {
         return ret;
     }
 
+    @Override
     public String getValueOfDE(String path) {
         String ret = null;
 
@@ -75,6 +89,7 @@ public final class DE extends SyntaxElement {
         return ret;
     }
 
+    @Override
     public String getValueOfDE(String path, int zero) {
         String ret = null;
 
@@ -101,11 +116,6 @@ public final class DE extends SyntaxElement {
             maxsize = Integer.parseInt(st);
     }
 
-    public DE(Node dedef, String name, String path, int idx, Document document) {
-        super(((Element) dedef).getAttribute("type"), name, path, idx, null);
-        initData(dedef, name, path, idx, document);
-    }
-
     public void init(Node dedef, String name, String path, int idx, Document document) {
         super.init(((Element) dedef).getAttribute("type"), name, path, idx, null);
         initData(dedef, name, path, idx, document);
@@ -115,6 +125,7 @@ public final class DE extends SyntaxElement {
      * validierung eines DE: validate ist ok, wenn DE einen wert enthaelt und
      * der wert in der liste der gueltigen werte auftaucht
      */
+    @Override
     public void validate() {
         if (value == null) {
             throw new NoValueGivenException(getPath());
@@ -143,16 +154,8 @@ public final class DE extends SyntaxElement {
         this.valids = valids;
     }
 
-    public String toString(int dummy) {
-        return isValid() ? value.toString(0) : "";
-    }
-
     public int getMinSize() {
         return minsize;
-    }
-
-    public void setValue(String st) {
-        this.value = SyntaxDEFactory.getInstance().createSyntaxDE(getType(), getPath(), st, minsize, maxsize);
     }
 
     public SyntaxDE getValue() {
@@ -161,10 +164,16 @@ public final class DE extends SyntaxElement {
 
     // ---------------------------------------------------------------------------------------------------------------
 
+    public void setValue(String st) {
+        this.value = SyntaxDEFactory.createSyntaxDE(getType(), getPath(), st, minsize, maxsize);
+    }
+
+    @Override
     protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         return null;
     }
 
+    @Override
     protected char getInDelim() {
         return (char) 0;
     }
@@ -188,7 +197,7 @@ public final class DE extends SyntaxElement {
             throw new PredelimErrorException(getPath(), Character.toString(preDelim), Character.toString(temp.charAt(0)));
         }
 
-        this.value = SyntaxDEFactory.getInstance().createSyntaxDE(getType(), getPath(), res, minsize, maxsize);
+        this.value = SyntaxDEFactory.createSyntaxDE(getType(), getPath(), res, minsize, maxsize);
 
         String valueString = value.toString(0);
         String predefined = predefs.get(getPath());
@@ -228,7 +237,7 @@ public final class DE extends SyntaxElement {
         setValid(false);
 
         value = null;
-        this.valids = new ArrayList<String>();
+        this.valids = new ArrayList<>();
 
         String st;
 
@@ -250,19 +259,25 @@ public final class DE extends SyntaxElement {
         }
     }
 
-    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, fullResLen, null, predefs, valids);
-        initData(dedef, res, predefs, predelim, valids);
-    }
-
     public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         super.init(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, fullResLen, null, predefs, valids);
         initData(dedef, res, predefs, predelim, valids);
     }
 
-    public void extractValues(Hashtable<String, String> values) {
+    @Override
+    public void extractValues(HashMap<String, String> values) {
         if (isValid())
-            values.put(getPath(), value.toString(0));
+            values.put(getPath(), value.toString());
+    }
+
+    @Override
+    public String toString() {
+        return isValid() ? value.toString() : "";
+    }
+
+    @Override
+    public String toString(int dummy) {
+        return isValid() ? value.toString(0) : "";
     }
 
     public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
@@ -281,15 +296,4 @@ public final class DE extends SyntaxElement {
         }
     }
 
-    public String toString() {
-        return isValid() ? value.toString() : "";
-    }
-
-    public void destroy() {
-        value = null;
-        valids.clear();
-        valids = null;
-
-        super.destroy();
-    }
 }

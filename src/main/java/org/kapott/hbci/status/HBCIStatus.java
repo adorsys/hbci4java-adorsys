@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIStatus.java,v 1.1 2011/05/04 22:38:02 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -221,11 +220,11 @@ public final class HBCIStatus {
      */
     public int getStatusCode() {
         int code;
-        
+
         /* TODO: eine Exception als Fehler einzustufen ist gefaehrlich: wenn
          * ein GV bei einer Bank eingereicht wird und von der Bank erfolgreich
          * verarbeitet wird, beim Entgegennehmen der Antwort-Nachricht jedoch
-         * eine Exception auftritt, sieht der Job aus wie "fehlgeschlagen" - 
+         * eine Exception auftritt, sieht der Job aus wie "fehlgeschlagen" -
          * dabei ist nur das Parsen der Erfolgsnachricht fehlgeschlagen */
         if (hasExceptions() || hasErrors()) {
             code = STATUS_ERR;
@@ -269,7 +268,7 @@ public final class HBCIStatus {
 
         if (hasErrors()) {
             List<HBCIRetVal> errList = getErrors();
-            for (HBCIRetVal hbciRetVal: getErrors()) {
+            for (HBCIRetVal hbciRetVal : getErrors()) {
                 ret.append(hbciRetVal.toString());
                 ret.append(System.getProperty("line.separator"));
             }
@@ -293,17 +292,17 @@ public final class HBCIStatus {
             ret.append(System.getProperty("line.separator"));
         }
 
-        for (HBCIRetVal hbciRetVal: getErrors()) {
+        for (HBCIRetVal hbciRetVal : getErrors()) {
             ret.append(hbciRetVal.toString());
             ret.append(System.getProperty("line.separator"));
         }
 
-        for (HBCIRetVal hbciRetVal: getWarnings()) {
+        for (HBCIRetVal hbciRetVal : getWarnings()) {
             ret.append(hbciRetVal.toString());
             ret.append(System.getProperty("line.separator"));
         }
 
-        for (HBCIRetVal hbciRetVal: getSuccess()) {
+        for (HBCIRetVal hbciRetVal : getSuccess()) {
             ret.append(hbciRetVal.toString());
             ret.append(System.getProperty("line.separator"));
         }

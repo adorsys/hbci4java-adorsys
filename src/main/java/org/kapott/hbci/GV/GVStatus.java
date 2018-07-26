@@ -1,4 +1,3 @@
-
 /*  $Id: GVStatus.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -30,13 +29,10 @@ import org.kapott.hbci.status.HBCIRetVal;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVStatus extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "Status";
-    }
 
     public GVStatus(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRStatus(passport));
@@ -48,19 +44,23 @@ public final class GVStatus extends AbstractHBCIJob {
         addConstraint("jobid", null, "");
     }
 
+    public static String getLowlevelName() {
+        return "Status";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRStatus.Entry entry = new GVRStatus.Entry();
 
-        entry.dialogid = result.getProperty(header + ".MsgRef.dialogid");
-        entry.msgnum = result.getProperty(header + ".MsgRef.msgnum");
+        entry.dialogid = result.get(header + ".MsgRef.dialogid");
+        entry.msgnum = result.get(header + ".MsgRef.msgnum");
         entry.retval = new HBCIRetVal(result,
                 header + ".RetVal",
-                result.getProperty(header + ".segref"));
+                result.get(header + ".segref"));
         entry.retval.element = null;
 
-        String date = result.getProperty(header + ".date");
-        String time = result.getProperty(header + ".time");
+        String date = result.get(header + ".date");
+        String time = result.get(header + ".time");
         entry.timestamp = HBCIUtils.strings2DateTimeISO(date, time);
 
         ((GVRStatus) jobResult).addEntry(entry);

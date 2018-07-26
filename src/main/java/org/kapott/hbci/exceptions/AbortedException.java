@@ -1,4 +1,3 @@
-
 /*  $Id: AbortedException.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -21,16 +20,13 @@
 
 package org.kapott.hbci.exceptions;
 
-public class AbortedException 
-    extends HBCI_Exception
-{
-    public AbortedException(String s)
-    {
+public class AbortedException
+        extends HBCI_Exception {
+    public AbortedException(String s) {
         super(s);
     }
 
-    public AbortedException(String st,Throwable e)
-    {
-        super(st,e);
+    public AbortedException(String st, Throwable e) {
+        super(st, e);
     }
 }

@@ -1,4 +1,3 @@
-
 /*  $Id: Value.java,v 1.1 2011/05/04 22:37:49 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -183,6 +182,15 @@ public final class Value implements Serializable {
     }
 
     /**
+     * Setzt die Währung neu.
+     *
+     * @param curr die Währung
+     */
+    public void setCurr(String curr) {
+        this.curr = curr;
+    }
+
+    /**
      * Setzt den Betrag neu.
      *
      * @param value Betrag (1.23)
@@ -210,14 +218,5 @@ public final class Value implements Serializable {
      */
     public void setValue(BigDecimal value) {
         this.value = value.multiply(ONE_HUNDRED).longValueExact();
-    }
-
-    /**
-     * Setzt die Währung neu.
-     *
-     * @param curr die Währung
-     */
-    public void setCurr(String curr) {
-        this.curr = curr;
     }
 }

@@ -1,4 +1,3 @@
-
 /*  $Id: GVRWPStammData.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -40,6 +39,10 @@ public class GVRWPStammData extends HBCIJobResultImpl {
 
     public GVRWPStammData(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public Entry[] getEntries() {
+        return entries.toArray(new Entry[entries.size()]);
     }
 
     public final static class Entry {
@@ -162,10 +165,5 @@ public class GVRWPStammData extends HBCIJobResultImpl {
          * Emissionsdatum (optional)
          */
         Date date_of_emission;
-    }
-
-
-    public Entry[] getEntries() {
-        return entries.toArray(new Entry[entries.size()]);
     }
 }

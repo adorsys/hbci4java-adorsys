@@ -1,4 +1,3 @@
-
 /*  $Id: GVRTANList.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -40,6 +39,29 @@ public class GVRTANList extends HBCIJobResultImpl {
 
     public GVRTANList(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addTANList(TANList list) {
+        tanlists.add(list);
+    }
+
+    /**
+     * Gibt ein Array mit Informationen über jede verfügbare TAN-Liste zurück.
+     *
+     * @return Array mit TAN-Listen-Informationen
+     */
+    public TANList[] getTANLists() {
+        return tanlists.toArray(new TANList[tanlists.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+
+        for (Iterator<TANList> i = tanlists.iterator(); i.hasNext(); ) {
+            ret.append(i.next().toString()).append(System.getProperty("line.separator"));
+        }
+
+        return ret.toString().trim();
     }
 
     /**
@@ -179,28 +201,5 @@ public class GVRTANList extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
-
-    public void addTANList(TANList list) {
-        tanlists.add(list);
-    }
-
-    /**
-     * Gibt ein Array mit Informationen über jede verfügbare TAN-Liste zurück.
-     *
-     * @return Array mit TAN-Listen-Informationen
-     */
-    public TANList[] getTANLists() {
-        return tanlists.toArray(new TANList[tanlists.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-
-        for (Iterator<TANList> i = tanlists.iterator(); i.hasNext(); ) {
-            ret.append(i.next().toString()).append(System.getProperty("line.separator"));
-        }
-
-        return ret.toString().trim();
     }
 }

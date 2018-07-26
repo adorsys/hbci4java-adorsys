@@ -1,4 +1,3 @@
-
 /*  $Id: GVSEPAInfo.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,28 +25,28 @@ import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 @Slf4j
 public class GVSEPAInfo extends AbstractHBCIJob {
 
-    public static String getLowlevelName() {
-        return "SEPAInfo";
-    }
-
     public GVSEPAInfo(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
     }
 
+    public static String getLowlevelName() {
+        return "SEPAInfo";
+    }
+
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        Properties upd = passport.getUPD();
+        HashMap<String, String> result = msgstatus.getData();
+        HashMap<String, String> upd = passport.getUPD();
 
         for (int i = 0; ; i++) {
             String subheader = HBCIUtils.withCounter(header + ".Acc", i);
-            String cansepa = result.getProperty(subheader + ".sepa");
+            String cansepa = result.get(subheader + ".sepa");
             if (cansepa == null) {
                 // kein weiteres konto im antwortsegment
                 break;
@@ -58,33 +57,33 @@ public class GVSEPAInfo extends AbstractHBCIJob {
             }
 
             // sepa-konto-informationen gefunden
-            String iban = result.getProperty(subheader + ".iban");
-            String bic = result.getProperty(subheader + ".bic");
+            String iban = result.get(subheader + ".iban");
+            String bic = result.get(subheader + ".bic");
 
             // normale konto-informationen extrahieren, um dieses konto
             // in den upd suchen zu koennen
-            String country = result.getProperty(subheader + ".KIK.country");
-            String blz = result.getProperty(subheader + ".KIK.blz");
-            String number = result.getProperty(subheader + ".number");
+            String country = result.get(subheader + ".KIK.country");
+            String blz = result.get(subheader + ".KIK.blz");
+            String number = result.get(subheader + ".number");
 
             log.debug("found BIC/IBAN = " + bic + "/" + iban + " for account " + country + "/" + blz + "/" + number);
 
             // konto in den UPD suchen und UPD-Informationen aktualisieren
             for (int j = 0; ; j++) {
                 String temp_header = HBCIUtils.withCounter("KInfo", j);
-                String temp_number = upd.getProperty(temp_header + ".KTV.number");
+                String temp_number = upd.get(temp_header + ".KTV.number");
                 if (temp_number == null) {
                     // kein weiteres konto in den UPD
                     break;
                 }
-                String temp_country = upd.getProperty(temp_header + ".KTV.KIK.country");
-                String temp_blz = upd.getProperty(temp_header + ".KTV.KIK.blz");
+                String temp_country = upd.get(temp_header + ".KTV.KIK.country");
+                String temp_blz = upd.get(temp_header + ".KTV.KIK.blz");
 
                 if (temp_country.equals(country) &&
                         temp_blz.equals(blz) &&
                         temp_number.equals(number)) {
-                    upd.setProperty(temp_header + ".KTV.iban", iban);
-                    upd.setProperty(temp_header + ".KTV.bic", bic);
+                    upd.put(temp_header + ".KTV.iban", iban);
+                    upd.put(temp_header + ".KTV.bic", bic);
                 }
             }
         }

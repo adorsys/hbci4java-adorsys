@@ -1,4 +1,3 @@
-
 /*  $Id: GVDonation.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,13 +21,8 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public final class GVDonation extends GVUeb {
-
-    public static String getLowlevelName() {
-        return "Ueb";
-    }
 
     public GVDonation(HBCIPassportInternal passport) {
         super(passport, getLowlevelName());
@@ -50,5 +44,9 @@ public final class GVDonation extends GVUeb {
         addConstraint("dst.country", "Other.KIK.country", "DE");
         addConstraint("name2", "name2", "");
         addConstraint("key", "key", "69");
+    }
+
+    public static String getLowlevelName() {
+        return "Ueb";
     }
 }

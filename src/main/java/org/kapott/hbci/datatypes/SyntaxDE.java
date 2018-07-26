@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxDE.java,v 1.1 2011/05/04 22:37:56 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -51,15 +50,6 @@ public abstract class SyntaxDE {
     private String content;
 
     /**
-     * < @internal @brief contains the value of the DE in human readable format
-     */
-
-    private void initData(String x, int minsize, int maxsize) {
-        content = null;
-        setContent(x, minsize, maxsize);
-    }
-
-    /**
      * @param x       The string representation of the init value.
      * @param minsize The minimum size (string length) of the init value.
      * @param maxsize The maximum size (string length) of the init value. If this is zero, no
@@ -75,63 +65,12 @@ public abstract class SyntaxDE {
         initData(x, minsize, maxsize);
     }
 
-    public void init(String x, int minsize, int maxsize) {
-        initData(x, minsize, maxsize);
-    }
-
-    public void init(StringBuffer x, int minsize, int maxsize) {
-        initData(x.toString(), minsize, maxsize);
-    }
-
-    private void initData() {
-        content = null;
-    }
-
     /**
      * @internal @overload
      */
     protected SyntaxDE() {
         initData();
     }
-
-    protected void init() {
-        initData();
-    }
-
-    /**
-     * @param st      The string representation of the init value.
-     * @param minsize The minimum size (string length) of the init value.
-     * @param maxsize The maximum size (string length) of the init value. If this is zero, no
-     *                checking for @p maxsize will be done.
-     * @throws IllegalArgumentException when the length of @p x is not in the range
-     * @internal
-     * @brief Sets the value for a data element.
-     * @p minsize ... @p maxsize
-     */
-    protected final void setContent(String st, int minsize, int maxsize) {
-        /* die stringlaenge muss zwischen minsize und maxsize liegen,
-           im falle 'maxsize=0' kann sie beliebig gross sein */
-        int len = st.length();
-        if (len < minsize || (maxsize != 0 && len > maxsize)) {
-            String msg = HBCIUtils.getLocMsg("EXC_DT_INV_STRINGLEN", new Object[]{
-                    st, Integer.toString(len), Integer.toString(minsize), Integer.toString(maxsize)});
-            if (len == 0)
-                throw new InvalidArgumentException(msg);
-        }
-
-        content = st;
-    }
-
-    /**
-     * @return den aktuellen Inhalt des SyntaxDE in der intern gespeicherten
-     * Form (human-readable)
-     * @internal @brief Returns the current @c content.
-     */
-    protected String getContent() {
-        return content;
-    }
-
-    // -----------------------------------------------------------------------------------
 
     /**
      * @param res A part of an HBCI message to be parsed.
@@ -210,6 +149,66 @@ public abstract class SyntaxDE {
         }
 
         return ret;
+    }
+
+    /**
+     * < @internal @brief contains the value of the DE in human readable format
+     */
+
+    private void initData(String x, int minsize, int maxsize) {
+        content = null;
+        setContent(x, minsize, maxsize);
+    }
+
+    public void init(String x, int minsize, int maxsize) {
+        initData(x, minsize, maxsize);
+    }
+
+    public void init(StringBuffer x, int minsize, int maxsize) {
+        initData(x.toString(), minsize, maxsize);
+    }
+
+    private void initData() {
+        content = null;
+    }
+
+    protected void init() {
+        initData();
+    }
+
+    // -----------------------------------------------------------------------------------
+
+    /**
+     * @param st      The string representation of the init value.
+     * @param minsize The minimum size (string length) of the init value.
+     * @param maxsize The maximum size (string length) of the init value. If this is zero, no
+     *                checking for @p maxsize will be done.
+     * @throws IllegalArgumentException when the length of @p x is not in the range
+     * @internal
+     * @brief Sets the value for a data element.
+     * @p minsize ... @p maxsize
+     */
+    protected final void setContent(String st, int minsize, int maxsize) {
+        /* die stringlaenge muss zwischen minsize und maxsize liegen,
+           im falle 'maxsize=0' kann sie beliebig gross sein */
+        int len = st.length();
+        if (len < minsize || (maxsize != 0 && len > maxsize)) {
+            String msg = HBCIUtils.getLocMsg("EXC_DT_INV_STRINGLEN", new Object[]{
+                    st, Integer.toString(len), Integer.toString(minsize), Integer.toString(maxsize)});
+            if (len == 0)
+                throw new InvalidArgumentException(msg);
+        }
+
+        content = st;
+    }
+
+    /**
+     * @return den aktuellen Inhalt des SyntaxDE in der intern gespeicherten
+     * Form (human-readable)
+     * @internal @brief Returns the current @c content.
+     */
+    protected String getContent() {
+        return content;
     }
 
     public String toString(int zero) {

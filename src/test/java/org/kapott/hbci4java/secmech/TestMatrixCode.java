@@ -13,6 +13,7 @@ import org.kapott.hbci.manager.HHDVersion;
 import org.kapott.hbci.manager.MatrixCode;
 import org.kapott.hbci4java.AbstractTest;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -69,7 +70,7 @@ public class TestMatrixCode extends AbstractTest
     public void test005() throws Exception
     {
         // Testet die Erkennung des Matrix-Code-Verfahrens aus dem Secmech.
-        Properties props = new Properties();
+        HashMap<String, String> props = new HashMap<>();
         props.put("id","MS1.0.0");
         props.put("segversion","5");
         

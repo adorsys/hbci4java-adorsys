@@ -1,4 +1,3 @@
-
 /*  $Id: GVTAN2Step.java,v 1.6 2011/05/27 10:28:38 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,11 +23,10 @@ package org.kapott.hbci.GV;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -39,10 +37,6 @@ public class GVTAN2Step extends AbstractHBCIJob {
 
     private GVTAN2Step otherTAN2StepTask;
     private AbstractHBCIJob origTask;
-
-    public static String getLowlevelName() {
-        return "TAN2Step";
-    }
 
     public GVTAN2Step(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRSaldoReq(passport));
@@ -84,6 +78,10 @@ public class GVTAN2Step extends AbstractHBCIJob {
         // addConstr≤aint("smsaccount.country","SMSAccount.KIK.country","DE");
     }
 
+    public static String getLowlevelName() {
+        return "TAN2Step";
+    }
+
     public void setParam(String paramName, String value) {
         if (paramName.equals("orderhash")) {
             value = "B" + value;
@@ -110,8 +108,8 @@ public class GVTAN2Step extends AbstractHBCIJob {
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String segcode = result.getProperty(header + ".SegHead.code");
+        HashMap<String, String> result = msgstatus.getData();
+        String segcode = result.get(header + ".SegHead.code");
         log.debug("found HKTAN response with segcode " + segcode);
 
         if (origTask != null && new StringBuffer(origTask.getHBCICode()).replace(1, 2, "I").toString().equals(segcode)) {
@@ -122,7 +120,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
         } else {
             log.debug("this is a \"real\" HKTAN response - analyzing HITAN data");
 
-            String challenge = result.getProperty(header + ".challenge");
+            String challenge = result.get(header + ".challenge");
             if (challenge != null) {
                 log.debug("found challenge '" + challenge + "' in HITAN - saving it temporarily in passport");
                 // das ist für PV#1 (die antwort auf das einreichen des auftrags-hashs) oder 
@@ -143,13 +141,13 @@ public class GVTAN2Step extends AbstractHBCIJob {
             }
 
             // willuhn 2011-05-27 Challenge HHDuc aus dem Reponse holen und im Passport zwischenspeichern
-            String hhdUc = result.getProperty(header + ".challenge_hhd_uc");
+            String hhdUc = result.get(header + ".challenge_hhd_uc");
             if (hhdUc != null) {
                 log.debug("found Challenge HHDuc '" + hhdUc + "' in HITAN - saving it temporarily in passport");
                 passport.setPersistentData("pintan_challenge_hhd_uc", hhdUc);
             }
 
-            String orderref = result.getProperty(header + ".orderref");
+            String orderref = result.get(header + ".orderref");
             if (orderref != null) {
                 // orderref ist nur für PV#2 relevant
                 log.debug("found orderref '" + orderref + "' in HITAN");

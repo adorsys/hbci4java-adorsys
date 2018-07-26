@@ -1,4 +1,3 @@
-
 /*  $Id: GVRDauerNew.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -37,10 +36,6 @@ public class GVRDauerNew extends HBCIJobResultImpl {
         super(passport);
     }
 
-    public void setOrderId(String orderid) {
-        this.orderid = orderid;
-    }
-
     /**
      * Gibt die Auftragsnummer zurück, unter der der eingereichte Dauerauftrag
      * bei der Bank registriert ist
@@ -50,6 +45,10 @@ public class GVRDauerNew extends HBCIJobResultImpl {
      */
     public String getOrderId() {
         return orderid;
+    }
+
+    public void setOrderId(String orderid) {
+        this.orderid = orderid;
     }
 
     public String toString() {

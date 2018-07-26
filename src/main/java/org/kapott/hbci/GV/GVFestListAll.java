@@ -1,4 +1,3 @@
-
 /*  $Id: GVFestListAll.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,13 +21,8 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public class GVFestListAll extends GVFestList {
-
-    public static String getLowlevelName() {
-        return "FestList";
-    }
 
     public GVFestListAll(HBCIPassportInternal passport) {
         super(getLowlevelName(), passport);
@@ -41,5 +35,9 @@ public class GVFestListAll extends GVFestList {
 
         // TODO: kontakt fehlt
         // TODO: maxentries fehlen
+    }
+
+    public static String getLowlevelName() {
+        return "FestList";
     }
 }

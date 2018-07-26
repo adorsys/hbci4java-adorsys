@@ -1,4 +1,3 @@
-
 /*  $Id: AnalyzeReportOfTransactions.java,v 1.1 2011/05/04 22:37:45 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -25,13 +24,15 @@ import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.callback.HBCICallbackConsole;
-import org.kapott.hbci.manager.*;
+import org.kapott.hbci.manager.HBCIDialog;
+import org.kapott.hbci.manager.HBCIJobFactory;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.structures.Konto;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -42,7 +43,7 @@ public final class AnalyzeReportOfTransactions {
 
         HBCIUtils.refreshBLZList(ClassLoader.getSystemResource("blz.properties").openStream());
 
-        Properties properties = new Properties();
+        HashMap<String, String> properties = new HashMap<>();
         properties.put("kernel.rewriter", "InvalidSegment,WrongStatusSegOrder,WrongSequenceNumbers,MissingMsgRef,HBCIVersion,SigIdLeadingZero,InvalidSuppHBCIVersion,SecTypeTAN,KUmsDelimiters,KUmsEmptyBDateSets");
         properties.put("client.passport.default", "PinTanNoFile");
         properties.put("log.loglevel.default", "2");

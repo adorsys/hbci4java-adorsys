@@ -1,4 +1,3 @@
-
 /*  $Id: GVTermUebEdit.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,13 +27,10 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVTermUebEdit extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "TermUebEdit";
-    }
 
     public GVTermUebEdit(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTermUebEdit(passport));
@@ -56,8 +52,8 @@ public final class GVTermUebEdit extends AbstractHBCIJob {
         addConstraint("name2", "name2", "");
         addConstraint("key", "key", "51");
 
-        Properties parameters = getJobRestrictions();
-        int maxusage = Integer.parseInt(parameters.getProperty("maxusage"));
+        HashMap<String, String> parameters = getJobRestrictions();
+        int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {
             String name = HBCIUtils.withCounter("usage", i);
@@ -65,12 +61,16 @@ public final class GVTermUebEdit extends AbstractHBCIJob {
         }
     }
 
+    public static String getLowlevelName() {
+        return "TermUebEdit";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String orderid = result.getProperty(header + ".orderid");
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
 
         ((GVRTermUebEdit) (jobResult)).setOrderId(orderid);
-        ((GVRTermUebEdit) (jobResult)).setOrderIdOld(result.getProperty(header + ".orderidold"));
+        ((GVRTermUebEdit) (jobResult)).setOrderIdOld(result.get(header + ".orderidold"));
 
         if (orderid != null && orderid.length() != 0) {
             Properties p = getLowlevelParams();

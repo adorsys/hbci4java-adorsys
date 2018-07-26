@@ -1,4 +1,3 @@
-
 /*  $Id: InvalidSegSeqException.java,v 1.1 2011/05/04 22:38:00 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,11 +23,9 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class InvalidSegSeqException
-    extends HBCI_Exception
-{
-    public InvalidSegSeqException(String path,int expected,int found)
-    {
+        extends HBCI_Exception {
+    public InvalidSegSeqException(String path, int expected, int found) {
         super(HBCIUtils.getLocMsg("EXCMSG_INVSEQNUM",
-                                  new Object[] {path,Integer.toString(expected),Integer.toString(found)}));
+                new Object[]{path, Integer.toString(expected), Integer.toString(found)}));
     }
 }

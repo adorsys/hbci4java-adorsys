@@ -33,6 +33,16 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     private PainVersion pain = null;
     private ISEPAGenerator generator = null;
 
+    public AbstractSEPAGV(HBCIPassportInternal passport, String name) {
+        super(passport, name, new HBCIJobResultImpl(passport));
+        this.pain = this.determinePainVersion(passport, name);
+    }
+
+    public AbstractSEPAGV(HBCIPassportInternal passport, String name, HBCIJobResultImpl jobResult) {
+        super(passport, name, jobResult);
+        this.pain = this.determinePainVersion(passport, name);
+    }
+
     /**
      * Liefert die Default-PAIN-Version, das verwendet werden soll,
      * wenn von der Bank keine geliefert wurden.
@@ -47,16 +57,6 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * @return der PAIN-Type.
      */
     protected abstract Type getPainType();
-
-    public AbstractSEPAGV(HBCIPassportInternal passport, String name) {
-        super(passport, name, new HBCIJobResultImpl(passport));
-        this.pain = this.determinePainVersion(passport, name);
-    }
-
-    public AbstractSEPAGV(HBCIPassportInternal passport, String name, HBCIJobResultImpl jobResult) {
-        super(passport, name, jobResult);
-        this.pain = this.determinePainVersion(passport, name);
-    }
 
     /**
      * Diese Methode schaut in den BPD nach den unterstützen pain Versionen
@@ -109,7 +109,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     private PainVersion determinePainVersionInternal(HBCIPassportInternal passport, final String gvName) {
         log.debug("searching for supported pain versions for GV " + gvName);
 
-        if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).getProperty(gvName) == null) {
+        if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).get(gvName) == null) {
             log.debug("don't have any BPD for GV " + gvName);
             return null;
         }
@@ -117,16 +117,13 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         List<PainVersion> found = new ArrayList<PainVersion>();
 
         // GV-Restrictions laden und darüber iterieren
-        Properties props = passport.getLowlevelJobRestrictions(gvName, passport.getSyntaxDocument());
-        Enumeration e = props.propertyNames();
-        while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
-
+        HashMap<String, String> props = passport.getLowlevelJobRestrictions(gvName, passport.getSyntaxDocument());
+        for (String key: props.keySet()) {
             // Die Keys, welche die Schema-Versionen enthalten, heissen alle "suppformats*"
             if (!key.startsWith("suppformats"))
                 continue;
 
-            String urn = props.getProperty(key);
+            String urn = props.get(key);
             try {
                 PainVersion version = PainVersion.byURN(urn);
                 if (version.getType() == this.getPainType()) {
@@ -146,9 +143,9 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
                     log.debug("  found " + version);
                     found.add(version);
                 }
-            } catch (Exception ex) {
+            } catch (Exception e) {
                 log.warn("ignoring invalid pain version " + urn);
-                log.error(ex.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
 

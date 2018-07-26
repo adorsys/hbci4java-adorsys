@@ -20,6 +20,7 @@ import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci4java.AbstractTest;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 
 /**
@@ -32,11 +33,11 @@ public class TestBug1129 extends AbstractTest {
      * @return die geparsten Daten.
      * @throws Exception
      */
-    private Hashtable<String, String> parse() throws Exception {
+    private HashMap<String, String> parse() throws Exception {
         String data = getFile("msg/bugzilla-1129.txt");
                 Message msg = new Message("CustomMsgRes", data, data.length(), null, Message.CHECK_SEQ, true);
 
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
         return ht;
     }
@@ -75,7 +76,7 @@ public class TestBug1129 extends AbstractTest {
      */
     @Test
     public void test003() throws Exception {
-        Hashtable<String, String> ht = parse();
+        HashMap<String, String> ht = parse();
         Assert.assertEquals("EBüHREN Z.T. IM VORAUS", ht.get("CustomMsgRes.GVRes_6.DauerListRes4.usage.usage_3"));
     }
 

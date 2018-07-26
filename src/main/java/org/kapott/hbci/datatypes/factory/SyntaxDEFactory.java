@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxDEFactory.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -32,23 +31,10 @@ import java.lang.reflect.InvocationTargetException;
 
 public class SyntaxDEFactory {
 
-    private static SyntaxDEFactory instance;
-
-
-    public static SyntaxDEFactory getInstance() {
-        if (instance == null) {
-            instance = new SyntaxDEFactory();
-        }
-        return instance;
-    }
-
-    private SyntaxDEFactory() {
-    }
-
-    public SyntaxDE createSyntaxDE(String dataType, String path, Object value, int minsize, int maxsize) {
+    public static SyntaxDE createSyntaxDE(String dataType, String path, Object value, int minsize, int maxsize) {
         // laden der klasse, die die syntax des de enthaelt
         try {
-            Class c = Class.forName("org.kapott.hbci.datatypes.Syntax" + dataType, false, this.getClass().getClassLoader());
+            Class c = Class.forName("org.kapott.hbci.datatypes.Syntax" + dataType, false, SyntaxDEFactory.class.getClassLoader());
             Constructor con = c.getConstructor(new Class[]{value.getClass(), int.class, int.class});
             return (SyntaxDE) (con.newInstance(new Object[]{value, new Integer(minsize), new Integer(maxsize)}));
         } catch (ClassNotFoundException e) {

@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIJobResult.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -25,102 +24,137 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIRetVal;
 import org.kapott.hbci.status.HBCIStatus;
 
+import java.util.HashMap;
 import java.util.Properties;
 
-/** Basis-Interface für die Rückgabedaten von 
- ausgeführten HBCI-Jobs. Alle Klassen in diesem Package implementieren dieses
- Interface. In ihm werden Methoden und Felder für die Auswertung 
- von Status-Informationen und für die Rückgabe der Antwortdaten
- in ihrer ursprünglichen Form (wie sie in der HBCI-Nachricht enthalten
- waren) bereitgestellt. */
-public interface HBCIJobResult
-{
-    /** Gibt zurück, wieviele HBCI-Statuscode (siehe 
-     {@link org.kapott.hbci.status.HBCIRetVal}) in den Statusdaten zu
-     diesem Job gespeichert sind. Dabei werden die globalen Statusinformationen
-     (die sich auf die gesamte Nachricht beziehen und nicht nur auf ein Segment
-     dieses Jobs) nicht mitgezählt
-     @return Anzahl der HBCI-Statuscodes in den Job-Statusinformationen */
+/**
+ * Basis-Interface für die Rückgabedaten von
+ * ausgeführten HBCI-Jobs. Alle Klassen in diesem Package implementieren dieses
+ * Interface. In ihm werden Methoden und Felder für die Auswertung
+ * von Status-Informationen und für die Rückgabe der Antwortdaten
+ * in ihrer ursprünglichen Form (wie sie in der HBCI-Nachricht enthalten
+ * waren) bereitgestellt.
+ */
+public interface HBCIJobResult {
+    /**
+     * Gibt zurück, wieviele HBCI-Statuscode (siehe
+     * {@link org.kapott.hbci.status.HBCIRetVal}) in den Statusdaten zu
+     * diesem Job gespeichert sind. Dabei werden die globalen Statusinformationen
+     * (die sich auf die gesamte Nachricht beziehen und nicht nur auf ein Segment
+     * dieses Jobs) nicht mitgezählt
+     *
+     * @return Anzahl der HBCI-Statuscodes in den Job-Statusinformationen
+     */
     int getRetNumber();
 
-    /** Gibt einen bestimmten HBCI-Statuscode aus den Job-Statusinformationen
-     zurück. Die Anzahl der hier zur Verfügung stehenden Rückgabewerte kann
-     mit {@link #getRetNumber()} ermittelt werden.
-     @param idx Indenummer des HBCI-Statuscodes (von 0 bis Anzahl-1)
-     @return einen HBCI-Statuscode */
+    /**
+     * Gibt einen bestimmten HBCI-Statuscode aus den Job-Statusinformationen
+     * zurück. Die Anzahl der hier zur Verfügung stehenden Rückgabewerte kann
+     * mit {@link #getRetNumber()} ermittelt werden.
+     *
+     * @param idx Indenummer des HBCI-Statuscodes (von 0 bis Anzahl-1)
+     * @return einen HBCI-Statuscode
+     */
     HBCIRetVal getRetVal(int idx);
 
-    /** <p>Gibt an, ob der Job erfolgreich ausgeführt wurde oder nicht.</p>
-     <p>Bei <code>true</code> ist der Job mit Sicherheit erfolgreich ausgeführt worden.
-     Bei <code>false</code> kann es sein, dass der Job trotzdem ausgeführt wurde und nur
-     die Antwortnachricht vom HBCI-Server nicht empfangen werden konnte oder fehlerhaft war.
-     In diesem Fall sollte also die Fehlermeldung aus 
-     {@link org.kapott.hbci.status.HBCIStatus#getErrorString() jobStatus.getErrorString()} bzw. 
-     {@link org.kapott.hbci.status.HBCIStatus#getErrorString() globStatus.getErrorString()}
-     genau ausgewertet werden.</p>
-     @return <code>true</code>, wenn der Auftrag mit Sicherheit erfolgreich
-     eingereicht/ausgeführt wurde; sonst <code>false</code>*/
+    /**
+     * <p>Gibt an, ob der Job erfolgreich ausgeführt wurde oder nicht.</p>
+     * <p>Bei <code>true</code> ist der Job mit Sicherheit erfolgreich ausgeführt worden.
+     * Bei <code>false</code> kann es sein, dass der Job trotzdem ausgeführt wurde und nur
+     * die Antwortnachricht vom HBCI-Server nicht empfangen werden konnte oder fehlerhaft war.
+     * In diesem Fall sollte also die Fehlermeldung aus
+     * {@link org.kapott.hbci.status.HBCIStatus#getErrorString() jobStatus.getErrorString()} bzw.
+     * {@link org.kapott.hbci.status.HBCIStatus#getErrorString() globStatus.getErrorString()}
+     * genau ausgewertet werden.</p>
+     *
+     * @return <code>true</code>, wenn der Auftrag mit Sicherheit erfolgreich
+     * eingereicht/ausgeführt wurde; sonst <code>false</code>
+     */
     boolean isOK();
 
-    /** Gibt die Dialog-ID zurück, unter der der dazugehörige Job ausgeführt wurde.
-     Wird hauptsächlich intern verwendet. Zur Bereitstellung einer eindeutigen ID
-     für den Job siehe {@link #getJobId()}.
-     @return Dialog-ID des Dialoges, in welchem der Job ausgeführt wurde */
+    /**
+     * Gibt die Dialog-ID zurück, unter der der dazugehörige Job ausgeführt wurde.
+     * Wird hauptsächlich intern verwendet. Zur Bereitstellung einer eindeutigen ID
+     * für den Job siehe {@link #getJobId()}.
+     *
+     * @return Dialog-ID des Dialoges, in welchem der Job ausgeführt wurde
+     */
     String getDialogId();
 
-    /** Gibt die Nachrichtennummer innerhalb des Dialoges zurück, in dem der dazugehörige Job 
-     ausgeführt wurde. Wird hauptsächlich intern verwendet. Zur Bereitstellung einer eindeutigen ID
-     für den Job siehe {@link #getJobId()}.
-     @return Nachrichtennummer der Nachricht, in welcher der Job ausgeführt wurde */
+    /**
+     * Gibt die Nachrichtennummer innerhalb des Dialoges zurück, in dem der dazugehörige Job
+     * ausgeführt wurde. Wird hauptsächlich intern verwendet. Zur Bereitstellung einer eindeutigen ID
+     * für den Job siehe {@link #getJobId()}.
+     *
+     * @return Nachrichtennummer der Nachricht, in welcher der Job ausgeführt wurde
+     */
     String getMsgNum();
 
-    /** Gibt die Segmentnummer des Segmentes innerhalb der Auftragsnachricht zurück,
-     in welchem die Job-Daten übertragen wurden.
-     Wird hauptsächlich intern verwendet. Zur Bereitstellung einer eindeutigen ID
-     für den Job siehe {@link #getJobId()}.
-     @return Segmentnummer des Auftragssegmentes */
+    /**
+     * Gibt die Segmentnummer des Segmentes innerhalb der Auftragsnachricht zurück,
+     * in welchem die Job-Daten übertragen wurden.
+     * Wird hauptsächlich intern verwendet. Zur Bereitstellung einer eindeutigen ID
+     * für den Job siehe {@link #getJobId()}.
+     *
+     * @return Segmentnummer des Auftragssegmentes
+     */
     String getSegNum();
 
-    /** Gibt einen Job-Identifikationsstring zurück, mit dessen Hilfe sich der Job
-     für das {@link org.kapott.hbci.GV_Result.GVRStatus Statusprotokoll} identifizieren lässt
-     @return die Job-Identifikationsnummer für den dazugehörigen Auftrag */
+    /**
+     * Gibt einen Job-Identifikationsstring zurück, mit dessen Hilfe sich der Job
+     * für das {@link org.kapott.hbci.GV_Result.GVRStatus Statusprotokoll} identifizieren lässt
+     *
+     * @return die Job-Identifikationsnummer für den dazugehörigen Auftrag
+     */
     String getJobId();
 
-    /** Gibt die Job-Antwortdaten im Rohformat zurück. 
-     Für die Keys des Properties-Objektes gibt es zwei Ausprägungen:
-     <ul>
-     <li><p>mit Prefix <code>content.</code> bzw. <code>content_NUM.</code>:<br/>
-     Dieses Key-Value-Paar stellt ein Datenelement aus der Antwortnachricht dar.
-     Der Rest des Keys (nach dem Prefix) gibt dabei den Lowlevel-Namen des
-     Ergebnisdatenelementes an. Eine Liste aller möglichen Lowlevel-Namen kann
-     zur Laufzeit mit 
-     {@link org.kapott.hbci.manager.HBCIHandler#getLowlevelJobResultNames(String)}
-     oder mit {@link org.kapott.hbci.GV.HBCIJob#getJobResultNames()} 
-     ermittelt werden.</p></li>
-     <li><p>mit Prefix <code>basic</code>:<br/>
-     Hier werden jobinterne Daten gespeichert:</p>
-     <ul>
-     <li><code>basic.dialogid</code> enth&auml;lt die Dialog-ID, mit der der Job ausgef&uuml;hrt wurde</li>
-     <li><code>basic.msgnum</code> enth&auml;lt die Nachrichtennummer innerhalb des Dialoges, in dem der Job ausgef&uuml;hrt wurde</li>
-     <li><code>basic.segnum</code> enth&auml;lt die Segmentnummer innerhalb der Nachricht, in der der Job ausgef&uuml;hrt wurde</li>
-     </ul>
-     <p>Diese Daten sollten niemals manuell ausgewertet werden, da es diese <code>basic</code>-Daten
-     in Zukunft nicht mehr geben wird!</p></li>
-     </ul>
-     @return die Antwortdaten im Rohformat */
-    Properties getResultData();
+    /**
+     * Gibt die Job-Antwortdaten im Rohformat zurück.
+     * Für die Keys des Properties-Objektes gibt es zwei Ausprägungen:
+     * <ul>
+     * <li><p>mit Prefix <code>content.</code> bzw. <code>content_NUM.</code>:<br/>
+     * Dieses Key-Value-Paar stellt ein Datenelement aus der Antwortnachricht dar.
+     * Der Rest des Keys (nach dem Prefix) gibt dabei den Lowlevel-Namen des
+     * Ergebnisdatenelementes an. Eine Liste aller möglichen Lowlevel-Namen kann
+     * zur Laufzeit mit
+     * {@link org.kapott.hbci.manager.HBCIHandler#getLowlevelJobResultNames(String)}
+     * oder mit {@link org.kapott.hbci.GV.HBCIJob#getJobResultNames()}
+     * ermittelt werden.</p></li>
+     * <li><p>mit Prefix <code>basic</code>:<br/>
+     * Hier werden jobinterne Daten gespeichert:</p>
+     * <ul>
+     * <li><code>basic.dialogid</code> enth&auml;lt die Dialog-ID, mit der der Job ausgef&uuml;hrt wurde</li>
+     * <li><code>basic.msgnum</code> enth&auml;lt die Nachrichtennummer innerhalb des Dialoges, in dem der Job ausgef&uuml;hrt wurde</li>
+     * <li><code>basic.segnum</code> enth&auml;lt die Segmentnummer innerhalb der Nachricht, in der der Job ausgef&uuml;hrt wurde</li>
+     * </ul>
+     * <p>Diese Daten sollten niemals manuell ausgewertet werden, da es diese <code>basic</code>-Daten
+     * in Zukunft nicht mehr geben wird!</p></li>
+     * </ul>
+     *
+     * @return die Antwortdaten im Rohformat
+     */
+    HashMap<String, String> getResultData();
 
-    /** Gibt ein Status-Objekt zurück, welches Status-Informationen zur HBCI-Nachricht selbst
-     enthält, in der die Job-Auftragsdaten übermittelt wurden.
-     @return Statusinformationen zur Auftragsnachricht */
+    /**
+     * Gibt ein Status-Objekt zurück, welches Status-Informationen zur HBCI-Nachricht selbst
+     * enthält, in der die Job-Auftragsdaten übermittelt wurden.
+     *
+     * @return Statusinformationen zur Auftragsnachricht
+     */
     HBCIStatus getGlobStatus();
 
-    /** Gibt ein Status-Objekt zurück, welches Status-Informationen über das Auftragssegment
-     enthält, in dem die Job-Auftragsdaten übermittelt wurden.
-     @return Status-Informationen, die genau diesen Job betreffen */
+    /**
+     * Gibt ein Status-Objekt zurück, welches Status-Informationen über das Auftragssegment
+     * enthält, in dem die Job-Auftragsdaten übermittelt wurden.
+     *
+     * @return Status-Informationen, die genau diesen Job betreffen
+     */
     HBCIStatus getJobStatus();
 
-    /** Gibt das Passport-Objekt zurück, für welches der Job erzeugt wurde.
-     * @return Passport-Objekt */
+    /**
+     * Gibt das Passport-Objekt zurück, für welches der Job erzeugt wurde.
+     *
+     * @return Passport-Objekt
+     */
     HBCIPassportInternal getPassport();
 }

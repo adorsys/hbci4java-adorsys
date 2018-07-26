@@ -1,4 +1,3 @@
-
 /*  $Id: JobNotSupportedException.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,11 +22,9 @@ package org.kapott.hbci.exceptions;
 
 import org.kapott.hbci.manager.HBCIUtils;
 
-public class JobNotSupportedException 
-    extends HBCI_Exception 
-{
-    public JobNotSupportedException(String jobname)
-    {
-        super(HBCIUtils.getLocMsg("EXCMSG_GVNOTSUPP",jobname));
+public class JobNotSupportedException
+        extends HBCI_Exception {
+    public JobNotSupportedException(String jobname) {
+        super(HBCIUtils.getLocMsg("EXCMSG_GVNOTSUPP", jobname));
     }
 }

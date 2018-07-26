@@ -1,4 +1,3 @@
-
 /*  $Id: GVInfoOrder.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,15 +25,11 @@ import org.kapott.hbci.GV_Result.GVRInfoOrder;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVInfoOrder extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "InfoDetails";
-    }
 
     public GVInfoOrder(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRInfoOrder(passport));
@@ -61,18 +56,22 @@ public final class GVInfoOrder extends AbstractHBCIJob {
         }
     }
 
+    public static String getLowlevelName() {
+        return "InfoDetails";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         for (int i = 0; ; i++) {
             String header2 = HBCIUtils.withCounter(header + ".Info", i);
 
-            if (result.getProperty(header2 + ".code") == null)
+            if (result.get(header2 + ".code") == null)
                 break;
 
             GVRInfoOrder.Info entry = new GVRInfoOrder.Info();
 
-            entry.code = result.getProperty(header2 + ".code");
-            entry.msg = result.getProperty(header2 + ".msg");
+            entry.code = result.get(header2 + ".code");
+            entry.msg = result.get(header2 + ".msg");
 
             ((GVRInfoOrder) (jobResult)).addEntry(entry);
         }

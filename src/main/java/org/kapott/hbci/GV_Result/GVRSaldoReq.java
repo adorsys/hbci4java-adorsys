@@ -1,4 +1,3 @@
-
 /*  $Id: GVRSaldoReq.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -40,6 +39,31 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
 
     public GVRSaldoReq(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void store(GVRSaldoReq.Info info) {
+        saldi.add(info);
+    }
+
+    /**
+     * Gibt alle verfügbaren Saldo-Informationen in einem Feld zurück.
+     * Dabei existiert für jedes abgefragte Konto ein Eintrag in diesem Feld.
+     *
+     * @return Array mit Saldeninformationen
+     */
+    public Info[] getEntries() {
+        return saldi.toArray(new Info[saldi.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+
+        for (int i = 0; i < saldi.size(); i++) {
+            GVRSaldoReq.Info info = saldi.get(i);
+            ret.append(info.toString()).append(System.getProperty("line.separator"));
+        }
+
+        return ret.toString().trim();
     }
 
     /**
@@ -90,30 +114,5 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
-
-    public void store(GVRSaldoReq.Info info) {
-        saldi.add(info);
-    }
-
-    /**
-     * Gibt alle verfügbaren Saldo-Informationen in einem Feld zurück.
-     * Dabei existiert für jedes abgefragte Konto ein Eintrag in diesem Feld.
-     *
-     * @return Array mit Saldeninformationen
-     */
-    public Info[] getEntries() {
-        return saldi.toArray(new Info[saldi.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-
-        for (int i = 0; i < saldi.size(); i++) {
-            GVRSaldoReq.Info info = saldi.get(i);
-            ret.append(info.toString()).append(System.getProperty("line.separator"));
-        }
-
-        return ret.toString().trim();
     }
 }

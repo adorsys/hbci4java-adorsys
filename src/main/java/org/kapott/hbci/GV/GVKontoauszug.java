@@ -1,4 +1,3 @@
-
 /*  $Id: GVKontoauszug.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -27,8 +26,8 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.swift.Swift;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 @Slf4j
@@ -37,10 +36,6 @@ public class GVKontoauszug extends AbstractHBCIJob {
     public final static String FORMAT_MT940 = "1";
     public final static String FORMAT_ISO8583 = "2";
     public final static String FORMAT_PDF = "3";
-
-    public static String getLowlevelName() {
-        return "Kontoauszug";
-    }
 
     public GVKontoauszug(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRKontoauszug(passport));
@@ -59,12 +54,16 @@ public class GVKontoauszug extends AbstractHBCIJob {
         addConstraint("maxentries", "maxentries", "");
     }
 
+    public static String getLowlevelName() {
+        return "Kontoauszug";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRKontoauszug umsResult = (GVRKontoauszug) jobResult;
 
-        String format = result.getProperty(header + ".format");
-        String rawData = result.getProperty(header + ".booked");
+        String format = result.get(header + ".format");
+        String rawData = result.get(header + ".booked");
 
         if (rawData != null) {
             if (format.equals("1")) {
@@ -80,17 +79,17 @@ public class GVKontoauszug extends AbstractHBCIJob {
         }
 
         umsResult.setFormat(format);
-        umsResult.setStartDate(HBCIUtils.string2DateISO(result.getProperty(header + ".TimeRange.startdate")));
-        umsResult.setEndDate(HBCIUtils.string2DateISO(result.getProperty(header + ".TimeRange.enddate")));
-        umsResult.setAbschlussInfo(result.getProperty(header + ".abschlussinfo"));
-        umsResult.setKundenInfo(result.getProperty(header + ".kondinfo"));
-        umsResult.setWerbetext(result.getProperty(header + ".ads"));
-        umsResult.setIBAN(result.getProperty(header + ".iban"));
-        umsResult.setBIC(result.getProperty(header + ".bic"));
-        umsResult.setName(result.getProperty(header + ".name"));
-        umsResult.setName2(result.getProperty(header + ".name2"));
-        umsResult.setName3(result.getProperty(header + ".name3"));
-        umsResult.setReceipt(result.getProperty(header + ".receipt"));
+        umsResult.setStartDate(HBCIUtils.string2DateISO(result.get(header + ".TimeRange.startdate")));
+        umsResult.setEndDate(HBCIUtils.string2DateISO(result.get(header + ".TimeRange.enddate")));
+        umsResult.setAbschlussInfo(result.get(header + ".abschlussinfo"));
+        umsResult.setKundenInfo(result.get(header + ".kondinfo"));
+        umsResult.setWerbetext(result.get(header + ".ads"));
+        umsResult.setIBAN(result.get(header + ".iban"));
+        umsResult.setBIC(result.get(header + ".bic"));
+        umsResult.setName(result.get(header + ".name"));
+        umsResult.setName2(result.get(header + ".name2"));
+        umsResult.setName3(result.get(header + ".name3"));
+        umsResult.setReceipt(result.get(header + ".receipt"));
     }
 
     public void verifyConstraints() {

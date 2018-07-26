@@ -1,4 +1,3 @@
-
 /*  $Id: GVRFestCondList.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -41,6 +40,34 @@ public final class GVRFestCondList extends HBCIJobResultImpl {
 
     public GVRFestCondList(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addEntry(Cond entry) {
+        entries.add(entry);
+    }
+
+    /**
+     * Gibt alle gefundenen Festgeldkonditionen als Array zurück
+     *
+     * @return Array mit Festgeldkonditionen
+     */
+    public Cond[] getEntries() {
+        return entries.toArray(new Cond[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        for (int i = 0; i < entries.size(); i++) {
+            Cond entry = entries.get(i);
+
+            ret.append("#").append(i).append(linesep);
+            ret.append(entry.toString());
+            ret.append(linesep).append(linesep);
+        }
+
+        return ret.toString().trim();
     }
 
     /**
@@ -166,33 +193,5 @@ public final class GVRFestCondList extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
-
-    public void addEntry(Cond entry) {
-        entries.add(entry);
-    }
-
-    /**
-     * Gibt alle gefundenen Festgeldkonditionen als Array zurück
-     *
-     * @return Array mit Festgeldkonditionen
-     */
-    public Cond[] getEntries() {
-        return entries.toArray(new Cond[entries.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
-
-        for (int i = 0; i < entries.size(); i++) {
-            Cond entry = entries.get(i);
-
-            ret.append("#").append(i).append(linesep);
-            ret.append(entry.toString());
-            ret.append(linesep).append(linesep);
-        }
-
-        return ret.toString().trim();
     }
 }

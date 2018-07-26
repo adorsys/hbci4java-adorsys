@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxDate.java,v 1.1 2011/05/04 22:37:55 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -29,70 +28,61 @@ import java.text.SimpleDateFormat;
 /* represents the datatype "date" */
 // interne Speicherung im HBCI-MSG-Format
 public final class SyntaxDate
-    extends SyntaxDE
-{
-    /** @brief converts a given date into the hbci-format
+        extends SyntaxDE {
+    public SyntaxDate(String x, int minsize, int maxsize) {
+        super(parseDate(x), 8, 8);
+    }
 
-        @param x date in format d.m.y (with no restrictions concerning the number
-               of digits for each field)
-        @return this date in format yyyymmdd (as required by hbci)
-    */
-    private static String parseDate(String x)
-    {
+    public SyntaxDate(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
+
+    /**
+     * @param x date in format d.m.y (with no restrictions concerning the number
+     *          of digits for each field)
+     * @return this date in format yyyymmdd (as required by hbci)
+     * @brief converts a given date into the hbci-format
+     */
+    private static String parseDate(String x) {
         return new SimpleDateFormat("yyyyMMdd").format(HBCIUtils.string2DateISO(x));
-    }
-
-    public SyntaxDate(String x,int minsize,int maxsize)
-    {
-        super(parseDate(x),8,8);
-    }
-
-    public void init(String x,int minsize,int maxsize)
-    {
-        super.init(parseDate(x),8,8);
     }
 
     // --------------------------------------------------------------------------------
 
-    private void initData(StringBuffer res, int minsize, int maxsize)
-    {
+    public void init(String x, int minsize, int maxsize) {
+        super.init(parseDate(x), 8, 8);
+    }
+
+    private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
 
         unparseDate(st);
-        setContent(st,8,8);
+        setContent(st, 8, 8);
         res.delete(0, endidx);
     }
 
-    public SyntaxDate(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
+    public void init(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
-    }
-
-    /** @brief makes a given date in hbci-format human-readable
-
-        @param x a date in hbci-format (i.e. yyyymmdd)
-        @return this date in human-readable-format dd.mm.yyyy with
-                this number of digits (i.e. using leading zeroes)
+    /**
+     * @param x a date in hbci-format (i.e. yyyymmdd)
+     * @return this date in human-readable-format dd.mm.yyyy with
+     * this number of digits (i.e. using leading zeroes)
+     * @brief makes a given date in hbci-format human-readable
      */
-    private String unparseDate(String x)
-    {
+    private String unparseDate(String x) {
         try {
             return HBCIUtils.date2StringISO(new SimpleDateFormat("yyyyMMdd").parse(x));
         } catch (Exception e) {
-            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_DATEERR"),e);
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_DATEERR"), e);
         }
     }
 
-    public String toString()
-    {
-        String c=getContent();
-        return (c==null)?"":unparseDate(c);
+    public String toString() {
+        String c = getContent();
+        return (c == null) ? "" : unparseDate(c);
     }
 }

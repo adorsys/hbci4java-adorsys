@@ -1,4 +1,3 @@
-
 /*  $Id: GVUebBZU.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -25,13 +24,10 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVUebBZU extends GVUeb {
-
-    public static String getLowlevelName() {
-        return "Ueb";
-    }
 
     public GVUebBZU(HBCIPassportInternal passport) {
         super(passport, getLowlevelName());
@@ -52,13 +48,17 @@ public final class GVUebBZU extends GVUeb {
         addConstraint("name2", "name2", "");
         addConstraint("key", "key", "67");
 
-        Properties parameters = getJobRestrictions();
-        int maxusage = Integer.parseInt(parameters.getProperty("maxusage"));
+        HashMap<String, String> parameters = getJobRestrictions();
+        int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 1; i < maxusage; i++) {
             String name = HBCIUtils.withCounter("usage", i);
             addConstraint(name, "usage." + name, "");
         }
+    }
+
+    public static String getLowlevelName() {
+        return "Ueb";
     }
 
     private void checkBZUData(String bzudata) {

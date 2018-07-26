@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIDialog.java,v 1.1 2011/05/04 22:37:46 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -90,7 +89,7 @@ public final class HBCIDialog {
 
         // wenn in den UPD noch keine SEPA- und TAN-Medien-Informationen ueber die Konten enthalten
         // sind, versuchen wir, diese zu holen
-        Properties upd = passport.getUPD();
+        HashMap<String, String> upd = passport.getUPD();
         if (upd != null && !upd.containsKey("_fetchedMetaInfo")) {
             // wir haben UPD, in denen aber nicht "_fetchedMetaInfo" drinsteht
             updateMetaInfo();
@@ -135,7 +134,7 @@ public final class HBCIDialog {
                 }
             }
 
-            Properties result = msgStatus.getData();
+            HashMap<String, String> result = msgStatus.getData();
             if (msgStatus.isOK()) {
                 HBCIInstitute inst = new HBCIInstitute(kernel, passport);
                 inst.updateBPD(result);
@@ -145,7 +144,7 @@ public final class HBCIDialog {
                 user.updateUPD(result);
 
                 msgnum = 2;
-                dialogid = result.getProperty("MsgHead.dialogid");
+                dialogid = result.get("MsgHead.dialogid");
                 log.debug("dialog-id set to " + dialogid);
 
                 HBCIInstMessage msg;
@@ -197,24 +196,24 @@ public final class HBCIDialog {
      * unterstuetzt wird und speichert diese Infos in den UPD.
      */
     private void updateMetaInfo() {
-        Properties bpd = passport.getBPD();
+        HashMap<String, String> bpd = passport.getBPD();
         if (bpd == null) {
             log.warn("have no bpd, skip fetching of meta info");
             return;
         }
 
         try {
-            final Properties lowlevel = getPassport().getSupportedLowlevelJobs(passport.getSyntaxDocument());
+            final HashMap<String, String> lowlevel = getPassport().getSupportedLowlevelJobs(passport.getSyntaxDocument());
 
             // SEPA-Infos abrufen
-            if (lowlevel.getProperty("SEPAInfo") != null) {
+            if (lowlevel.get("SEPAInfo") != null) {
                 log.info("fetching SEPA information");
                 AbstractHBCIJob sepainfo = newJob("SEPAInfo", getPassport());
                 addTask(sepainfo);
             }
 
             // TAN-Medien abrufen
-            if (lowlevel.getProperty("TANMediaList") != null) {
+            if (lowlevel.get("TANMediaList") != null) {
                 log.info("fetching TAN media list");
                 AbstractHBCIJob tanMedia = newJob("TANMediaList", getPassport());
                 addTask(tanMedia);
@@ -223,7 +222,7 @@ public final class HBCIDialog {
             HBCIExecStatus status = execute(false);
             if (status.isOK()) {
                 log.info("successfully fetched meta info");
-                passport.getUPD().setProperty("_fetchedMetaInfo", new Date().toString());
+                passport.getUPD().put("_fetchedMetaInfo", new Date().toString());
             } else {
                 log.error("error while fetching meta info: " + status.toString());
             }
@@ -244,7 +243,7 @@ public final class HBCIDialog {
      * @deprecated Bitte <code>updateMetaInfo</code> verwenden. Das aktualisiert auch die TAN-Medien.
      */
     public void updateSEPAInfo(Document document) {
-        Properties bpd = passport.getBPD();
+        HashMap<String, String> bpd = passport.getBPD();
         if (bpd == null) {
             log.warn("have no bpd, skipping SEPA information fetching");
             return;
@@ -252,7 +251,7 @@ public final class HBCIDialog {
 
         // jetzt noch zusaetzliche die SEPA-Informationen abholen
         try {
-            if (getPassport().getSupportedLowlevelJobs(document).getProperty("SEPAInfo") != null) {
+            if (getPassport().getSupportedLowlevelJobs(document).get("SEPAInfo") != null) {
                 log.info("trying to fetch SEPA information from institute");
 
                 // HKSPA wird unterstuetzt
@@ -262,7 +261,7 @@ public final class HBCIDialog {
                 if (status.isOK()) {
                     log.info("successfully fetched information about SEPA accounts from institute");
 
-                    passport.getUPD().setProperty("_fetchedSEPA", "1");
+                    passport.getUPD().put("_fetchedSEPA", "1");
                 } else {
                     log.error("error while fetching information about SEPA accounts from institute:");
                     log.error(status.toString());
@@ -355,7 +354,7 @@ public final class HBCIDialog {
 
                     // nachrichtenaustausch durchführen
                     msgstatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
-                    Properties result = msgstatus.getData();
+                    HashMap<String, String> result = msgstatus.getData();
 
                     // searching for first segment number that belongs to the custom_msg
                     // we look for entries like {"1","CustomMsg.MsgHead"} and so
@@ -363,7 +362,7 @@ public final class HBCIDialog {
                     // until we find the first segment containing a task
                     int offset;   // this specifies, how many segments precede the first task segment
                     for (offset = 1; true; offset++) {
-                        String path = result.getProperty(Integer.toString(offset));
+                        String path = result.get(Integer.toString(offset));
                         if (path == null || path.startsWith("CustomMsg.GV")) {
                             if (path == null) { // wenn kein entsprechendes Segment gefunden, dann offset auf 0 setzen
                                 offset = 0;
@@ -529,16 +528,16 @@ public final class HBCIDialog {
         return msgnum;
     }
 
+    public void setMsgnum(long msgnum) {
+        this.msgnum = msgnum;
+    }
+
     private void nextMsgNum() {
         msgnum++;
     }
 
     public void setDialogid(String dialogid) {
         this.dialogid = dialogid;
-    }
-
-    public void setMsgnum(long msgnum) {
-        this.msgnum = msgnum;
     }
 
     private int getTotalNumberOfGVSegsInCurrentMessage() {
@@ -630,9 +629,9 @@ public final class HBCIDialog {
 
             log.debug("afterCustomDialogInitHook: patching message queues for twostep method");
 
-            Properties secmechInfo = passport.getCurrentSecMechInfo();
-            String segversion = secmechInfo.getProperty("segversion");
-            String process = secmechInfo.getProperty("process");
+            HashMap<String, String> secmechInfo = passport.getCurrentSecMechInfo();
+            String segversion = secmechInfo.get("segversion");
+            String process = secmechInfo.get("process");
 
             List<List<AbstractHBCIJob>> newMessages = new ArrayList<>();
 
@@ -680,7 +679,7 @@ public final class HBCIDialog {
                                 // (ggf. kostenpflichtigen!) TAN.
                                 //  0: Auftraggeberkonto darf nicht angegeben werden
                                 //  2: Auftraggeberkonto muss angegeben werden, wenn im Geschäftsvorfall enthalten
-                                String noa = secmechInfo.getProperty("needorderaccount", "");
+                                String noa = secmechInfo.get("needorderaccount") != null ? secmechInfo.get("needorderaccount") : "";
                                 log.info("needorderaccount=" + noa);
                                 if (noa.equals("2")) {
                                     Konto k = hbciJob.getOrderAccount();
@@ -729,7 +728,8 @@ public final class HBCIDialog {
                             // hktan.setParam("listidx","");
 
                             // wenn needchallengeklass gesetzt ist:
-                            if (secmechInfo.getProperty("needchallengeklass", "N").equals("J")) {
+                            String needchallengeklass = secmechInfo.get("needchallengeklass") != null ? secmechInfo.get("needchallengeklass") : "N";
+                            if (needchallengeklass.equals("J")) {
                                 log.debug("we are in PV #1, and a challenge klass is required");
                                 ChallengeInfo cinfo = new ChallengeInfo();
                                 cinfo.applyParams(hbciJob, hktan, secmechInfo);
@@ -838,15 +838,15 @@ public final class HBCIDialog {
         return this.messages;
     }
 
-    public void setKernel(HBCIKernel kernel) {
-        this.kernel = kernel;
-    }
-
     public HBCIPassportInternal getPassport() {
         return passport;
     }
 
     public HBCIKernel getKernel() {
         return kernel;
+    }
+
+    public void setKernel(HBCIKernel kernel) {
+        this.kernel = kernel;
     }
 }

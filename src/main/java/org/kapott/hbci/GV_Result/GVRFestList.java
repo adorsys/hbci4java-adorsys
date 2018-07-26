@@ -1,4 +1,3 @@
-
 /*  $Id: GVRFestList.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -41,44 +40,38 @@ public final class GVRFestList extends HBCIJobResultImpl {
         super(passport);
     }
 
+    public void addEntry(Entry entry) {
+        entries.add(entry);
+    }
+
+    /**
+     * Gibt Informationen über alle gefundenen Festgeldanlagen zurück
+     *
+     * @return Array, wobei jeder Eintrag eine Festgeldanlage beschreibt
+     */
+    public Entry[] getEntries() {
+        return entries.toArray(new Entry[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        for (int i = 0; i < entries.size(); i++) {
+            Entry entry = entries.get(i);
+
+            ret.append("Festgeldanlage #").append(i).append(linesep);
+            ret.append(entry.toString());
+            ret.append(linesep + linesep);
+        }
+
+        return ret.toString().trim();
+    }
+
     /**
      * Informationen über eine einzelne. Festgeldanlage
      */
     public static final class Entry {
-        /**
-         * Informationen darüber, wie eine Festgeldanlage bei Ablauf der
-         * Laufzeit zu verlängern ist
-         */
-        public static final class Prolong {
-            /**
-             * Neue Laufzeit nach dem Ablaufdatum
-             */
-            public int laufzeit;
-            /**
-             * Neuer Betrag der Anlage
-             */
-            public Value betrag;
-            /**
-             * Soll Festgeldanlage nach der zusätzlichen <code>laufzeit</code> erneut
-             * verlängert werden?
-             */
-            public boolean verlaengern;
-
-            public String toString() {
-                StringBuffer ret = new StringBuffer();
-
-                ret.append("Verlängerung: ");
-                ret.append("Laufzeit ");
-                ret.append(Integer.toString(laufzeit));
-                ret.append(" Betrag ");
-                ret.append(betrag.toString());
-                ret.append(" weiter_verlaengern: ");
-                ret.append(Boolean.toString(verlaengern));
-
-                return ret.toString();
-            }
-        }
-
         /**
          * Konto für die Festgeldanlage
          */
@@ -156,33 +149,39 @@ public final class GVRFestList extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
 
-    public void addEntry(Entry entry) {
-        entries.add(entry);
-    }
+        /**
+         * Informationen darüber, wie eine Festgeldanlage bei Ablauf der
+         * Laufzeit zu verlängern ist
+         */
+        public static final class Prolong {
+            /**
+             * Neue Laufzeit nach dem Ablaufdatum
+             */
+            public int laufzeit;
+            /**
+             * Neuer Betrag der Anlage
+             */
+            public Value betrag;
+            /**
+             * Soll Festgeldanlage nach der zusätzlichen <code>laufzeit</code> erneut
+             * verlängert werden?
+             */
+            public boolean verlaengern;
 
-    /**
-     * Gibt Informationen über alle gefundenen Festgeldanlagen zurück
-     *
-     * @return Array, wobei jeder Eintrag eine Festgeldanlage beschreibt
-     */
-    public Entry[] getEntries() {
-        return entries.toArray(new Entry[entries.size()]);
-    }
+            public String toString() {
+                StringBuffer ret = new StringBuffer();
 
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
+                ret.append("Verlängerung: ");
+                ret.append("Laufzeit ");
+                ret.append(Integer.toString(laufzeit));
+                ret.append(" Betrag ");
+                ret.append(betrag.toString());
+                ret.append(" weiter_verlaengern: ");
+                ret.append(Boolean.toString(verlaengern));
 
-        for (int i = 0; i < entries.size(); i++) {
-            Entry entry = entries.get(i);
-
-            ret.append("Festgeldanlage #").append(i).append(linesep);
-            ret.append(entry.toString());
-            ret.append(linesep + linesep);
+                return ret.toString();
+            }
         }
-
-        return ret.toString().trim();
     }
 }

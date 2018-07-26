@@ -1,4 +1,3 @@
-
 /*  $Id: GVTemplate.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,7 +22,6 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public final class GVTemplate extends AbstractHBCIJob {
 

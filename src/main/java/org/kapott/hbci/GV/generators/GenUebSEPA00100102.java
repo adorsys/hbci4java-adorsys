@@ -14,14 +14,12 @@ import java.util.Properties;
 /**
  * SEPA-Generator fuer pain.001.001.02.
  */
-public class GenUebSEPA00100102 extends AbstractSEPAGenerator
-{
+public class GenUebSEPA00100102 extends AbstractSEPAGenerator {
     /**
      * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getPainVersion()
      */
     @Override
-    public PainVersion getPainVersion()
-    {
+    public PainVersion getPainVersion() {
         return PainVersion.PAIN_001_001_02;
     }
 
@@ -29,8 +27,7 @@ public class GenUebSEPA00100102 extends AbstractSEPAGenerator
      * @see org.kapott.hbci.GV.generators.ISEPAGenerator#generate(java.util.Properties, java.io.OutputStream, boolean)
      */
     @Override
-    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception
-    {
+    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
 
         //Document
@@ -43,7 +40,7 @@ public class GenUebSEPA00100102 extends AbstractSEPAGenerator
 
         doc.getPain00100102().setGrpHdr(new GroupHeader20());
 
-        final String sepaId   = sepaParams.getProperty("sepaid");
+        final String sepaId = sepaParams.getProperty("sepaid");
         final String pmtInfId = sepaParams.getProperty("pmtinfid");
 
         //Group Header
@@ -69,7 +66,7 @@ public class GenUebSEPA00100102 extends AbstractSEPAGenerator
         pmtInf.getPmtTpInf().getSvcLvl().setCd(ServiceLevel3Code.SEPA);
 
         String date = sepaParams.getProperty("date");
-        if(date == null) date = SepaUtil.DATE_UNDEFINED;
+        if (date == null) date = SepaUtil.DATE_UNDEFINED;
         pmtInf.setReqdExctnDt(SepaUtil.createCalendar(date));
         pmtInf.setDbtr(new PartyIdentification23());
         pmtInf.setDbtrAcct(new CashAccount8());
@@ -96,15 +93,11 @@ public class GenUebSEPA00100102 extends AbstractSEPAGenerator
 
         //Payment Information - Credit Transfer Transaction Information
         ArrayList<CreditTransferTransactionInformation2> cdtTrxTxInfs = (ArrayList<CreditTransferTransactionInformation2>) pmtInf.getCdtTrfTxInf();
-        if (maxIndex != null)
-        {
-            for (int tnr = 0; tnr <= maxIndex; tnr++)
-            {
+        if (maxIndex != null) {
+            for (int tnr = 0; tnr <= maxIndex; tnr++) {
                 cdtTrxTxInfs.add(createCreditTransferTransactionInformation2(sepaParams, tnr));
             }
-        }
-        else
-        {
+        } else {
             cdtTrxTxInfs.add(createCreditTransferTransactionInformation2(sepaParams, null));
         }
 
@@ -112,13 +105,12 @@ public class GenUebSEPA00100102 extends AbstractSEPAGenerator
         this.marshal(of.createDocument(doc), os, validate);
     }
 
-    private CreditTransferTransactionInformation2 createCreditTransferTransactionInformation2(Properties sepaParams, Integer index)
-    {
+    private CreditTransferTransactionInformation2 createCreditTransferTransactionInformation2(Properties sepaParams, Integer index) {
         CreditTransferTransactionInformation2 cdtTrxTxInf = new CreditTransferTransactionInformation2();
 
         //Payment Information - Credit Transfer Transaction Information - Payment Identification
         cdtTrxTxInf.setPmtId(new PaymentIdentification1());
-        cdtTrxTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams,SepaUtil.insertIndex("endtoendid", index),AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
+        cdtTrxTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams, SepaUtil.insertIndex("endtoendid", index), AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
 
 
         //Payment Information - Credit Transfer Transaction Information - Creditor
@@ -145,8 +137,7 @@ public class GenUebSEPA00100102 extends AbstractSEPAGenerator
 
         //Payment Information - Credit Transfer Transaction Information - Usage
         String usage = sepaParams.getProperty(SepaUtil.insertIndex("usage", index));
-        if (usage != null && usage.length() > 0)
-        {
+        if (usage != null && usage.length() > 0) {
             cdtTrxTxInf.setRmtInf(new RemittanceInformation3());
             cdtTrxTxInf.getRmtInf().setUstrd(usage);
         }

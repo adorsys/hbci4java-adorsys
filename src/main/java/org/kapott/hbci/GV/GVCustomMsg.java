@@ -1,4 +1,3 @@
-
 /*  $Id: GVCustomMsg.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,10 +27,6 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 
 public final class GVCustomMsg extends AbstractHBCIJob {
 
-    public static String getLowlevelName() {
-        return "CustomMsg";
-    }
-
     public GVCustomMsg(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
 
@@ -46,9 +41,13 @@ public final class GVCustomMsg extends AbstractHBCIJob {
         addConstraint("recpt", "recpt", "");
     }
 
+    public static String getLowlevelName() {
+        return "CustomMsg";
+    }
+
     public void setParam(String paramName, String value) {
         if (paramName.equals("msg")) {
-            String st_maxlen = getJobRestrictions().getProperty("maxlen");
+            String st_maxlen = getJobRestrictions().get("maxlen");
 
             if (st_maxlen != null) {
                 int maxlen = Integer.parseInt(st_maxlen);

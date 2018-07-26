@@ -1,4 +1,3 @@
-
 /*  $Id: MultipleDEs.java,v 1.1 2011/05/04 22:38:03 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -33,15 +32,20 @@ public final class MultipleDEs extends MultipleSyntaxElements {
     private char delimiter;
     private List<String> valids;
 
+    public MultipleDEs(Node dedef, char delimiter, String path, Document document) {
+        super(dedef, path, document);
+        initData(delimiter);
+    }
+
+    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+        initData(delimiter);
+    }
+
     protected SyntaxElement createAndAppendNewElement(Node deref, String path, int idx, Document document) {
         SyntaxElement ret;
         addElement(ret = new DE(deref, getName(), path, idx, document));
         return ret;
-    }
-
-    public MultipleDEs(Node dedef, char delimiter, String path, Document document) {
-        super(dedef, path, document);
-        initData(delimiter);
     }
 
     public void init(Node dedef, char delimiter, String path, Document document) {
@@ -83,6 +87,8 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         return ret.toString();
     }
 
+    // -------------------------------------------------------------------------------------------------------
+
     public void log() {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             DE de = (DE) (i.next());
@@ -91,8 +97,6 @@ public final class MultipleDEs extends MultipleSyntaxElements {
 
         }
     }
-
-    // -------------------------------------------------------------------------------------------------------
 
     protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         SyntaxElement ret;
@@ -123,17 +127,12 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         this.valids = new ArrayList<>();
     }
 
-    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
-        initData(delimiter);
-    }
-
     public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         super.init(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         initData(delimiter);
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
         if (getElements().size() != 0) {
             for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
                 SyntaxElement e = i.next();
@@ -143,11 +142,11 @@ public final class MultipleDEs extends MultipleSyntaxElements {
             }
         } else {
             if (deref == null) {
-                p.setProperty(Integer.toString(segref[0]) +
+                p.put(Integer.toString(segref[0]) +
                         ":" + Integer.toString(degref[0]), getPath());
                 degref[0]++;
             } else {
-                p.setProperty(Integer.toString(segref[0]) +
+                p.put(Integer.toString(segref[0]) +
                                 ":" +
                                 Integer.toString(degref[0]) +
                                 "," +

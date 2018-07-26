@@ -1,4 +1,3 @@
-
 /*  $Id: ShowLowlevelGVRs.java,v 1.1 2011/05/04 22:37:45 willuhn Exp $
 
     This file is part of HBCI4Java

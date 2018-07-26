@@ -1,4 +1,3 @@
-
 /*  $Id: GVCardList.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -27,15 +26,11 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Value;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVCardList extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "CardList";
-    }
 
     public GVCardList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRCardList(passport));
@@ -46,23 +41,27 @@ public class GVCardList extends AbstractHBCIJob {
         addConstraint("my.subnumber", "KTV.subnumber", "");
     }
 
+    public static String getLowlevelName() {
+        return "CardList";
+    }
+
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRCardList.CardInfo info = new GVRCardList.CardInfo();
         String st;
 
-        info.cardnumber = result.getProperty(header + ".cardnumber");
-        info.cardordernumber = result.getProperty(header + ".nextcardnumber");
-        info.cardtype = Integer.parseInt(result.getProperty(header + ".cardtype"));
-        info.comment = result.getProperty(header + ".comment");
-        if ((st = result.getProperty(header + ".cardlimit.value")) != null) {
-            info.limit = new Value(st, result.getProperty(header + ".cardlimit.curr"));
+        info.cardnumber = result.get(header + ".cardnumber");
+        info.cardordernumber = result.get(header + ".nextcardnumber");
+        info.cardtype = Integer.parseInt(result.get(header + ".cardtype"));
+        info.comment = result.get(header + ".comment");
+        if ((st = result.get(header + ".cardlimit.value")) != null) {
+            info.limit = new Value(st, result.get(header + ".cardlimit.curr"));
         }
-        info.owner = result.getProperty(header + ".name");
-        if ((st = result.getProperty(header + ".validfrom")) != null) {
+        info.owner = result.get(header + ".name");
+        if ((st = result.get(header + ".validfrom")) != null) {
             info.validFrom = HBCIUtils.string2DateISO(st);
         }
-        if ((st = result.getProperty(header + ".validuntil")) != null) {
+        if ((st = result.get(header + ".validuntil")) != null) {
             info.validUntil = HBCIUtils.string2DateISO(st);
         }
 

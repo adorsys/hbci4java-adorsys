@@ -1,4 +1,3 @@
-
 /*  $Id: GVUebSEPA.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,12 +21,23 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 /**
  * Job-Implementierung fuer SEPA-Multi-Ueberweisungen.
  */
 public class GVMultiUebSEPA extends GVUebSEPA {
+    public GVMultiUebSEPA(HBCIPassportInternal passport) {
+        this(passport, getLowlevelName());
+    }
+
+    public GVMultiUebSEPA(HBCIPassportInternal passport, String name) {
+        super(passport, name);
+
+        addConstraint("batchbook", "sepa.batchbook", "");
+        addConstraint("Total.value", "Total.value", null);
+        addConstraint("Total.curr", "Total.curr", null);
+    }
+
     /**
      * Liefert den Lowlevel-Namen des Jobs.
      *
@@ -43,18 +53,6 @@ public class GVMultiUebSEPA extends GVUebSEPA {
     @Override
     public String getPainJobName() {
         return "UebSEPA";
-    }
-
-    public GVMultiUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName());
-    }
-
-    public GVMultiUebSEPA(HBCIPassportInternal passport, String name) {
-        super(passport, name);
-
-        addConstraint("batchbook", "sepa.batchbook", "");
-        addConstraint("Total.value", "Total.value", null);
-        addConstraint("Total.curr", "Total.curr", null);
     }
 
     @Override

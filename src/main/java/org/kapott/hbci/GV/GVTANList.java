@@ -1,4 +1,3 @@
-
 /*  $Id: GVTANList.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,47 +25,50 @@ import org.kapott.hbci.GV_Result.GVRTANList;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
-import java.util.Properties;
+import java.util.HashMap;
 
 public class GVTANList extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "TANListList";
-    }
 
     public GVTANList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTANList(passport));
     }
 
+    public static String getLowlevelName() {
+        return "TANListList";
+    }
+
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRTANList.TANList list = new GVRTANList.TANList();
 
-        list.status = result.getProperty(header + ".liststatus").charAt(0);
-        list.number = result.getProperty(header + ".listnumber");
-        String st = result.getProperty(header + ".date");
+        list.status = result.get(header + ".liststatus").charAt(0);
+        list.number = result.get(header + ".listnumber");
+        String st = result.get(header + ".date");
         if (st != null)
             list.date = HBCIUtils.string2DateISO(st);
-        list.nofTANsPerList = Integer.parseInt(result.getProperty(header + ".noftansperlist", "0"));
-        list.nofUsedTANsPerList = Integer.parseInt(result.getProperty(header + ".nofusedtansperlist", "0"));
+
+        String noftansperlist = result.get(header + ".noftansperlist") != null ? result.get(header + ".noftansperlist") : "0";
+        String nofusedtansperlist = result.get(header + ".nofusedtansperlist") != null ? result.get(header + ".nofusedtansperlist") : "0";
+
+        list.nofTANsPerList = Integer.parseInt(noftansperlist);
+        list.nofUsedTANsPerList = Integer.parseInt(nofusedtansperlist);
 
         for (int i = 0; ; i++) {
             String tanheader = HBCIUtils.withCounter(header + ".TANInfo", i);
 
-            st = result.getProperty(tanheader + ".usagecode");
+            st = result.get(tanheader + ".usagecode");
             if (st == null)
                 break;
 
             GVRTANList.TANInfo info = new GVRTANList.TANInfo();
 
             info.usagecode = Integer.parseInt(st);
-            info.usagetxt = result.getProperty(tanheader + ".usagetxt");
-            info.tan = result.getProperty(tanheader + ".tan");
+            info.usagetxt = result.get(tanheader + ".usagetxt");
+            info.tan = result.get(tanheader + ".tan");
 
-            String usagedate = result.getProperty(tanheader + ".usagedate");
-            String usagetime = result.getProperty(tanheader + ".usagetime");
+            String usagedate = result.get(tanheader + ".usagedate");
+            String usagetime = result.get(tanheader + ".usagetime");
             if (usagedate != null) {
                 if (usagetime == null) {
                     info.timestamp = HBCIUtils.string2DateISO(usagedate);

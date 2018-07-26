@@ -1,4 +1,3 @@
-
 /*  $Id: RWrongStatusSegOrder.java,v 1.1 2011/05/04 22:37:57 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,7 +21,6 @@
 package org.kapott.hbci.rewrite;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;

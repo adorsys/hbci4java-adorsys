@@ -1,4 +1,3 @@
-
 /*  $Id: GVTermUeb.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,14 +27,11 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVTermUeb
         extends AbstractHBCIJob {
-    public static String getLowlevelName() {
-        return "TermUeb";
-    }
-
     public GVTermUeb(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTermUeb(passport));
 
@@ -55,8 +51,8 @@ public final class GVTermUeb
         addConstraint("name2", "name2", "");
         addConstraint("key", "key", "51");
 
-        Properties parameters = getJobRestrictions();
-        int maxusage = Integer.parseInt(parameters.getProperty("maxusage"));
+        HashMap<String, String> parameters = getJobRestrictions();
+        int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {
             String name = HBCIUtils.withCounter("usage", i);
@@ -64,9 +60,13 @@ public final class GVTermUeb
         }
     }
 
+    public static String getLowlevelName() {
+        return "TermUeb";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String orderid = result.getProperty(header + ".orderid");
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
         ((GVRTermUeb) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {
@@ -84,14 +84,14 @@ public final class GVTermUeb
     }
 
     public void setParam(String paramName, String value) {
-        Properties res = getJobRestrictions();
+        HashMap<String, String> res = getJobRestrictions();
 
         if (paramName.equals("key")) {
             boolean atLeastOne = false;
             boolean found = false;
 
             for (int i = 0; ; i++) {
-                String st = res.getProperty(HBCIUtils.withCounter("key", i));
+                String st = res.get(HBCIUtils.withCounter("key", i));
 
                 if (st == null)
                     break;

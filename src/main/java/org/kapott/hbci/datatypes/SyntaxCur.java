@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxCur.java,v 1.1 2011/05/04 22:37:56 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,38 +22,32 @@ package org.kapott.hbci.datatypes;
 
 /* the representation of the datatype "cur" (currency) */
 public final class SyntaxCur
-    extends SyntaxDE
-{
-    public SyntaxCur(String x, int minsize, int maxsize)
-    {
-        super(x.trim(),3,3);
+        extends SyntaxDE {
+    public SyntaxCur(String x, int minsize, int maxsize) {
+        super(x.trim(), 3, 3);
     }
 
-    public void init(String x, int minsize, int maxsize)
-    {
-        super.init(x.trim(),3,3);
+    public SyntaxCur(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
     }
 
     // --------------------------------------------------------------------------------
-    
-    private void initData(StringBuffer res, int minsize, int maxsize)
-    {
+
+    public void init(String x, int minsize, int maxsize) {
+        super.init(x.trim(), 3, 3);
+    }
+
+    private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
 
-        setContent(st,3,3);
+        setContent(st, 3, 3);
         res.delete(0, endidx);
     }
 
-    public SyntaxCur(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
+    public void init(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
     }
-    
-    public void init(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
-    }
-    
+
 }

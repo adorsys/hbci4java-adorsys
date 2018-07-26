@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIInstMessage.java,v 1.1 2011/05/04 22:38:02 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -25,24 +24,22 @@ import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class HBCIInstMessage
-    implements Serializable
-{
+        implements Serializable {
     private String betreff;
     private String text;
 
-    public HBCIInstMessage(Properties result,String header)
-    {
-        betreff=result.getProperty(header+".betreff");
-        if (betreff==null)
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXECMS_IMSGNOSUCHMSG",header));
-        text=result.getProperty(header+".text");
+    public HBCIInstMessage(HashMap<String, String> result, String header) {
+        betreff = result.get(header + ".betreff");
+        if (betreff == null)
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXECMS_IMSGNOSUCHMSG", header));
+        text = result.get(header + ".text");
     }
 
-    public String toString()
-    {
-        return betreff+": "+text;
+    public String toString() {
+        return betreff + ": " + text;
     }
 }

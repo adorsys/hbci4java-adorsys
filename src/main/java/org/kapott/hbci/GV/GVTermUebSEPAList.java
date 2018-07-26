@@ -1,4 +1,3 @@
-
 /*  $Id: GVDauerList.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -33,35 +32,14 @@ import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
-import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVTermUebSEPAList extends AbstractSEPAGV {
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
-    }
-
-    public static String getLowlevelName() {
-        return "TermUebSEPAList";
-    }
 
     public GVTermUebSEPAList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTermUebList(passport));
@@ -83,27 +61,47 @@ public final class GVTermUebSEPAList extends AbstractSEPAGV {
         addConstraint("maxentries", "maxentries", "");
     }
 
+    public static String getLowlevelName() {
+        return "TermUebSEPAList";
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_001;
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRTermUebList.Entry entry = new GVRTermUebList.Entry();
 
         entry.my = new Konto();
-        entry.my.country = result.getProperty(header + ".My.KIK.country");
-        entry.my.blz = result.getProperty(header + ".My.KIK.blz");
-        entry.my.number = result.getProperty(header + ".My.number");
-        entry.my.subnumber = result.getProperty(header + ".My.subnumber");
-        entry.my.iban = result.getProperty(header + ".My.iban");
-        entry.my.bic = result.getProperty(header + ".My.bic");
+        entry.my.country = result.get(header + ".My.KIK.country");
+        entry.my.blz = result.get(header + ".My.KIK.blz");
+        entry.my.number = result.get(header + ".My.number");
+        entry.my.subnumber = result.get(header + ".My.subnumber");
+        entry.my.iban = result.get(header + ".My.iban");
+        entry.my.bic = result.get(header + ".My.bic");
         passport.fillAccountInfo(entry.my);
 
         entry.other = new Konto();
 
-        final String sepadescr = result.getProperty(header + ".sepadescr");
-        final String pain = result.getProperty(header + ".sepapain");
+        final String sepadescr = result.get(header + ".sepadescr");
+        final String pain = result.get(header + ".sepapain");
         final PainVersion version = PainVersion.choose(sepadescr, pain);
 
         ISEPAParser parser = SEPAParserFactory.get(version);
-        ArrayList<Properties> sepaResults = new ArrayList<Properties>();
+        ArrayList<HashMap<String, String>> sepaResults = new ArrayList<>();
         try {
             // Wir duerfen das hier nicht als UTF-8 interpretieren (das war vorher hier das Fall),
             // auch dann nicht, wenn wir genau wissen, dass das XML mit "<?xml version="1.0" encoding="UTF-8"?>"
@@ -121,36 +119,34 @@ public final class GVTermUebSEPAList extends AbstractSEPAGV {
         }
 
         if (sepaResults.isEmpty()) return;
-        Properties sepaResult = sepaResults.get(0);
-        entry.other.iban = sepaResult.getProperty("dst.iban");
-        entry.other.bic = sepaResult.getProperty("dst.bic");
-        entry.other.name = sepaResult.getProperty("dst.name");
+        HashMap<String, String> separesult = sepaResults.get(0);
+        entry.other.iban = separesult.get("dst.iban");
+        entry.other.bic = separesult.get("dst.bic");
+        entry.other.name = separesult.get("dst.name");
         entry.value = new Value(
-                sepaResult.getProperty("value"),
-                sepaResult.getProperty("curr"));
-        entry.addUsage(sepaResult.getProperty("usage"));
+                separesult.get("value"),
+                separesult.get("curr"));
+        entry.addUsage(separesult.get("usage"));
 
-        entry.orderid = result.getProperty(header + ".orderid");
-        entry.date = HBCIUtils.string2DateISO(sepaResult.getProperty("date"));
+        entry.orderid = result.get(header + ".orderid");
+        entry.date = HBCIUtils.string2DateISO(separesult.get("date"));
 
-        entry.can_change = result.getProperty(header + ".canchange") == null || result.getProperty(header + ".canchange").equals("J");
-        entry.can_delete = result.getProperty(header + ".candel") == null || result.getProperty(header + ".candel").equals("J");
+        entry.can_change = result.get(header + ".canchange") == null || result.get(header + ".canchange").equals("J");
+        entry.can_delete = result.get(header + ".candel") == null || result.get(header + ".candel").equals("J");
 
         ((GVRTermUebList) (jobResult)).addEntry(entry);
 
         if (entry.orderid != null && entry.orderid.length() != 0) {
             Properties p2 = new Properties();
 
-            for (Enumeration e = result.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-
+            result.keySet().forEach(key -> {
                 if (key.startsWith(header + ".") &&
                         !key.startsWith(header + ".SegHead.") &&
                         !key.endsWith(".orderid")) {
                     p2.setProperty(key.substring(header.length() + 1),
-                            result.getProperty(key));
+                            result.get(key));
                 }
-            }
+            });
 
             passport.setPersistentData("termueb_" + entry.orderid, p2);
         }

@@ -16,6 +16,22 @@ public class GVRTANMediaList extends HBCIJobResultImpl {
         super(passport);
     }
 
+    public void add(TANMediaInfo info) {
+        mediaList.add(info);
+    }
+
+    public List<TANMediaInfo> mediaList() {
+        return mediaList;
+    }
+
+    public Integer getTanOption() {
+        return tanOption;
+    }
+
+    public void setTanOption(Integer option) {
+        tanOption = option;
+    }
+
     public static class TANMediaInfo implements Serializable {
         public String mediaCategory;
         public String status;
@@ -31,23 +47,5 @@ public class GVRTANMediaList extends HBCIJobResultImpl {
         public Integer freeTans;
         public Date lastUse;
         public Date activatedOn;
-    }
-
-
-
-    public void add(TANMediaInfo info) {
-        mediaList.add(info);
-    }
-
-    public List<TANMediaInfo> mediaList() {
-        return mediaList;
-    }
-
-    public Integer getTanOption() {
-        return tanOption;
-    }
-
-    public void setTanOption(Integer option) {
-        tanOption = option;
     }
 }

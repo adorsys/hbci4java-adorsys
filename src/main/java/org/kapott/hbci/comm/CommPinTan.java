@@ -1,4 +1,3 @@
-
 /*  $Id: CommPinTan.java,v 1.1 2011/05/04 22:37:50 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -32,47 +31,40 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Constructor;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Properties;
 
 @Slf4j
 public final class CommPinTan {
 
-    private String rewriter;
-    private HBCICallback callback;
-
-    private URL url;
-    private HttpURLConnection conn;
-
     public final static String ENCODING = "ISO-8859-1";
-
-    //Needed for jackson
-    public CommPinTan() {
-    }
-
-    // die socket factory, die in jedem fall benutzt wird.
-    private SSLSocketFactory mySocketFactory;
-
-    // der hostname-verifier, der nur dann benutzt wird, wenn zertifikate
-    // nicht verifiziert werden sollen
-    private HostnameVerifier myHostnameVerifier;
-
     /**
      * Timeout fuer HTTP connect in Millisekunden.
      */
     private final static int HTTP_CONNECT_TIMEOUT = 60 * 1000;
-
     /**
      * Timeout fuer HTTP Read in Millisekunden.
      */
     private final static int HTTP_READ_TIMEOUT = 5 * HTTP_CONNECT_TIMEOUT;
+    private String rewriter;
+    private HBCICallback callback;
+    private URL url;
+    private HttpURLConnection conn;
+    // die socket factory, die in jedem fall benutzt wird.
+    private SSLSocketFactory mySocketFactory;
+    // der hostname-verifier, der nur dann benutzt wird, wenn zertifikate
+    // nicht verifiziert werden sollen
+    private HostnameVerifier myHostnameVerifier;
+
+    //Needed for jackson
+    public CommPinTan() {
+    }
 
     public CommPinTan(String rewriter, String host, HBCICallback callback) {
         this.rewriter = rewriter;

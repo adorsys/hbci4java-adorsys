@@ -1,4 +1,3 @@
-
 /*  $Id: MultipleSFs.java,v 1.1 2011/05/04 22:38:03 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,26 +21,26 @@
 package org.kapott.hbci.protocol;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Properties;
+import java.util.*;
 
 @Slf4j
 public final class MultipleSFs extends MultipleSyntaxElements {
-    
+
+    public MultipleSFs(Node sfref, String path, Document document) {
+        super(sfref, path, document);
+    }
+
+    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(sfref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    }
+
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document) {
         SyntaxElement ret = null;
         addElement((ret = new SF(getType(), getName(), path, idx, document)));
         return ret;
-    }
-
-    public MultipleSFs(Node sfref, String path, Document document) {
-        super(sfref, path, document);
     }
 
     public void init(Node sfref, String path, Document document) {
@@ -60,18 +59,14 @@ public final class MultipleSFs extends MultipleSyntaxElements {
         return ret.toString();
     }
 
+    // ---------------------------------------------------------------------------------------------------------------
+
     public void log() {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             SF sf = (SF) (i.next());
             if (sf != null)
                 log.trace(sf.toString(0));
         }
-    }
-
-    // ---------------------------------------------------------------------------------------------------------------
-
-    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(sfref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
     public void init(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
@@ -84,7 +79,7 @@ public final class MultipleSFs extends MultipleSyntaxElements {
         return ret;
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
         for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
             SyntaxElement e = i.next();
             if (e != null) {

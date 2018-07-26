@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIKernelImpl.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -54,7 +53,7 @@ public final class HBCIKernel {
     public HBCIKernel(HBCIPassportInternal passport) {
         this.passport = passport;
 
-        this.commPinTan = new CommPinTan(passport.getProperties().getProperty("kernel.rewriter"), passport.getHost(), passport.getCallback())
+        this.commPinTan = new CommPinTan(passport.getProperties().get("kernel.rewriter"), passport.getHost(), passport.getCallback())
                 .withProxy(passport.getProxy(), passport.getProxyUser(),
                         passport.getProxyPass());
     }
@@ -88,7 +87,7 @@ public final class HBCIKernel {
 
             // liste der rewriter erzeugen
             Hashtable<String, Object> kernelData = createKernelData(message.getName(), msgStatus, signit, cryptit, needSig, needCrypt);
-            ArrayList<Rewrite> rewriters = getRewriters(kernelData, passport.getProperties().getProperty("kernel.rewriter"));
+            ArrayList<Rewrite> rewriters = getRewriters(kernelData, passport.getProperties().get("kernel.rewriter"));
 
             // alle rewriter durchlaufen und plaintextnachricht patchen
             for (Rewrite rewriter1 : rewriters) {
@@ -129,20 +128,19 @@ public final class HBCIKernel {
     private void processMessage(Message message, HBCIMsgStatus msgStatus) {
     /* zu jeder SyntaxElement-Referenz (2:3,1)==(SEG:DEG,DE) den Pfad
        des jeweiligen Elementes speichern */
-        Properties paths = new Properties();
+        HashMap<String, String> paths = new HashMap<>();
         message.getElementPaths(paths, null, null, null);
         msgStatus.addData(paths);
 
             /* für alle Elemente (Pfadnamen) die aktuellen Werte speichern,
                wie sie bei der ausgehenden Nachricht versandt werden */
-        Hashtable<String, String> current = new Hashtable<>();
+        HashMap<String, String> current = new HashMap<>();
         message.extractValues(current);
-        Properties origs = new Properties();
-        for (Enumeration<String> e = current.keys(); e.hasMoreElements(); ) {
-            String key = e.nextElement();
-            String value = current.get(key);
-            origs.setProperty("orig_" + key, value);
-        }
+        HashMap<String, String> origs = new HashMap<>();
+
+        current.forEach((key, value) -> {
+            origs.put("orig_" + key, value);
+        });
         msgStatus.addData(origs);
 
         // zu versendene nachricht loggen

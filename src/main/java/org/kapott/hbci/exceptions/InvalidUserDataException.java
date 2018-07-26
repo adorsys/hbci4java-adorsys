@@ -1,4 +1,3 @@
-
 /*  $Id: InvalidUserDataException.java,v 1.1 2011/05/04 22:38:00 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,16 +21,13 @@
 package org.kapott.hbci.exceptions;
 
 
-public class InvalidUserDataException 
-    extends HBCI_Exception 
-{
-    public InvalidUserDataException(String msg) 
-    {
+public class InvalidUserDataException
+        extends HBCI_Exception {
+    public InvalidUserDataException(String msg) {
         super(msg);
     }
 
-    public InvalidUserDataException(String msg,Throwable e) 
-    {
-        super(msg,e);
+    public InvalidUserDataException(String msg, Throwable e) {
+        super(msg, e);
     }
 }

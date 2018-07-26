@@ -1,4 +1,3 @@
-
 /*  $Id: WPRef.java,v 1.1 2011/05/04 22:37:49 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -21,40 +20,54 @@
 
 package org.kapott.hbci.structures;
 
-/** Wertpapierreferenz (eine mögliche Identifikation für ein Wertpapier */
-public class WPRef
-{
-    /** Code repräsentiert ein ISIN */
-    public static final int TYPE_ISIN=1;
-    /** Code repräsentier eine WKN */
-    public static final int TYPE_WKN=2;
-    /** Code repräsentiert eine kreditinstitutsinterne Bezeichnung */
-    public static final int TYPE_KIINTERN=3;
-    /** Code repräsentiert einen Indexnamen */
-    public static final int TYPE_IDXNAME=4;
-    
-    /** Typ der Bezeichnung. Mögliche Werte sind
-        <ul>
-          <li>{@link #TYPE_ISIN}</li>
-          <li>{@link #TYPE_WKN}</li>
-          <li>{@link #TYPE_KIINTERN}</li>
-          <li>{@link #TYPE_IDXNAME}</li>
-        </ul>*/
+/**
+ * Wertpapierreferenz (eine mögliche Identifikation für ein Wertpapier
+ */
+public class WPRef {
+    /**
+     * Code repräsentiert ein ISIN
+     */
+    public static final int TYPE_ISIN = 1;
+    /**
+     * Code repräsentier eine WKN
+     */
+    public static final int TYPE_WKN = 2;
+    /**
+     * Code repräsentiert eine kreditinstitutsinterne Bezeichnung
+     */
+    public static final int TYPE_KIINTERN = 3;
+    /**
+     * Code repräsentiert einen Indexnamen
+     */
+    public static final int TYPE_IDXNAME = 4;
+
+    /**
+     * Typ der Bezeichnung. Mögliche Werte sind
+     * <ul>
+     * <li>{@link #TYPE_ISIN}</li>
+     * <li>{@link #TYPE_WKN}</li>
+     * <li>{@link #TYPE_KIINTERN}</li>
+     * <li>{@link #TYPE_IDXNAME}</li>
+     * </ul>
+     */
     public int type;
-    /** Bezeichnung des Wertpapiert, Interpretation abhängig vom
-        Wert von {@link #type} */
+    /**
+     * Bezeichnung des Wertpapiert, Interpretation abhängig vom
+     * Wert von {@link #type}
+     */
     public String code;
-    
-    public WPRef()
-    {
+
+    public WPRef() {
     }
 
-    /** Erstellen eines neuen Wertpapierreferenz-Objektes.
-        @param type Typ der Referenz
-        @param code Wertpapierbezeichnung abhängig von <code>type</code>*/
-    public WPRef(int type,String code)
-    {
-        this.type=type;
-        this.code=code;
+    /**
+     * Erstellen eines neuen Wertpapierreferenz-Objektes.
+     *
+     * @param type Typ der Referenz
+     * @param code Wertpapierbezeichnung abhängig von <code>type</code>
+     */
+    public WPRef(int type, String code) {
+        this.type = type;
+        this.code = code;
     }
 }

@@ -20,6 +20,7 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci4java.AbstractTest;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -27,6 +28,9 @@ import java.util.Properties;
  * Testet das Parsen der HITANS-Segmente aus den BPD.
  */
 public class HITANSTest extends AbstractTest {
+
+    int version = 0;
+
     /**
      * Liefert Pseudo-BPD aus der angegebenen Datei.
      *
@@ -35,25 +39,22 @@ public class HITANSTest extends AbstractTest {
      * @return die Pseudo-BPD.
      * @throws Exception
      */
-    private Properties getBPD(String file, String version) throws Exception {
+    private HashMap<String, String> getBPD(String file, String version) throws Exception {
         String data = getFile(file);
 
         Message msg = new Message("DialogInitAnonRes", data, data.length(), null, Message.CHECK_SEQ, true);
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
 
         // Prefix abschneiden
-        Properties bpd = new Properties();
-        for (Enumeration<String> e = ht.keys(); e.hasMoreElements(); ) {
-            String name = e.nextElement();
-            String value = ht.get(name);
-
+        HashMap<String, String> bpd = new HashMap<>();
+        ht.forEach((name, value) -> {
             if (name.startsWith("DialogInitAnonRes."))
                 name = name.replace("DialogInitAnonRes.", "");
             if (name.startsWith("BPD."))
                 name = name.replace("BPD.", "");
             bpd.put(name, value);
-        }
+        });
 
         return bpd;
     }
@@ -65,14 +66,11 @@ public class HITANSTest extends AbstractTest {
      */
     @Test
     public void testHitans5() throws Exception {
-        Properties bpd = getBPD("bpd/bpd2-formatted.txt", "300");
-        Enumeration names = bpd.propertyNames();
+        HashMap<String, String> bpd = getBPD("bpd/bpd2-formatted.txt", "300");
 
-        int version = 0;
 
-        while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
-            String value = bpd.getProperty(name);
+
+        bpd.forEach((name, value) -> {
 
             // Das darf kein Template-Parameter sein
             if (value.equals("HITANS"))
@@ -84,7 +82,7 @@ public class HITANSTest extends AbstractTest {
                 if (newVersion > version)
                     version = newVersion;
             }
-        }
+        });
         Assert.assertEquals(version, 5);
     }
 
@@ -95,19 +93,19 @@ public class HITANSTest extends AbstractTest {
      */
     @Test
     public void testCurrentSecMechInfo() throws Exception {
-        Properties bpd = getBPD("bpd/bpd2-formatted.txt", "300");
+        HashMap<String, String> bpd = getBPD("bpd/bpd2-formatted.txt", "300");
         PinTanPassport passport = new PinTanPassport(null, null, null);
         passport.setCurrentTANMethod("942");
         passport.setBPD(bpd);
 
-        Properties secmech = passport.getCurrentSecMechInfo();
+        HashMap<String, String> secmech = passport.getCurrentSecMechInfo();
 
         // secmech darf nicht null sein
         Assert.assertNotNull(secmech);
 
         // Das TAN-Verfahren 942 gibts in den BPD drei mal. In HITANS 5, 4 und 2.
         // Der Code muss die Version aus der aktuellsten Segment-Version liefern.
-        Assert.assertEquals(secmech.getProperty("segversion"), "5");
+        Assert.assertEquals(secmech.get("segversion"), "5");
     }
 }
 

@@ -1,4 +1,3 @@
-
 /*  $Id: MultipleSEGs.java,v 1.1 2011/05/04 22:38:02 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -25,22 +24,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Properties;
+import java.util.*;
 
 @Slf4j
 public final class MultipleSEGs extends MultipleSyntaxElements {
+
+    public MultipleSEGs(Node segref, String path, Document document) {
+        super(segref, path, document);
+    }
+
+    public MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(segref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    }
 
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document) {
         SyntaxElement ret = new SEG(getType(), getName(), path, idx, document);
         addElement(ret);
         return ret;
-    }
-
-    public MultipleSEGs(Node segref, String path, Document document) {
-        super(segref, path, document);
     }
 
     public void init(Node segref, String path, Document document) {
@@ -63,18 +63,14 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         return ret.toString();
     }
 
+    // ---------------------------------------------------------------------------------------------------------------
+
     public void log() {
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             SEG seg = (SEG) (i.next());
             if (seg != null)
                 log.trace(seg.toString(0));
         }
-    }
-
-    // ---------------------------------------------------------------------------------------------------------------
-
-    public MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(segref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
     public void init(Node segref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
@@ -87,7 +83,7 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         return ret;
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
         for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
             SyntaxElement e = i.next();
             if (e != null) {

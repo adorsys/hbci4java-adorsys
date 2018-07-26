@@ -1,4 +1,3 @@
-
 /*  $Id: LoggingInputStream.java,v 1.1 2011/05/04 22:37:50 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,50 +25,43 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class LoggingInputStream
-    extends InputStream
-{
-    private InputStream  targetInputStream;
+        extends InputStream {
+    private InputStream targetInputStream;
     private OutputStream logger;
-    
-    public LoggingInputStream(InputStream target, OutputStream logger)
-    {
-        this.targetInputStream=target;
-        this.logger=logger;
+
+    public LoggingInputStream(InputStream target, OutputStream logger) {
+        this.targetInputStream = target;
+        this.logger = logger;
     }
-    
-    public int read() 
-        throws IOException
-    {
-        int c=targetInputStream.read();
+
+    public int read()
+            throws IOException {
+        int c = targetInputStream.read();
         logger.write(c);
         return c;
     }
 
     public void close()
-        throws IOException
-    {
+            throws IOException {
         logger.flush();
         targetInputStream.close();
     }
 
     public int available()
-        throws IOException
-    {
+            throws IOException {
         return targetInputStream.available();
     }
 
     public int read(byte[] b, int off, int len)
-        throws IOException
-    {
-        int result=targetInputStream.read(b, off, len);
+            throws IOException {
+        int result = targetInputStream.read(b, off, len);
         logger.write(b, off, result);
         return result;
     }
 
     public int read(byte[] b)
-        throws IOException
-    {
-        int result=targetInputStream.read(b);
+            throws IOException {
+        int result = targetInputStream.read(b);
         logger.write(b, 0, result);
         return result;
     }

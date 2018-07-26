@@ -1,4 +1,3 @@
-
 /*  $Id: GVSaldoReq.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -30,13 +29,9 @@ import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Saldo;
 import org.kapott.hbci.structures.Value;
 
-import java.util.Properties;
+import java.util.HashMap;
 
 public class GVSaldoReq extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "Saldo";
-    }
 
     public GVSaldoReq(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRSaldoReq(passport));
@@ -54,60 +49,66 @@ public class GVSaldoReq extends AbstractHBCIJob {
         addConstraint("maxentries", "maxentries", "");
     }
 
+    public static String getLowlevelName() {
+        return "Saldo";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRSaldoReq.Info info = new GVRSaldoReq.Info();
 
         info.konto = new Konto();
-        info.konto.country = result.getProperty(header + ".KTV.KIK.country");
-        info.konto.blz = result.getProperty(header + ".KTV.KIK.blz");
-        info.konto.number = result.getProperty(header + ".KTV.number");
-        info.konto.subnumber = result.getProperty(header + ".KTV.subnumber");
-        info.konto.bic = result.getProperty(header + ".KTV.bic");
-        info.konto.iban = result.getProperty(header + ".KTV.iban");
-        info.konto.type = result.getProperty(header + ".kontobez");
-        info.konto.curr = result.getProperty(header + ".curr");
+        info.konto.country = result.get(header + ".KTV.KIK.country");
+        info.konto.blz = result.get(header + ".KTV.KIK.blz");
+        info.konto.number = result.get(header + ".KTV.number");
+        info.konto.subnumber = result.get(header + ".KTV.subnumber");
+        info.konto.bic = result.get(header + ".KTV.bic");
+        info.konto.iban = result.get(header + ".KTV.iban");
+        info.konto.type = result.get(header + ".kontobez");
+        info.konto.curr = result.get(header + ".curr");
         passport.fillAccountInfo(info.konto);
 
         info.ready = new Saldo();
-        String cd = result.getProperty(header + ".booked.CreditDebit");
-        String st = (cd.equals("D") ? "-" : "") + result.getProperty(header + ".booked.BTG.value", "0");
+        String cd = result.get(header + ".booked.CreditDebit");
+        String bookedValue = result.get(header + ".booked.BTG.value") != null ? result.get(header + ".booked.BTG.value") : "0";
+        String st = (cd.equals("D") ? "-" : "") + bookedValue;
         info.ready.value = new Value(
                 st,
-                result.getProperty(header + ".booked.BTG.curr"));
-        info.ready.timestamp = HBCIUtils.strings2DateTimeISO(result.getProperty(header + ".booked.date"),
-                result.getProperty(header + ".booked.time"));
+                result.get(header + ".booked.BTG.curr"));
+        info.ready.timestamp = HBCIUtils.strings2DateTimeISO(result.get(header + ".booked.date"),
+                result.get(header + ".booked.time"));
 
-        cd = result.getProperty(header + ".pending.CreditDebit");
+        cd = result.get(header + ".pending.CreditDebit");
         if (cd != null) {
-            st = (cd.equals("D") ? "-" : "") + result.getProperty(header + ".pending.BTG.value", "0");
+            String pendingValue = result.get(header + ".booked.BTG.value") != null ? result.get(header + ".pending.BTG.value") : "0";
+            st = (cd.equals("D") ? "-" : "") + pendingValue;
             info.unready = new Saldo();
             info.unready.value = new Value(
                     st,
-                    result.getProperty(header + ".pending.BTG.curr"));
-            info.unready.timestamp = HBCIUtils.strings2DateTimeISO(result.getProperty(header + ".pending.date"),
-                    result.getProperty(header + ".pending.time"));
+                    result.get(header + ".pending.BTG.curr"));
+            info.unready.timestamp = HBCIUtils.strings2DateTimeISO(result.get(header + ".pending.date"),
+                    result.get(header + ".pending.time"));
         }
 
-        st = result.getProperty(header + ".kredit.value");
+        st = result.get(header + ".kredit.value");
         if (st != null) {
             info.kredit = new Value(
                     st,
-                    result.getProperty(header + ".kredit.curr"));
+                    result.get(header + ".kredit.curr"));
         }
 
-        st = result.getProperty(header + ".available.value");
+        st = result.get(header + ".available.value");
         if (st != null) {
             info.available = new Value(
                     st,
-                    result.getProperty(header + ".available.curr"));
+                    result.get(header + ".available.curr"));
         }
 
-        st = result.getProperty(header + ".used.value");
+        st = result.get(header + ".used.value");
         if (st != null) {
             info.used = new Value(
                     st,
-                    result.getProperty(header + ".used.curr"));
+                    result.get(header + ".used.curr"));
         }
 
         ((GVRSaldoReq) (jobResult)).store(info);

@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIPassport.java,v 1.1 2011/05/04 22:37:43 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,7 +23,7 @@ package org.kapott.hbci.passport;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.structures.Konto;
 
-import java.util.Properties;
+import java.util.HashMap;
 
 /**
  * <p>Public Interface für HBCI-Passports. Ein HBCI-Passport ist eine Art "Ausweis",
@@ -69,7 +68,7 @@ public interface HBCIPassport {
      * @return die Bankparamterdaten oder <code>null</code>, falls diese nicht im
      * Passport vorhanden sind
      */
-    Properties getBPD();
+    HashMap<String, String> getBPD();
 
     /**
      * Gibt die HBCI-Version zurück, die zuletzt verwendet wurde. Der hier zurückgegebene
@@ -93,7 +92,7 @@ public interface HBCIPassport {
      * @return die Userparameterdaten oder <code>null</code>, falls diese nicht im
      * Passport vorhanden sind
      */
-    Properties getUPD();
+    HashMap<String, String> getUPD();
 
     /**
      * <p>Gibt die Bankleitzahl des Kreditinstitutes zurück. Bei Verwendung dieser Methode
@@ -111,6 +110,8 @@ public interface HBCIPassport {
      */
     String getBLZ();
 
+    void setBLZ(String blz);
+
     /**
      * Gibt den Ländercode der Bank zurück. Für deutsche Banken ist das der String
      * "<code>DE</code>".
@@ -118,6 +119,8 @@ public interface HBCIPassport {
      * @return Ländercode der Bank
      */
     String getCountry();
+
+    void setCountry(String country);
 
     /**
      * Gibt ein Array mit Kontoinformationen zurück. Auf die hier zurückgegebenen Konten kann via
@@ -168,6 +171,8 @@ public interface HBCIPassport {
      */
     String getHost();
 
+    void setHost(String host);
+
     /**
      * Gibt die TCP-Portnummer auf dem HBCI-Server zurück, zu der eine
      * HBCI-Verbindung aufgebaut werden soll. In der Regel ist das der Port 3000,
@@ -179,6 +184,8 @@ public interface HBCIPassport {
      */
     Integer getPort();
 
+    void setPort(Integer port);
+
     /**
      * Gibt die Benutzerkennung zurück, die zur Authentifikation am
      * HBCI-Server benutzt wird.
@@ -186,6 +193,8 @@ public interface HBCIPassport {
      * @return Benutzerkennung für Authentifikation
      */
     String getUserId();
+
+    void setUserId(String userid);
 
     /**
      * <p>Gibt die Kunden-ID zurück, die von <em>HBCI4Java</em> für die
@@ -201,6 +210,21 @@ public interface HBCIPassport {
      * @return Kunden-ID für die HBCI-Kommunikation
      */
     String getCustomerId();
+
+    /**
+     * Setzen der zu verwendenden Kunden-ID. Durch Aufruf dieser Methode wird die
+     * Kunden-ID gesetzt, die beim nächsten Ausführen eines HBCI-Dialoges
+     * ({@link org.kapott.hbci.manager.HBCIDialog#execute(boolean)})
+     * benutzt wird. Diese neue Kunden-ID wird dann außerdem permanent im
+     * jeweiligen Sicherheitsmedium gespeichert (sofern das von dem Medium
+     * unterstützt wird).
+     *
+     * @param customerid die zu verwendende Kunden-ID; wird keine customerid
+     *                   angegeben (<code>null</code> oder ""), so wird automatisch die
+     *                   User-ID verwendet.
+     * @see #getCustomerId()
+     */
+    void setCustomerId(String customerid);
 
     boolean isSupported();
 
@@ -245,50 +269,13 @@ public interface HBCIPassport {
 
     String getDefaultLang();
 
-    /**
-     * Löschen der lokal gespeicherten BPD. Damit kann erzwungen werden, dass
-     * die BPD beim nächsten HBCI-Dialog erneut abgeholt werden.
-     */
-    void clearBPD();
-
-    /**
-     * Löschen der lokal gespeicherten UPD. Damit kann erzwungen werden, dass
-     * die UPD beim nächsten HBCI-Dialog erneut abgeholt werden.
-     */
-    void clearUPD();
-
-    void setCountry(String country);
-
-    void setBLZ(String blz);
-
-    void setHost(String host);
-
-    void setPort(Integer port);
-
-    void setUserId(String userid);
-
-    /**
-     * Setzen der zu verwendenden Kunden-ID. Durch Aufruf dieser Methode wird die
-     * Kunden-ID gesetzt, die beim nächsten Ausführen eines HBCI-Dialoges
-     * ({@link org.kapott.hbci.manager.HBCIDialog#execute(boolean)})
-     * benutzt wird. Diese neue Kunden-ID wird dann außerdem permanent im
-     * jeweiligen Sicherheitsmedium gespeichert (sofern das von dem Medium
-     * unterstützt wird).
-     *
-     * @param customerid die zu verwendende Kunden-ID; wird keine customerid
-     *                   angegeben (<code>null</code> oder ""), so wird automatisch die
-     *                   User-ID verwendet.
-     * @see #getCustomerId()
-     */
-    void setCustomerId(String customerid);
-
-    Properties getProperties();
+    HashMap<String, String> getProperties();
 
     HBCICallback getCallback();
 
     void setPersistentData(String s, Object p2);
 
-    Properties getJobRestrictions(String name);
+    HashMap<String, String> getJobRestrictions(String name);
 
     Object getPersistentData(String s);
 

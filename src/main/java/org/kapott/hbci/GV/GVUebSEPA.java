@@ -1,4 +1,3 @@
-
 /*  $Id: GVUebSEPA.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,38 +23,12 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
-import org.w3c.dom.Document;
 
 /**
  * Job-Implementierung fuer SEPA-Ueberweisungen.
  */
 public class GVUebSEPA extends AbstractSEPAGV {
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
-    }
-
-    /**
-     * Liefert den Lowlevel-Namen des Jobs.
-     *
-     * @return der Lowlevel-Namen des Jobs.
-     */
-    public static String getLowlevelName() {
-        return "UebSEPA";
-    }
 
     public GVUebSEPA(HBCIPassportInternal passport) {
         this(passport, getLowlevelName());
@@ -96,5 +69,30 @@ public class GVUebSEPA extends AbstractSEPAGV {
         addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, true);
         addConstraint("purposecode", "sepa.purposecode", "", true);
+    }
+
+    /**
+     * Liefert den Lowlevel-Namen des Jobs.
+     *
+     * @return der Lowlevel-Namen des Jobs.
+     */
+    public static String getLowlevelName() {
+        return "UebSEPA";
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_001;
     }
 }

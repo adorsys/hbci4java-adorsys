@@ -1,4 +1,3 @@
-
 /*  $Id: GVRTermUebList.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -41,6 +40,36 @@ public final class GVRTermUebList extends HBCIJobResultImpl {
 
     public GVRTermUebList(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addEntry(Entry e) {
+        list.add(e);
+    }
+
+    /**
+     * Gibt ein Array mit gefundenen noch anstehenden Terminüberweisungen zurück
+     *
+     * @return Array, wobei jedes Element Daten über eine einzelne Terminüberweisung enthält
+     */
+    public Entry[] getEntries() {
+        return list.toArray(new Entry[list.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        for (int i = 0; i < list.size(); i++) {
+            Entry e = list.get(i);
+
+            ret.append("#").append(i);
+            ret.append(linesep);
+            ret.append(e.toString());
+            ret.append(linesep);
+            ret.append(linesep);
+        }
+
+        return ret.toString().trim();
     }
 
     /**
@@ -134,36 +163,5 @@ public final class GVRTermUebList extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
-
-
-    public void addEntry(Entry e) {
-        list.add(e);
-    }
-
-    /**
-     * Gibt ein Array mit gefundenen noch anstehenden Terminüberweisungen zurück
-     *
-     * @return Array, wobei jedes Element Daten über eine einzelne Terminüberweisung enthält
-     */
-    public Entry[] getEntries() {
-        return list.toArray(new Entry[list.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
-
-        for (int i = 0; i < list.size(); i++) {
-            Entry e = list.get(i);
-
-            ret.append("#").append(i);
-            ret.append(linesep);
-            ret.append(e.toString());
-            ret.append(linesep);
-            ret.append(linesep);
-        }
-
-        return ret.toString().trim();
     }
 }

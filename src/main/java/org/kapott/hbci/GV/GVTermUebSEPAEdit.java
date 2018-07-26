@@ -5,38 +5,13 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
-import org.w3c.dom.Document;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVTermUebSEPAEdit extends AbstractSEPAGV {
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
-    }
-
-    /**
-     * Liefert den Lowlevel-Namen des Jobs.
-     *
-     * @return der Lowlevel-Namen des Jobs.
-     */
-    public static String getLowlevelName() {
-        return "TermUebSEPAEdit";
-    }
 
     public GVTermUebSEPAEdit(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTermUebEdit(passport));
@@ -79,12 +54,37 @@ public class GVTermUebSEPAEdit extends AbstractSEPAGV {
 
     }
 
+    /**
+     * Liefert den Lowlevel-Namen des Jobs.
+     *
+     * @return der Lowlevel-Namen des Jobs.
+     */
+    public static String getLowlevelName() {
+        return "TermUebSEPAEdit";
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_001;
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String orderid = result.getProperty(header + ".orderid");
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
 
         ((GVRTermUebEdit) (jobResult)).setOrderId(orderid);
-        ((GVRTermUebEdit) (jobResult)).setOrderIdOld(result.getProperty(header + ".orderidold"));
+        ((GVRTermUebEdit) (jobResult)).setOrderIdOld(result.get(header + ".orderidold"));
 
         if (orderid != null && orderid.length() != 0) {
             Properties p = getLowlevelParams();

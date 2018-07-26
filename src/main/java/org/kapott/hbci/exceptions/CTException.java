@@ -1,4 +1,3 @@
-
 /*  $Id: CTException.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,10 +22,8 @@ package org.kapott.hbci.exceptions;
 
 
 public class CTException
-    extends HBCI_Exception
-{
-    public CTException(String msg)
-    {
+        extends HBCI_Exception {
+    public CTException(String msg) {
         super(msg);
     }
 }

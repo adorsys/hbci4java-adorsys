@@ -1,4 +1,3 @@
-
 /*  $Id: GVRWPDepotList.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -44,7 +43,6 @@ import java.util.Locale;
  */
 public final class GVRWPDepotList extends HBCIJobResultImpl {
 
-    private List<Entry> entries = new ArrayList<>();
     /**
      * Dieses Feld enthält einen String, der den nicht-auswertbaren Teil der gelieferten Informationen
      * enthält. Es dient nur zu Debugging-Zwecken und sollte eigentlich immer <code>null</code>
@@ -53,9 +51,39 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
      * "Schwanz" der Daten, bei dem das Parsing-Problem aufgetreten ist.
      */
     public String rest;
+    private List<Entry> entries = new ArrayList<>();
 
     public GVRWPDepotList(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addEntry(Entry entry) {
+        entries.add(entry);
+    }
+
+    /**
+     * Gibt ein Array mit Depotdaten zurück, wobei jeder Eintrag
+     * Informationen zu genau einem Depot enthält.
+     *
+     * @return Array mit Depotinformationen
+     */
+    public Entry[] getEntries() {
+        return entries.toArray(new Entry[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        for (int i = 0; i < entries.size(); i++) {
+            Entry e = entries.get(i);
+            ret.append("Entry #").append(i).append(":").append(linesep);
+            ret.append(e.toString() + linesep + linesep);
+        }
+
+        ret.append("rest: ").append(rest);
+
+        return ret.toString().trim();
     }
 
     /**
@@ -64,100 +92,60 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
     public static final class Entry {
         public static final int SALDO_TYPE_STCK = 1;
         public static final int SALDO_TYPE_WERT = 2;
+        /**
+         * Zeitpunkt der Erstellung dieser Daten
+         */
+        public Date timestamp;
+        /**
+         * Depotkonto, auf das sich der Eintrag bezieht.
+         */
+        public Konto depot;
+        /**
+         * Gesamtwert des Depots (optional!)
+         */
+        public BigDecimalValue total;
+        private ArrayList<Gattung> gattungen;
+        public Entry() {
+            gattungen = new ArrayList<Gattung>();
+        }
+
+        /* TODO: Zusatzinformationen aus Feld 72 */
+
+        public void addEntry(Gattung gattung) {
+            gattungen.add(gattung);
+        }
+
+        /**
+         * Gibt ein Array mit Informationen über alle Wertpapiergattungen
+         * zurück, die in diesem Depot gehalten werden. Der Rückgabewert ist
+         * niemals <code>null</code>, die GröÃe des Arrays kann aber 0 sein.
+         *
+         * @return Array mit Informationen über Wertpapiergattungen
+         */
+        public Gattung[] getEntries() {
+            return gattungen.toArray(new Gattung[gattungen.size()]);
+        }
+
+        public String toString() {
+            StringBuffer ret = new StringBuffer();
+            String linesep = System.getProperty("line.separator");
+
+            DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, HBCIUtils.getLocale());
+            ret.append("Depot ").append(depot.toString()).append(" ").append(df.format(timestamp)).append(linesep);
+            for (int i = 0; i < gattungen.size(); i++) {
+                ret.append("Gattung:").append(linesep);
+                ret.append(gattungen.get(i).toString() + linesep + linesep);
+            }
+            if (total != null)
+                ret.append("Total: ").append(total.toString());
+
+            return ret.toString().trim();
+        }
 
         /**
          * Enhält Informationen zu einer Wertpapiergattung
          */
         public static final class Gattung {
-            /**
-             * Untersaldoinformationen, das heiÃt Informationen über die Zusammensetzung
-             * des Saldos einer Wertpapiergattung.
-             */
-            public static final class SubSaldo {
-                /**
-                 * Beschreibung des Saldowertes
-                 */
-                public String qualifier;
-                /**
-                 * Gibt den Typ des Saldos {@link #saldo} an (optional).
-                 * <ul>
-                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_PRCT} - Saldo ist ein Prozentsatz</li>
-                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_VALUE} - Saldo ist ein Geldbetrag</li>
-                 * </ul>
-                 */
-                public int saldo_type;
-                /**
-                 * Gibt an, ob das Papier für einen Verkauf zur Verfügung steht.
-                 * <code>true</code> gibt an, dass das Papier gesperrt ist und somit
-                 * nicht zur Verfügung steht, bei <code>false</code> kann es verkauft werden
-                 */
-                public boolean locked;
-                /**
-                 * Saldobetrag. Das Währungsfeld <code>curr</code> ist hier zur Zeit
-                 * immer der leere String.
-                 */
-                public BigDecimalValue saldo;
-                /**
-                 * Lagerland der Depotstelle (optional). Der Ländercode ist
-                 * der ISO-3166-Ländercode (z.B. DE für Deutschland)
-                 */
-                public String country;
-                /**
-                 * Art der Verwahrung (optional).
-                 * <ul>
-                 * <li>0 - nicht gesetzt</li>
-                 * <li>1 - Girosammelverwahrung</li>
-                 * <li>2 - Streifbandverwahrung</li>
-                 * <li>3 - Haussammelverwahrung</li>
-                 * <li>4 - Wertpapierrechnung</li>
-                 * <li>9 - Sonstige</li>
-                 * </ul>
-                 */
-                public int verwahrung;
-                /**
-                 * Beschreibung der Lagerstelle (optional)
-                 */
-                public String lager;
-                /**
-                 * Sperre bis zu diesem Datum (optional)
-                 */
-                public Date lockeduntil;
-                /**
-                 * Sperr- oder Zusatzvermerke der Bank (optional)
-                 */
-                public String comment;
-
-                public String toString() {
-                    StringBuffer ret = new StringBuffer();
-                    String linesep = System.getProperty("line.separator");
-
-                    ret.append(qualifier).append(": ");
-                    ret.append(saldo.toString()).append(" (").append(((saldo_type == SALDO_TYPE_STCK) ? "STCK" : "WERT")).append(")").append(linesep);
-
-                    ret.append("Lagerland: ").append(country + linesep);
-                    ret.append("Verwahrung Typ: ").append(verwahrung).append(linesep);
-                    ret.append("Lager: ").append(lager).append(linesep);
-
-                    if (locked) {
-                        ret.append("locked");
-                        if (lockeduntil != null) {
-                            DateFormat df = DateFormat.getDateTimeInstance(
-                                    DateFormat.SHORT,
-                                    DateFormat.SHORT,
-                                    Locale.getDefault());
-                            ret.append(" until ").append(df.format(lockeduntil));
-                        }
-                    } else {
-                        ret.append("not locked");
-                    }
-
-                    if (comment != null)
-                        ret.append(linesep).append("Bemerkungen: ").append(comment);
-
-                    return ret.toString().trim();
-                }
-            }
-
             public final static int PRICE_TYPE_PRCT = 1;
             public final static int PRICE_TYPE_VALUE = 2;
             public final static int PRICE_QUALIF_MRKT = 1;
@@ -165,7 +153,6 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
             public final static int SOURCE_LOC = 1;
             public final static int SOURCE_THEOR = 2;
             public final static int SOURCE_SELLER = 3;
-
             /**
              * ISIN des Wertpapiers (optional)
              */
@@ -231,7 +218,6 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
              * Fall ein leerer String! (TODO).
              */
             public BigDecimalValue saldo;
-            private ArrayList<SubSaldo> saldi;
             /**
              * Anzahl der aufgelaufenen Tage (optional)
              */
@@ -290,7 +276,7 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
             public String underlyingwkn;
             public String underlyingisin;
             public BigDecimalValue kontraktbasispreis;
-
+            private ArrayList<SubSaldo> saldi;
             public Gattung() {
                 saldi = new ArrayList<SubSaldo>();
             }
@@ -379,87 +365,95 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
 
                 return ret.toString().trim();
             }
-        }
 
-        /**
-         * Zeitpunkt der Erstellung dieser Daten
-         */
-        public Date timestamp;
-        /**
-         * Depotkonto, auf das sich der Eintrag bezieht.
-         */
-        public Konto depot;
-        private ArrayList<Gattung> gattungen;
-        /**
-         * Gesamtwert des Depots (optional!)
-         */
-        public BigDecimalValue total;
+            /**
+             * Untersaldoinformationen, das heiÃt Informationen über die Zusammensetzung
+             * des Saldos einer Wertpapiergattung.
+             */
+            public static final class SubSaldo {
+                /**
+                 * Beschreibung des Saldowertes
+                 */
+                public String qualifier;
+                /**
+                 * Gibt den Typ des Saldos {@link #saldo} an (optional).
+                 * <ul>
+                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_PRCT} - Saldo ist ein Prozentsatz</li>
+                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_VALUE} - Saldo ist ein Geldbetrag</li>
+                 * </ul>
+                 */
+                public int saldo_type;
+                /**
+                 * Gibt an, ob das Papier für einen Verkauf zur Verfügung steht.
+                 * <code>true</code> gibt an, dass das Papier gesperrt ist und somit
+                 * nicht zur Verfügung steht, bei <code>false</code> kann es verkauft werden
+                 */
+                public boolean locked;
+                /**
+                 * Saldobetrag. Das Währungsfeld <code>curr</code> ist hier zur Zeit
+                 * immer der leere String.
+                 */
+                public BigDecimalValue saldo;
+                /**
+                 * Lagerland der Depotstelle (optional). Der Ländercode ist
+                 * der ISO-3166-Ländercode (z.B. DE für Deutschland)
+                 */
+                public String country;
+                /**
+                 * Art der Verwahrung (optional).
+                 * <ul>
+                 * <li>0 - nicht gesetzt</li>
+                 * <li>1 - Girosammelverwahrung</li>
+                 * <li>2 - Streifbandverwahrung</li>
+                 * <li>3 - Haussammelverwahrung</li>
+                 * <li>4 - Wertpapierrechnung</li>
+                 * <li>9 - Sonstige</li>
+                 * </ul>
+                 */
+                public int verwahrung;
+                /**
+                 * Beschreibung der Lagerstelle (optional)
+                 */
+                public String lager;
+                /**
+                 * Sperre bis zu diesem Datum (optional)
+                 */
+                public Date lockeduntil;
+                /**
+                 * Sperr- oder Zusatzvermerke der Bank (optional)
+                 */
+                public String comment;
 
-        /* TODO: Zusatzinformationen aus Feld 72 */
+                public String toString() {
+                    StringBuffer ret = new StringBuffer();
+                    String linesep = System.getProperty("line.separator");
 
-        public Entry() {
-            gattungen = new ArrayList<Gattung>();
-        }
+                    ret.append(qualifier).append(": ");
+                    ret.append(saldo.toString()).append(" (").append(((saldo_type == SALDO_TYPE_STCK) ? "STCK" : "WERT")).append(")").append(linesep);
 
-        public void addEntry(Gattung gattung) {
-            gattungen.add(gattung);
-        }
+                    ret.append("Lagerland: ").append(country + linesep);
+                    ret.append("Verwahrung Typ: ").append(verwahrung).append(linesep);
+                    ret.append("Lager: ").append(lager).append(linesep);
 
-        /**
-         * Gibt ein Array mit Informationen über alle Wertpapiergattungen
-         * zurück, die in diesem Depot gehalten werden. Der Rückgabewert ist
-         * niemals <code>null</code>, die GröÃe des Arrays kann aber 0 sein.
-         *
-         * @return Array mit Informationen über Wertpapiergattungen
-         */
-        public Gattung[] getEntries() {
-            return gattungen.toArray(new Gattung[gattungen.size()]);
-        }
+                    if (locked) {
+                        ret.append("locked");
+                        if (lockeduntil != null) {
+                            DateFormat df = DateFormat.getDateTimeInstance(
+                                    DateFormat.SHORT,
+                                    DateFormat.SHORT,
+                                    Locale.getDefault());
+                            ret.append(" until ").append(df.format(lockeduntil));
+                        }
+                    } else {
+                        ret.append("not locked");
+                    }
 
-        public String toString() {
-            StringBuffer ret = new StringBuffer();
-            String linesep = System.getProperty("line.separator");
+                    if (comment != null)
+                        ret.append(linesep).append("Bemerkungen: ").append(comment);
 
-            DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, HBCIUtils.getLocale());
-            ret.append("Depot ").append(depot.toString()).append(" ").append(df.format(timestamp)).append(linesep);
-            for (int i = 0; i < gattungen.size(); i++) {
-                ret.append("Gattung:").append(linesep);
-                ret.append(gattungen.get(i).toString() + linesep + linesep);
+                    return ret.toString().trim();
+                }
             }
-            if (total != null)
-                ret.append("Total: ").append(total.toString());
-
-            return ret.toString().trim();
         }
-    }
-
-
-    public void addEntry(Entry entry) {
-        entries.add(entry);
-    }
-
-    /**
-     * Gibt ein Array mit Depotdaten zurück, wobei jeder Eintrag
-     * Informationen zu genau einem Depot enthält.
-     *
-     * @return Array mit Depotinformationen
-     */
-    public Entry[] getEntries() {
-        return entries.toArray(new Entry[entries.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
-
-        for (int i = 0; i < entries.size(); i++) {
-            Entry e = entries.get(i);
-            ret.append("Entry #").append(i).append(":").append(linesep);
-            ret.append(e.toString() + linesep + linesep);
-        }
-
-        ret.append("rest: ").append(rest);
-
-        return ret.toString().trim();
     }
 }

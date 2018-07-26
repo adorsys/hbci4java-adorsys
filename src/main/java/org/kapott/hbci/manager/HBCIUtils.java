@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIUtils.java,v 1.2 2011/11/24 21:59:37 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -39,12 +38,9 @@ import java.util.Map.Entry;
 public final class HBCIUtils {
 
     private static final String VERSION = "HBCI4Java-2.5.12";
-
-    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("hbci4java-messages", Locale.getDefault());
-
-
     public static Properties blzs = new Properties();
     public static Map<String, BankInfo> banks = new HashMap<>();
+    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("hbci4java-messages", Locale.getDefault());
 
     /**
      * Ermittelt zu einer gegebenen Bankleitzahl den Namen des Institutes.

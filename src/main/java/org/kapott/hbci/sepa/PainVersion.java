@@ -69,110 +69,12 @@ public class PainVersion implements Comparable<PainVersion> {
         put(Type.PAIN_002, Collections.unmodifiableList(Arrays.asList(PAIN_002_002_02, PAIN_002_003_03, PAIN_002_001_03)));
         put(Type.PAIN_008, Collections.unmodifiableList(Arrays.asList(PAIN_008_001_01, PAIN_008_002_01, PAIN_008_002_02, PAIN_008_003_02, PAIN_008_001_02)));
     }};
-
-    /**
-     * Enum fuer die Gruppierung der verschienden Typen von Geschaeftsvorfaellen.
-     */
-    public static enum Type {
-        /**
-         * Ueberweisungen.
-         */
-        PAIN_001("001", "credit transfer"),
-
-        /**
-         * Kontoauszuege.
-         */
-        PAIN_002("002", "payment status"),
-
-        /**
-         * Lastschriften.
-         */
-        PAIN_008("008", "direct debit");
-
-        private String value = null;
-        private String name = null;
-
-        /**
-         * ct.
-         *
-         * @param value
-         * @param name
-         */
-        private Type(String value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        /**
-         * Liefert den numerischen Wert des PAIN-Typs.
-         *
-         * @return der numerischen Wert des PAIN-Typs.
-         */
-        public String getValue() {
-            return this.value;
-        }
-
-        /**
-         * Liefert eine sprechende Bezeichnung des PAIN-Typs.
-         *
-         * @return eine sprechende Bezeichnung des PAIN-Typs.
-         */
-        public String getName() {
-            return this.name;
-        }
-
-        /**
-         * Liefert den enum-Type fuer den angegebenen Wert.
-         *
-         * @param value der Wert. 001, 002 oder 008.
-         * @return der zugehoerige Enum-Wert.
-         * @throws IllegalArgumentException wenn der Typ unbekannt ist.
-         */
-        public static Type getType(String value) throws IllegalArgumentException {
-            if (value != null && value.length() > 0) {
-                for (Type t : Type.values()) {
-                    if (t.value.equals(value))
-                        return t;
-                }
-            }
-
-            throw new IllegalArgumentException("unknown PAIN type: " + value);
-        }
-    }
-
     private String urn = null;
     private String file = null;
     private Type type = null;
     private int major = 0;
     private int minor = 0;
     private int order = 0;
-
-
-    /**
-     * Liefert die PAIN-Version aus dem URN.
-     *
-     * @param urn URN.
-     *            In der Form "urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" oder in
-     *            der alten Form "sepade.pain.001.001.02.xsd".
-     * @return die PAIN-Version.
-     */
-    public static PainVersion byURN(String urn) {
-        PainVersion test = new PainVersion(0, urn, null);
-
-        if (urn == null || urn.length() == 0)
-            return test;
-
-        for (List<PainVersion> types : knownVersion.values()) {
-            for (PainVersion v : types) {
-                if (v.equals(test))
-                    return v;
-            }
-        }
-
-        // keine passende Version gefunden. Dann erzeugen wir selbst eine
-        return test;
-    }
-
     /**
      * ct.
      * Erzeugt eine neue PAIN-Version.
@@ -222,110 +124,28 @@ public class PainVersion implements Comparable<PainVersion> {
     }
 
     /**
-     * Liefert einen String "<URN> <FILE>" zurueck, der im erzeugten XML als
-     * "xsi:schemaLocation" verwendet werden kann.
+     * Liefert die PAIN-Version aus dem URN.
      *
-     * @return Schema-Location oder NULL, wenn "file" nicht gesetzt wurde.
+     * @param urn URN.
+     *            In der Form "urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" oder in
+     *            der alten Form "sepade.pain.001.001.02.xsd".
+     * @return die PAIN-Version.
      */
-    public String getSchemaLocation() {
-        if (this.file == null)
-            return null;
+    public static PainVersion byURN(String urn) {
+        PainVersion test = new PainVersion(0, urn, null);
 
-        return this.urn + " " + this.file;
-    }
+        if (urn == null || urn.length() == 0)
+            return test;
 
-    /**
-     * Erzeugt den Namen der Java-Klasse des zugehoerigen SEPA-Generators.
-     *
-     * @param jobName der Job-Name. Z.Bsp. "UebSEPA".
-     * @return der Name der Java-Klasse des zugehoerigen SEPA-Generators.
-     */
-    public String getGeneratorClass(String jobName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(ISEPAGenerator.class.getPackage().getName());
-        sb.append(".Gen");
-        sb.append(jobName);
-        sb.append(this.type.getValue());
-        sb.append(new DecimalFormat(DF_MAJOR).format(this.major));
-        sb.append(new DecimalFormat(DF_MINOR).format(this.minor));
-
-        return sb.toString();
-    }
-
-    /**
-     * Erzeugt den Namen der Java-Klasse des zugehoerigen SEPA-Parsers.
-     *
-     * @return der Name der Java-Klasse des zugehoerigen SEPA-Parsers.
-     */
-    public String getParserClass() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(ISEPAParser.class.getPackage().getName());
-        sb.append(".ParsePain");
-        sb.append(this.type.getValue());
-        sb.append(new DecimalFormat(DF_MAJOR).format(this.major));
-        sb.append(new DecimalFormat(DF_MINOR).format(this.minor));
-
-        return sb.toString();
-    }
-
-    /**
-     * Prueft, ob die angegebene PAIN-Version fuer den angegebenen Job von HBCI4Java unterstuetzt wird.
-     *
-     * @param jobName der Job-Name. Z.Bsp. "UebSEPA".
-     * @return true, wenn sie unterstuetzt wird.
-     */
-    public boolean isSupported(String jobName) {
-        try {
-            Class.forName(this.getGeneratorClass(jobName));
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
+        for (List<PainVersion> types : knownVersion.values()) {
+            for (PainVersion v : types) {
+                if (v.equals(test))
+                    return v;
+            }
         }
-    }
 
-    /**
-     * Liefert den Typ der PAIN-Version.
-     *
-     * @return der Typ der PAIN-Version.
-     */
-    public Type getType() {
-        return this.type;
-    }
-
-    /**
-     * Liefert die Major-Versionsnumer.
-     *
-     * @return die Major-Versionsnumer.
-     */
-    public int getMajor() {
-        return this.major;
-    }
-
-    /**
-     * Liefert die Minor-Versionsnumer.
-     *
-     * @return die Minor-Versionsnumer.
-     */
-    public int getMinor() {
-        return this.minor;
-    }
-
-    /**
-     * Liefert die URN der PAIN-Version.
-     *
-     * @return die URN der PAIN-Version.
-     */
-    public String getURN() {
-        return this.urn;
-    }
-
-    /**
-     * Liefert den Dateinamen des Schemas insofern bekannt.
-     *
-     * @return der Dateiname des Schema oder null.
-     */
-    public String getFile() {
-        return this.file;
+        // keine passende Version gefunden. Dann erzeugen wir selbst eine
+        return test;
     }
 
     /**
@@ -444,6 +264,113 @@ public class PainVersion implements Comparable<PainVersion> {
     }
 
     /**
+     * Liefert einen String "<URN> <FILE>" zurueck, der im erzeugten XML als
+     * "xsi:schemaLocation" verwendet werden kann.
+     *
+     * @return Schema-Location oder NULL, wenn "file" nicht gesetzt wurde.
+     */
+    public String getSchemaLocation() {
+        if (this.file == null)
+            return null;
+
+        return this.urn + " " + this.file;
+    }
+
+    /**
+     * Erzeugt den Namen der Java-Klasse des zugehoerigen SEPA-Generators.
+     *
+     * @param jobName der Job-Name. Z.Bsp. "UebSEPA".
+     * @return der Name der Java-Klasse des zugehoerigen SEPA-Generators.
+     */
+    public String getGeneratorClass(String jobName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ISEPAGenerator.class.getPackage().getName());
+        sb.append(".Gen");
+        sb.append(jobName);
+        sb.append(this.type.getValue());
+        sb.append(new DecimalFormat(DF_MAJOR).format(this.major));
+        sb.append(new DecimalFormat(DF_MINOR).format(this.minor));
+
+        return sb.toString();
+    }
+
+    /**
+     * Erzeugt den Namen der Java-Klasse des zugehoerigen SEPA-Parsers.
+     *
+     * @return der Name der Java-Klasse des zugehoerigen SEPA-Parsers.
+     */
+    public String getParserClass() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ISEPAParser.class.getPackage().getName());
+        sb.append(".ParsePain");
+        sb.append(this.type.getValue());
+        sb.append(new DecimalFormat(DF_MAJOR).format(this.major));
+        sb.append(new DecimalFormat(DF_MINOR).format(this.minor));
+
+        return sb.toString();
+    }
+
+    /**
+     * Prueft, ob die angegebene PAIN-Version fuer den angegebenen Job von HBCI4Java unterstuetzt wird.
+     *
+     * @param jobName der Job-Name. Z.Bsp. "UebSEPA".
+     * @return true, wenn sie unterstuetzt wird.
+     */
+    public boolean isSupported(String jobName) {
+        try {
+            Class.forName(this.getGeneratorClass(jobName));
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Liefert den Typ der PAIN-Version.
+     *
+     * @return der Typ der PAIN-Version.
+     */
+    public Type getType() {
+        return this.type;
+    }
+
+    /**
+     * Liefert die Major-Versionsnumer.
+     *
+     * @return die Major-Versionsnumer.
+     */
+    public int getMajor() {
+        return this.major;
+    }
+
+    /**
+     * Liefert die Minor-Versionsnumer.
+     *
+     * @return die Minor-Versionsnumer.
+     */
+    public int getMinor() {
+        return this.minor;
+    }
+
+    /**
+     * Liefert die URN der PAIN-Version.
+     *
+     * @return die URN der PAIN-Version.
+     */
+    public String getURN() {
+        return this.urn;
+    }
+
+    /**
+     * Liefert den Dateinamen des Schemas insofern bekannt.
+     *
+     * @return der Dateiname des Schema oder null.
+     */
+    public String getFile() {
+        return this.file;
+    }
+
+    /**
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -516,6 +443,76 @@ public class PainVersion implements Comparable<PainVersion> {
     @Override
     public String toString() {
         return this.urn;
+    }
+
+    /**
+     * Enum fuer die Gruppierung der verschienden Typen von Geschaeftsvorfaellen.
+     */
+    public static enum Type {
+        /**
+         * Ueberweisungen.
+         */
+        PAIN_001("001", "credit transfer"),
+
+        /**
+         * Kontoauszuege.
+         */
+        PAIN_002("002", "payment status"),
+
+        /**
+         * Lastschriften.
+         */
+        PAIN_008("008", "direct debit");
+
+        private String value = null;
+        private String name = null;
+
+        /**
+         * ct.
+         *
+         * @param value
+         * @param name
+         */
+        private Type(String value, String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+        /**
+         * Liefert den enum-Type fuer den angegebenen Wert.
+         *
+         * @param value der Wert. 001, 002 oder 008.
+         * @return der zugehoerige Enum-Wert.
+         * @throws IllegalArgumentException wenn der Typ unbekannt ist.
+         */
+        public static Type getType(String value) throws IllegalArgumentException {
+            if (value != null && value.length() > 0) {
+                for (Type t : Type.values()) {
+                    if (t.value.equals(value))
+                        return t;
+                }
+            }
+
+            throw new IllegalArgumentException("unknown PAIN type: " + value);
+        }
+
+        /**
+         * Liefert den numerischen Wert des PAIN-Typs.
+         *
+         * @return der numerischen Wert des PAIN-Typs.
+         */
+        public String getValue() {
+            return this.value;
+        }
+
+        /**
+         * Liefert eine sprechende Bezeichnung des PAIN-Typs.
+         *
+         * @return eine sprechende Bezeichnung des PAIN-Typs.
+         */
+        public String getName() {
+            return this.name;
+        }
     }
 
 }

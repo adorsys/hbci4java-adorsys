@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxID.java,v 1.1 2011/05/04 22:37:55 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,27 +23,22 @@ package org.kapott.hbci.datatypes;
 /* a special case of the datatype AN, where maxlen is
     predefined to be 30 */
 public final class SyntaxID
-     extends SyntaxAN
-{
-    public SyntaxID(String x, int minlen, int maxlen)
-    {
+        extends SyntaxAN {
+    public SyntaxID(String x, int minlen, int maxlen) {
         super(x, minlen, 30);
     }
 
-    public void init(String x, int minlen, int maxlen)
-    {
-        super.init(x, minlen, 30);
+    public SyntaxID(StringBuffer res, int minsize, int maxsize) {
+        super(res, minsize, 30);
     }
 
     // --------------------------------------------------------------------------------
 
-    public SyntaxID(StringBuffer res, int minsize, int maxsize)
-    {
-        super(res, minsize, 30);
+    public void init(String x, int minlen, int maxlen) {
+        super.init(x, minlen, 30);
     }
-    
-    public void init(StringBuffer res, int minsize, int maxsize)
-    {
+
+    public void init(StringBuffer res, int minsize, int maxsize) {
         super.init(res, minsize, 30);
     }
 }

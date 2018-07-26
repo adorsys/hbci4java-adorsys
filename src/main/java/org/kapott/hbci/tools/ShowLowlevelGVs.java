@@ -1,4 +1,3 @@
-
 /*  $Id: ShowLowlevelGVs.java,v 1.1 2011/05/04 22:37:45 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,7 +21,6 @@
 package org.kapott.hbci.tools;
 
 import org.kapott.hbci.manager.DocumentFactory;
-import org.kapott.hbci.manager.MessageFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

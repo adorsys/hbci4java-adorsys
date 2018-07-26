@@ -1,4 +1,3 @@
-
 /*  $Id: RKUmsDelimiters.java,v 1.1 2011/05/04 22:37:57 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,12 +21,10 @@
 package org.kapott.hbci.rewrite;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
 
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.HashMap;
 
 /**
  * Rewriter-Modul für Kontoauszüge der 1822direkt-Bank (und vielleicht andere). Die
@@ -81,7 +78,7 @@ public final class RKUmsDelimiters extends Rewrite {
                     temp.replace(posi + 1, temp.length(), "\r\n-");
                 } else {
                     log.debug("absolutely no ending sequence found - " +
-                                    "maybe statement of account splitted at wrong position?");
+                            "maybe statement of account splitted at wrong position?");
                 }
             } else {
                 log.warn("statement of account seems to be empty");
@@ -109,10 +106,10 @@ public final class RKUmsDelimiters extends Rewrite {
         if (!temp.toString().equals(st)) {
             log.debug("this institute produces buggy account statements!");
             log.debug("wrongCRLF:" + wrongCRLF
-                            + " wrongDelimiterChars:" + wrongDelimiter
-                            + " wrongEnd:" + wrongEndSequence
-                            + " missingMinusBetweenCRLFs:" + missingMinusBetweenCRLFs
-                            + " missingCRLFMinus:" + missingCRLFMinus);
+                    + " wrongDelimiterChars:" + wrongDelimiter
+                    + " wrongEnd:" + wrongEndSequence
+                    + " missingMinusBetweenCRLFs:" + missingMinusBetweenCRLFs
+                    + " missingCRLFMinus:" + missingCRLFMinus);
         }
         return temp.toString();
     }
@@ -120,11 +117,9 @@ public final class RKUmsDelimiters extends Rewrite {
     @Override
     public Message incomingData(Message msg) {
         String header = "GVRes";
-        Properties data = msg.getData();
+        HashMap<String, String> data = msg.getData();
 
-        for (Enumeration i = data.propertyNames(); i.hasMoreElements(); ) {
-            String key = (String) i.nextElement();
-
+        data.keySet().forEach(key -> {
             if (key.startsWith(header) &&
                     key.indexOf("KUms") != -1 &&
                     key.endsWith(".booked")) {
@@ -135,7 +130,7 @@ public final class RKUmsDelimiters extends Rewrite {
                         SyntaxElement.DONT_TRY_TO_CREATE,
                         SyntaxElement.ALLOW_OVERWRITE);
             }
-        }
+        });
 
         return msg;
     }

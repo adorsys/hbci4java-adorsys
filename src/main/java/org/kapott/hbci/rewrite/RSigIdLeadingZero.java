@@ -1,4 +1,3 @@
-
 /*  $Id: RSigIdLeadingZero.java,v 1.2 2012/03/27 21:33:13 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,7 +21,6 @@
 package org.kapott.hbci.rewrite;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.manager.HBCIUtils;
 
 @Slf4j
 public class RSigIdLeadingZero extends Rewrite {

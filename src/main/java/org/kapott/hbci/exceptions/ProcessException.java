@@ -1,4 +1,3 @@
-
 /*  $Id: ProcessException.java,v 1.1 2011/05/04 22:38:00 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,18 +23,15 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 public final class ProcessException
-    extends HBCI_Exception
-{
+        extends HBCI_Exception {
     private HBCIMsgStatus msgStatus;
-    
-    public ProcessException(String st,HBCIMsgStatus ret)
-    {
+
+    public ProcessException(String st, HBCIMsgStatus ret) {
         super(st);
-        this.msgStatus=ret;
+        this.msgStatus = ret;
     }
-    
-    public HBCIMsgStatus getMsgStatus()
-    {
+
+    public HBCIMsgStatus getMsgStatus() {
         return this.msgStatus;
     }
 }

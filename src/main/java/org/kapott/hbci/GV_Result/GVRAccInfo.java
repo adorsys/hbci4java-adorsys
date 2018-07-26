@@ -1,4 +1,3 @@
-
 /*  $Id: GVRAccInfo.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -37,9 +36,8 @@ import java.util.List;
  */
 public class GVRAccInfo extends HBCIJobResultImpl {
 
-    private List<AccInfo> entries;
-
     private static final BigDecimal ONE_THOUSAND = new BigDecimal("1000.00");
+    private List<AccInfo> entries;
 
     public GVRAccInfo(HBCIPassportInternal passport) {
         super(passport);
@@ -47,72 +45,49 @@ public class GVRAccInfo extends HBCIJobResultImpl {
         entries = new ArrayList<>();
     }
 
+    public void addEntry(AccInfo info) {
+        entries.add(info);
+    }
+
+    /**
+     * Holen aller empfangenen Kontostammdaten.
+     *
+     * @return Array mit einzelnen Konto-Informationen. Das Array ist niemals
+     * <code>null</code>, kann aber die Länge <code>0</code> haben
+     */
+    public AccInfo[] getEntries() {
+        return entries.toArray(new AccInfo[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        int num = 0;
+        for (Iterator<AccInfo> i = entries.iterator(); i.hasNext(); ) {
+            num++;
+            ret.append("Kontoinfo #").append(num).append(linesep);
+            ret.append((i.next()).toString() + linesep);
+        }
+
+        return ret.toString().trim();
+    }
+
     /**
      * Informationen zu genau einem Konto
      */
     public static class AccInfo {
-        // TODO: doku fehlt
-        public static class Address {
-            public String name1;
-            public String name2;
-            public String street_pf;
-            public String plz_ort;
-            public String plz;
-            public String ort;
-            public String country;
-            public String tel;
-            public String fax;
-            public String email;
-
-            public String toString() {
-                StringBuffer ret = new StringBuffer();
-                String linesep = System.getProperty("line.separator");
-
-                ret.append(name1);
-                if (name2 != null) {
-                    ret.append(" " + name2);
-                }
-                ret.append(linesep);
-
-                ret.append(street_pf).append(linesep);
-
-                if (plz_ort != null) {
-                    ret.append(plz_ort);
-                } else {
-                    ret.append(plz).append(" ").append(ort);
-                }
-                ret.append(linesep);
-
-                if (country != null) {
-                    ret.append(country).append(linesep);
-                }
-                if (tel != null) {
-                    ret.append("Tel: ").append(tel).append(linesep);
-                }
-                if (fax != null) {
-                    ret.append("Fax: ").append(fax).append(linesep);
-                }
-                if (email != null) {
-                    ret.append("Email: ").append(email).append(linesep);
-                }
-
-                return ret.toString();
-            }
-        }
-
         public static final int DELIVER_TYPE_NONE = 0;
         public static final int DELIVER_TYPE_POST = 1;
         public static final int DELIVER_TYPE_KAD = 2;
         public static final int DELIVER_TYPE_OFFICE = 3;
         public static final int DELIVER_TYPE_EDV = 4;
-
         public static final int TURNUS_DAILY = 1;
         public static final int TURNUS_WEEKLY = 2;
         public static final int TURNUS_MONTHLY = 3;
         public static final int TURNUS_QUARTER = 4;
         public static final int TURNUS_HALF = 5;
         public static final int TURNUS_ANNUAL = 6;
-
         /**
          * Konto, auf das sich diese Daten beziehen
          */
@@ -187,12 +162,8 @@ public class GVRAccInfo extends HBCIJobResultImpl {
          * Weitere Informationen (optional)
          */
         public String comment;
-
         // TODO: doku fehlt
         public Address address;
-
-        // TODO public Berechtigter[] berechtigte; 
-        // /* TODO Briefanschrift (optional) */
 
         public String toString() {
             StringBuffer ret = new StringBuffer();
@@ -223,33 +194,57 @@ public class GVRAccInfo extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
 
-    public void addEntry(AccInfo info) {
-        entries.add(info);
-    }
+        // TODO public Berechtigter[] berechtigte;
+        // /* TODO Briefanschrift (optional) */
 
-    /**
-     * Holen aller empfangenen Kontostammdaten.
-     *
-     * @return Array mit einzelnen Konto-Informationen. Das Array ist niemals
-     * <code>null</code>, kann aber die Länge <code>0</code> haben
-     */
-    public AccInfo[] getEntries() {
-        return entries.toArray(new AccInfo[entries.size()]);
-    }
+        // TODO: doku fehlt
+        public static class Address {
+            public String name1;
+            public String name2;
+            public String street_pf;
+            public String plz_ort;
+            public String plz;
+            public String ort;
+            public String country;
+            public String tel;
+            public String fax;
+            public String email;
 
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
+            public String toString() {
+                StringBuffer ret = new StringBuffer();
+                String linesep = System.getProperty("line.separator");
 
-        int num = 0;
-        for (Iterator<AccInfo> i = entries.iterator(); i.hasNext(); ) {
-            num++;
-            ret.append("Kontoinfo #").append(num).append(linesep);
-            ret.append((i.next()).toString() + linesep);
+                ret.append(name1);
+                if (name2 != null) {
+                    ret.append(" " + name2);
+                }
+                ret.append(linesep);
+
+                ret.append(street_pf).append(linesep);
+
+                if (plz_ort != null) {
+                    ret.append(plz_ort);
+                } else {
+                    ret.append(plz).append(" ").append(ort);
+                }
+                ret.append(linesep);
+
+                if (country != null) {
+                    ret.append(country).append(linesep);
+                }
+                if (tel != null) {
+                    ret.append("Tel: ").append(tel).append(linesep);
+                }
+                if (fax != null) {
+                    ret.append("Fax: ").append(fax).append(linesep);
+                }
+                if (email != null) {
+                    ret.append("Email: ").append(email).append(linesep);
+                }
+
+                return ret.toString();
+            }
         }
-
-        return ret.toString().trim();
     }
 }

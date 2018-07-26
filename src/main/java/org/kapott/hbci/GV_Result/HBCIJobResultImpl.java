@@ -1,4 +1,3 @@
-
 /*  $Id: HBCIJobResultImpl.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -29,26 +28,26 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
 
-    private HBCIPassportInternal passport;
-    private Properties resultData;
-
     public HBCIStatus jobStatus;
     public HBCIStatus globStatus;
+    private HBCIPassportInternal passport;
+    private HashMap<String, String> resultData;
 
     public HBCIJobResultImpl(HBCIPassportInternal passport) {
-        this.passport =passport;
-        resultData = new Properties();
+        this.passport = passport;
+        resultData = new HashMap<>();
         jobStatus = new HBCIStatus();
         globStatus = new HBCIStatus();
     }
 
     public void storeResult(String key, String value) {
         if (value != null)
-            resultData.setProperty(key, value);
+            resultData.put(key, value);
     }
 
     public int getRetNumber() {
@@ -67,15 +66,15 @@ public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
     }
 
     public String getDialogId() {
-        return resultData.getProperty("basic.dialogid");
+        return resultData.get("basic.dialogid");
     }
 
     public String getMsgNum() {
-        return resultData.getProperty("basic.msgnum");
+        return resultData.get("basic.msgnum");
     }
 
     public String getSegNum() {
-        return resultData.getProperty("basic.segnum");
+        return resultData.get("basic.segnum");
     }
 
     public String getJobId() {
@@ -83,7 +82,7 @@ public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
         return format.format(new Date()) + "/" + getDialogId() + "/" + getMsgNum() + "/" + getSegNum();
     }
 
-    public Properties getResultData() {
+    public HashMap<String, String> getResultData() {
         return resultData;
     }
 
@@ -107,7 +106,7 @@ public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
         Arrays.sort(a);
         for (int i = 0; i < a.length; i++) {
             String key = (String) (a[i]);
-            ret.append(key).append(" = ").append(resultData.getProperty(key)).append(System.getProperty("line.separator"));
+            ret.append(key).append(" = ").append(resultData.get(key)).append(System.getProperty("line.separator"));
         }
 
         return ret.toString().trim();

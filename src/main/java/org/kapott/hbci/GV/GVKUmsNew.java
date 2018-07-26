@@ -1,4 +1,3 @@
-
 /*  $Id: GVKUmsNew.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,19 +21,13 @@
 package org.kapott.hbci.GV;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 /**
  * Implementierung des Geschaeftsvorfalls zum Abruf von neuen Umsaetzen (HKKAN).
  */
 @Slf4j
 public final class GVKUmsNew extends GVKUmsAll {
-
-    public static String getLowlevelName() {
-        return "KUmsNew";
-    }
 
     public GVKUmsNew(HBCIPassportInternal passport) {
         super(passport, getLowlevelName());
@@ -70,5 +63,9 @@ public final class GVKUmsNew extends GVKUmsAll {
         addConstraint("my.curr", "curr", "EUR");
         addConstraint("maxentries", "maxentries", "");
         addConstraint("dummyall", "allaccounts", "N");
+    }
+
+    public static String getLowlevelName() {
+        return "KUmsNew";
     }
 }

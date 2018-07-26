@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxJN.java,v 1.1 2011/05/04 22:37:56 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -27,29 +26,28 @@ import org.kapott.hbci.manager.HBCIUtils;
 /* a class representing the datatype "jn", where the
     value can be only either "J" or "N" */
 public class SyntaxJN
-     extends SyntaxAN
-{
-    private static String check(String x)
-    {
+        extends SyntaxAN {
+    public SyntaxJN(String x, int minlen, int maxlen) {
+        super(check(x.trim()), 1, 1);
+    }
+
+    public SyntaxJN(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
+
+    private static String check(String x) {
         if (!x.equals("J") && !x.equals("N"))
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTJN_ONLY_JN"));
         return x;
     }
 
-    public SyntaxJN(String x, int minlen, int maxlen)
-    {
-        super(check(x.trim()), 1, 1);
-    }
+    // --------------------------------------------------------------------------------
 
-    public void init(String x, int minlen, int maxlen)
-    {
+    public void init(String x, int minlen, int maxlen) {
         super.init(check(x.trim()), 1, 1);
     }
 
-    // --------------------------------------------------------------------------------
-
-    private void initData(StringBuffer res, int minsize, int maxsize)
-    {
+    private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -57,14 +55,8 @@ public class SyntaxJN
         setContent(check(st), 1, 1);
         res.delete(0, endidx);
     }
-    
-    public SyntaxJN(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
-    }
-    
-    public void init(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
+
+    public void init(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
     }
 }

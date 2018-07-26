@@ -1,4 +1,3 @@
-
 /*  $Id: AbstractHBCICallback.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java

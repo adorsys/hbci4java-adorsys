@@ -1,4 +1,3 @@
-
 /*  $Id: OverwriteException.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,10 +23,8 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class OverwriteException
-    extends HBCI_Exception
-{
-    public OverwriteException(String path,String current,String newValue)
-    {
-        super(HBCIUtils.getLocMsg("EXCMSG_OVERWRITE",new Object[] {path,current,newValue}));
+        extends HBCI_Exception {
+    public OverwriteException(String path, String current, String newValue) {
+        super(HBCIUtils.getLocMsg("EXCMSG_OVERWRITE", new Object[]{path, current, newValue}));
     }
 }

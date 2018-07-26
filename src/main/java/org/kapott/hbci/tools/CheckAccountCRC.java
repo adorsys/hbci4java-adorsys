@@ -1,4 +1,3 @@
-
 /*  $Id: CheckAccountCRC.java,v 1.1 2011/05/04 22:37:45 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -25,52 +24,53 @@ import org.kapott.hbci.manager.BankInfo;
 import org.kapott.hbci.manager.HBCIUtils;
 
 // TODO: doku anpassen
-/** <p>Tool zum Verifizieren der Gültigkeit von BLZ/Kontonummer.
-    Alle Kontonummern in Deutschland enthalten eine Prüfziffer, anhand
-    welcher überprüft werden kann, ob die Kontonummer an sich gültig ist.
-    Mit diesem Tool kann für eine gegebene Bankleitzahl und Kontonummer
-    deren Gültigkeit überprüft werden.</p>
-    <p>In <em>HBCI4Java</em> sind noch nicht alle von den Banken verwendeten
-    Prüfzifferverfahren implementiert. Deshalb können bis jetzt nur
-    die Kontonummern von einigen bestimmten Banken überprüft werden. Anhand
-    der Ausgabe des Programmes ist ersichtlich, ob <em>HBCI4Java</em> tatsächlich
-    die Kontonummer überprüfen konnte und wenn ja, ob die Prüfung erfolgreich
-    verlaufen ist oder nicht.</p>
-    <p>Der Aufruf erfolgt mit 
-    <code>java&nbsp;-cp&nbsp;...&nbsp;org.kapott.hbci.tools.CheckAccountCRC&nbsp;&lt;blz&gt;&nbsp;&lt;kontonummer&gt;</code> */  
-public class CheckAccountCRC
-{
-    public static void main(String[] args)
-    {
-        if (args.length<1 || args.length>2) {
+
+/**
+ * <p>Tool zum Verifizieren der Gültigkeit von BLZ/Kontonummer.
+ * Alle Kontonummern in Deutschland enthalten eine Prüfziffer, anhand
+ * welcher überprüft werden kann, ob die Kontonummer an sich gültig ist.
+ * Mit diesem Tool kann für eine gegebene Bankleitzahl und Kontonummer
+ * deren Gültigkeit überprüft werden.</p>
+ * <p>In <em>HBCI4Java</em> sind noch nicht alle von den Banken verwendeten
+ * Prüfzifferverfahren implementiert. Deshalb können bis jetzt nur
+ * die Kontonummern von einigen bestimmten Banken überprüft werden. Anhand
+ * der Ausgabe des Programmes ist ersichtlich, ob <em>HBCI4Java</em> tatsächlich
+ * die Kontonummer überprüfen konnte und wenn ja, ob die Prüfung erfolgreich
+ * verlaufen ist oder nicht.</p>
+ * <p>Der Aufruf erfolgt mit
+ * <code>java&nbsp;-cp&nbsp;...&nbsp;org.kapott.hbci.tools.CheckAccountCRC&nbsp;&lt;blz&gt;&nbsp;&lt;kontonummer&gt;</code>
+ */
+public class CheckAccountCRC {
+    public static void main(String[] args) {
+        if (args.length < 1 || args.length > 2) {
             System.out.println("usage:");
             System.out.println("  CheckAccountCRC <blz> <accnumber>");
             System.out.println("  CheckAccountCRC <iban>");
             System.exit(1);
         }
 
-        
-        if (args.length==2) {
-        	String blz=args[0];
-        	String number=args[1];
-        	
-        	BankInfo info = HBCIUtils.getBankInfo(blz);
-        	String kiname = info != null ? info.getName() : null;
+
+        if (args.length == 2) {
+            String blz = args[0];
+            String number = args[1];
+
+            BankInfo info = HBCIUtils.getBankInfo(blz);
+            String kiname = info != null ? info.getName() : null;
             String alg = info != null ? info.getChecksumMethod() : null;
 
-        	if (kiname.length()!=0) {
-        		System.out.println("institute name: " + (kiname != null ? kiname : ""));
-        		System.out.println("algorithmus: " + (alg != null ? alg : ""));
-        		System.out.println("blz: "+blz);
-        		System.out.println("account number: "+number);
-        		System.out.println(HBCIUtils.checkAccountCRC(blz,number)?"OK":"not OK");
-        	} else {
-        		System.out.println("no information about "+blz+" in database");
-        	}
+            if (kiname.length() != 0) {
+                System.out.println("institute name: " + (kiname != null ? kiname : ""));
+                System.out.println("algorithmus: " + (alg != null ? alg : ""));
+                System.out.println("blz: " + blz);
+                System.out.println("account number: " + number);
+                System.out.println(HBCIUtils.checkAccountCRC(blz, number) ? "OK" : "not OK");
+            } else {
+                System.out.println("no information about " + blz + " in database");
+            }
         } else {
-        	String iban=args[0];
-        	System.out.println("IBAN: "+iban);
-        	System.out.println(HBCIUtils.checkIBANCRC(iban)?"OK":"not OK");
+            String iban = args[0];
+            System.out.println("IBAN: " + iban);
+            System.out.println(HBCIUtils.checkIBANCRC(iban) ? "OK" : "not OK");
         }
     }
 }

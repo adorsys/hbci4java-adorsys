@@ -1,4 +1,3 @@
-
 /*  $Id: GVAccInfo.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,15 +27,11 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVAccInfo extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "AccInfo";
-    }
 
     public GVAccInfo(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRAccInfo(passport));
@@ -48,58 +43,62 @@ public class GVAccInfo extends AbstractHBCIJob {
         addConstraint("all", "allaccounts", "N");
     }
 
+    public static String getLowlevelName() {
+        return "AccInfo";
+    }
+
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
         GVRAccInfo.AccInfo info = new GVRAccInfo.AccInfo();
         String st;
 
         info.account = new Konto();
-        info.account.blz = result.getProperty(header + ".My.KIK.blz");
-        info.account.country = result.getProperty(header + ".My.KIK.country");
-        info.account.number = result.getProperty(header + ".My.number");
-        info.account.subnumber = result.getProperty(header + ".My.subnumber");
-        info.account.curr = result.getProperty(header + ".curr");
-        info.account.name = result.getProperty(header + ".name");
-        info.account.name2 = result.getProperty(header + ".name2");
-        info.account.type = result.getProperty(header + ".accbez");
+        info.account.blz = result.get(header + ".My.KIK.blz");
+        info.account.country = result.get(header + ".My.KIK.country");
+        info.account.number = result.get(header + ".My.number");
+        info.account.subnumber = result.get(header + ".My.subnumber");
+        info.account.curr = result.get(header + ".curr");
+        info.account.name = result.get(header + ".name");
+        info.account.name2 = result.get(header + ".name2");
+        info.account.type = result.get(header + ".accbez");
 
-        info.comment = result.getProperty(header + ".info");
-        if ((st = result.getProperty(header + ".opendate")) != null)
+        info.comment = result.get(header + ".info");
+        if ((st = result.get(header + ".opendate")) != null)
             info.created = HBCIUtils.string2DateISO(st);
 
-        info.habenzins = ((st = result.getProperty(header + ".habenzins")) != null) ? HBCIUtils.string2Long(st, 1000) : -1;
-        info.sollzins = ((st = result.getProperty(header + ".sollzins")) != null) ? HBCIUtils.string2Long(st, 1000) : -1;
-        info.ueberzins = ((st = result.getProperty(header + ".overdrivezins")) != null) ? HBCIUtils.string2Long(st, 1000) : -1;
+        info.habenzins = ((st = result.get(header + ".habenzins")) != null) ? HBCIUtils.string2Long(st, 1000) : -1;
+        info.sollzins = ((st = result.get(header + ".sollzins")) != null) ? HBCIUtils.string2Long(st, 1000) : -1;
+        info.ueberzins = ((st = result.get(header + ".overdrivezins")) != null) ? HBCIUtils.string2Long(st, 1000) : -1;
 
-        if ((st = result.getProperty(header + ".kredit.value")) != null)
-            info.kredit = new Value(st, result.getProperty(header + ".kredit.curr"));
-        if ((st = result.getProperty(header + ".refkto.number")) != null)
-            info.refAccount = new Konto(result.getProperty(header + ".refkto.KIK.country"),
-                    result.getProperty(header + ".refkto.KIK.blz"),
+        if ((st = result.get(header + ".kredit.value")) != null)
+            info.kredit = new Value(st, result.get(header + ".kredit.curr"));
+        if ((st = result.get(header + ".refkto.number")) != null)
+            info.refAccount = new Konto(result.get(header + ".refkto.KIK.country"),
+                    result.get(header + ".refkto.KIK.blz"),
                     st,
-                    result.getProperty(header + ".refkto.subnumber"));
-        info.turnus = ((st = result.getProperty(header + ".turnus")) != null) ? Integer.parseInt(st) : -1;
-        info.versandart = ((st = result.getProperty(header + ".versandart")) != null) ? Integer.parseInt(st) : -1;
-        info.type = ((st = result.getProperty(header + ".acctype")) != null) ? Integer.parseInt(st) : -1;
+                    result.get(header + ".refkto.subnumber"));
+        info.turnus = ((st = result.get(header + ".turnus")) != null) ? Integer.parseInt(st) : -1;
+        info.versandart = ((st = result.get(header + ".versandart")) != null) ? Integer.parseInt(st) : -1;
+        info.type = ((st = result.get(header + ".acctype")) != null) ? Integer.parseInt(st) : -1;
 
-        if (result.getProperty(header + ".Address.name1") != null) {
+        if (result.get(header + ".Address.name1") != null) {
             info.address = new GVRAccInfo.AccInfo.Address();
-            info.address.name1 = result.getProperty(header + ".Address.name1");
-            info.address.name2 = result.getProperty(header + ".Address.name2");
-            info.address.street_pf = result.getProperty(header + ".Address.street_pf");
+            info.address.name1 = result.get(header + ".Address.name1");
+            info.address.name2 = result.get(header + ".Address.name2");
+            info.address.street_pf = result.get(header + ".Address.street_pf");
 
-            if (result.getProperty(header + ".Address.plz") != null) {
+            if (result.get(header + ".Address.plz") != null) {
                 // Version 2
-                info.address.plz = result.getProperty(header + ".Address.plz");
-                info.address.ort = result.getProperty(header + ".Address.ort");
-                info.address.country = result.getProperty(header + ".Address.country");
-                info.address.tel = result.getProperty(header + ".Address.tel");
-                info.address.fax = result.getProperty(header + ".Address.fax");
-                info.address.email = result.getProperty(header + ".Address.email");
+                info.address.plz = result.get(header + ".Address.plz");
+                info.address.ort = result.get(header + ".Address.ort");
+                info.address.country = result.get(header + ".Address.country");
+                info.address.tel = result.get(header + ".Address.tel");
+                info.address.fax = result.get(header + ".Address.fax");
+                info.address.email = result.get(header + ".Address.email");
             } else {
                 // Version 1
-                info.address.plz_ort = result.getProperty(header + ".Address.plz_ort");
-                info.address.tel = result.getProperty(header + ".Address.tel");
+                info.address.plz_ort = result.get(header + ".Address.plz_ort");
+                info.address.tel = result.get(header + ".Address.tel");
             }
         }
 

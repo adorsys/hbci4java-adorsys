@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxWrt.java,v 1.1 2011/05/04 22:37:56 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,28 +23,23 @@ package org.kapott.hbci.datatypes;
 /* a special case of the "float"-class with maxsize
     to be defaulted to 15 */
 public final class SyntaxWrt
-     extends SyntaxFloat
-{
-    public SyntaxWrt(String x, int minsize, int maxsize)
-    {
+        extends SyntaxFloat {
+    public SyntaxWrt(String x, int minsize, int maxsize) {
         super(x, minsize, 15);
     }
 
-    public void init(String x, int minsize, int maxsize)
-    {
-        super.init(x, minsize, 15);
+    public SyntaxWrt(StringBuffer res, int minsize, int maxsize) {
+        super(res, minsize, 15);
     }
 
     // --------------------------------------------------------------------------------
 
-    public SyntaxWrt(StringBuffer res, int minsize, int maxsize)
-    {
-        super(res, minsize, 15);
+    public void init(String x, int minsize, int maxsize) {
+        super.init(x, minsize, 15);
     }
-    
-    public void init(StringBuffer res, int minsize, int maxsize)
-    {
+
+    public void init(StringBuffer res, int minsize, int maxsize) {
         super.init(res, minsize, 15);
     }
-    
+
 }

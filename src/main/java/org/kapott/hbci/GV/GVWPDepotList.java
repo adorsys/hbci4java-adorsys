@@ -1,4 +1,3 @@
-
 /*  $Id: GVWPDepotList.java 62 2008-10-22 17:03:26Z kleiner $
 
     This file is part of HBCI4Java
@@ -30,18 +29,14 @@ import org.kapott.hbci.structures.BigDecimalValue;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.swift.Swift;
 import org.kapott.hbci.swift.SwiftLegacy;
-import org.w3c.dom.Document;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVWPDepotList extends AbstractHBCIJob {
 
     private StringBuffer buffer;
-
-    public static String getLowlevelName() {
-        return "WPDepotList";
-    }
 
     public GVWPDepotList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRWPDepotList(passport));
@@ -50,20 +45,23 @@ public final class GVWPDepotList extends AbstractHBCIJob {
         addConstraint("my.number", "Depot.number", null);
         addConstraint("my.subnumber", "Depot.subnumber", "");
 
-        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().getProperty("KInfo.KTV.KIK.country"));
-        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().getProperty("KInfo.KTV.KIK.blz"));
+        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().get("KInfo.KTV.KIK.country"));
+        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().get("KInfo.KTV.KIK.blz"));
         //addConstraint("my.curr","curr",passport.getUPD().getProperty("KInfo.cur",""));
         addConstraint("quality", "quality", "");
         addConstraint("maxentries", "maxentries", "");
     }
 
+    public static String getLowlevelName() {
+        return "WPDepotList";
+    }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
 
         // TODO es muessen noch die antwortdaten eines 571 geparst werden
         StringBuffer paramName = new StringBuffer(header).append(".data535");
-        buffer.append(Swift.decodeUmlauts(result.getProperty(paramName.toString())));
+        buffer.append(Swift.decodeUmlauts(result.get(paramName.toString())));
 
         final SimpleDateFormat date_time_format = new SimpleDateFormat("yyyyMMdd hhmmss");
         final SimpleDateFormat date_only_format = new SimpleDateFormat("yyyyMMdd");

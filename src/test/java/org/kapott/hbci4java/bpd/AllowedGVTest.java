@@ -43,7 +43,7 @@ public class AllowedGVTest extends AbstractTest {
         }
 
         Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
     }
 
@@ -76,7 +76,7 @@ public class AllowedGVTest extends AbstractTest {
         }
 
         Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
 
         Properties upd = new Properties();

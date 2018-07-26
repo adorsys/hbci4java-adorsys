@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxDig.java,v 1.1 2011/05/04 22:37:55 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,71 +27,64 @@ import org.kapott.hbci.manager.HBCIUtils;
     consists of a string of digits (including zeroes) */
 // Speicherung des mit Nullen aufgefüllten Strings
 public final class SyntaxDig
-    extends SyntaxDE
-{
-    /** @brief prepends leading "0" to a number
+        extends SyntaxDE {
+    public SyntaxDig(String st, int minsize, int maxsize) {
+        super(buildString(st.trim(), minsize), minsize, maxsize);
+    }
 
-        @param st number in string-format
-        @param destlen required length of string
-        @return the given number with leading zeroes, so that the
-                resulting string is @p len characters long
+    public SyntaxDig(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
+
+    /**
+     * @param st      number in string-format
+     * @param destlen required length of string
+     * @return the given number with leading zeroes, so that the
+     * resulting string is @p len characters long
+     * @brief prepends leading "0" to a number
      */
-    private static String buildString(String st, int destlen)
-    {
-        StringBuffer ret=new StringBuffer(destlen);
+    private static String buildString(String st, int destlen) {
+        StringBuffer ret = new StringBuffer(destlen);
         ret.append(st);
 
-        int len=st.length();
-        for (int i=0; i<len; i++) {
-            char c=st.charAt(i);
-            if (c<'0' || c>'9')
-                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTDIG_ONLY_DIGS",st));
+        int len = st.length();
+        for (int i = 0; i < len; i++) {
+            char c = st.charAt(i);
+            if (c < '0' || c > '9')
+                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTDIG_ONLY_DIGS", st));
         }
 
-        for (int i=len; i<destlen; i++) {
-            ret.insert(0,'0');
+        for (int i = len; i < destlen; i++) {
+            ret.insert(0, '0');
         }
 
         return ret.toString();
     }
 
-    public SyntaxDig(String st, int minsize, int maxsize)
-    {
-        super(buildString(st.trim(),minsize),minsize,maxsize);
-    }
-
-    public void init(String st, int minsize, int maxsize)
-    {
-        super.init(buildString(st.trim(),minsize),minsize,maxsize);
-    }
-
     // --------------------------------------------------------------------------------
 
-    private void initData(StringBuffer res, int minsize, int maxsize)
-    {
+    public void init(String st, int minsize, int maxsize) {
+        super.init(buildString(st.trim(), minsize), minsize, maxsize);
+    }
+
+    private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
-        int len=st.length();
+        int len = st.length();
 
-        for (int i=0;i<len;i++) {
-            char ch=st.charAt(i);
+        for (int i = 0; i < len; i++) {
+            char ch = st.charAt(i);
 
-            if (ch>'9' || ch<'0')
-                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTDIG_ONLY_DIGS",st));
+            if (ch > '9' || ch < '0')
+                throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXC_DTDIG_ONLY_DIGS", st));
         }
 
-        setContent(st,minsize,maxsize);
+        setContent(st, minsize, maxsize);
         res.delete(0, endidx);
     }
-    
-    public SyntaxDig(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
-    }
-    
-    public void init(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
+
+    public void init(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
     }
 }

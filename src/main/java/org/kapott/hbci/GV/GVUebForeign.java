@@ -1,4 +1,3 @@
-
 /*  $Id: GVUebForeign.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,13 +22,8 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public class GVUebForeign extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "UebForeign";
-    }
 
     public GVUebForeign(String name, HBCIPassportInternal passport) {
         super(passport, name, new HBCIJobResultImpl(passport));
@@ -55,6 +49,10 @@ public class GVUebForeign extends AbstractHBCIJob {
 
         addConstraint("kostentraeger", "kostentraeger", "1");
         addConstraint("usage", "usage", "");
+    }
+
+    public static String getLowlevelName() {
+        return "UebForeign";
     }
 
     public void verifyConstraints() {

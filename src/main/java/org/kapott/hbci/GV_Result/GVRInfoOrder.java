@@ -1,4 +1,3 @@
-
 /*  $Id: GVRInfoOrder.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -40,24 +39,6 @@ public final class GVRInfoOrder extends HBCIJobResultImpl {
         super(passport);
     }
 
-    /**
-     * Eine einzelne Freitextmeldung
-     */
-    public static final class Info {
-        /**
-         * ID-Code der Meldung
-         */
-        public String code;
-        /**
-         * Meldungstext
-         */
-        public String msg;
-
-        public String toString() {
-            return code + ": " + msg;
-        }
-    }
-
     public void addEntry(Info info) {
         infos.add(info);
     }
@@ -80,5 +61,23 @@ public final class GVRInfoOrder extends HBCIJobResultImpl {
         }
 
         return ret.toString().trim();
+    }
+
+    /**
+     * Eine einzelne Freitextmeldung
+     */
+    public static final class Info {
+        /**
+         * ID-Code der Meldung
+         */
+        public String code;
+        /**
+         * Meldungstext
+         */
+        public String msg;
+
+        public String toString() {
+            return code + ": " + msg;
+        }
     }
 }

@@ -1,4 +1,3 @@
-
 /*  $Id: GVWPDepotUms.java 62 2008-10-22 17:03:26Z kleiner $
 
     This file is part of HBCI4Java
@@ -31,18 +30,14 @@ import org.kapott.hbci.structures.BigDecimalValue;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.TypedValue;
 import org.kapott.hbci.swift.Swift;
-import org.w3c.dom.Document;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVWPDepotUms extends AbstractHBCIJob {
 
     private StringBuffer buffer;
-
-    public static String getLowlevelName() {
-        return "WPDepotUms";
-    }
 
     public GVWPDepotUms(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRWPDepotUms(passport));
@@ -51,8 +46,8 @@ public class GVWPDepotUms extends AbstractHBCIJob {
         addConstraint("my.number", "Depot.number", null);
         addConstraint("my.subnumber", "Depot.subnumber", "");
 
-        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().getProperty("KInfo.KTV.KIK.country"));
-        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().getProperty("KInfo.KTV.KIK.blz"));
+        addConstraint("my.country", "Depot.KIK.country", passport.getUPD().get("KInfo.KTV.KIK.country"));
+        addConstraint("my.blz", "Depot.KIK.blz", passport.getUPD().get("KInfo.KTV.KIK.blz"));
         //addConstraint("my.curr","curr",passport.getUPD().getProperty("KInfo.cur",""));
         addConstraint("quality", "quality", "");
         addConstraint("maxentries", "maxentries", "");
@@ -61,6 +56,10 @@ public class GVWPDepotUms extends AbstractHBCIJob {
         addConstraint("enddate", "enddate", "");
 
         addConstraint("dummy", "alldepots", "N");
+    }
+
+    public static String getLowlevelName() {
+        return "WPDepotUms";
     }
 
     private TypedValue parseTypedValue(String st) {
@@ -95,9 +94,9 @@ public class GVWPDepotUms extends AbstractHBCIJob {
 
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
+        HashMap<String, String> result = msgstatus.getData();
 
-        buffer.append(Swift.decodeUmlauts(result.getProperty(header + ".data536")));
+        buffer.append(Swift.decodeUmlauts(result.get(header + ".data536")));
 
         final SimpleDateFormat date_time_format = new SimpleDateFormat("yyyyMMdd hhmmss");
         final SimpleDateFormat date_only_format = new SimpleDateFormat("yyyyMMdd");

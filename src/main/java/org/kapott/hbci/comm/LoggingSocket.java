@@ -1,4 +1,3 @@
-
 /*  $Id: LoggingSocket.java,v 1.1 2011/05/04 22:37:51 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -36,344 +35,282 @@ import java.nio.channels.SocketChannel;
 /* original idea for how to integrate "logging sockets"
  * by Thomas Kruse <tkruse@sforce.org> */
 public class LoggingSocket
-    extends SSLSocket
-{
-    private SSLSocket    targetSocket;
+        extends SSLSocket {
+    private SSLSocket targetSocket;
     private OutputStream logger;
-    
-    public LoggingSocket(Socket targetSocket, OutputStream logger)
-    {
-        this.targetSocket = (SSLSocket)targetSocket;
+
+    public LoggingSocket(Socket targetSocket, OutputStream logger) {
+        this.targetSocket = (SSLSocket) targetSocket;
         this.logger = logger;
     }
-    
+
     public InputStream getInputStream()
-        throws IOException
-    {
+            throws IOException {
         LoggingInputStream logInputStream = new LoggingInputStream(targetSocket.getInputStream(), logger);
         return logInputStream;
     }
 
     public OutputStream getOutputStream()
-        throws IOException
-    {
+            throws IOException {
         LoggingOutputStream outputStream = new LoggingOutputStream(targetSocket.getOutputStream(), logger);
         return outputStream;
     }
 
-    public void addHandshakeCompletedListener(HandshakeCompletedListener arg0)
-    {
+    public void addHandshakeCompletedListener(HandshakeCompletedListener arg0) {
         targetSocket.addHandshakeCompletedListener(arg0);
     }
 
     public void bind(SocketAddress bindpoint)
-        throws IOException
-    {
+            throws IOException {
         targetSocket.bind(bindpoint);
     }
 
     public void close()
-        throws IOException
-    {
+            throws IOException {
         targetSocket.close();
     }
 
     public void connect(SocketAddress endpoint, int timeout)
-        throws IOException
-    {
+            throws IOException {
         targetSocket.connect(endpoint, timeout);
     }
 
     public void connect(SocketAddress endpoint)
-        throws IOException
-    {
+            throws IOException {
         targetSocket.connect(endpoint);
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         return targetSocket.equals(obj);
     }
 
-    public SocketChannel getChannel()
-    {
+    public SocketChannel getChannel() {
         return targetSocket.getChannel();
     }
 
-    public String[] getEnabledCipherSuites()
-    {
+    public String[] getEnabledCipherSuites() {
         return targetSocket.getEnabledCipherSuites();
     }
 
-    public String[] getEnabledProtocols()
-    {
+    public void setEnabledCipherSuites(String[] arg0) {
+        targetSocket.setEnabledCipherSuites(arg0);
+    }
+
+    public String[] getEnabledProtocols() {
         return targetSocket.getEnabledProtocols();
     }
 
-    public boolean getEnableSessionCreation()
-    {
+    public void setEnabledProtocols(String[] arg0) {
+        targetSocket.setEnabledProtocols(arg0);
+    }
+
+    public boolean getEnableSessionCreation() {
         return targetSocket.getEnableSessionCreation();
     }
 
-    public InetAddress getInetAddress()
-    {
+    public void setEnableSessionCreation(boolean arg0) {
+        targetSocket.setEnableSessionCreation(arg0);
+    }
+
+    public InetAddress getInetAddress() {
         return targetSocket.getInetAddress();
     }
 
     public boolean getKeepAlive()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getKeepAlive();
     }
 
-    public InetAddress getLocalAddress()
-    {
+    public void setKeepAlive(boolean on)
+            throws SocketException {
+        targetSocket.setKeepAlive(on);
+    }
+
+    public InetAddress getLocalAddress() {
         return targetSocket.getLocalAddress();
     }
 
-    public int getLocalPort()
-    {
+    public int getLocalPort() {
         return targetSocket.getLocalPort();
     }
 
-    public SocketAddress getLocalSocketAddress()
-    {
+    public SocketAddress getLocalSocketAddress() {
         return targetSocket.getLocalSocketAddress();
     }
 
-    public boolean getNeedClientAuth()
-    {
+    public boolean getNeedClientAuth() {
         return targetSocket.getNeedClientAuth();
     }
 
+    public void setNeedClientAuth(boolean arg0) {
+        targetSocket.setNeedClientAuth(arg0);
+    }
+
     public boolean getOOBInline()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getOOBInline();
     }
 
-    public int getPort()
-    {
+    public void setOOBInline(boolean on)
+            throws SocketException {
+        targetSocket.setOOBInline(on);
+    }
+
+    public int getPort() {
         return targetSocket.getPort();
     }
 
     public int getReceiveBufferSize()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getReceiveBufferSize();
     }
 
-    public SocketAddress getRemoteSocketAddress()
-    {
+    public void setReceiveBufferSize(int size)
+            throws SocketException {
+        targetSocket.setReceiveBufferSize(size);
+    }
+
+    public SocketAddress getRemoteSocketAddress() {
         return targetSocket.getRemoteSocketAddress();
     }
 
     public boolean getReuseAddress()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getReuseAddress();
     }
 
+    public void setReuseAddress(boolean on)
+            throws SocketException {
+        targetSocket.setReuseAddress(on);
+    }
+
     public int getSendBufferSize()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getSendBufferSize();
     }
 
-    public SSLSession getSession()
-    {
+    public void setSendBufferSize(int size)
+            throws SocketException {
+        targetSocket.setSendBufferSize(size);
+    }
+
+    public SSLSession getSession() {
         return targetSocket.getSession();
     }
 
     public int getSoLinger()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getSoLinger();
     }
 
     public int getSoTimeout()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getSoTimeout();
     }
 
-    public String[] getSupportedCipherSuites()
-    {
+    public void setSoTimeout(int timeout)
+            throws SocketException {
+        targetSocket.setSoTimeout(timeout);
+    }
+
+    public String[] getSupportedCipherSuites() {
         return targetSocket.getSupportedCipherSuites();
     }
 
-    public String[] getSupportedProtocols()
-    {
+    public String[] getSupportedProtocols() {
         return targetSocket.getSupportedProtocols();
     }
 
     public boolean getTcpNoDelay()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getTcpNoDelay();
     }
 
+    public void setTcpNoDelay(boolean on)
+            throws SocketException {
+        targetSocket.setTcpNoDelay(on);
+    }
+
     public int getTrafficClass()
-        throws SocketException
-    {
+            throws SocketException {
         return targetSocket.getTrafficClass();
     }
 
-    public boolean getUseClientMode()
-    {
+    public void setTrafficClass(int tc)
+            throws SocketException {
+        targetSocket.setTrafficClass(tc);
+    }
+
+    public boolean getUseClientMode() {
         return targetSocket.getUseClientMode();
     }
 
-    public boolean getWantClientAuth()
-    {
+    public void setUseClientMode(boolean arg0) {
+        targetSocket.setUseClientMode(arg0);
+    }
+
+    public boolean getWantClientAuth() {
         return targetSocket.getWantClientAuth();
     }
 
-    public int hashCode()
-    {
+    public void setWantClientAuth(boolean arg0) {
+        targetSocket.setWantClientAuth(arg0);
+    }
+
+    public int hashCode() {
         return targetSocket.hashCode();
     }
 
-    public boolean isBound()
-    {
+    public boolean isBound() {
         return targetSocket.isBound();
     }
 
-    public boolean isClosed()
-    {
+    public boolean isClosed() {
         return targetSocket.isClosed();
     }
 
-    public boolean isConnected()
-    {
+    public boolean isConnected() {
         return targetSocket.isConnected();
     }
 
-    public boolean isInputShutdown()
-    {
+    public boolean isInputShutdown() {
         return targetSocket.isInputShutdown();
     }
 
-    public boolean isOutputShutdown()
-    {
+    public boolean isOutputShutdown() {
         return targetSocket.isOutputShutdown();
     }
 
-    public void removeHandshakeCompletedListener(HandshakeCompletedListener arg0)
-    {
+    public void removeHandshakeCompletedListener(HandshakeCompletedListener arg0) {
         targetSocket.removeHandshakeCompletedListener(arg0);
     }
 
     public void sendUrgentData(int data)
-        throws IOException
-    {
+            throws IOException {
         targetSocket.sendUrgentData(data);
     }
 
-    public void setEnabledCipherSuites(String[] arg0)
-    {
-        targetSocket.setEnabledCipherSuites(arg0);
-    }
-
-    public void setEnabledProtocols(String[] arg0)
-    {
-        targetSocket.setEnabledProtocols(arg0);
-    }
-
-    public void setEnableSessionCreation(boolean arg0)
-    {
-        targetSocket.setEnableSessionCreation(arg0);
-    }
-
-    public void setKeepAlive(boolean on)
-        throws SocketException
-    {
-        targetSocket.setKeepAlive(on);
-    }
-
-    public void setNeedClientAuth(boolean arg0)
-    {
-        targetSocket.setNeedClientAuth(arg0);
-    }
-
-    public void setOOBInline(boolean on)
-        throws SocketException
-    {
-        targetSocket.setOOBInline(on);
-    }
-
-    public void setReceiveBufferSize(int size)
-        throws SocketException
-    {
-        targetSocket.setReceiveBufferSize(size);
-    }
-
-    public void setReuseAddress(boolean on)
-        throws SocketException
-    {
-        targetSocket.setReuseAddress(on);
-    }
-
-    public void setSendBufferSize(int size)
-        throws SocketException
-    {
-        targetSocket.setSendBufferSize(size);
-    }
-
     public void setSoLinger(boolean on, int linger)
-        throws SocketException
-    {
+            throws SocketException {
         targetSocket.setSoLinger(on, linger);
     }
 
-    public void setSoTimeout(int timeout)
-        throws SocketException
-    {
-        targetSocket.setSoTimeout(timeout);
-    }
-
-    public void setTcpNoDelay(boolean on)
-        throws SocketException
-    {
-        targetSocket.setTcpNoDelay(on);
-    }
-
-    public void setTrafficClass(int tc)
-        throws SocketException
-    {
-        targetSocket.setTrafficClass(tc);
-    }
-
-    public void setUseClientMode(boolean arg0)
-    {
-        targetSocket.setUseClientMode(arg0);
-    }
-
-    public void setWantClientAuth(boolean arg0)
-    {
-        targetSocket.setWantClientAuth(arg0);
-    }
-
     public void shutdownInput()
-        throws IOException
-    {
+            throws IOException {
         targetSocket.shutdownInput();
     }
 
     public void shutdownOutput()
-        throws IOException
-    {
+            throws IOException {
         targetSocket.shutdownOutput();
     }
 
     public void startHandshake()
-        throws IOException
-    {
+            throws IOException {
         targetSocket.startHandshake();
     }
 
-    public String toString()
-    {
+    public String toString() {
         return targetSocket.toString();
     }
 }

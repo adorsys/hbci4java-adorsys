@@ -1,4 +1,3 @@
-
 /*  $Id: SF.java,v 1.1 2011/05/04 22:38:03 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -27,13 +26,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.Properties;
+import java.util.*;
 
 @Slf4j
 public final class SF extends SyntaxElement {
+
+    public SF(String type, String name, String path, int idx, Document document) {
+        super(type, name, path, idx, document);
+    }
+
+    public SF(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    }
 
     protected MultipleSyntaxElements createNewChildContainer(Node ref, Document document) {
         MultipleSyntaxElements ret = null;
@@ -66,13 +70,11 @@ public final class SF extends SyntaxElement {
         return "SF";
     }
 
-    public SF(String type, String name, String path, int idx, Document document) {
-        super(type, name, path, idx, document);
-    }
-
     public void init(String type, String name, String path, int idx, Document document) {
         super.init(type, name, path, idx, document);
     }
+
+    // -------------------------------------------------------------------------------------------
 
     public String toString(int dummy) {
         StringBuffer ret = new StringBuffer(256);
@@ -86,12 +88,6 @@ public final class SF extends SyntaxElement {
             }
 
         return ret.toString();
-    }
-
-    // -------------------------------------------------------------------------------------------
-
-    public SF(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
@@ -227,7 +223,7 @@ public final class SF extends SyntaxElement {
         return ret;
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
         if (isValid()) {
             for (Iterator<MultipleSyntaxElements> i = getChildContainers().iterator(); i.hasNext(); ) {
                 MultipleSyntaxElements l = i.next();

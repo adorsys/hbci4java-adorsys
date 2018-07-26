@@ -111,7 +111,7 @@ public class TestGVLastSEPA extends AbstractTest {
      */
     @Before
     public void beforeTest() throws Exception {
-        Properties props = new Properties();
+        HashMap<String, String> props = new HashMap<>();
         props.put("infoPoint.enabled", Boolean.FALSE.toString());
 
         props.put("client.passport.PinTan.filename", dir.getAbsolutePath() + File.separator + System.currentTimeMillis() + ".pt");

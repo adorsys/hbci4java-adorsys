@@ -1,4 +1,3 @@
-
 /*  $Id: TooMuchElementsException.java,v 1.1 2011/05/04 22:38:01 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,10 +23,8 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class TooMuchElementsException
-    extends HBCI_Exception
-{
-    public TooMuchElementsException(String path,int idx)
-    {
-        super(HBCIUtils.getLocMsg("EXCMSG_TOOMUCHELEMS",new Object[] {path,Integer.toString(idx+1)}));
+        extends HBCI_Exception {
+    public TooMuchElementsException(String path, int idx) {
+        super(HBCIUtils.getLocMsg("EXCMSG_TOOMUCHELEMS", new Object[]{path, Integer.toString(idx + 1)}));
     }
 }

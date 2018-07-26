@@ -1,4 +1,3 @@
-
 /*  $Id: Limit.java,v 1.1 2011/05/04 22:37:49 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -21,21 +20,19 @@
 
 package org.kapott.hbci.structures;
 
-public class Limit 
-{
-    public static final char TYPE_SINGLE='E';
-    public static final char TYPE_DAILY='T';
-    public static final char TYPE_WEEKLY='W';
-    public static final char TYPE_MONTHLY='M';
-    public static final char TYPE_TIME='Z';
+public class Limit {
+    public static final char TYPE_SINGLE = 'E';
+    public static final char TYPE_DAILY = 'T';
+    public static final char TYPE_WEEKLY = 'W';
+    public static final char TYPE_MONTHLY = 'M';
+    public static final char TYPE_TIME = 'Z';
 
-    public int   type;
+    public int type;
     public Value value;
-    public int   days;
-    
-    public String toString()
-    {
-        StringBuffer ret=new StringBuffer();
+    public int days;
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
         switch (type) {
             case TYPE_SINGLE:
                 ret.append("Einzellimit");
@@ -53,7 +50,7 @@ public class Limit
                 ret.append("Zeitliches Limit (").append(days).append(" Tage)");
                 break;
         }
-        
+
         ret.append(": ").append(value.toString());
         return ret.toString();
     }

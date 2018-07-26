@@ -1,27 +1,28 @@
-<html><body>
+<html>
+<body>
 <p>
-Dieses Paket enthält Klassen, die Status-Informationen zu einzelnen Aufträgen,
-Nachrichten oder Dialogen bereitstellen. Diese Status-Informationen werden
-an verschiedenen Stellen zurückgegeben.
+    Dieses Paket enthält Klassen, die Status-Informationen zu einzelnen Aufträgen,
+    Nachrichten oder Dialogen bereitstellen. Diese Status-Informationen werden
+    an verschiedenen Stellen zurückgegeben.
 </p>
 
 <p>
-Zum einen wird beim Ausführen eines HBCI-Dialoges ein Objekt der Klasse
-<a href="HBCIDialogStatus.html">HBCIDialogStatus</a> zurückgegeben, anhand
-dessen sämtliche Status-Informationen, die während der Dialogausführung
-aufgelaufen sind, ausgewertet werden können.
+    Zum einen wird beim Ausführen eines HBCI-Dialoges ein Objekt der Klasse
+    <a href="HBCIDialogStatus.html">HBCIDialogStatus</a> zurückgegeben, anhand
+    dessen sämtliche Status-Informationen, die während der Dialogausführung
+    aufgelaufen sind, ausgewertet werden können.
 </p>
 
 <p>
-Außerdem werden in jedem Objekt, welches Rückgabedaten für einen Geschäftsvorfall
-enthält (siehe <a href="../GV_Result/HBCIJobResult.html">HBCIJobResult</a>), die Statusinformationen
-gespeichert, die konkret diesen Geschäftsvorfall betreffen. Dazu wird ein
-Objekt der Klasse <a href="HBCIStatus.html">HBCIStatus</a> verwendet.  
+    Außerdem werden in jedem Objekt, welches Rückgabedaten für einen Geschäftsvorfall
+    enthält (siehe <a href="../GV_Result/HBCIJobResult.html">HBCIJobResult</a>), die Statusinformationen
+    gespeichert, die konkret diesen Geschäftsvorfall betreffen. Dazu wird ein
+    Objekt der Klasse <a href="HBCIStatus.html">HBCIStatus</a> verwendet.
 </p>
 
 <p>
-Innerhalb einer Anwendung reicht i.d.R. die Anwendung der im folgenden Beispiel
-gezeigten Methoden aus:
+    Innerhalb einer Anwendung reicht i.d.R. die Anwendung der im folgenden Beispiel
+    gezeigten Methoden aus:
 <pre>
 // initialize HBCI-stuff here
 ...
@@ -53,6 +54,7 @@ if (jobSaldo.getJobResult().isOK()) {
 }
  
 ...
-</pre>  
+</pre>
 </p>
-</body></html>
+</body>
+</html>

@@ -1,4 +1,3 @@
-
 /*  $Id: GVMultiUeb.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,13 +23,8 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 public class GVMultiUeb extends AbstractMultiGV {
-
-    public static String getLowlevelName() {
-        return "SammelUeb";
-    }
 
     public GVMultiUeb(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
@@ -40,6 +34,10 @@ public class GVMultiUeb extends AbstractMultiGV {
         addConstraint("my.blz", "KTV.KIK.blz", null);
         addConstraint("my.number", "KTV.number", null);
         addConstraint("my.subnumber", "KTV.subnumber", "");
+    }
+
+    public static String getLowlevelName() {
+        return "SammelUeb";
     }
 
     public void setParam(String paramName, String value) {

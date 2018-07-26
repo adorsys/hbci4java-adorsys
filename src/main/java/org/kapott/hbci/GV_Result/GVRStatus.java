@@ -1,4 +1,3 @@
-
 /*  $Id: GVRStatus.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -53,53 +52,6 @@ public final class GVRStatus extends HBCIJobResultImpl {
         super(passport);
     }
 
-    /**
-     * Daten für einen einzelnen Eintrag im Statusprotokoll. Ein Eintrag enthält
-     * Informationen zu genau einem eingereichten Auftrag
-     */
-    public static class Entry {
-        /**
-         * Dialog-ID, mit der der Auftrag eingereicht wurde
-         */
-        public String dialogid;
-        /**
-         * Nachrichtennummer innerhalb des Dialoges, in dem der Auftrag eingereicht wurde
-         */
-        public String msgnum;
-        /**
-         * Zeitpunkt der Einreichung
-         */
-        public Date timestamp;
-        /**
-         * Status (ein HBCI-Returncode) des Auftrages
-         */
-        public HBCIRetVal retval;
-
-        /**
-         * Gibt die Job-ID des Jobs zurück, zu dem dieser Statusprotokolleintrag gehört.
-         *
-         * @return Job-ID
-         */
-        public String getJobId() {
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-            return format.format(timestamp) + "/" + dialogid + "/" + msgnum + "/" + retval.segref;
-        }
-
-        public String toString() {
-            StringBuffer ret = new StringBuffer();
-
-            ret.append(HBCIUtils.datetime2StringLocal(timestamp));
-            ret.append(" ");
-            ret.append(dialogid);
-            ret.append("/");
-            ret.append(msgnum);
-            ret.append("/");
-            ret.append(retval.toString());
-
-            return ret.toString();
-        }
-    }
-
     public void addEntry(Entry entry) {
         entries.add(entry);
     }
@@ -147,5 +99,52 @@ public final class GVRStatus extends HBCIJobResultImpl {
         }
 
         return ret;
+    }
+
+    /**
+     * Daten für einen einzelnen Eintrag im Statusprotokoll. Ein Eintrag enthält
+     * Informationen zu genau einem eingereichten Auftrag
+     */
+    public static class Entry {
+        /**
+         * Dialog-ID, mit der der Auftrag eingereicht wurde
+         */
+        public String dialogid;
+        /**
+         * Nachrichtennummer innerhalb des Dialoges, in dem der Auftrag eingereicht wurde
+         */
+        public String msgnum;
+        /**
+         * Zeitpunkt der Einreichung
+         */
+        public Date timestamp;
+        /**
+         * Status (ein HBCI-Returncode) des Auftrages
+         */
+        public HBCIRetVal retval;
+
+        /**
+         * Gibt die Job-ID des Jobs zurück, zu dem dieser Statusprotokolleintrag gehört.
+         *
+         * @return Job-ID
+         */
+        public String getJobId() {
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+            return format.format(timestamp) + "/" + dialogid + "/" + msgnum + "/" + retval.segref;
+        }
+
+        public String toString() {
+            StringBuffer ret = new StringBuffer();
+
+            ret.append(HBCIUtils.datetime2StringLocal(timestamp));
+            ret.append(" ");
+            ret.append(dialogid);
+            ret.append("/");
+            ret.append(msgnum);
+            ret.append("/");
+            ret.append(retval.toString());
+
+            return ret.toString();
+        }
     }
 }

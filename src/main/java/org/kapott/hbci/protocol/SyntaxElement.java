@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxElement.java,v 1.1 2011/05/04 22:38:03 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -38,6 +37,10 @@ import java.util.*;
 @Slf4j
 public abstract class SyntaxElement {
 
+    public final static boolean TRY_TO_CREATE = true;
+    public final static boolean DONT_TRY_TO_CREATE = false;
+    public final static boolean ALLOW_OVERWRITE = true;
+    public final static boolean DONT_ALLOW_OVERWRITE = false;
     private List<MultipleSyntaxElements> childContainers;
     /**
      * < @internal @brief alle in diesem element enthaltenen unterelemente
@@ -58,7 +61,6 @@ public abstract class SyntaxElement {
      */
 
     private MultipleSyntaxElements parent;
-
     // Wird von einigen Rewriter-Modules beim Parsen verwendet, um im Antwort-String
     // an der richtigen Stelle Daten auszuschneiden oder einzufügen.
     // TODO: Problem dabei ist nur: sobald auch nur *ein* Rewriter die Antwort-
@@ -66,51 +68,8 @@ public abstract class SyntaxElement {
     // Werte für posInMsg nicht mehr (es sei denn, es wird nach dem
     // Verändern ein neues MSG-Objekt erzeugt).
     private int posInMsg;
-
     private Document document;
     private Node def;
-
-    public final static boolean TRY_TO_CREATE = true;
-    public final static boolean DONT_TRY_TO_CREATE = false;
-    public final static boolean ALLOW_OVERWRITE = true;
-    public final static boolean DONT_ALLOW_OVERWRITE = false;
-
-    /**
-     * gibt einen string mit den typnamen (msg,seg,deg,de,...) des
-     * elementes zurueck
-     */
-    protected abstract String getElementTypeName();
-
-    /**
-     * liefert das delimiter-zeichen zurueck, dass innerhalb dieses
-     * syntaxelementes benutzt wird, um die einzelnen child-elemente voneinander
-     * zu trennen
-     */
-    protected abstract char getInDelim();
-
-    /**
-     * erzeugt einen neuen Child-Container, welcher durch den
-     * xml-knoten 'ref' identifiziert wird; wird beim erzeugen von elementen
-     * benutzt
-     */
-    protected abstract MultipleSyntaxElements createNewChildContainer(Node ref, Document document);
-
-    // TODO: aus konsistenz-gründen auch in MultipleSyntaxElements create und
-    // createAndAdd trennen
-
-    /**
-     * beim parsen: haengt an die 'childElements' ein neues Element an. der
-     * xml-knoten 'ref' gibt an, um welches element es sich dabei handelt; aus
-     * 'res' (der zu parsende String) wird der wert fuer das element ermittelt
-     * (falls es sich um ein de handelt); in 'predefined' ist der wert des
-     * elementes zu finden, der laut syntaxdefinition ('document') an dieser stelle
-     * auftauchen mueste (optional; z.b. fuer segmentcodes); 'predelim*' geben
-     * die delimiter an, die direkt vor dem zu erzeugenden syntaxelement
-     * auftauchen muessten
-     */
-    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids);
-
-
     /**
      * wird fuer datenelemente benoetigt, die sonst unbeabsichtigt generiert werden koennten.
      * das problem ist, dass es datenelemente (bisher nur bei segmenten bekannt) gibt,
@@ -161,6 +120,66 @@ public abstract class SyntaxElement {
     private boolean needsRequestTag;
     private boolean haveRequestTag;
 
+    /**
+     * es wird ein syntaxelement mit der id 'name' initialisiert; der pfad bis zu
+     * diesem element wird in 'path' uebergeben; 'idx' ist die nummer dieses
+     * elementes innerhalb der syntaxelementliste fuer dieses element (falls ein
+     * bestimmtes syntaxelement mehr als einmal auftreten kann)
+     */
+    protected SyntaxElement(String type, String name, String path, int idx, Document document) {
+        initData(type, name, path, idx, document);
+    }
+
+    // TODO: aus konsistenz-gründen auch in MultipleSyntaxElements create und
+    // createAndAdd trennen
+
+    /**
+     * beim parsen: initialisiert ein neues syntaxelement mit der id 'name'; in
+     * 'path' wird der pfad bis zu dieser stelle uebergeben 'predelim' gibt das
+     * delimiter-zeichen an, das beim parsen vor diesem document- element stehen
+     * muesste 'idx' ist die nummer des syntaxelementes innerhalb der
+     * uebergeordneten liste (die liste repraesentiert das evtl. mehrmalige
+     * auftreten eines syntaxelementes, siehe class syntaxelementlist) 'res' ist
+     * der zu parsende String 'predefs' soll eine menge von pfad-wert-paaren
+     * enthalten, die fuer einige syntaxelemente den wert angeben, den diese
+     * elemente zwingend haben muessen (z.b. ein bestimmter segmentcode o.ae.)
+     */
+    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    }
+
+    /**
+     * gibt einen string mit den typnamen (msg,seg,deg,de,...) des
+     * elementes zurueck
+     */
+    protected abstract String getElementTypeName();
+
+    /**
+     * liefert das delimiter-zeichen zurueck, dass innerhalb dieses
+     * syntaxelementes benutzt wird, um die einzelnen child-elemente voneinander
+     * zu trennen
+     */
+    protected abstract char getInDelim();
+
+    /**
+     * erzeugt einen neuen Child-Container, welcher durch den
+     * xml-knoten 'ref' identifiziert wird; wird beim erzeugen von elementen
+     * benutzt
+     */
+    protected abstract MultipleSyntaxElements createNewChildContainer(Node ref, Document document);
+
+    /**
+     * beim parsen: haengt an die 'childElements' ein neues Element an. der
+     * xml-knoten 'ref' gibt an, um welches element es sich dabei handelt; aus
+     * 'res' (der zu parsende String) wird der wert fuer das element ermittelt
+     * (falls es sich um ein de handelt); in 'predefined' ist der wert des
+     * elementes zu finden, der laut syntaxdefinition ('document') an dieser stelle
+     * auftauchen mueste (optional; z.b. fuer segmentcodes); 'predelim*' geben
+     * die delimiter an, die direkt vor dem zu erzeugenden syntaxelement
+     * auftauchen muessten
+     */
+    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids);
+
     private void initData(String type, String name, String ppath, int idx, Document document) {
         if (getElementTypeName().equals("SEG"))
             log.trace("creating segment " + ppath + " -> " + name + "(" + idx + ")");
@@ -173,7 +192,7 @@ public abstract class SyntaxElement {
         this.childContainers = new ArrayList<>();
         this.document = document;
         this.def = null;
-        
+
         /* der pfad wird gebildet aus bisherigem pfad
          plus name des elementes
          plus indexnummer, falls diese groesser 0 ist */
@@ -258,16 +277,6 @@ public abstract class SyntaxElement {
         }
     }
 
-    /**
-     * es wird ein syntaxelement mit der id 'name' initialisiert; der pfad bis zu
-     * diesem element wird in 'path' uebergeben; 'idx' ist die nummer dieses
-     * elementes innerhalb der syntaxelementliste fuer dieses element (falls ein
-     * bestimmtes syntaxelement mehr als einmal auftreten kann)
-     */
-    protected SyntaxElement(String type, String name, String path, int idx, Document document) {
-        initData(type, name, path, idx, document);
-    }
-
     protected void init(String type, String name, String path, int idx, Document document) {
         initData(type, name, path, idx, document);
     }
@@ -293,6 +302,8 @@ public abstract class SyntaxElement {
         return ret;
     }
 
+    // -------------------------------------------------------------------------------------------
+
     /**
      * loop through all child-elements; the segments found there
      * will be sequentially enumerated starting with num startValue;
@@ -312,8 +323,6 @@ public abstract class SyntaxElement {
 
         return idx;
     }
-
-    // -------------------------------------------------------------------------------------------
 
     private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         this.type = type;
@@ -340,7 +349,7 @@ public abstract class SyntaxElement {
 
         if (document != null) {
             this.def = getSyntaxDef(type, document);
-            
+
             /* fuellen der 'predefs'-tabelle mit den in der
              syntaxbeschreibung vorgegebenen werten */
             NodeList valueNodes = ((Element) def).getElementsByTagName("value");
@@ -410,21 +419,6 @@ public abstract class SyntaxElement {
         setValid(true);
     }
 
-    /**
-     * beim parsen: initialisiert ein neues syntaxelement mit der id 'name'; in
-     * 'path' wird der pfad bis zu dieser stelle uebergeben 'predelim' gibt das
-     * delimiter-zeichen an, das beim parsen vor diesem document- element stehen
-     * muesste 'idx' ist die nummer des syntaxelementes innerhalb der
-     * uebergeordneten liste (die liste repraesentiert das evtl. mehrmalige
-     * auftreten eines syntaxelementes, siehe class syntaxelementlist) 'res' ist
-     * der zu parsende String 'predefs' soll eine menge von pfad-wert-paaren
-     * enthalten, die fuer einige syntaxelemente den wert angeben, den diese
-     * elemente zwingend haben muessen (z.b. ein bestimmter segmentcode o.ae.)
-     */
-    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
-    }
-
     protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
@@ -441,7 +435,7 @@ public abstract class SyntaxElement {
      * wird in allen anderen typen von syntaxelementen die liste der
      * child-elemente durchlaufen und deren 'fillValues' methode aufgerufen
      */
-    public void extractValues(Hashtable<String, String> values) {
+    public void extractValues(HashMap<String, String> values) {
         for (MultipleSyntaxElements l : childContainers) {
             l.extractValues(values);
         }
@@ -636,10 +630,6 @@ public abstract class SyntaxElement {
         return ret;
     }
 
-    protected void setPath(String path) {
-        this.path = path;
-    }
-
     /**
      * @return the path to this element
      */
@@ -647,8 +637,8 @@ public abstract class SyntaxElement {
         return path;
     }
 
-    protected void setName(String name) {
-        this.name = name;
+    protected void setPath(String path) {
+        this.path = path;
     }
 
     /**
@@ -658,12 +648,16 @@ public abstract class SyntaxElement {
         return name;
     }
 
-    protected void setType(String type) {
-        this.type = type;
+    protected void setName(String name) {
+        this.name = name;
     }
 
     public String getType() {
         return type;
+    }
+
+    protected void setType(String type) {
+        this.type = type;
     }
 
     /**
@@ -678,12 +672,12 @@ public abstract class SyntaxElement {
         return ret;
     }
 
-    protected final void setValid(boolean valid) {
-        this.valid = valid;
-    }
-
     public boolean isValid() {
         return valid;
+    }
+
+    protected final void setValid(boolean valid) {
+        this.valid = valid;
     }
 
     public int checkSegSeq(int value) {
@@ -716,30 +710,19 @@ public abstract class SyntaxElement {
         }
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
-    }
-
-    public void setParent(MultipleSyntaxElements parent) {
-        this.parent = parent;
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
     }
 
     public MultipleSyntaxElements getParent() {
         return parent;
     }
 
-    public int getPosInMsg() {
-        return posInMsg;
+    public void setParent(MultipleSyntaxElements parent) {
+        this.parent = parent;
     }
 
-    protected void destroy() {
-        childContainers.clear();
-        childContainers = null;
-        name = null;
-        parent = null;
-        path = null;
-        type = null;
-        document = null;
-        def = null;
+    public int getPosInMsg() {
+        return posInMsg;
     }
 }
 

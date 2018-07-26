@@ -1,4 +1,3 @@
-
 /*  $Id: GVRDauerList.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -39,6 +38,30 @@ public final class GVRDauerList extends HBCIJobResultImpl {
 
     public GVRDauerList(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addEntry(Dauer entry) {
+        entries.add(entry);
+    }
+
+    /**
+     * Gibt ein Array mit Daten zu allen gefundenen Dauerauftragsdaten zurück
+     *
+     * @return Array mit Dauerauftrags-Informationen
+     */
+    public Dauer[] getEntries() {
+        return entries.toArray(new Dauer[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+
+        for (Iterator<Dauer> i = entries.iterator(); i.hasNext(); ) {
+            ret.append(HBCIUtils.getLocMsg("STANDINGORDER")).append(" #").append(i).append(System.getProperty("line.separator"));
+            ret.append(i.next()).append(System.getProperty("line.separator"));
+        }
+
+        return ret.toString().trim();
     }
 
     /**
@@ -194,29 +217,5 @@ public final class GVRDauerList extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
-
-    public void addEntry(Dauer entry) {
-        entries.add(entry);
-    }
-
-    /**
-     * Gibt ein Array mit Daten zu allen gefundenen Dauerauftragsdaten zurück
-     *
-     * @return Array mit Dauerauftrags-Informationen
-     */
-    public Dauer[] getEntries() {
-        return entries.toArray(new Dauer[entries.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-
-        for (Iterator<Dauer> i = entries.iterator(); i.hasNext(); ) {
-            ret.append(HBCIUtils.getLocMsg("STANDINGORDER")).append(" #").append(i).append(System.getProperty("line.separator"));
-            ret.append(i.next()).append(System.getProperty("line.separator"));
-        }
-
-        return ret.toString().trim();
     }
 }

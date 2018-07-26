@@ -4,38 +4,12 @@ import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.PainVersion;
 import org.kapott.hbci.sepa.PainVersion.Type;
-import org.w3c.dom.Document;
 
 /**
  * Implementierung des HBCI-Jobs fuer die Löschung einer SEPA-Terminüberweisung.
  */
 public class GVTermUebSEPADel extends AbstractSEPAGV {
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
-    @Override
-    protected PainVersion getDefaultPainVersion() {
-        return DEFAULT;
-    }
-
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
-    @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
-    }
-
-    /**
-     * Liefert den Lowlevel-Namen des Jobs.
-     *
-     * @return der Lowlevel-Namen des Jobs.
-     */
-    public static String getLowlevelName() {
-        return "TermUebSEPADel";
-    }
 
     public GVTermUebSEPADel(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
@@ -75,6 +49,31 @@ public class GVTermUebSEPADel extends AbstractSEPAGV {
         addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED);
         addConstraint("purposecode", "sepa.purposecode", "");
+    }
+
+    /**
+     * Liefert den Lowlevel-Namen des Jobs.
+     *
+     * @return der Lowlevel-Namen des Jobs.
+     */
+    public static String getLowlevelName() {
+        return "TermUebSEPADel";
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
+     */
+    @Override
+    protected PainVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    /**
+     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
+     */
+    @Override
+    protected Type getPainType() {
+        return Type.PAIN_001;
     }
 
     /**

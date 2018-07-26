@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxDTAUS.java,v 1.2 2012/03/06 23:18:26 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -28,6 +27,18 @@ import org.kapott.hbci.manager.HBCIUtils;
 // Speicherung im HBCI-MSG-Format
 @Slf4j
 public class SyntaxDTAUS extends SyntaxAN {
+
+    public SyntaxDTAUS(String x, int minlen, int maxlen) {
+        super(check(x.trim()), minlen, maxlen);
+    }
+
+    protected SyntaxDTAUS() {
+        super();
+    }
+
+    public SyntaxDTAUS(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
 
     public static String check(String st) {
         // [willuhn 2012-03-06, BUG 1129] siehe http://de.wikipedia.org/wiki/DIN_66003
@@ -75,23 +86,15 @@ public class SyntaxDTAUS extends SyntaxAN {
         return st;
     }
 
-    public SyntaxDTAUS(String x, int minlen, int maxlen) {
-        super(check(x.trim()), minlen, maxlen);
-    }
-
     public void init(String x, int minlen, int maxlen) {
         super.init(check(x.trim()), minlen, maxlen);
     }
 
-    protected SyntaxDTAUS() {
-        super();
-    }
+    // --------------------------------------------------------------------------------
 
     protected void init() {
         super.init();
     }
-
-    // --------------------------------------------------------------------------------
 
     private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
@@ -100,10 +103,6 @@ public class SyntaxDTAUS extends SyntaxAN {
 
         setContent(check(unquote(st)), minsize, maxsize);
         res.delete(0, endidx);
-    }
-
-    public SyntaxDTAUS(StringBuffer res, int minsize, int maxsize) {
-        initData(res, minsize, maxsize);
     }
 
     public void init(StringBuffer res, int minsize, int maxsize) {

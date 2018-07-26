@@ -1,4 +1,3 @@
-
 /*  $Id: GVDauerEdit.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -29,13 +28,10 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.text.DecimalFormat;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVDauerEdit extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "DauerEdit";
-    }
 
     public GVDauerEdit(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRDauerEdit(passport));
@@ -65,8 +61,8 @@ public final class GVDauerEdit extends AbstractHBCIJob {
         // TODO: aussetzung fehlt
         // TODO: addkey fehlt
 
-        Properties parameters = getJobRestrictions();
-        int maxusage = Integer.parseInt(parameters.getProperty("maxusage"));
+        HashMap<String, String> parameters = getJobRestrictions();
+        int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {
             String name = HBCIUtils.withCounter("usage", i);
@@ -74,12 +70,16 @@ public final class GVDauerEdit extends AbstractHBCIJob {
         }
     }
 
+    public static String getLowlevelName() {
+        return "DauerEdit";
+    }
+
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        Properties result = msgstatus.getData();
-        String orderid = result.getProperty(header + ".orderid");
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
 
         ((GVRDauerEdit) (jobResult)).setOrderId(orderid);
-        ((GVRDauerEdit) (jobResult)).setOrderIdOld(result.getProperty(header + ".orderidold"));
+        ((GVRDauerEdit) (jobResult)).setOrderIdOld(result.get(header + ".orderidold"));
 
         if (orderid != null && orderid.length() != 0) {
             Properties p = getLowlevelParams();
@@ -98,10 +98,10 @@ public final class GVDauerEdit extends AbstractHBCIJob {
     }
 
     public void setParam(String paramName, String value) {
-        Properties res = getJobRestrictions();
+        HashMap<String, String> res = getJobRestrictions();
 
         if (paramName.equals("date")) {
-            String st = res.getProperty("numtermchanges");
+            String st = res.get("numtermchanges");
             if (st != null && Integer.parseInt(st) == 0) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_SCHEDMODSTANDORDUNAVAIL");
                 throw new InvalidUserDataException(msg);
@@ -117,7 +117,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
-                    String st = res.getProperty("turnusweeks");
+                    String st = res.get("turnusweeks");
 
                     if (st != null) {
                         String value2 = new DecimalFormat("00").format(Integer.parseInt(value));
@@ -128,7 +128,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                         }
                     }
                 } else if (timeunit.equals("M")) {
-                    String st = res.getProperty("turnusmonths");
+                    String st = res.get("turnusmonths");
 
                     if (st != null) {
                         String value2 = new DecimalFormat("00").format(Integer.parseInt(value));
@@ -145,14 +145,14 @@ public final class GVDauerEdit extends AbstractHBCIJob {
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
-                    String st = res.getProperty("daysperweek");
+                    String st = res.get("daysperweek");
 
                     if (st != null && !st.equals("0") && st.indexOf(value) == -1) {
                         String msg = HBCIUtils.getLocMsg("EXCMSG_INV_EXECDAY", value);
                         throw new InvalidUserDataException(msg);
                     }
                 } else if (timeunit.equals("M")) {
-                    String st = res.getProperty("dayspermonth");
+                    String st = res.get("dayspermonth");
 
                     if (st != null) {
                         String value2 = new DecimalFormat("00").format(Integer.parseInt(value));
@@ -169,7 +169,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
             boolean found = false;
 
             for (int i = 0; ; i++) {
-                String st = res.getProperty(HBCIUtils.withCounter("textkey", i));
+                String st = res.get(HBCIUtils.withCounter("textkey", i));
 
                 if (st == null)
                     break;

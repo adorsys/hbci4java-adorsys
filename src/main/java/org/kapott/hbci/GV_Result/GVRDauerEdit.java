@@ -1,4 +1,3 @@
-
 /*  $Id: GVRDauerEdit.java,v 1.1 2011/05/04 22:37:48 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -39,14 +38,6 @@ public class GVRDauerEdit extends HBCIJobResultImpl {
         super(passport);
     }
 
-    public void setOrderId(String orderid) {
-        this.orderid = orderid;
-    }
-
-    public void setOrderIdOld(String orderidold) {
-        this.orderidold = orderidold;
-    }
-
     /**
      * Gibt die Auftrags-Identifikationsnummer des geänderten Auftrages zurück.
      *
@@ -54,6 +45,10 @@ public class GVRDauerEdit extends HBCIJobResultImpl {
      */
     public String getOrderId() {
         return orderid;
+    }
+
+    public void setOrderId(String orderid) {
+        this.orderid = orderid;
     }
 
     /**
@@ -65,6 +60,10 @@ public class GVRDauerEdit extends HBCIJobResultImpl {
      */
     public String getOrderIdOld() {
         return orderidold;
+    }
+
+    public void setOrderIdOld(String orderidold) {
+        this.orderidold = orderidold;
     }
 
     public String toString() {

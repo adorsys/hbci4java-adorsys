@@ -1,4 +1,3 @@
-
 /*  $Id: GVUeb.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -26,13 +25,10 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVUeb extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "Ueb";
-    }
 
     public GVUeb(HBCIPassportInternal passport, String name) {
         super(passport, name, new HBCIJobResultImpl(passport));
@@ -56,8 +52,8 @@ public class GVUeb extends AbstractHBCIJob {
         addConstraint("name2", "name2", "");
         addConstraint("key", "key", "51");
 
-        Properties parameters = getJobRestrictions();
-        int maxusage = Integer.parseInt(parameters.getProperty("maxusage"));
+        HashMap<String, String> parameters = getJobRestrictions();
+        int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {
             String name = HBCIUtils.withCounter("usage", i);
@@ -65,15 +61,19 @@ public class GVUeb extends AbstractHBCIJob {
         }
     }
 
+    public static String getLowlevelName() {
+        return "Ueb";
+    }
+
     public void setParam(String paramName, String value) {
-        Properties res = getJobRestrictions();
+        HashMap<String, String> res = getJobRestrictions();
 
         if (paramName.equals("key")) {
             boolean atLeastOne = false;
             boolean found = false;
 
             for (int i = 0; ; i++) {
-                String st = res.getProperty(HBCIUtils.withCounter("key", i));
+                String st = res.get(HBCIUtils.withCounter("key", i));
 
                 if (st == null)
                     break;

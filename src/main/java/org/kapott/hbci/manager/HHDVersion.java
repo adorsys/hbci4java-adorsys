@@ -9,6 +9,7 @@ package org.kapott.hbci.manager;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -44,27 +45,11 @@ public enum HHDVersion {
      */
     HHD_1_2(Type.CHIPTAN, null, null, -1, "hhd12"),;
 
-    /**
-     * Definiert die Art des TAN-Verfahrens.
-     */
-    public static enum Type {
-        /**
-         * chipTAN oder smsTAN.
-         */
-        CHIPTAN,
-
-        /**
-         * photoTAN.
-         */
-        PHOTOTAN,
-    }
-
     private Type type = null;
     private String idStart = null;
     private String versionStart = null;
     private int segVersion = 0;
     private String challengeVersion = null;
-
     /**
      * ct.
      *
@@ -82,6 +67,65 @@ public enum HHDVersion {
         this.versionStart = versionStart;
         this.segVersion = segVersion;
         this.challengeVersion = challengeVersion;
+    }
+
+    /**
+     * Ermittelt die zu verwendende HHD-Version aus den BPD-Informationen des TAN-Verfahrens.
+     *
+     * @param secmech die BPD-Informationen zum TAN-Verfahren.
+     * @return die HHD-Version.
+     */
+    public static HHDVersion find(HashMap<String, String> secmech) {
+        log.debug("trying to determine HHD version for secmech: " + secmech);
+        // Das ist die "Technische Kennung"
+        // Siehe "Belegungsrichtlinien TANve1.4  mit Erratum 1-3 final version vom 2010-11-12.pdf"
+        // Der Name ist standardisiert, wenn er mit "HHD1...." beginnt, ist
+        // das die HHD-Version
+        String id = secmech.get("id") != null ? secmech.get("id") : "";
+        log.debug("  technical HHD id: " + id);
+        for (HHDVersion v : values()) {
+            String s = v.idStart;
+            if (s == null)
+                continue;
+            if (id.startsWith(s))
+                return v;
+        }
+
+        // Fallback 1. Wir schauen noch in "ZKA-Version bei HKTAN"
+        String version = secmech.get("zkamethod_version");
+        log.debug("  ZKA version: " + version);
+        if (version != null && version.length() > 0) {
+            for (HHDVersion v : values()) {
+                String s = v.versionStart;
+                if (s == null)
+                    continue;
+                if (version.startsWith(s))
+                    return v;
+            }
+        }
+
+        // Fallback 2. Wir checken noch die HITAN/HKTAN-Version
+        // Bei HKTAN5 kann es HHD 1.3 oder 1.4 sein, bei HKTAN4 bleibt eigentlich nur noch 1.3
+        // Ich weiss nicht, ob Fallback 2 ueberhaupt notwendig ist. Denn angeblich
+        // ist zkamethod_version seit HHD 1.3.1 Pflicht (siehe
+        // FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf,
+        // Data dictionary "Version ZKA-TAN-Verfahren"
+        String segversion = secmech.get("segversion");
+        log.debug("  segment version: " + segversion);
+        if (segversion != null && segversion.length() > 0) {
+            int i = Integer.parseInt(segversion);
+            for (HHDVersion v : values()) {
+                int i2 = v.segVersion;
+                if (i2 <= 0)
+                    continue;
+
+                if (i == i2)
+                    return v;
+            }
+        }
+
+        // Default:
+        return HHD_1_2;
     }
 
     /**
@@ -103,62 +147,18 @@ public enum HHDVersion {
     }
 
     /**
-     * Ermittelt die zu verwendende HHD-Version aus den BPD-Informationen des TAN-Verfahrens.
-     *
-     * @param secmech die BPD-Informationen zum TAN-Verfahren.
-     * @return die HHD-Version.
+     * Definiert die Art des TAN-Verfahrens.
      */
-    public static HHDVersion find(Properties secmech) {
-        log.debug("trying to determine HHD version for secmech: " + secmech);
-        // Das ist die "Technische Kennung"
-        // Siehe "Belegungsrichtlinien TANve1.4  mit Erratum 1-3 final version vom 2010-11-12.pdf"
-        // Der Name ist standardisiert, wenn er mit "HHD1...." beginnt, ist
-        // das die HHD-Version
-        String id = secmech.getProperty("id", "");
-        log.debug("  technical HHD id: " + id);
-        for (HHDVersion v : values()) {
-            String s = v.idStart;
-            if (s == null)
-                continue;
-            if (id.startsWith(s))
-                return v;
-        }
+    public static enum Type {
+        /**
+         * chipTAN oder smsTAN.
+         */
+        CHIPTAN,
 
-        // Fallback 1. Wir schauen noch in "ZKA-Version bei HKTAN"
-        String version = secmech.getProperty("zkamethod_version");
-        log.debug("  ZKA version: " + version);
-        if (version != null && version.length() > 0) {
-            for (HHDVersion v : values()) {
-                String s = v.versionStart;
-                if (s == null)
-                    continue;
-                if (version.startsWith(s))
-                    return v;
-            }
-        }
-
-        // Fallback 2. Wir checken noch die HITAN/HKTAN-Version
-        // Bei HKTAN5 kann es HHD 1.3 oder 1.4 sein, bei HKTAN4 bleibt eigentlich nur noch 1.3
-        // Ich weiss nicht, ob Fallback 2 ueberhaupt notwendig ist. Denn angeblich
-        // ist zkamethod_version seit HHD 1.3.1 Pflicht (siehe
-        // FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf,
-        // Data dictionary "Version ZKA-TAN-Verfahren"
-        String segversion = secmech.getProperty("segversion");
-        log.debug("  segment version: " + segversion);
-        if (segversion != null && segversion.length() > 0) {
-            int i = Integer.parseInt(segversion);
-            for (HHDVersion v : values()) {
-                int i2 = v.segVersion;
-                if (i2 <= 0)
-                    continue;
-
-                if (i == i2)
-                    return v;
-            }
-        }
-
-        // Default:
-        return HHD_1_2;
+        /**
+         * photoTAN.
+         */
+        PHOTOTAN,
     }
 
 }

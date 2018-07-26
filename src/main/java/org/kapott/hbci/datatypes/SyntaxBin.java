@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxBin.java,v 1.1 2011/05/04 22:37:55 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -43,6 +42,21 @@ import java.math.BigInteger;
 
 // intern wird das byte-array gespeichert
 public class SyntaxBin extends SyntaxDE {
+    /**
+     * @internal @brief creates an object representing the BIN datatype
+     * @see SyntaxDE
+     */
+    public SyntaxBin(String x, int minlen, int maxlen) {
+        super(expand(x), minlen, maxlen);
+    }
+
+    /**
+     * @see SyntaxDE
+     */
+    public SyntaxBin(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
+
     /**
      * @param x the String representation of the number
      * @return a String, where each "character" is one byte of the
@@ -94,17 +108,11 @@ public class SyntaxBin extends SyntaxDE {
         return ret;
     }
 
-    /**
-     * @internal @brief creates an object representing the BIN datatype
-     * @see SyntaxDE
-     */
-    public SyntaxBin(String x, int minlen, int maxlen) {
-        super(expand(x), minlen, maxlen);
-    }
-
     public void init(String x, int minlen, int maxlen) {
         super.init(expand(x), minlen, maxlen);
     }
+
+    // --------------------------------------------------------------------------------
 
     /**
      * @see SyntaxDE
@@ -114,8 +122,6 @@ public class SyntaxBin extends SyntaxDE {
         String header = "@" + Integer.toString(con.length()) + "@";
         return header + con;
     }
-
-    // --------------------------------------------------------------------------------
 
     /**
      * @param st the string representing the complete datatype BIN
@@ -168,13 +174,6 @@ public class SyntaxBin extends SyntaxDE {
         setContent(temp, minsize, maxsize);
 
         res.delete(0, endidx);
-    }
-
-    /**
-     * @see SyntaxDE
-     */
-    public SyntaxBin(StringBuffer res, int minsize, int maxsize) {
-        initData(res, minsize, maxsize);
     }
 
     public void init(StringBuffer res, int minsize, int maxsize) {

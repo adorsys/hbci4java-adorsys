@@ -1,4 +1,3 @@
-
 /*  $Id: GVDauerDel.java,v 1.1 2011/05/04 22:37:54 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -27,13 +26,10 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public final class GVDauerDel extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "DauerDel";
-    }
 
     public GVDauerDel(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
@@ -78,10 +74,14 @@ public final class GVDauerDel extends AbstractHBCIJob {
         }
     }
 
+    public static String getLowlevelName() {
+        return "DauerDel";
+    }
+
     public void setParam(String paramName, String value) {
         if (paramName.equals("date")) {
-            Properties res = getJobRestrictions();
-            String st_cantermdel = res.getProperty("cantermdel");
+            HashMap<String, String> res = getJobRestrictions();
+            String st_cantermdel = res.get("cantermdel");
 
             if (st_cantermdel != null && st_cantermdel.equals("N")) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_SCHEDDELSTANDORDUNAVAIL");

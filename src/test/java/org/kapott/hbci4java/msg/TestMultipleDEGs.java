@@ -8,6 +8,7 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
 import org.kapott.hbci4java.AbstractTest;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 
 /**
@@ -27,7 +28,7 @@ public class TestMultipleDEGs extends AbstractTest {
 
         long start = System.currentTimeMillis();
         Message msg = new Message("DialogInitRes", data, data.length(), null, Message.CHECK_SEQ, true);
-        Hashtable<String, String> ht = new Hashtable<String, String>();
+        HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
         long end = System.currentTimeMillis();
 

@@ -1,4 +1,3 @@
-
 /*  $Id: MSG.java,v 1.1 2011/05/04 22:38:03 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -23,15 +22,13 @@ package org.kapott.hbci.protocol;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.NoSuchPathException;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Properties;
 
 @Slf4j
 public final class Message extends SyntaxElement {
@@ -41,10 +38,18 @@ public final class Message extends SyntaxElement {
     public final static boolean DONT_CHECK_VALIDS = false;
 
     private Document document;
-    private Hashtable<String, String> clientValues = new Hashtable<>();
+    private HashMap<String, String> clientValues = new HashMap<>();
 
     public Message(String type, Document document) {
         super(type, type, null, 0, document);
+    }
+
+    public Message(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
+        super(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
+                document,
+                new Hashtable<>(),
+                checkValids ? new Hashtable<>() : null);
+        initData(checkSeq);
     }
 
     public void init(String type, Document document) {
@@ -74,19 +79,15 @@ public final class Message extends SyntaxElement {
      * der methode werden vom nutzer einzugebenede daten (wie kontonummern, namen
      * usw.) in die generierte nachricht eingebaut
      */
-    private void propagateUserData(Hashtable<String, String> clientValues) {
+    private void propagateUserData(HashMap<String, String> clientValues) {
         String dottedName = getName() + ".";
-        Enumeration<String> e = clientValues.keys();
-        while (e.hasMoreElements()) {
-            String key = e.nextElement();
-            String value = clientValues.get(key);
-
-            if (key.startsWith(dottedName) && value.length() != 0) {
+        clientValues.forEach((key, value) -> {
+            if (key.startsWith(dottedName) && value != null && value.length() != 0) {
                 if (!propagateValue(key, value, TRY_TO_CREATE, DONT_ALLOW_OVERWRITE)) {
                     log.warn("could not insert the following user-defined data into message: " + key + "=" + value);
                 }
             }
-        }
+        });
     }
 
     /**
@@ -137,6 +138,8 @@ public final class Message extends SyntaxElement {
         return ret.toString();
     }
 
+    // -------------------------------------------------------------------------------------------
+
     public void log() {
         if (isValid())
             for (MultipleSyntaxElements multipleSyntaxElements : getChildContainers()) {
@@ -144,19 +147,9 @@ public final class Message extends SyntaxElement {
             }
     }
 
-    // -------------------------------------------------------------------------------------------
-
     private void initData(boolean checkSeq) {
         if (checkSeq)
             checkSegSeq(1);
-    }
-
-    public Message(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
-        super(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
-                document,
-                new Hashtable<>(),
-                checkValids ? new Hashtable<>() : null);
-        initData(checkSeq);
     }
 
     public void init(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
@@ -200,22 +193,21 @@ public final class Message extends SyntaxElement {
 
     // -------------------------------------------------------------------------------------------
 
-    public Properties getData() {
-        Hashtable<String, String> hash = new Hashtable<>();
-        Properties p = new Properties();
+    public HashMap<String, String> getData() {
+        HashMap<String, String> hash = new HashMap<>();
+        HashMap p = new HashMap<String, String>();
         int nameskip = getName().length() + 1;
 
         extractValues(hash);
 
-        for (Enumeration<String> e = hash.keys(); e.hasMoreElements(); ) {
-            String key = e.nextElement();
-            p.setProperty(key.substring(nameskip), hash.get(key));
-        }
+        hash.forEach((key, value) -> {
+            p.put(key.substring(nameskip), value);
+        });
 
         return p;
     }
 
-    public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
         segref = new int[1];
         segref[0] = 1;
 

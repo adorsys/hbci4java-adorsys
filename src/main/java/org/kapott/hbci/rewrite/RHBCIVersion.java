@@ -1,4 +1,3 @@
-
 /*  $Id: RHBCIVersion.java,v 1.1 2011/05/04 22:37:57 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -22,7 +21,6 @@
 package org.kapott.hbci.rewrite;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 /**
@@ -53,7 +51,7 @@ public class RHBCIVersion extends Rewrite {
                     HBCIMsgStatus msgStatus = (HBCIMsgStatus) getData("msgStatus");
                     String msgName = (String) getData("msgName");
                     String version = st.substring(idx + 1, idx2);
-                    String origVersion = msgStatus.getData().getProperty("orig_" + msgName + ".MsgHead.hbciversion");
+                    String origVersion = msgStatus.getData().get("orig_" + msgName + ".MsgHead.hbciversion");
 
                     if (version.length() == 0 || version.equals("0")) {
                         log.warn("received HBCI version of message ('" + version + "') is incorrect - replacing it with " + origVersion);

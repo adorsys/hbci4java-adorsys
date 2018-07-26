@@ -1,21 +1,11 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
 /**
  * Umsatzabfrage eines SEPA-Kontos
  */
 public class GVKUmsZeitSEPA extends GVKUmsAll {
-    /**
-     * Liefert den Lowlevel-Namen des Jobs.
-     *
-     * @return der Lowlevel-Namen des Jobs.
-     */
-    public static String getLowlevelName() {
-        return "KUmsZeitSEPA";
-    }
-
     public GVKUmsZeitSEPA(HBCIPassportInternal passport) {
         super(passport, getLowlevelName());
 
@@ -26,5 +16,14 @@ public class GVKUmsZeitSEPA extends GVKUmsAll {
         addConstraint("maxentries", "maxentries", "");
         addConstraint("offset", "offset", "");
         addConstraint("all", "allaccounts", "N");
+    }
+
+    /**
+     * Liefert den Lowlevel-Namen des Jobs.
+     *
+     * @return der Lowlevel-Namen des Jobs.
+     */
+    public static String getLowlevelName() {
+        return "KUmsZeitSEPA";
     }
 }

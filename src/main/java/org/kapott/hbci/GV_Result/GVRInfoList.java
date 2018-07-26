@@ -1,4 +1,3 @@
-
 /*  $Id: GVRInfoList.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -40,6 +39,34 @@ public final class GVRInfoList extends HBCIJobResultImpl {
 
     public GVRInfoList(HBCIPassportInternal passport) {
         super(passport);
+    }
+
+    public void addEntry(Info entry) {
+        entries.add(entry);
+    }
+
+    /**
+     * Gibt Daten über alle abfragbaren Kreditinstitutsinformationen zurück
+     *
+     * @return Array, wobei jeder Eintrag eine solche Information beschreibt
+     */
+    public Info[] getEntries() {
+        return entries.toArray(new Info[entries.size()]);
+    }
+
+    public String toString() {
+        StringBuffer ret = new StringBuffer();
+        String linesep = System.getProperty("line.separator");
+
+        for (int i = 0; i < entries.size(); i++) {
+            Info entry = entries.get(i);
+
+            ret.append("Info #").append(i).append(linesep);
+            ret.append(entry.toString());
+            ret.append(linesep + linesep);
+        }
+
+        return ret.toString().trim();
     }
 
     /**
@@ -112,33 +139,5 @@ public final class GVRInfoList extends HBCIJobResultImpl {
 
             return ret.toString().trim();
         }
-    }
-
-    public void addEntry(Info entry) {
-        entries.add(entry);
-    }
-
-    /**
-     * Gibt Daten über alle abfragbaren Kreditinstitutsinformationen zurück
-     *
-     * @return Array, wobei jeder Eintrag eine solche Information beschreibt
-     */
-    public Info[] getEntries() {
-        return entries.toArray(new Info[entries.size()]);
-    }
-
-    public String toString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
-
-        for (int i = 0; i < entries.size(); i++) {
-            Info entry = entries.get(i);
-
-            ret.append("Info #").append(i).append(linesep);
-            ret.append(entry.toString());
-            ret.append(linesep + linesep);
-        }
-
-        return ret.toString().trim();
     }
 }

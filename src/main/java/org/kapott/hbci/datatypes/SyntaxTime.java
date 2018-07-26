@@ -1,4 +1,3 @@
-
 /*  $Id: SyntaxTime.java,v 1.1 2011/05/04 22:37:55 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -29,27 +28,26 @@ import java.text.SimpleDateFormat;
 /* a class for the datatype "time" */
 // interne Speicherung im HBCI-MSG-Format
 public final class SyntaxTime
-     extends SyntaxDE
-{
-    private static String parseTime(String x)
-    {
+        extends SyntaxDE {
+    public SyntaxTime(String x, int minsize, int maxsize) {
+        super(parseTime(x), 6, 6);
+    }
+
+    public SyntaxTime(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
+    }
+
+    private static String parseTime(String x) {
         return new SimpleDateFormat("HHmmss").format(HBCIUtils.string2TimeISO(x));
-    }
-
-    public SyntaxTime(String x, int minsize, int maxsize)
-    {
-        super(parseTime(x),6,6);
-    }
-
-    public void init(String x, int minsize, int maxsize)
-    {
-        super.init(parseTime(x),6,6);
     }
 
     // --------------------------------------------------------------------------------
 
-    private void initData(StringBuffer res, int minsize, int maxsize)
-    {
+    public void init(String x, int minsize, int maxsize) {
+        super.init(parseTime(x), 6, 6);
+    }
+
+    private void initData(StringBuffer res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -59,27 +57,19 @@ public final class SyntaxTime
         res.delete(0, endidx);
     }
 
-    public SyntaxTime(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
+    public void init(StringBuffer res, int minsize, int maxsize) {
+        initData(res, minsize, maxsize);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize)
-    {
-        initData(res,minsize,maxsize);
-    }
-
-    private String unparseTime(String x)
-    {
+    private String unparseTime(String x) {
         try {
             return HBCIUtils.time2StringISO(new SimpleDateFormat("HHmmss").parse(x));
         } catch (Exception e) {
-            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_TIMEERR"),e);
+            throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_TIMEERR"), e);
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         String c = getContent();
         return (c == null) ? "" : unparseTime(c);
     }

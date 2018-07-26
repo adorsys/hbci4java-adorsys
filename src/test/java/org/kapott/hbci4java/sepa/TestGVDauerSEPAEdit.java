@@ -100,7 +100,7 @@ public class TestGVDauerSEPAEdit extends AbstractTest {
         settings.put(HBCICallback.NEED_USERID, params.getProperty("userid"));
         settings.put(HBCICallback.NEED_PT_SECMECH, params.getProperty("secmech"));
 
-        Properties props = new Properties();
+        HashMap<String, String> props = new HashMap<>();
         props.put("log.loglevel.default", Integer.toString(LOGLEVEL));
         props.put("infoPoint.enabled", Boolean.FALSE.toString());
 

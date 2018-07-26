@@ -1,4 +1,3 @@
-
 /*  $Id: GVRTermUeb.java,v 1.1 2011/05/04 22:37:47 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -37,10 +36,6 @@ public class GVRTermUeb extends HBCIJobResultImpl {
         super(passport);
     }
 
-    public void setOrderId(String orderid) {
-        this.orderid = orderid;
-    }
-
     /**
      * Gibt die Auftrags-ID zurück, unter der der Auftrag bei der Bank geführt wird.
      *
@@ -48,6 +43,10 @@ public class GVRTermUeb extends HBCIJobResultImpl {
      */
     public String getOrderId() {
         return orderid;
+    }
+
+    public void setOrderId(String orderid) {
+        this.orderid = orderid;
     }
 
     public String toString() {

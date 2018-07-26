@@ -20,6 +20,7 @@ import org.kapott.hbci4java.AbstractTest;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
@@ -202,8 +203,8 @@ public class ChallengeInfoTest extends AbstractTest {
         List<Param> params = null;
 
 
-        Properties secmech = new Properties();
-        secmech.setProperty("needchallengevalue", "N");
+        HashMap<String, String> secmech = new HashMap<>();
+        secmech.put("needchallengevalue", "N");
 
         // Darf nicht enthalten sein
         version = getHhdVersion(code, HHDVersion.HHD_1_2);
@@ -241,8 +242,8 @@ public class ChallengeInfoTest extends AbstractTest {
         List<Param> params = null;
 
 
-        Properties secmech = new Properties();
-        secmech.setProperty("needchallengevalue", "J");
+        HashMap<String, String> secmech = new HashMap<>();
+        secmech.put("needchallengevalue", "J");
 
         // Jetzt muss er enthalten sein
         version = getHhdVersion(code, HHDVersion.HHD_1_2);

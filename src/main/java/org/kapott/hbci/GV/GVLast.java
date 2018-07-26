@@ -1,4 +1,3 @@
-
 /*  $Id: GVLast.java,v 1.1 2011/05/04 22:37:53 willuhn Exp $
 
     This file is part of HBCI4Java
@@ -24,15 +23,11 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.w3c.dom.Document;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 public class GVLast extends AbstractHBCIJob {
-
-    public static String getLowlevelName() {
-        return "Last";
-    }
 
     public GVLast(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new HBCIJobResultImpl(passport));
@@ -51,13 +46,17 @@ public class GVLast extends AbstractHBCIJob {
         addConstraint("name2", "name2", "");
         addConstraint("type", "key", "05");
 
-        Properties parameters = getJobRestrictions();
-        int maxusage = Integer.parseInt(parameters.getProperty("maxusage"));
+        HashMap<String, String> parameters = getJobRestrictions();
+        int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {
             String name = HBCIUtils.withCounter("usage", i);
             addConstraint(name, "usage." + name, "");
         }
+    }
+
+    public static String getLowlevelName() {
+        return "Last";
     }
 
     public void verifyConstraints() {
