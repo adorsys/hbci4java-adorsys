@@ -42,7 +42,7 @@ public class TanMediaListTest extends AbstractTest {
 
 
         for (int i = 0; i < rewriters.length; i++) {
-            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null);
+            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null, "CustomMsg");
         }
 
         Message msg = new Message("CustomMsgRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);

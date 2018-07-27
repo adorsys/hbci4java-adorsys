@@ -39,7 +39,7 @@ public class AllowedGVTest extends AbstractTest {
         // alle patches für die unverschlüsselte nachricht durchlaufen
         String newmsgstring = data;
         for (int i = 0; i < rewriters.length; i++) {
-            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null);
+            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null, "Synch");
         }
 
         Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
@@ -72,7 +72,7 @@ public class AllowedGVTest extends AbstractTest {
         // alle patches für die unverschlüsselte nachricht durchlaufen
         String newmsgstring = data;
         for (int i = 0; i < rewriters.length; i++) {
-            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null);
+            newmsgstring = rewriters[i].incomingClearText(newmsgstring, null, "Synch");
         }
 
         Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);

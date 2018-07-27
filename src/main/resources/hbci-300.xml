@@ -355,8 +355,8 @@
    <DEG type="FestCondVersion" minnum="0"/>
    <DEG type="BTG" name="Zinsbetrag" minnum="0"/>
    <DE name="status" type="Num" maxsize="1" minnum="0"/>
-   <DEG type="Prolong" minnum="0"/> 
-   
+   <DEG type="Prolong" minnum="0"/>
+
    <valids path="wiederanlage">
        <validvalue>1</validvalue>
        <validvalue>2</validvalue>
@@ -382,8 +382,8 @@
    <DEG type="FestCondVersion" minnum="0"/>
    <DEG type="BTG" name="Zinsbetrag" minnum="0"/>
    <DE name="status" type="Num" maxsize="1" minnum="0"/>
-   <DEG type="Prolong" minnum="0"/> 
-   
+   <DEG type="Prolong" minnum="0"/>
+
    <valids path="wiederanlage">
        <validvalue>1</validvalue>
        <validvalue>2</validvalue>
@@ -410,8 +410,8 @@
    <DEG type="FestCondVersion" minnum="0"/>
    <DEG type="BTG" name="Zinsbetrag" minnum="0"/>
    <DE name="status" type="Num" maxsize="1" minnum="0"/>
-   <DEG type="Prolong" minnum="0"/> 
-   
+   <DEG type="Prolong" minnum="0"/>
+
    <valids path="wiederanlage">
        <validvalue>1</validvalue>
        <validvalue>2</validvalue>
@@ -437,8 +437,8 @@
    <DEG type="FestCondVersion" minnum="0"/>
    <DEG type="BTG" name="Zinsbetrag" minnum="0"/>
    <DE name="status" type="Num" maxsize="1" minnum="0"/>
-   <DEG type="Prolong" minnum="0"/> 
-   
+   <DEG type="Prolong" minnum="0"/>
+
    <valids path="wiederanlage">
        <validvalue>1</validvalue>
        <validvalue>2</validvalue>
@@ -465,8 +465,8 @@
    <DEG type="FestCondVersion" minnum="0"/>
    <DEG type="BTG" name="Zinsbetrag" minnum="0"/>
    <DE name="status" type="Code" maxsize="1" minnum="0"/>
-   <DEG type="Prolong" minnum="0"/> 
-   
+   <DEG type="Prolong" minnum="0"/>
+
    <valids path="wiederanlage">
        <validvalue>1</validvalue>
        <validvalue>2</validvalue>
@@ -496,8 +496,8 @@
    <DEG type="FestCondVersion" minnum="0"/>
    <DEG type="BTG" name="Zinsbetrag" minnum="0"/>
    <DE name="status" type="Code" maxsize="1" minnum="0"/>
-   <DEG type="Prolong" minnum="0"/> 
-   
+   <DEG type="Prolong" minnum="0"/>
+
    <valids path="wiederanlage">
        <validvalue>1</validvalue>
        <validvalue>2</validvalue>
@@ -553,7 +553,7 @@
                         '<!-- 3.0 -->
     <DEG type="SegHeadUser" name="SegHead"/>
     <DE name="mediatype" type="Code" maxsize="1"/>
-            
+
     <valids path="mediatype">
         <validvalue>0</validvalue>
         <validvalue>2</validvalue>
@@ -566,12 +566,12 @@
     <DEG type="SegHeadUser" name="SegHead"/>
     <DE name="mediatype" type="Code" maxsize="1"/>
     <DE name="mediacategory" type="Code" maxsize="1"/>
-            
+
     <valids path="mediatype">
         <validvalue>0</validvalue>
         <validvalue>2</validvalue>
         <validvalue>3</validvalue>
-    </valids>           
+    </valids>
     <valids path="mediacategory">
         <validvalue>A</validvalue>
         <validvalue>L</validvalue>
@@ -7784,10 +7784,11 @@
 
             <value path="MsgHead.dialogid">0</value>
             <value path="MsgHead.msgnum">1</value>
+            <value path="MsgTail.msgnum">1</value>
+
             <value path="Idn.customerid">9999999999</value>
             <value path="Idn.sysid">0</value>
             <value path="Idn.sysStatus">0</value>
-            <value path="MsgTail.msgnum">1</value>
         </MSGdef>
         <MSGdef id="DialogInitAnonRes" dontsign="1" dontcrypt="1">
             &MsgSigHeadInst;
@@ -7895,6 +7896,10 @@
             <SEG type="KeyReq" minnum="0" maxnum="3"/>
             <SEG type="Sync"/>
             &MsgSigTailUser;
+
+            <value path="MsgHead.dialogid">0</value>
+            <value path="MsgHead.msgnum">1</value>
+            <value path="MsgTail.msgnum">1</value>
         </MSGdef>
         <MSGdef id="SynchRes">
             &MsgSigHeadInst;

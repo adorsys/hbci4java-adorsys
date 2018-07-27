@@ -25,6 +25,7 @@ import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MessageFactory;
+import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
@@ -49,7 +50,7 @@ public final class Crypt {
     public final static String ENC_KEYTYPE_RSA = "6";
     public final static String ENC_KEYTYPE_DDV = "5";
 
-    HBCIPassportInternal passport;
+    private HBCIPassportInternal passport;
 
     private String u_secfunc;    // 4=normal; 998=klartext
     private String u_keytype;    // 5=ddv, 6=rdh
@@ -116,8 +117,7 @@ public final class Crypt {
         Message newmsg = msg;
 
         if (passport.hasInstEncKey()) {
-            String msgName = msg.getName();
-            Node msgNode = msg.getSyntaxDef(msgName, msg.getDocument());
+            Node msgNode = passport.getSyntaxDef(msg.getName());
             String dontcryptAttr = ((Element) msgNode).getAttribute("dontcrypt");
 
             if (dontcryptAttr.length() == 0) {

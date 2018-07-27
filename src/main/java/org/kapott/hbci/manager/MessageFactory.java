@@ -22,6 +22,7 @@ package org.kapott.hbci.manager;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
+import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
 
 /* Message-Generator-Klasse. Diese Klasse verwaltet die Syntax-Spezifikation
@@ -42,8 +43,8 @@ import org.w3c.dom.Document;
  *      mit "<msgName>." beginnen).*/
 public final class MessageFactory {
 
-    public static Message createDialogInit(HBCIPassportInternal passport) {
-        Message message = createMessage("DialogInit", passport.getSyntaxDocument());
+    public static Message createDialogInit(String msgName, String syncMode, HBCIPassportInternal passport) {
+        Message message = MessageFactory.createMessage(msgName, passport.getSyntaxDocument());
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
         message.rawSet("Idn.KIK.country", passport.getCountry());
         message.rawSet("Idn.customerid", passport.getCustomerId());
@@ -54,6 +55,9 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.lang", passport.getDefaultLang());
         message.rawSet("ProcPrep.prodName", "HBCI4Java");
         message.rawSet("ProcPrep.prodVersion", "2.5");
+        if (syncMode != null) {
+            message.rawSet("Sync.mode", syncMode);
+        }
 
         return message;
     }

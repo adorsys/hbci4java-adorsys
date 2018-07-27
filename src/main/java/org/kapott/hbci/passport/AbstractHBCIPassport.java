@@ -66,7 +66,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private String sysid;
     private Long sigid;
     private Document syntaxDocument;
-    private Hashtable<String, Object> persistentData = new Hashtable<>();
+    private HashMap<String, Object> persistentData = new HashMap<>();
 
     public AbstractHBCIPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
         this.hbciversion = hbciversion;
@@ -517,6 +517,17 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     /**
+     * @param type     the name of the syntaxelement to be returned
+     * @return a XML-node with the definition of the requested syntaxelement
+     */
+    public Node getSyntaxDef(String type) {
+        Node ret = syntaxDocument.getElementById(type);
+        if (ret == null)
+            throw new org.kapott.hbci.exceptions.NoSuchElementException("element", type);
+        return ret;
+    }
+
+    /**
      * <p>Gibt für einen Job alle bekannten Einschränkungen zurück, die bei
      * der Ausführung des jeweiligen Jobs zu beachten sind. Diese Daten werden aus den
      * Bankparameterdaten des aktuellen Passports extrahiert. Sie können von einer HBCI-Anwendung
@@ -738,11 +749,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return persistentData.get(id);
     }
 
-    public Hashtable<String, Object> getPersistentData() {
+    public HashMap<String, Object> getPersistentData() {
         return persistentData;
     }
 
-    public void setPersistentData(Hashtable<String, Object> persistentData) {
+    public void setPersistentData(HashMap<String, Object> persistentData) {
         this.persistentData = persistentData;
     }
 

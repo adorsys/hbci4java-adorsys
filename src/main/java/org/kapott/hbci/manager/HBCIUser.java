@@ -52,19 +52,19 @@ public final class HBCIUser implements IHandlerData {
             log.info("fetching new sys-id from institute");
 
             // autosecmech
-            log.debug("checking whether passport is supported (but ignoring result)");
+            log.debug("checking whether passport is supported (but ignoring syncResult)");
             boolean s = passport.isSupported();
             log.debug("passport supported: " + s);
 
             passport.setSigId(new Long(1));
             passport.setSysId("0");
 
-            HBCIMsgStatus msgStatus;
+            HBCIMsgStatus syncStatus;
             boolean restarted = false;
             while (true) {
-                msgStatus = doSync("0");
+                syncStatus = doDialogInit("Synch", "0");
 
-                boolean need_restart = passport.postInitResponseHook(msgStatus);
+                boolean need_restart = passport.postInitResponseHook(syncStatus);
                 if (need_restart) {
                     log.info("for some reason we have to restart this dialog");
                     if (restarted) {
@@ -77,20 +77,20 @@ public final class HBCIUser implements IHandlerData {
                 }
             }
 
-            HashMap<String, String> result = msgStatus.getData();
+            if (!syncStatus.isOK())
+                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
-            if (!msgStatus.isOK())
-                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), msgStatus);
+            HashMap<String, String> syncResult = syncStatus.getData();
 
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
-            inst.updateBPD(result);
-            updateUPD(result);
-            passport.setSysId(result.get("SyncRes.sysid"));
+            inst.updateBPD(syncResult);
+            updateUPD(syncResult);
+            passport.setSysId(syncResult.get("SyncRes.sysid"));
 
-            passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{msgStatus, passport.getSysId()});
+            passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus, passport.getSysId()});
             log.debug("new sys-id is " + passport.getSysId());
-            doDialogEnd(result.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
-                    HBCIKernel.NEED_CRYPT);
+            doDialogEnd(syncResult.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
         }
@@ -102,7 +102,7 @@ public final class HBCIUser implements IHandlerData {
             log.info("syncing signature id");
 
             // autosecmech
-            log.debug("checking whether passport is supported (but ignoring result)");
+            log.debug("checking whether passport is supported (but ignoring syncResult)");
             boolean s = passport.isSupported();
             log.debug("passport supported: " + s);
 
@@ -111,7 +111,7 @@ public final class HBCIUser implements IHandlerData {
             HBCIMsgStatus msgStatus;
             boolean restarted = false;
             while (true) {
-                msgStatus = doSync("2");
+                msgStatus = doDialogInit("Synch", "2");
 
                 boolean need_restart = passport.postInitResponseHook(msgStatus);
                 if (need_restart) {
@@ -126,21 +126,22 @@ public final class HBCIUser implements IHandlerData {
                 }
             }
 
-            HashMap<String, String> result = msgStatus.getData();
-
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
 
+            HashMap<String, String> syncResult = msgStatus.getData();
+
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
-            inst.updateBPD(result);
-            updateUPD(result);
-            passport.setSigId(new Long(result.get("SyncRes.sigid") != null ? result.get("SyncRes.sigid") : "1"));
+            inst.updateBPD(syncResult);
+            updateUPD(syncResult);
+            passport.setSigId(new Long(syncResult.get("SyncRes.sigid") != null ? syncResult.get("SyncRes.sigid") : "1"));
             passport.incSigId();
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus, passport.getSigId()});
             log.debug("signature id set to " + passport.getSigId());
-            doDialogEnd(result.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
-                    HBCIKernel.NEED_CRYPT);
+
+            doDialogEnd(syncResult.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+                HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), e);
         }
@@ -194,7 +195,7 @@ public final class HBCIUser implements IHandlerData {
             HBCIMsgStatus msgStatus;
             boolean restarted = false;
             while (true) {
-                msgStatus = doDialogInit();
+                msgStatus = doDialogInit("DialogInit", null);
                 boolean need_restart = passport.postInitResponseHook(msgStatus);
                 if (need_restart) {
                     log.info("for some reason we have to restart this dialog");
@@ -219,25 +220,16 @@ public final class HBCIUser implements IHandlerData {
             updateUPD(result);
 
             doDialogEnd(result.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
-                    HBCIKernel.NEED_CRYPT);
+                HBCIKernel.NEED_CRYPT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), e);
         }
     }
 
-    private HBCIMsgStatus doDialogInit() {
-        Message message = MessageFactory.createMessage("DialogInit", passport.getSyntaxDocument());
-        message.rawSet("Idn.KIK.blz", passport.getBLZ());
-        message.rawSet("Idn.KIK.country", passport.getCountry());
-        message.rawSet("Idn.customerid", passport.getCustomerId());
-        message.rawSet("Idn.sysid", passport.getSysId());
-        message.rawSet("Idn.sysStatus", passport.getSysStatus());
-        message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
-        message.rawSet("ProcPrep.UPD", "0");
-        message.rawSet("ProcPrep.lang", passport.getLang());
-        message.rawSet("ProcPrep.prodName", "HBCI4Java");
-        message.rawSet("ProcPrep.prodVersion", "2.5");
-        return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
+    private HBCIMsgStatus doDialogInit(String messageName, String syncMode) {
+        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport);
+        return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
+            HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
     }
 
     private void doDialogEnd(String dialogid, String msgnum, boolean signIt, boolean cryptIt, boolean needCrypt) {
@@ -261,26 +253,6 @@ public final class HBCIUser implements IHandlerData {
         }
     }
 
-    private HBCIMsgStatus doSync(String syncMode) {
-        Message message = MessageFactory.createMessage("Synch", passport.getSyntaxDocument());
-        message.rawSet("Idn.KIK.blz", passport.getBLZ());
-        message.rawSet("Idn.KIK.country", passport.getCountry());
-        message.rawSet("Idn.customerid", passport.getCustomerId());
-        message.rawSet("Idn.sysid", passport.getSysId());
-        message.rawSet("Idn.sysStatus", passport.getSysStatus());
-        message.rawSet("MsgHead.dialogid", "0");
-        message.rawSet("MsgHead.msgnum", "1");
-        message.rawSet("MsgTail.msgnum", "1");
-        message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
-        message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
-        message.rawSet("ProcPrep.lang", "0");
-        message.rawSet("ProcPrep.prodName", "HBCI4Java");
-        message.rawSet("ProcPrep.prodVersion", "2.5");
-        message.rawSet("Sync.mode", syncMode);
-        return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT,
-                HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
-    }
-
     public void updateUserData() {
         if (passport.getSysStatus().equals("1")) {
             if (passport.getSysId().equals("0"))
@@ -297,10 +269,10 @@ public final class HBCIUser implements IHandlerData {
         // das Abrufen von BPDs ueber einen anonymen Dialog nicht. Also machen
         // wir das jetzt hier mit einem nicht-anonymen Dialog gleich mit
         if (bpd == null || passport.getUPD() == null ||
-                hbciVersionOfUPD == null ||
-                !hbciVersionOfUPD.equals(passport.getHBCIVersion())) {
-            fetchUPD();
+            hbciVersionOfUPD == null ||
+            !hbciVersionOfUPD.equals(passport.getHBCIVersion())) {
         }
+        fetchUPD();
 
         passport.setPersistentData("_registered_user", Boolean.TRUE);
 

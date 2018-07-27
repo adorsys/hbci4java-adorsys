@@ -24,6 +24,7 @@ import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.manager.HBCIKey;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.util.HashMap;
 
@@ -158,4 +159,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
     HashMap<String, String> getLowlevelJobRestrictions(String gvname, Document document);
 
     Document getSyntaxDocument();
+
+    Node getSyntaxDef(String name);
 }

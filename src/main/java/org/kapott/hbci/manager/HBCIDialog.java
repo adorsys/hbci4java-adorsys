@@ -59,7 +59,7 @@ import static org.kapott.hbci.manager.HBCIJobFactory.newJob;
     In this class we have two API-levels, a mid-level API (for manually
     creating and processing dialogs) and a high-level API (for automatic
     creation of typical HBCI-dialogs). For each method the API-level is
-    given in its description 
+    given in its description
 */
 @Slf4j
 public final class HBCIDialog {
@@ -84,7 +84,7 @@ public final class HBCIDialog {
         this.messages.add(new ArrayList<>());
         this.listOfGVs = new Properties();
 
-        this.registerInstitute();
+        this.fetchBPDAnonymous();
         this.registerUser();
 
         // wenn in den UPD noch keine SEPA- und TAN-Medien-Informationen ueber die Konten enthalten
@@ -118,7 +118,7 @@ public final class HBCIDialog {
 
             boolean restarted = false;
             while (true) {
-                Message message = MessageFactory.createDialogInit(passport);
+                Message message = MessageFactory.createDialogInit("DialogInit", null, passport);
                 msgStatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT, HBCIKernel.NEED_SIG, HBCIKernel.NEED_CRYPT);
 
                 boolean need_restart = passport.postInitResponseHook(msgStatus);
@@ -171,7 +171,7 @@ public final class HBCIDialog {
         return msgStatus;
     }
 
-    private void registerInstitute() {
+    private void fetchBPDAnonymous() {
         try {
             log.debug("registering institute");
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
@@ -586,7 +586,7 @@ public final class HBCIDialog {
             int maxGVA = passport.getMaxGVperMsg();
             // BPD: max. Anzahl von Job-Segmenten eines bestimmten Typs
             int maxGVSegJob = job.getMaxNumberPerMsg();
-            // Passport: evtl. weitere Einschränkungen bzgl. der Max.-Anzahl 
+            // Passport: evtl. weitere Einschränkungen bzgl. der Max.-Anzahl
             // von Auftragssegmenten pro Nachricht
             int maxGVSegTotal = passport.getMaxGVSegsPerMsg();
 
@@ -838,7 +838,7 @@ public final class HBCIDialog {
         return this.messages;
     }
 
-    public HBCIPassportInternal getPassport() {
+    public PinTanPassport getPassport() {
         return passport;
     }
 

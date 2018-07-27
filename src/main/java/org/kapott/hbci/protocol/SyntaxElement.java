@@ -32,7 +32,7 @@ import org.w3c.dom.NodeList;
 import java.util.*;
 
 /* ein syntaxelement ist ein strukturelement einer hbci-nachricht (die nachricht
-    selbst, eine segmentfolge, ein einzelnes segment, eine deg oder 
+    selbst, eine segmentfolge, ein einzelnes segment, eine deg oder
     ein einzelnes de) */
 @Slf4j
 public abstract class SyntaxElement {
@@ -41,7 +41,7 @@ public abstract class SyntaxElement {
     public final static boolean DONT_TRY_TO_CREATE = false;
     public final static boolean ALLOW_OVERWRITE = true;
     public final static boolean DONT_ALLOW_OVERWRITE = false;
-    private List<MultipleSyntaxElements> childContainers;
+    private List<MultipleSyntaxElements> childContainers = new ArrayList<>();
     /**
      * < @internal @brief alle in diesem element enthaltenen unterelemente
      */
@@ -186,12 +186,7 @@ public abstract class SyntaxElement {
 
         this.type = type;
         this.name = name;
-        this.parent = null;
-        this.needsRequestTag = false;
-        this.haveRequestTag = false;
-        this.childContainers = new ArrayList<>();
         this.document = document;
-        this.def = null;
 
         /* der pfad wird gebildet aus bisherigem pfad
          plus name des elementes
@@ -218,9 +213,6 @@ public abstract class SyntaxElement {
                     MultipleSyntaxElements child = createAndAppendNewChildContainer(ref, document);
                     if (child != null) {
                         child.setParent(this);
-                        // TODO: überprüfen, ob noch an anderen Stellen Container
-                        // erzeugt werden - diese müssten dann auch die richtige
-                        // syntaxIdx bekommen
                         child.setSyntaxIdx(syntaxIdx);
 
                         if (getElementTypeName().equals("MSG"))
@@ -511,7 +503,7 @@ public abstract class SyntaxElement {
                     // tatsächlich kein .ueb.kik.blz angelegt werden kann), wird false
                     // ("can not propagate") zurückgegeben. im übergeordneten modul
                     // (msg) soll dann nicht versucht werden, das nächste sub-element
-                    // (gv) anzulegen - dieser test merkt, dass es "gv" schon gibt 
+                    // (gv) anzulegen - dieser test merkt, dass es "gv" schon gibt
                     boolean found = false;
                     for (MultipleSyntaxElements c : childContainers) {
                         if (c.getName().equals(subType)) {

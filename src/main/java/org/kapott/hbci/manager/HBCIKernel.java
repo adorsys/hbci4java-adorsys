@@ -77,17 +77,16 @@ public final class HBCIKernel {
         @return A Properties object that contains a path-value-pair for each dataelement of
                 the received message. */
     public HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
-        message.complete();
-
         HBCIMsgStatus msgStatus = new HBCIMsgStatus();
 
         try {
+            message.complete();
+
             log.debug("generating raw message " + message.getName());
             passport.getCallback().status(HBCICallback.STATUS_MSG_CREATE, message.getName());
 
             // liste der rewriter erzeugen
-            Hashtable<String, Object> kernelData = createKernelData(message.getName(), msgStatus, signit, cryptit, needSig, needCrypt);
-            ArrayList<Rewrite> rewriters = getRewriters(kernelData, passport.getProperties().get("kernel.rewriter"));
+            ArrayList<Rewrite> rewriters = getRewriters(passport.getProperties().get("kernel.rewriter"));
 
             // alle rewriter durchlaufen und plaintextnachricht patchen
             for (Rewrite rewriter1 : rewriters) {
@@ -101,14 +100,14 @@ public final class HBCIKernel {
 
             processMessage(message, msgStatus);
 
-            String responseMessageName = message.getName() + "Res";
+            String messageName = message.getName();
 
             // soll nachricht verschlüsselt werden?
             if (cryptit) {
                 message = cryptMessage(message, rewriters);
             }
 
-            sendMessage(message, responseMessageName, msgStatus, rewriters);
+            sendMessage(message, messageName, msgStatus, rewriters);
         } catch (Exception e) {
             // TODO: hack to be able to "disable" HKEND response message analysis
             // because some credit institutes are buggy regarding HKEND responses
@@ -156,8 +155,8 @@ public final class HBCIKernel {
         }
     }
 
-    private ArrayList<Rewrite> getRewriters(Hashtable<String, Object> kernelData, String rewriters_st) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
-        ArrayList<Rewrite> al = new ArrayList<>();
+    private ArrayList<Rewrite> getRewriters(String rewriters_st) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+        ArrayList<Rewrite> rewriters = new ArrayList<>();
         StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
         while (tok.hasMoreTokens()) {
             String rewriterName = tok.nextToken().trim();
@@ -165,13 +164,10 @@ public final class HBCIKernel {
                 Class cl = this.getClass().getClassLoader().loadClass("org.kapott.hbci.rewrite.R" +
                         rewriterName);
                 Constructor con = cl.getConstructor((Class[]) null);
-                Rewrite rewriter = (Rewrite) (con.newInstance((Object[]) null));
-                // alle daten für den rewriter setzen
-                rewriter.setKernelData(kernelData);
-                al.add(rewriter);
+                rewriters.add((Rewrite) (con.newInstance((Object[]) null)));
             }
         }
-        return al;
+        return rewriters;
     }
 
     private Message signMessage(Message message, List<Rewrite> rewriters) {
@@ -216,7 +212,7 @@ public final class HBCIKernel {
         return message;
     }
 
-    private void sendMessage(Message message, String responseMessageName, HBCIMsgStatus msgStatus, List<Rewrite> rewriters) {
+    private void sendMessage(Message message, String messageName, HBCIMsgStatus msgStatus, List<Rewrite> rewriters) {
         String messagePath = message.getPath();
         String msgnum = message.getValueOfDE(messagePath + ".MsgHead.msgnum");
         String dialogid = message.getValueOfDE(messagePath + ".MsgHead.dialogid");
@@ -225,8 +221,8 @@ public final class HBCIKernel {
         // nachricht versenden und antwortnachricht empfangen
         log.debug("communicating dialogid/msgnum " + dialogid + "/" + msgnum);
 
-        Message response = commPinTan.pingpong(rewriters, message);
-        response = decryptMessage(rewriters, response, responseMessageName);
+        Message response = commPinTan.pingpong(message, messageName, rewriters, msgStatus);
+        response = decryptMessage(rewriters, response, messageName+"Res");
 
         // alle patches für die plaintextnachricht durchlaufen
         for (Rewrite rewriter : rewriters) {
@@ -310,16 +306,4 @@ public final class HBCIKernel {
         log.debug("received message after decryption: " + response.toString(0));
         return response;
     }
-
-    private Hashtable<String, Object> createKernelData(String msgName, HBCIMsgStatus ret, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
-        Hashtable<String, Object> kernelData = new Hashtable<>();
-        kernelData.put("msgStatus", ret);
-        kernelData.put("msgName", msgName);
-        kernelData.put("signIt", signit);
-        kernelData.put("cryptIt", cryptit);
-        kernelData.put("needSig", needSig);
-        kernelData.put("needCrypt", needCrypt);
-        return kernelData;
-    }
-
 }

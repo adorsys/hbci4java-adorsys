@@ -41,15 +41,13 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 public class RHBCIVersion extends Rewrite {
 
     @Override
-    public String incomingCrypted(String st) {
+    public String incomingCrypted(String st, HBCIMsgStatus msgStatus, String msgName) {
         int idx = st.indexOf("+");
         if (idx != -1) { // + after SegHead found
             idx = st.indexOf("+", idx + 1);
             if (idx != -1) { // + after msgsize found
                 int idx2 = st.indexOf("+", idx + 1);
                 if (idx2 != -1) { // + after hbciversion found
-                    HBCIMsgStatus msgStatus = (HBCIMsgStatus) getData("msgStatus");
-                    String msgName = (String) getData("msgName");
                     String version = st.substring(idx + 1, idx2);
                     String origVersion = msgStatus.getData().get("orig_" + msgName + ".MsgHead.hbciversion");
 

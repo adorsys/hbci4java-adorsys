@@ -29,7 +29,7 @@ public class RMissingMsgRef extends Rewrite {
 
     // TODO: msgsize muss angepasst werden
     @Override
-    public String incomingCrypted(String st) {
+    public String incomingCrypted(String st, HBCIMsgStatus msgStatus, String msgName) {
         int idx = st.indexOf("'");
         if (idx != -1) {
             try {
@@ -41,8 +41,6 @@ public class RMissingMsgRef extends Rewrite {
                     log.warn("MsgRef is missing, adding it");
                     String[] des = {"dialogid", "msgnum"};
                     for (int i = 0; i < 2; i++) {
-                        HBCIMsgStatus msgStatus = (HBCIMsgStatus) getData("msgStatus");
-                        String msgName = (String) getData("msgName");
                         String temp = (msgStatus.getData().get("orig_" + msgName + ".MsgHead." + des[i]));
                         log.warn("setting MsgRef." + des[i] + " to " + temp);
                         msghead_st += (i == 0 ? "+" : ":");

@@ -29,6 +29,7 @@ import org.kapott.hbci.exceptions.ParseErrorException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
+import org.kapott.hbci.status.HBCIMsgStatus;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
@@ -101,7 +102,7 @@ public final class CommPinTan {
         return this;
     }
 
-    public Message pingpong(List<Rewrite> rewriters, Message message) {
+    public Message pingpong(Message message, String messageName, List<Rewrite> rewriters, HBCIMsgStatus msgStatus) {
         log.debug("---------------- request ----------------");
         message.log();
 
@@ -126,7 +127,7 @@ public final class CommPinTan {
         try {
             // alle rewriter für verschlüsselte nachricht durchlaufen
             for (Rewrite rewriter1 : rewriters) {
-                st = rewriter1.incomingCrypted(st);
+                st = rewriter1.incomingCrypted(st, msgStatus, messageName);
             }
             // versuche, nachricht als verschlüsselte nachricht zu parsen
             callback.status(HBCICallback.STATUS_MSG_PARSE, "CryptedRes");

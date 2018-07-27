@@ -21,23 +21,14 @@
 package org.kapott.hbci.rewrite;
 
 import org.kapott.hbci.protocol.Message;
+import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
 
 import java.util.Hashtable;
 
 public abstract class Rewrite {
 
-    private Hashtable<String, Object> kernelData = new Hashtable<String, Object>();
-
     protected Rewrite() {
-    }
-
-    public void setKernelData(Hashtable<String, Object> kernelData) {
-        this.kernelData = kernelData;
-    }
-
-    public Object getData(String name) {
-        return kernelData.get(name);
     }
 
     public Message outgoingClearText(Message msg) {
@@ -52,7 +43,7 @@ public abstract class Rewrite {
         return msg;
     }
 
-    public String incomingCrypted(String st) {
+    public String incomingCrypted(String st, HBCIMsgStatus msgStatus, String msgName) {
         return st;
     }
 
@@ -60,7 +51,7 @@ public abstract class Rewrite {
         return st;
     }
 
-    public String incomingClearText(String st, Document document) {
+    public String incomingClearText(String st, Document document, String msgName) {
         return st;
     }
 

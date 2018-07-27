@@ -33,9 +33,9 @@ public class RInvalidSuppHBCIVersion extends Rewrite {
     // benutzt, weil nicht sichergestellt werden kann, dass die eingehende
     // nachricht hier tatsächlich schon geparst werden kann
     @Override
-    public String incomingClearText(String st, Document document) {
+    public String incomingClearText(String st, Document document, String msgName) {
         // empfangene Nachricht parsen, dabei die validvalues-Überprüfung weglassen
-        String myMsgName = getData("msgName") + "Res";
+        String myMsgName = msgName + "Res";
         Message msg = new Message(myMsgName, st, st.length(),
                 document,
                 Message.DONT_CHECK_SEQ, Message.DONT_CHECK_VALIDS);
