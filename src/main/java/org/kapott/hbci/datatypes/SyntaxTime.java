@@ -28,7 +28,7 @@ import java.text.SimpleDateFormat;
 /* a class for the datatype "time" */
 // interne Speicherung im HBCI-MSG-Format
 public final class SyntaxTime
-        extends SyntaxDE {
+    extends SyntaxDE {
     public SyntaxTime(String x, int minsize, int maxsize) {
         super(parseTime(x), 6, 6);
     }

@@ -189,8 +189,7 @@ public final class HBCIUser implements IHandlerData {
 
             // autosecmech
             log.debug("checking whether passport is supported (but ignoring result)");
-            boolean s = passport.isSupported();
-            log.debug("passport supported: " + s);
+            log.debug("passport supported: " + passport.isSupported());
 
             HBCIMsgStatus msgStatus;
             boolean restarted = false;
@@ -271,8 +270,8 @@ public final class HBCIUser implements IHandlerData {
         if (bpd == null || passport.getUPD() == null ||
             hbciVersionOfUPD == null ||
             !hbciVersionOfUPD.equals(passport.getHBCIVersion())) {
+            fetchUPD();
         }
-        fetchUPD();
 
         passport.setPersistentData("_registered_user", Boolean.TRUE);
 

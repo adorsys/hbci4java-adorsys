@@ -35,7 +35,7 @@ import java.nio.channels.SocketChannel;
 /* original idea for how to integrate "logging sockets"
  * by Thomas Kruse <tkruse@sforce.org> */
 public class LoggingSocket
-        extends SSLSocket {
+    extends SSLSocket {
     private SSLSocket targetSocket;
     private OutputStream logger;
 
@@ -45,13 +45,13 @@ public class LoggingSocket
     }
 
     public InputStream getInputStream()
-            throws IOException {
+        throws IOException {
         LoggingInputStream logInputStream = new LoggingInputStream(targetSocket.getInputStream(), logger);
         return logInputStream;
     }
 
     public OutputStream getOutputStream()
-            throws IOException {
+        throws IOException {
         LoggingOutputStream outputStream = new LoggingOutputStream(targetSocket.getOutputStream(), logger);
         return outputStream;
     }
@@ -61,22 +61,22 @@ public class LoggingSocket
     }
 
     public void bind(SocketAddress bindpoint)
-            throws IOException {
+        throws IOException {
         targetSocket.bind(bindpoint);
     }
 
     public void close()
-            throws IOException {
+        throws IOException {
         targetSocket.close();
     }
 
     public void connect(SocketAddress endpoint, int timeout)
-            throws IOException {
+        throws IOException {
         targetSocket.connect(endpoint, timeout);
     }
 
     public void connect(SocketAddress endpoint)
-            throws IOException {
+        throws IOException {
         targetSocket.connect(endpoint);
     }
 
@@ -117,12 +117,12 @@ public class LoggingSocket
     }
 
     public boolean getKeepAlive()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getKeepAlive();
     }
 
     public void setKeepAlive(boolean on)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setKeepAlive(on);
     }
 
@@ -147,12 +147,12 @@ public class LoggingSocket
     }
 
     public boolean getOOBInline()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getOOBInline();
     }
 
     public void setOOBInline(boolean on)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setOOBInline(on);
     }
 
@@ -161,12 +161,12 @@ public class LoggingSocket
     }
 
     public int getReceiveBufferSize()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getReceiveBufferSize();
     }
 
     public void setReceiveBufferSize(int size)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setReceiveBufferSize(size);
     }
 
@@ -175,22 +175,22 @@ public class LoggingSocket
     }
 
     public boolean getReuseAddress()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getReuseAddress();
     }
 
     public void setReuseAddress(boolean on)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setReuseAddress(on);
     }
 
     public int getSendBufferSize()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getSendBufferSize();
     }
 
     public void setSendBufferSize(int size)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setSendBufferSize(size);
     }
 
@@ -199,17 +199,17 @@ public class LoggingSocket
     }
 
     public int getSoLinger()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getSoLinger();
     }
 
     public int getSoTimeout()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getSoTimeout();
     }
 
     public void setSoTimeout(int timeout)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setSoTimeout(timeout);
     }
 
@@ -222,22 +222,22 @@ public class LoggingSocket
     }
 
     public boolean getTcpNoDelay()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getTcpNoDelay();
     }
 
     public void setTcpNoDelay(boolean on)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setTcpNoDelay(on);
     }
 
     public int getTrafficClass()
-            throws SocketException {
+        throws SocketException {
         return targetSocket.getTrafficClass();
     }
 
     public void setTrafficClass(int tc)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setTrafficClass(tc);
     }
 
@@ -286,27 +286,27 @@ public class LoggingSocket
     }
 
     public void sendUrgentData(int data)
-            throws IOException {
+        throws IOException {
         targetSocket.sendUrgentData(data);
     }
 
     public void setSoLinger(boolean on, int linger)
-            throws SocketException {
+        throws SocketException {
         targetSocket.setSoLinger(on, linger);
     }
 
     public void shutdownInput()
-            throws IOException {
+        throws IOException {
         targetSocket.shutdownInput();
     }
 
     public void shutdownOutput()
-            throws IOException {
+        throws IOException {
         targetSocket.shutdownOutput();
     }
 
     public void startHandshake()
-            throws IOException {
+        throws IOException {
         targetSocket.startHandshake();
     }
 

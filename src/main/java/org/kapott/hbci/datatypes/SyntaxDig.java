@@ -27,7 +27,7 @@ import org.kapott.hbci.manager.HBCIUtils;
     consists of a string of digits (including zeroes) */
 // Speicherung des mit Nullen aufgefüllten Strings
 public final class SyntaxDig
-        extends SyntaxDE {
+    extends SyntaxDE {
     public SyntaxDig(String st, int minsize, int maxsize) {
         super(buildString(st.trim(), minsize), minsize, maxsize);
     }

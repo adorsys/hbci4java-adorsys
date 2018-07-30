@@ -161,4 +161,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
     Document getSyntaxDocument();
 
     Node getSyntaxDef(String name);
+
+    Object getPinTanInfo(String hbciCode);
 }

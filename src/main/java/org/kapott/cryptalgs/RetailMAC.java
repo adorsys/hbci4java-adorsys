@@ -45,7 +45,7 @@ public class RetailMAC {
         try {
             SecretKeyFactory fac = SecretKeyFactory.getInstance("DESede");
             DESedeKeySpec spec = (DESedeKeySpec) fac.getKeySpec((SecretKey) key,
-                    DESedeKeySpec.class);
+                DESedeKeySpec.class);
             byte[] desedekeydata = spec.getKey();
 
             DESKeySpec spec2 = new DESKeySpec(desedekeydata);

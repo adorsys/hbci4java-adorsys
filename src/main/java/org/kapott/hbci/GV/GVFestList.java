@@ -59,8 +59,8 @@ public class GVFestList extends AbstractHBCIJob {
         GVRFestList.Entry entry = new GVRFestList.Entry();
 
         entry.anlagebetrag = new Value(
-                result.get(header + ".Anlagebetrag.value"),
-                result.get(header + ".Anlagebetrag.curr"));
+            result.get(header + ".Anlagebetrag.value"),
+            result.get(header + ".Anlagebetrag.curr"));
 
         if (result.get(header + ".Anlagekto.number") != null) {
             entry.anlagekonto = new Konto();
@@ -107,8 +107,8 @@ public class GVFestList extends AbstractHBCIJob {
 
         if (result.get(header + ".Zinsbetrag.value") != null) {
             entry.zinsbetrag = new Value(
-                    result.get(header + ".Zinsbetrag.value"),
-                    result.get(header + ".Zinsbetrag.curr"));
+                result.get(header + ".Zinsbetrag.value"),
+                result.get(header + ".Zinsbetrag.curr"));
         }
 
         entry.konditionen = new GVRFestCondList.Cond();
@@ -119,7 +119,7 @@ public class GVFestList extends AbstractHBCIJob {
 
         if (result.get(header + ".FestCondVersion.version") != null) {
             entry.konditionen.date = HBCIUtils.strings2DateTimeISO(result.get(header + ".FestCondVersion.date"),
-                    result.get(header + ".FestCondVersion.time"));
+                result.get(header + ".FestCondVersion.time"));
             entry.konditionen.version = result.get(header + ".FestCondVersion.version");
         }
 
@@ -139,21 +139,21 @@ public class GVFestList extends AbstractHBCIJob {
 
         entry.konditionen.zinssatz = HBCIUtils.string2Long(result.get(header + ".FestCond.zinssatz"), 1000);
         entry.konditionen.minbetrag = new Value(
-                result.get(header + ".FestCond.MinBetrag.value"),
-                result.get(header + ".FestCond.MinBetrag.curr"));
+            result.get(header + ".FestCond.MinBetrag.value"),
+            result.get(header + ".FestCond.MinBetrag.curr"));
         entry.konditionen.name = result.get(header + ".FestCond.condbez");
 
         if (result.get(header + ".FestCond.MaxBetrag.value") != null) {
             entry.konditionen.maxbetrag = new Value(
-                    result.get(header + ".FestCond.MaxBetrag.value"),
-                    result.get(header + ".FestCond.MaxBetrag.curr"));
+                result.get(header + ".FestCond.MaxBetrag.value"),
+                result.get(header + ".FestCond.MaxBetrag.curr"));
         }
 
         if (result.get(header + ".Prolong.laufzeit") != null) {
             entry.verlaengerung = new GVRFestList.Entry.Prolong();
             entry.verlaengerung.betrag = new Value(
-                    result.get(header + ".Prolong.BTG.value"),
-                    result.get(header + ".Prolong.BTG.curr"));
+                result.get(header + ".Prolong.BTG.value"),
+                result.get(header + ".Prolong.BTG.curr"));
             entry.verlaengerung.laufzeit = Integer.parseInt(result.get(header + ".Prolong.laufzeit"));
             entry.verlaengerung.verlaengern = result.get(header + ".Prolong.wiederanlage").equals("2");
         }

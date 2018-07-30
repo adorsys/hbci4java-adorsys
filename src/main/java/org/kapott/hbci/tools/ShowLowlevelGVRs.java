@@ -63,9 +63,9 @@ import java.io.InputStreamReader;
  * des Jobs ausgewählt.</p>
  */
 public class ShowLowlevelGVRs
-        extends AbstractShowLowlevelData {
+    extends AbstractShowLowlevelData {
     public static void main(String[] args)
-            throws Exception {
+        throws Exception {
 
         String hbciversion;
         if (args.length >= 1) {

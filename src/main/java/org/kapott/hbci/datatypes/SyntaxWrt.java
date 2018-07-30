@@ -23,7 +23,7 @@ package org.kapott.hbci.datatypes;
 /* a special case of the "float"-class with maxsize
     to be defaulted to 15 */
 public final class SyntaxWrt
-        extends SyntaxFloat {
+    extends SyntaxFloat {
     public SyntaxWrt(String x, int minsize, int maxsize) {
         super(x, minsize, 15);
     }

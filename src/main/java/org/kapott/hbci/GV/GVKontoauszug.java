@@ -73,7 +73,7 @@ public class GVKontoauszug extends AbstractHBCIJob {
                 umsResult.appendPDFData(rawData);
             } else {
                 log.error(
-                        "unknown format in result for GV Kontoauszug: " + format);
+                    "unknown format in result for GV Kontoauszug: " + format);
             }
         }
 

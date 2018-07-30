@@ -8,7 +8,7 @@ import org.kapott.hbci.sepa.jaxb.pain_001_002_02.*;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Properties;
+import java.util.HashMap;
 
 
 /**
@@ -23,11 +23,8 @@ public class GenUebSEPA00100202 extends AbstractSEPAGenerator {
         return PainVersion.PAIN_001_002_02;
     }
 
-    /**
-     * @see org.kapott.hbci.GV.generators.ISEPAGenerator#generate(java.util.Properties, java.io.OutputStream, boolean)
-     */
     @Override
-    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception {
+    public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) throws Exception {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
 
         //Document
@@ -44,8 +41,8 @@ public class GenUebSEPA00100202 extends AbstractSEPAGenerator {
         if (batch != null)
             doc.getPain00100102().getGrpHdr().setBtchBookg(batch.equals("1"));
 
-        final String sepaId = sepaParams.getProperty("sepaid");
-        final String pmtInfId = sepaParams.getProperty("pmtinfid");
+        final String sepaId = sepaParams.get("sepaid");
+        final String pmtInfId = sepaParams.get("pmtinfid");
 
         //Group Header
         doc.getPain00100102().getGrpHdr().setMsgId(sepaId);
@@ -54,7 +51,7 @@ public class GenUebSEPA00100202 extends AbstractSEPAGenerator {
         doc.getPain00100102().getGrpHdr().setCtrlSum(SepaUtil.sumBtgValue(sepaParams, maxIndex));
         doc.getPain00100102().getGrpHdr().setGrpg(Grouping1CodeSCT.MIXD);
         doc.getPain00100102().getGrpHdr().setInitgPty(new PartyIdentificationSCT1());
-        doc.getPain00100102().getGrpHdr().getInitgPty().setNm(sepaParams.getProperty("src.name"));
+        doc.getPain00100102().getGrpHdr().getInitgPty().setNm(sepaParams.get("src.name"));
 
 
         //Payment Information
@@ -70,7 +67,7 @@ public class GenUebSEPA00100202 extends AbstractSEPAGenerator {
         pmtInf.getPmtTpInf().setSvcLvl(new ServiceLevelSCT());
         pmtInf.getPmtTpInf().getSvcLvl().setCd(ServiceLevelSCTCode.SEPA);
 
-        String date = sepaParams.getProperty("date");
+        String date = sepaParams.get("date");
         if (date == null) date = SepaUtil.DATE_UNDEFINED;
         pmtInf.setReqdExctnDt(SepaUtil.createCalendar(date));
         pmtInf.setDbtr(new PartyIdentificationSCT2());
@@ -79,17 +76,17 @@ public class GenUebSEPA00100202 extends AbstractSEPAGenerator {
 
 
         //Payment Information - Debtor
-        pmtInf.getDbtr().setNm(sepaParams.getProperty("src.name"));
+        pmtInf.getDbtr().setNm(sepaParams.get("src.name"));
 
 
         //Payment Information - DebtorAccount
         pmtInf.getDbtrAcct().setId(new AccountIdentificationSCT());
-        pmtInf.getDbtrAcct().getId().setIBAN(sepaParams.getProperty("src.iban"));
+        pmtInf.getDbtrAcct().getId().setIBAN(sepaParams.get("src.iban"));
 
 
         //Payment Information - DebtorAgent
         pmtInf.getDbtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSCT());
-        pmtInf.getDbtrAgt().getFinInstnId().setBIC(sepaParams.getProperty("src.bic"));
+        pmtInf.getDbtrAgt().getFinInstnId().setBIC(sepaParams.get("src.bic"));
 
 
         //Payment Information - ChargeBearer
@@ -109,7 +106,7 @@ public class GenUebSEPA00100202 extends AbstractSEPAGenerator {
         this.marshal(of.createDocument(doc), os, validate);
     }
 
-    private CreditTransferTransactionInformationSCT createCreditTransferTransactionInformationSCT(Properties sepaParams, Integer index) {
+    private CreditTransferTransactionInformationSCT createCreditTransferTransactionInformationSCT(HashMap<String, String> sepaParams, Integer index) {
         CreditTransferTransactionInformationSCT cdtTrxTxInf = new CreditTransferTransactionInformationSCT();
 
         //Payment Information - Credit Transfer Transaction Information - Payment Identification
@@ -119,34 +116,34 @@ public class GenUebSEPA00100202 extends AbstractSEPAGenerator {
 
         //Payment Information - Credit Transfer Transaction Information - Creditor
         cdtTrxTxInf.setCdtr(new PartyIdentificationSCT2());
-        cdtTrxTxInf.getCdtr().setNm(sepaParams.getProperty(SepaUtil.insertIndex("dst.name", index)));
+        cdtTrxTxInf.getCdtr().setNm(sepaParams.get(SepaUtil.insertIndex("dst.name", index)));
 
         //Payment Information - Credit Transfer Transaction Information - Creditor Account
         cdtTrxTxInf.setCdtrAcct(new CashAccountSCT2());
         cdtTrxTxInf.getCdtrAcct().setId(new AccountIdentificationSCT());
-        cdtTrxTxInf.getCdtrAcct().getId().setIBAN(sepaParams.getProperty(SepaUtil.insertIndex("dst.iban", index)));
+        cdtTrxTxInf.getCdtrAcct().getId().setIBAN(sepaParams.get(SepaUtil.insertIndex("dst.iban", index)));
 
         //Payment Information - Credit Transfer Transaction Information - Creditor Agent
         cdtTrxTxInf.setCdtrAgt(new BranchAndFinancialInstitutionIdentificationSCT());
         cdtTrxTxInf.getCdtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSCT());
-        cdtTrxTxInf.getCdtrAgt().getFinInstnId().setBIC(sepaParams.getProperty(SepaUtil.insertIndex("dst.bic", index)));
+        cdtTrxTxInf.getCdtrAgt().getFinInstnId().setBIC(sepaParams.get(SepaUtil.insertIndex("dst.bic", index)));
 
 
         //Payment Information - Credit Transfer Transaction Information - Amount
         cdtTrxTxInf.setAmt(new AmountTypeSCT());
         cdtTrxTxInf.getAmt().setInstdAmt(new CurrencyAndAmountSCT());
-        cdtTrxTxInf.getAmt().getInstdAmt().setValue(new BigDecimal(sepaParams.getProperty(SepaUtil.insertIndex("btg.value", index))));
+        cdtTrxTxInf.getAmt().getInstdAmt().setValue(new BigDecimal(sepaParams.get(SepaUtil.insertIndex("btg.value", index))));
 
         cdtTrxTxInf.getAmt().getInstdAmt().setCcy(CurrencyCodeSCT.EUR);
 
         //Payment Information - Credit Transfer Transaction Information - Usage
-        String usage = sepaParams.getProperty(SepaUtil.insertIndex("usage", index));
+        String usage = sepaParams.get(SepaUtil.insertIndex("usage", index));
         if (usage != null && usage.length() > 0) {
             cdtTrxTxInf.setRmtInf(new RemittanceInformationSCTChoice());
             cdtTrxTxInf.getRmtInf().setUstrd(usage);
         }
 
-        String purposeCode = sepaParams.getProperty(SepaUtil.insertIndex("purposecode", index));
+        String purposeCode = sepaParams.get(SepaUtil.insertIndex("purposecode", index));
         if (purposeCode != null && purposeCode.length() > 0) {
             PurposeSCT p = new PurposeSCT();
             p.setCd(purposeCode);

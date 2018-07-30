@@ -29,14 +29,14 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class ISO9796p1
-        extends SignatureSpi {
+    extends SignatureSpi {
     private RSAPublicKey pubKey;
     private PrivateKey privKey;
     private MessageDigest dig;
     private SignatureParamSpec param;
 
     public static byte[] prepareForSig(byte[] buffer, BigInteger bModulus)
-            throws SignatureException {
+        throws SignatureException {
         /* padding; 'cause my buffer is already byte-aligned, there
            are no padding bits to be prepended */
         byte[] mp = new byte[buffer.length];
@@ -78,7 +78,7 @@ public class ISO9796p1
     }
 
     private static byte[] getIRfromIS(byte[] is, byte[] exp, byte[] mod, int[] ks)
-            throws SignatureException {
+        throws SignatureException {
         BigInteger is_b = new BigInteger(+1, is);
         BigInteger mod_b = new BigInteger(+1, mod);
         BigInteger exp_b = new BigInteger(+1, exp);
@@ -124,18 +124,18 @@ public class ISO9796p1
 
     private static byte Perm(int b) {
         return (new byte[]{
-                0x0E, 0x03, 0x05, 0x08,
-                0x09, 0x04, 0x02, 0x0F,
-                0x00, 0x0D, 0x0B, 0x06,
-                0x07, 0x0A, 0x0C, 0x01})[b];
+            0x0E, 0x03, 0x05, 0x08,
+            0x09, 0x04, 0x02, 0x0F,
+            0x00, 0x0D, 0x0B, 0x06,
+            0x07, 0x0A, 0x0C, 0x01})[b];
     }
 
     private static byte Perm1(int b) {
         return (new byte[]{
-                0x08, 0x0F, 0x06, 0x01,
-                0x05, 0x02, 0x0B, 0x0C,
-                0x03, 0x04, 0x0D, 0x0A,
-                0x0E, 0x09, 0x00, 0x07})[b];
+            0x08, 0x0F, 0x06, 0x01,
+            0x05, 0x02, 0x0B, 0x0C,
+            0x03, 0x04, 0x0D, 0x0A,
+            0x0E, 0x09, 0x00, 0x07})[b];
     }
 
     private static byte[] getMRfromIR(byte[] ir, int k, int[] ts) {
@@ -171,7 +171,7 @@ public class ISO9796p1
     }
 
     private static byte[] getMPfromMR(byte[] mr, int t, int[] zs, int[] rs)
-            throws SignatureException {
+        throws SignatureException {
         int i;
         for (i = 0; i < t; i++) {
             byte sum = (byte) (S(mr[2 * t - 1 - (2 * i)]) ^ mr[2 * t - 1 - (2 * i + 1)]);
@@ -299,7 +299,7 @@ public class ISO9796p1
 
     @Override
     protected void engineSetParameter(AlgorithmParameterSpec param1)
-            throws InvalidAlgorithmParameterException {
+        throws InvalidAlgorithmParameterException {
         if (param1 instanceof SignatureParamSpec)
             this.param = (SignatureParamSpec) (param1);
         else {
@@ -309,7 +309,7 @@ public class ISO9796p1
 
     @Override
     protected byte[] engineSign()
-            throws SignatureException {
+        throws SignatureException {
         BigInteger bModulus;
         if (this.privKey instanceof RSAPrivateKey) {
             bModulus = ((RSAPrivateKey) this.privKey).getModulus();
@@ -352,7 +352,7 @@ public class ISO9796p1
 
     @Override
     protected int engineSign(byte[] output, int offset, int len)
-            throws SignatureException {
+        throws SignatureException {
         byte[] sig = engineSign();
 
         if (offset + len > output.length)
@@ -381,7 +381,7 @@ public class ISO9796p1
         while (a.compareTo(new BigInteger("0"))!=0) {
             while (a.mod(new BigInteger("2")).compareTo(new BigInteger("0"))==0) {
                 a=a.divide(new BigInteger("2"));
-                
+
                 BigInteger mod8=n.mod(new BigInteger("8"));
                 if (mod8.compareTo(new BigInteger("3"))==0 ||
                     mod8.compareTo(new BigInteger("5"))==0) {
@@ -402,12 +402,12 @@ public class ISO9796p1
         }
 
         int ret;
-        
+
         if (n.compareTo(new BigInteger("1"))==0)
             ret=j;
         else
             ret=0;
-        
+
         return ret;
     }*/
 
@@ -428,7 +428,7 @@ public class ISO9796p1
 
     @Override
     protected boolean engineVerify(byte[] sig)
-            throws SignatureException {
+        throws SignatureException {
         BigInteger bExponent = this.pubKey.getPublicExponent();
         byte[] exponent = bExponent.toByteArray();
         BigInteger bModulus = this.pubKey.getModulus();

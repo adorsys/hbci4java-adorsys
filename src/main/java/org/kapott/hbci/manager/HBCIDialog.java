@@ -26,7 +26,6 @@ import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SEG;
@@ -36,7 +35,6 @@ import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.status.HBCIInstMessage;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.structures.Konto;
-import org.w3c.dom.Document;
 
 import java.security.MessageDigest;
 import java.util.*;
@@ -66,33 +64,38 @@ public final class HBCIDialog {
 
     private String dialogid;  /* The dialogID for this dialog (unique for each dialog) */
     private long msgnum;    /* An automatically managed message counter. */
-    private List<List<AbstractHBCIJob>> messages;    /* this array contains all messages to be sent (excluding
+    private List<List<AbstractHBCIJob>> messages = new ArrayList<>();    /* this array contains all messages to be sent (excluding
                                              dialogInit and dialogEnd); each element of the arrayList
                                              is again an ArrayList, where each element is one
                                              task (GV) to be sent with this specific message */
     // liste aller GVs in der aktuellen msg; key ist der hbciCode des jobs, value ist die anzahl dieses jobs in der aktuellen msg
-    private Properties listOfGVs;
+    private HashMap<String, String> listOfGVs = new HashMap<>();
     private PinTanPassport passport;
     private HBCIKernel kernel;
 
     public HBCIDialog(PinTanPassport passport) {
-        log.debug("creating new dialog");
+        this(passport, null, -1);
+    }
 
-        this.kernel = new HBCIKernel(passport);
+    public HBCIDialog(PinTanPassport passport, String dialogid, long msgnum) {
+        this.dialogid = dialogid;
+        this.msgnum = msgnum;
         this.passport = passport;
-        this.messages = new ArrayList<>();
+        this.kernel = new HBCIKernel(passport);
         this.messages.add(new ArrayList<>());
-        this.listOfGVs = new Properties();
 
-        this.fetchBPDAnonymous();
-        this.registerUser();
+        if (dialogid == null) {
+            log.debug("creating new dialog");
+            this.fetchBPDAnonymous();
+            this.registerUser();
 
-        // wenn in den UPD noch keine SEPA- und TAN-Medien-Informationen ueber die Konten enthalten
-        // sind, versuchen wir, diese zu holen
-        HashMap<String, String> upd = passport.getUPD();
-        if (upd != null && !upd.containsKey("_fetchedMetaInfo")) {
-            // wir haben UPD, in denen aber nicht "_fetchedMetaInfo" drinsteht
-            updateMetaInfo();
+            // wenn in den UPD noch keine SEPA- und TAN-Medien-Informationen ueber die Konten enthalten
+            // sind, versuchen wir, diese zu holen
+            HashMap<String, String> upd = passport.getUPD();
+            if (upd != null && !upd.containsKey("_fetchedMetaInfo")) {
+                // wir haben UPD, in denen aber nicht "_fetchedMetaInfo" drinsteht
+                updateMetaInfo();
+            }
         }
     }
 
@@ -156,10 +159,10 @@ public final class HBCIDialog {
                         break;
                     }
                     passport.getCallback().callback(
-                            HBCICallback.HAVE_INST_MSG,
-                            msg.toString(),
-                            HBCICallback.TYPE_NONE,
-                            new StringBuffer());
+                        HBCICallback.HAVE_INST_MSG,
+                        msg.toString(),
+                        HBCICallback.TYPE_NONE,
+                        new StringBuffer());
                 }
             }
 
@@ -208,15 +211,13 @@ public final class HBCIDialog {
             // SEPA-Infos abrufen
             if (lowlevel.get("SEPAInfo") != null) {
                 log.info("fetching SEPA information");
-                AbstractHBCIJob sepainfo = newJob("SEPAInfo", getPassport());
-                addTask(sepainfo);
+                addTask(newJob("SEPAInfo", getPassport()));
             }
 
             // TAN-Medien abrufen
             if (lowlevel.get("TANMediaList") != null) {
                 log.info("fetching TAN media list");
-                AbstractHBCIJob tanMedia = newJob("TANMediaList", getPassport());
-                addTask(tanMedia);
+                addTask(newJob("TANMediaList", getPassport()));
             }
 
             HBCIExecStatus status = execute(false);
@@ -233,67 +234,12 @@ public final class HBCIDialog {
         }
     }
 
-
-    /**
-     * Wenn der GV SEPAInfo unterstützt wird, heißt das, dass die Bank mit
-     * SEPA-Konten umgehen kann. In diesem Fall holen wir die SEPA-Informationen
-     * über die Konten von der Bank ab - für jedes SEPA-fähige Konto werden u.a.
-     * BIC/IBAN geliefert
-     *
-     * @deprecated Bitte <code>updateMetaInfo</code> verwenden. Das aktualisiert auch die TAN-Medien.
-     */
-    public void updateSEPAInfo(Document document) {
-        HashMap<String, String> bpd = passport.getBPD();
-        if (bpd == null) {
-            log.warn("have no bpd, skipping SEPA information fetching");
-            return;
-        }
-
-        // jetzt noch zusaetzliche die SEPA-Informationen abholen
-        try {
-            if (getPassport().getSupportedLowlevelJobs(document).get("SEPAInfo") != null) {
-                log.info("trying to fetch SEPA information from institute");
-
-                // HKSPA wird unterstuetzt
-                AbstractHBCIJob sepainfo = newJob("SEPAInfo", getPassport());
-                addTask(sepainfo);
-                HBCIExecStatus status = execute(false);
-                if (status.isOK()) {
-                    log.info("successfully fetched information about SEPA accounts from institute");
-
-                    passport.getUPD().put("_fetchedSEPA", "1");
-                } else {
-                    log.error("error while fetching information about SEPA accounts from institute:");
-                    log.error(status.toString());
-                }
-                /* beim execute() werden die Job-Result-Objekte automatisch
-                 * gefuellt. Der GV-Klasse fuer SEPAInfo haengt sich in diese
-                 * Logik rein, um gleich die UPD mit den SEPA-Konto-Daten
-                 * zu aktualisieren, so dass an dieser Stelle die UPD um
-                 * die SEPA-Informationen erweitert wurden.
-                 */
-            } else {
-                log.debug("institute does not support SEPA accounts, so we skip fetching information about SEPA");
-            }
-        } catch (HBCI_Exception he) {
-            throw he;
-        } catch (Exception e) {
-            throw new HBCI_Exception(e);
-        }
-    }
-
-
     private HBCIMsgStatus[] doJobs() {
         log.info(HBCIUtils.getLocMsg("LOG_PROCESSING_JOBS"));
 
         ArrayList<HBCIMsgStatus> msgstatus_a = new ArrayList<>();
 
-        // durch die liste aller auszuführenden nachrichten durchloopen
-        int nof_messages = messages.size();
-        for (int j = 0; j < nof_messages; j++) {
-            // tasks ist liste aller jobs, die in dieser nachricht ausgeführt werden sollen
-            List<AbstractHBCIJob> tasks = messages.get(j);
-
+        messages.forEach(tasks -> {
             // loop wird benutzt, um zu zählen, wie oft bereits "nachgehakt" wurde,
             // falls ein bestimmter job nicht mit einem einzigen nachrichtenaustausch
             // abgearbeitet werden konnte (z.b. abholen kontoauszüge)
@@ -306,8 +252,6 @@ public final class HBCIDialog {
                 boolean addMsgStatus = true;
 
                 try {
-                    log.debug("generating custom msg #" + (j + 1) + " (loop " + (loop + 1) + ")");
-
                     int taskNum = 0;
 
                     Message message = MessageFactory.createMessage("CustomMsg", passport.getSyntaxDocument());
@@ -321,19 +265,15 @@ public final class HBCIDialog {
                         if (task.needsContinue(loop)) {
                             task.setContinueOffset(loop);
 
-                            Properties p = task.getLowlevelParams();
                             String header = HBCIUtils.withCounter("GV", taskNum);
-
-                            String taskName = task.getName();
-                            log.debug("adding task " + taskName);
+                            log.debug("adding task " + task.getName());
                             passport.getCallback().status(HBCICallback.STATUS_SEND_TASK, task);
                             task.setIdx(taskNum);
 
                             // Daten für den Task festlegen
-                            for (Enumeration e = p.keys(); e.hasMoreElements(); ) {
-                                String key = (String) (e.nextElement());
-                                message.rawSet(header + "." + key, p.getProperty(key));
-                            }
+                            task.getLowlevelParams().forEach((key, value) -> {
+                                message.rawSet(header + "." + key, value);
+                            });
 
                             taskNum++;
                         }
@@ -342,7 +282,7 @@ public final class HBCIDialog {
                     // wenn keine jobs für die aktuelle message existieren
                     if (taskNum == 0) {
                         log.debug(
-                                "loop " + (loop + 1) + " aborted, because there are no more tasks to be executed");
+                            "loop " + (loop + 1) + " aborted, because there are no more tasks to be executed");
                         addMsgStatus = false;
                         break;
                     }
@@ -401,7 +341,7 @@ public final class HBCIDialog {
                     }
                 }
             }
-        }
+        });
 
         HBCIMsgStatus[] ret = new HBCIMsgStatus[0];
         if (msgstatus_a.size() != 0)
@@ -492,7 +432,6 @@ public final class HBCIDialog {
      * von der aufrufenden methode neu erzeugt werden
      */
     private HBCIDialogStatus doIt(boolean closeDialog) {
-
         log.debug("executing dialog");
         HBCIDialogStatus dialogStatus = new HBCIDialogStatus();
 
@@ -528,10 +467,6 @@ public final class HBCIDialog {
         return msgnum;
     }
 
-    public void setMsgnum(long msgnum) {
-        this.msgnum = msgnum;
-    }
-
     private void nextMsgNum() {
         msgnum++;
     }
@@ -543,10 +478,8 @@ public final class HBCIDialog {
     private int getTotalNumberOfGVSegsInCurrentMessage() {
         int total = 0;
 
-        for (Enumeration e = listOfGVs.keys(); e.hasMoreElements(); ) {
-            String hbciCode = (String) e.nextElement();
-            int counter = Integer.parseInt(listOfGVs.getProperty(hbciCode));
-            total += counter;
+        for (String hbciCode : listOfGVs.keySet()) {
+            total += Integer.parseInt(listOfGVs.get(hbciCode));
         }
 
         log.debug("there are currently " + total + " GV segs in this message");
@@ -554,9 +487,6 @@ public final class HBCIDialog {
     }
 
     public void addTask(AbstractHBCIJob job) {
-        // TODO: hier evtl. auch überprüfen, dass nur jobs mit den gleichen
-        // signatur-anforderungen (anzahl) in einer msg stehen
-
         try {
             log.info(HBCIUtils.getLocMsg("EXCMSG_ADDJOB", job.getName()));
             job.verifyConstraints();
@@ -567,12 +497,8 @@ public final class HBCIDialog {
                 throw new HBCI_Exception(job.getName() + " not supported");
             }
 
-            if (passport.getPinTanInfo(hbciCode).equals("J")) {
-
-            }
-
             int gva_counter = listOfGVs.size();
-            String counter_st = listOfGVs.getProperty(hbciCode);
+            String counter_st = listOfGVs.get(hbciCode);
             int gv_counter = counter_st != null ? Integer.parseInt(counter_st) : 0;
             int total_counter = getTotalNumberOfGVSegsInCurrentMessage();
 
@@ -591,28 +517,26 @@ public final class HBCIDialog {
             int maxGVSegTotal = passport.getMaxGVSegsPerMsg();
 
             if ((maxGVA > 0 && gva_counter > maxGVA) ||
-                    (maxGVSegJob > 0 && gv_counter > maxGVSegJob) ||
-                    (maxGVSegTotal > 0 && total_counter > maxGVSegTotal)) {
+                (maxGVSegJob > 0 && gv_counter > maxGVSegJob) ||
+                (maxGVSegTotal > 0 && total_counter > maxGVSegTotal)) {
                 if (maxGVSegTotal > 0 && total_counter > maxGVSegTotal) {
                     log.debug(
-                            "have to generate new message because current type of passport only allows " + maxGVSegTotal + " GV segs per message");
+                        "have to generate new message because current type of passport only allows " + maxGVSegTotal + " GV segs per message");
                 } else {
                     log.debug(
-                            "have to generate new message because of BPD restrictions for number of tasks per message; adding job to this new message");
+                        "have to generate new message because of BPD restrictions for number of tasks per message; adding job to this new message");
                 }
                 newMsg();
                 gv_counter = 1;
             }
 
-            listOfGVs.setProperty(hbciCode, Integer.toString(gv_counter));
+            listOfGVs.put(hbciCode, Integer.toString(gv_counter));
 
             messages.get(messages.size() - 1).add(job);
         } catch (Exception e) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_CANTADDJOB", job.getName());
             log.error("task " + job.getName() + " will not be executed in current dialog");
             throw new HBCI_Exception(msg, e);
-
-
         }
     }
 
@@ -635,27 +559,22 @@ public final class HBCIDialog {
 
             List<List<AbstractHBCIJob>> newMessages = new ArrayList<>();
 
-            // durch alle ursprünglichen nachrichten laufen
-            for (Iterator<List<AbstractHBCIJob>> i = messages.iterator(); i.hasNext(); ) {
-                List<AbstractHBCIJob> messageJobs = i.next();
+            messages.forEach(messageJobs -> {
                 ArrayList<AbstractHBCIJob> newMessageJobs = new ArrayList<>();
 
                 GVTAN2Step hktan2 = null;
 
                 // jeden task einer nachricht ansehen
                 for (AbstractHBCIJob hbciJob : messageJobs) {
-                    String segcode = hbciJob.getHBCICode();
-
-                    if (passport.getPinTanInfo(segcode).equals("J")) {
+                    if (hbciJob.needTan()) {
                         // es handelt sich um einen tan-pflichtigen hbciJob
-                        log.debug("found hbciJob that requires a TAN: " + segcode + " - have to patch message queue");
+                        log.debug("found hbciJob that requires a TAN: " + hbciJob.getHBCICode() + " - have to patch message queue");
 
                         if (process.equals("1")) {
                             // prozessvariante 1
                             log.debug("process #1: adding new message with HKTAN(p=1,hash=...) before current message");
 
-//                            GVTAN2Step hktan = (GVTAN2Step) HBCIJobFactory.newJob("TAN2Step", this, null);
-                            GVTAN2Step hktan = null;
+                            GVTAN2Step hktan = (GVTAN2Step) HBCIJobFactory.newJob("TAN2Step", passport);
 
                             hktan.setExternalId(hbciJob.getExternalId()); // externe ID durchreichen
 
@@ -665,65 +584,11 @@ public final class HBCIDialog {
 
                             hktan.setParam("process", process);
                             hktan.setParam("notlasttan", "N");
-
-                            // willuhn 2011-05-16
-                            // Siehe FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf, Seite 58
-                            int hktanVersion = Integer.parseInt(hktan.getSegVersion());
-                            if (hktanVersion >= 5) {
-                                // Bis HKTAN4/hhd1.3 wurde das noch als Challenge-Parameter uebermittelt. Jetzt hat es einen
-                                // eigenen Platz in den Job-Parametern
-                                hktan.setParam("ordersegcode", hbciJob.getHBCICode());
-
-                                // Zitat aus HITANS5: Diese Funktion ermöglicht das Sicherstellen einer gültigen Kontoverbindung
-                                // z. B. für die Abrechnung von SMS-Kosten bereits vor Erzeugen und Versenden einer
-                                // (ggf. kostenpflichtigen!) TAN.
-                                //  0: Auftraggeberkonto darf nicht angegeben werden
-                                //  2: Auftraggeberkonto muss angegeben werden, wenn im Geschäftsvorfall enthalten
-                                String noa = secmechInfo.get("needorderaccount") != null ? secmechInfo.get("needorderaccount") : "";
-                                log.info("needorderaccount=" + noa);
-                                if (noa.equals("2")) {
-                                    Konto k = hbciJob.getOrderAccount();
-                                    if (k != null) {
-                                        log.info("applying orderaccount to HKTAN for " + hbciJob.getHBCICode());
-                                        hktan.setParam("orderaccount", k);
-                                    } else {
-                                        log.warn("orderaccount needed, but not found in " + hbciJob.getHBCICode());
-                                    }
-                                }
-                            }
+                            checkTanOrderAccount(secmechInfo, hbciJob, hktan);
+                            checkOrderHash(hbciJob, hktan);
 
                             // TODO: das für mehrfachsignaturen
                             // hktan.setParam("notlasttan","J");
-
-                            // orderhash ermitteln
-                            try {
-                                // TODO: hier wird jetzt *immer* segnum=3 angenommen,
-                                // kann in Einzelfällen evtl. auch anders sein (?)
-                                SEG seg = hbciJob.createJobSegment(3);
-                                seg.validate();
-                                String segdata = seg.toString(0);
-                                log.debug("calculating hash for jobsegment: " + segdata);
-
-                                // zu verwendenden Hash-Algorithmus von dem Wert "orderhashmode" aus den BPD abhängig machen
-                                String orderhashmode = passport.getOrderHashMode();
-                                String alg = null;
-                                String provider = null;
-                                if (orderhashmode.equals("1")) {
-                                    alg = "RIPEMD160";
-                                    provider = "CryptAlgs4Java";
-                                } else if (orderhashmode.equals("2")) {
-                                    alg = "SHA-1";
-                                }
-                                log.debug("using " + alg + "/" + provider + " for generating order hash");
-                                MessageDigest digest = MessageDigest.getInstance(alg, provider);
-
-                                digest.update(segdata.getBytes(CommPinTan.ENCODING));
-                                byte[] hash = digest.digest();
-                                hktan.setParam("orderhash", new String(hash, CommPinTan.ENCODING));
-                            } catch (Exception e) {
-                                throw new HBCI_Exception(e);
-                            }
-
                             // TODO: evtl. listindex ermitteln
                             // hktan.setParam("listidx","");
 
@@ -739,11 +604,7 @@ public final class HBCIDialog {
                             passport.applyTanMedia(hktan);
 
                             // diese neue msg vor der aktuellen in die msg-queue einstellen
-                            List<AbstractHBCIJob> additional_msg_tasks = new ArrayList<>();
-                            additional_msg_tasks.add(hktan2);
-                            newMessages.add(additional_msg_tasks);
-
-                            // den aktuellen hbciJob ganz normal zur aktuellen msg hinzufügen
+                            newMessages.add(Arrays.asList(hktan2));
                             newMessageJobs.add(hbciJob);
                         } else {
                             // prozessvariante 2
@@ -753,8 +614,7 @@ public final class HBCIDialog {
                             newMessageJobs.add(hbciJob);
 
                             // dazu noch einen hktan-job hinzufügen
-//TODO                            GVTAN2Step hktan1 = (GVTAN2Step) handler.newJob("TAN2Step");
-                            GVTAN2Step hktan1 = null;
+                            GVTAN2Step hktan1 = (GVTAN2Step) HBCIJobFactory.newJob("TAN2Step", passport);
                             hktan1.setExternalId(hbciJob.getExternalId()); // externe ID durchreichen
 
                             // muessen wir explizit setzen, damit wir das HKTAN in der gleichen Version
@@ -776,13 +636,8 @@ public final class HBCIDialog {
                             // eine neue msg für das einreichen der tan erzeugen
                             log.debug("creating new msg with HKTAN(p=2,orderref=DELAYED)");
 
-                            // muessen wir explizit setzen, damit wir das HKTAN in der gleichen Version
-                            // schicken, in der das HITANS kam.
-                            hktan1.setSegVersion(segversion);
-
                             // HKTAN-job für das einreichen der TAN erzeugen
-//TODO                            hktan2 = (GVTAN2Step) handler.newJob("TAN2Step");
-                            hktan2 = null;
+                            hktan2 = (GVTAN2Step) HBCIJobFactory.newJob("TAN2Step", passport);
                             hktan2.setExternalId(hbciJob.getExternalId()); // externe ID durchreichen
                             hktan2.setParam("process", "2");
                             hktan2.setParam("notlasttan", "N");
@@ -803,12 +658,10 @@ public final class HBCIDialog {
                             // für hktan2 ankommen, dem richtigen job zugeordnet werden können
                             log.debug("storing reference to original job in new HKTAN segment");
                             hktan2.storeOriginalTask(hbciJob);
-
-                            // die neue msg wird später (nach der aktuellen) zur msg-queue hinzugefügt
                         }
                     } else {
                         // kein tan-pflichtiger hbciJob, also einfach zur gepatchten msg-queue hinzufügen
-                        log.debug("found hbciJob that does not require a TAN: " + segcode + " - adding it to current msg");
+                        log.debug("found hbciJob that does not require a TAN: " + hbciJob.getHBCICode() + " - adding it to current msg");
                         newMessageJobs.add(hbciJob);
                     }
                 }
@@ -817,20 +670,77 @@ public final class HBCIDialog {
                 messageJobs.addAll(newMessageJobs);
 
                 newMessages.add(messageJobs);
+
                 if (hktan2 != null) {
                     // wenn für prozessvariante 2 eine zusätzliche msg erzeugt
                     // wurde, diese jetzt mit anhängen
                     passport.getCallback().tanCallback(passport, hktan2);
-                    List<AbstractHBCIJob> additional_msg_tasks = new ArrayList<>();
-                    additional_msg_tasks.add(hktan2);
 
                     log.debug("adding newly created message with HKTAN(p=2) after current one");
-                    newMessages.add(additional_msg_tasks);
+                    newMessages.add(Arrays.asList());
                 }
-            }
+            });
 
             messages.clear();
             messages.addAll(newMessages);
+        }
+    }
+
+    private void checkOrderHash(AbstractHBCIJob hbciJob, GVTAN2Step hktan) {
+        try {
+            // TODO: hier wird jetzt *immer* segnum=3 angenommen,
+            // kann in Einzelfällen evtl. auch anders sein (?)
+            SEG seg = hbciJob.createJobSegment(3);
+            seg.validate();
+            String segdata = seg.toString(0);
+            log.debug("calculating hash for jobsegment: " + segdata);
+
+            // zu verwendenden Hash-Algorithmus von dem Wert "orderhashmode" aus den BPD abhängig machen
+            String orderhashmode = passport.getOrderHashMode();
+
+            String alg = null;
+            String provider = null;
+            if (orderhashmode.equals("1")) {
+                alg = "RIPEMD160";
+                provider = "CryptAlgs4Java";
+            } else if (orderhashmode.equals("2")) {
+                alg = "SHA-1";
+            }
+            log.debug("using " + alg + "/" + provider + " for generating order hash");
+            MessageDigest digest = MessageDigest.getInstance(alg, provider);
+
+            digest.update(segdata.getBytes(CommPinTan.ENCODING));
+            byte[] hash = digest.digest();
+            hktan.setParam("orderhash", new String(hash, CommPinTan.ENCODING));
+        } catch (Exception e) {
+            throw new HBCI_Exception(e);
+        }
+    }
+
+    private void checkTanOrderAccount(HashMap<String, String> secmechInfo, AbstractHBCIJob hbciJob, GVTAN2Step hktan) {
+        // willuhn 2011-05-16
+        // Siehe FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf, Seite 58
+        if (Integer.parseInt(hktan.getSegVersion()) >= 5) {
+            // Bis HKTAN4/hhd1.3 wurde das noch als Challenge-Parameter uebermittelt. Jetzt hat es einen
+            // eigenen Platz in den Job-Parametern
+            hktan.setParam("ordersegcode", hbciJob.getHBCICode());
+
+            // Zitat aus HITANS5: Diese Funktion ermöglicht das Sicherstellen einer gültigen Kontoverbindung
+            // z. B. für die Abrechnung von SMS-Kosten bereits vor Erzeugen und Versenden einer
+            // (ggf. kostenpflichtigen!) TAN.
+            //  0: Auftraggeberkonto darf nicht angegeben werden
+            //  2: Auftraggeberkonto muss angegeben werden, wenn im Geschäftsvorfall enthalten
+            String noa = secmechInfo.get("needorderaccount") != null ? secmechInfo.get("needorderaccount") : "";
+            log.info("needorderaccount=" + noa);
+            if (noa.equals("2")) {
+                Konto k = hbciJob.getOrderAccount();
+                if (k != null) {
+                    log.info("applying orderaccount to HKTAN for " + hbciJob.getHBCICode());
+                    hktan.setParam("orderaccount", k);
+                } else {
+                    log.warn("orderaccount needed, but not found in " + hbciJob.getHBCICode());
+                }
+            }
         }
     }
 

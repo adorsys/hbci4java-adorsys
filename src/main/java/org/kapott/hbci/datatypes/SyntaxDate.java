@@ -28,7 +28,7 @@ import java.text.SimpleDateFormat;
 /* represents the datatype "date" */
 // interne Speicherung im HBCI-MSG-Format
 public final class SyntaxDate
-        extends SyntaxDE {
+    extends SyntaxDE {
     public SyntaxDate(String x, int minsize, int maxsize) {
         super(parseDate(x), 8, 8);
     }

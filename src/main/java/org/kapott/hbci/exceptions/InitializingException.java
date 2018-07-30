@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class InitializingException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public InitializingException(Exception e, String path) {
         super(HBCIUtils.getLocMsg("EXCMSG_INITEXC", path), e);
     }

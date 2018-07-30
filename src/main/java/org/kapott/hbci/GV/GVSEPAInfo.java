@@ -79,8 +79,8 @@ public class GVSEPAInfo extends AbstractHBCIJob {
                 String temp_blz = upd.get(temp_header + ".KTV.KIK.blz");
 
                 if (temp_country.equals(country) &&
-                        temp_blz.equals(blz) &&
-                        temp_number.equals(number)) {
+                    temp_blz.equals(blz) &&
+                    temp_number.equals(number)) {
                     upd.put(temp_header + ".KTV.iban", iban);
                     upd.put(temp_header + ".KTV.bic", bic);
                 }

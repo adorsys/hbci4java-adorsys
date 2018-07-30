@@ -166,9 +166,9 @@ public final class HBCIUtils {
         // Wir machen das auch nur dann, wenn beide Nummern zusammen max.
         // 10 Zeichen ergeben
         if (k.subnumber != null &&
-                k.subnumber.length() > 0 &&
-                k.subnumber.matches("[0-9]{1,8}") &&
-                k.number.length() + k.subnumber.length() <= 10)
+            k.subnumber.length() > 0 &&
+            k.subnumber.matches("[0-9]{1,8}") &&
+            k.number.length() + k.subnumber.length() <= 10)
             konto += k.subnumber;
 
         /////////////////
@@ -657,7 +657,7 @@ public final class HBCIUtils {
     }
 
     private static void refreshBLZList(String blzpath)
-            throws IOException {
+        throws IOException {
         if (blzpath == null) {
             blzpath = "";
         }
@@ -685,7 +685,7 @@ public final class HBCIUtils {
      * @throws IOException
      **/
     public static void refreshBLZList(InputStream in)
-            throws IOException {
+        throws IOException {
         LoggerFactory.getLogger(HBCIUtils.class).debug("trying to load BLZ data");
         blzs.clear();
         blzs.load(in);

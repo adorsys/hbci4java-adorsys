@@ -23,7 +23,7 @@ package org.kapott.cryptalgs;
 import java.util.logging.Logger;
 
 public final class CryptAlgs4JavaProvider
-        extends java.security.Provider {
+    extends java.security.Provider {
     private static final long serialVersionUID = 1;
 
     public CryptAlgs4JavaProvider() {

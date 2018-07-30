@@ -164,21 +164,21 @@ public class GVRKUms extends HBCIJobResultImpl {
 
         if (restMT940 != null && restMT940.length() != 0) {
             log.warn(
-                    where +
-                            ": mt940 has not been parsed successfully " +
-                            "- probably returned data will be incomplete. " +
-                            "check variable 'restMT940' (or set logging level to 4 (=DEBUG)) " +
-                            "to see the data that could not be parsed.");
+                where +
+                    ": mt940 has not been parsed successfully " +
+                    "- probably returned data will be incomplete. " +
+                    "check variable 'restMT940' (or set logging level to 4 (=DEBUG)) " +
+                    "to see the data that could not be parsed.");
             log.debug("restMT940: " + restMT940);
         }
 
         if (restMT942 != null && restMT942.length() != 0) {
             log.warn(
-                    where +
-                            ": mt942 has not been parsed successfully " +
-                            "- probably returned data will be incomplete. " +
-                            "check variable 'restMT942' (or set logging level to 4 (=DEBUG)) " +
-                            "to see the data that could not be parsed.");
+                where +
+                    ": mt942 has not been parsed successfully " +
+                    "- probably returned data will be incomplete. " +
+                    "check variable 'restMT942' (or set logging level to 4 (=DEBUG)) " +
+                    "to see the data that could not be parsed.");
             log.debug("restMT942: " + restMT942);
         }
     }
@@ -269,8 +269,8 @@ public class GVRKUms extends HBCIJobResultImpl {
                     // hier aus dem CD-Indikator und dem absoluten Saldo-Betrag
                     // einen String für den Saldo-Betrag zusamennbauen
                     btag.start.value = new Value(
-                            (cd.equals("D") ? "-" : "") + st_start.substring(10).replace(',', '.'),
-                            st_start.substring(7, 10));
+                        (cd.equals("D") ? "-" : "") + st_start.substring(10).replace(',', '.'),
+                        st_start.substring(7, 10));
                 }
 
                 // looping to get all "umsaetze"
@@ -305,7 +305,7 @@ public class GVRKUms extends HBCIJobResultImpl {
 
                     } else {
                         line.bdate = dateFormat.parse(st_ums.substring(0, 2) +
-                                st_ums.substring(6, 10));
+                            st_ums.substring(6, 10));
 
                         // wenn bdate und valuta um mehr als einen monat voneinander
                         // abweichen, dann ist das jahr des bdate falsch (1.1.2005 vs. 31.12.2004)
@@ -363,9 +363,9 @@ public class GVRKUms extends HBCIJobResultImpl {
                     // Buchungsbetrag
                     String negValueIndikator = line.isStorno ? "C" : "D";
                     line.value.setValue(
-                            HBCIUtils.string2Long(
-                                    (cd.equals(negValueIndikator) ? "-" : "") + st_ums.substring(next, npos).replace(',', '.'),
-                                    100));
+                        HBCIUtils.string2Long(
+                            (cd.equals(negValueIndikator) ? "-" : "") + st_ums.substring(next, npos).replace(',', '.'),
+                            100));
                     next = npos + 4;
 
                     // update saldo
@@ -413,8 +413,8 @@ public class GVRKUms extends HBCIJobResultImpl {
 
                             try {
                                 line.orig_value = new Value(
-                                        st_ums.substring(pos + 9, slashpos).replace(',', '.'),
-                                        st_ums.substring(pos + 6, pos + 9));
+                                    st_ums.substring(pos + 9, slashpos).replace(',', '.'),
+                                    st_ums.substring(pos + 6, pos + 9));
                             } catch (NumberFormatException nfe) {
                                 // Der Betrag darf fehlen. Tolerieren wir
                             }
@@ -429,8 +429,8 @@ public class GVRKUms extends HBCIJobResultImpl {
 
                             try {
                                 line.charge_value = new Value(
-                                        st_ums.substring(pos + 9, slashpos).replace(',', '.'),
-                                        st_ums.substring(pos + 6, pos + 9));
+                                    st_ums.substring(pos + 9, slashpos).replace(',', '.'),
+                                    st_ums.substring(pos + 6, pos + 9));
                             } catch (NumberFormatException nfe) {
                                 // Der Betrag darf fehlen. Tolerieren wir
                             }
@@ -472,9 +472,9 @@ public class GVRKUms extends HBCIJobResultImpl {
                             acc.name = Swift.getMultiTagValue(st_multi, "32");
                             acc.name2 = Swift.getMultiTagValue(st_multi, "33");
                             if (acc.blz != null ||
-                                    acc.number != null ||
-                                    acc.name != null ||
-                                    acc.name2 != null) {
+                                acc.number != null ||
+                                acc.name != null ||
+                                acc.name2 != null) {
 
                                 if (acc.blz == null)
                                     acc.blz = "";
@@ -534,8 +534,8 @@ public class GVRKUms extends HBCIJobResultImpl {
                     }
 
                     btag.end.value = new Value(
-                            (cd.equals("D") ? "-" : "") + st_end.substring(10).replaceAll("\\s", "").replace(',', '.'),
-                            st_end.substring(7, 10));
+                        (cd.equals("D") ? "-" : "") + st_end.substring(10).replaceAll("\\s", "").replace(',', '.'),
+                        st_end.substring(7, 10));
                 }
 
                 // Now check if the end balance (Schlusssaldo) equals balance of last statement. If not, the bank sent a wrong start balance
@@ -573,7 +573,7 @@ public class GVRKUms extends HBCIJobResultImpl {
      * Eine "Zeile" des Kontoauszuges (enthält Daten einer Transaktion)
      */
     public static class UmsLine
-            implements Serializable {
+        implements Serializable {
         /**
          * Datum der Wertstellung
          */
@@ -720,7 +720,7 @@ public class GVRKUms extends HBCIJobResultImpl {
      * Menge aller dazugehörigen Umsatzeilen
      */
     public static class BTag
-            implements Serializable {
+        implements Serializable {
         /**
          * <p>Konto, auf das sich die Umsatzdaten beziehen (Kundenkonto). Einige
          * Kreditinstitute geben fehlerhafte Kontoauszüge zurück, was zur Folge

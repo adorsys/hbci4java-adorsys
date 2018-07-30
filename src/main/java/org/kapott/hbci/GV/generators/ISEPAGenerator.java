@@ -4,7 +4,7 @@ package org.kapott.hbci.GV.generators;
 import org.kapott.hbci.sepa.PainVersion;
 
 import java.io.OutputStream;
-import java.util.Properties;
+import java.util.HashMap;
 
 /**
  * Basis-Interface fuer alle SEPA-Job-Generatoren.
@@ -34,7 +34,7 @@ public interface ISEPAGenerator {
      * @param validate   true, wenn das erzeugte XML gegen das PAIN-Schema validiert werden soll.
      * @throws Exception
      */
-    public void generate(Properties sepaParams, OutputStream os, boolean validate) throws Exception;
+    public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) throws Exception;
 
     /**
      * Liefert die PAIN-Version des Generators.

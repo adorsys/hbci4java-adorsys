@@ -78,7 +78,7 @@ public final class RKUmsDelimiters extends Rewrite {
                     temp.replace(posi + 1, temp.length(), "\r\n-");
                 } else {
                     log.debug("absolutely no ending sequence found - " +
-                            "maybe statement of account splitted at wrong position?");
+                        "maybe statement of account splitted at wrong position?");
                 }
             } else {
                 log.warn("statement of account seems to be empty");
@@ -106,10 +106,10 @@ public final class RKUmsDelimiters extends Rewrite {
         if (!temp.toString().equals(st)) {
             log.debug("this institute produces buggy account statements!");
             log.debug("wrongCRLF:" + wrongCRLF
-                    + " wrongDelimiterChars:" + wrongDelimiter
-                    + " wrongEnd:" + wrongEndSequence
-                    + " missingMinusBetweenCRLFs:" + missingMinusBetweenCRLFs
-                    + " missingCRLFMinus:" + missingCRLFMinus);
+                + " wrongDelimiterChars:" + wrongDelimiter
+                + " wrongEnd:" + wrongEndSequence
+                + " missingMinusBetweenCRLFs:" + missingMinusBetweenCRLFs
+                + " missingCRLFMinus:" + missingCRLFMinus);
         }
         return temp.toString();
     }
@@ -121,14 +121,14 @@ public final class RKUmsDelimiters extends Rewrite {
 
         data.keySet().forEach(key -> {
             if (key.startsWith(header) &&
-                    key.indexOf("KUms") != -1 &&
-                    key.endsWith(".booked")) {
+                key.indexOf("KUms") != -1 &&
+                key.endsWith(".booked")) {
 
                 String st = msg.getValueOfDE(msg.getName() + "." + key);
                 st = rewriteKUms(st);
                 msg.propagateValue(msg.getName() + "." + key, "B" + st,
-                        SyntaxElement.DONT_TRY_TO_CREATE,
-                        SyntaxElement.ALLOW_OVERWRITE);
+                    SyntaxElement.DONT_TRY_TO_CREATE,
+                    SyntaxElement.ALLOW_OVERWRITE);
             }
         });
 

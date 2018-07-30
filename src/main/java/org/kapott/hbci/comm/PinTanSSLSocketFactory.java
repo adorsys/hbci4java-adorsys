@@ -58,8 +58,8 @@ public class PinTanSSLSocketFactory extends SSLSocketFactory {
 
             SSLContext sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null,
-                    new TrustManager[]{new PinTanSSLTrustManager()},
-                    new SecureRandom());
+                new TrustManager[]{new PinTanSSLTrustManager()},
+                new SecureRandom());
             this.realSocketFactory = sslContext.getSocketFactory();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -76,7 +76,7 @@ public class PinTanSSLSocketFactory extends SSLSocketFactory {
     }
 
     public Socket createSocket(Socket sock, String host, int port, boolean autoClose)
-            throws IOException {
+        throws IOException {
         log.debug("createSocket(sock,host,port,autoClose)");
         return this.realSocketFactory.createSocket(sock, host, port, autoClose);
     }

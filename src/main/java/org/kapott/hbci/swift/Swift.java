@@ -104,7 +104,7 @@ public class Swift {
                      * to be followed by two digits */
 
                     if (st.charAt(endpos + 1) >= '0' && st.charAt(endpos + 1) <= '9' &&
-                            st.charAt(endpos + 2) >= '0' && st.charAt(endpos + 2) <= '9') {
+                        st.charAt(endpos + 2) >= '0' && st.charAt(endpos + 2) <= '9') {
                         /* the "?" must be followed by two digits, a single "?"
                          *  does NOT mark the end of value */
                         break;

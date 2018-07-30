@@ -343,7 +343,7 @@ public class FlickerCode {
         int i = 0;
         for (i = 0; i < payload.length(); i += 2) {
             luhnsum += (1 * Integer.parseInt(Character.toString(payload.charAt(i)), 16)) +
-                    quersumme(2 * Integer.parseInt(Character.toString(payload.charAt(i + 1)), 16));
+                quersumme(2 * Integer.parseInt(Character.toString(payload.charAt(i + 1)), 16));
         }
 
         // Ermittelt, wieviel zu "luhnsum" addiert werden muss, um auf die

@@ -105,15 +105,15 @@ public final class HBCIInstitute implements IHandlerData {
                 String keyVersion = result.get(head + ".KeyName.keyversion");
 
                 log.info("found key " +
-                        keyCountry + "_" + keyBLZ + "_" + keyUserId + "_" + keyType + "_" +
-                        keyNum + "_" + keyVersion);
+                    keyCountry + "_" + keyBLZ + "_" + keyUserId + "_" + keyType + "_" +
+                    keyNum + "_" + keyVersion);
 
                 byte[] keyExponent = result.get(head + ".PubKey.exponent").getBytes(CommPinTan.ENCODING);
                 byte[] keyModulus = result.get(head + ".PubKey.modulus").getBytes(CommPinTan.ENCODING);
 
                 KeyFactory fac = KeyFactory.getInstance("RSA");
                 KeySpec spec = new RSAPublicKeySpec(new BigInteger(+1, keyModulus),
-                        new BigInteger(+1, keyExponent));
+                    new BigInteger(+1, keyExponent));
                 Key key = fac.generatePublic(spec);
 
                 if (keyType.equals("S")) {
@@ -271,7 +271,7 @@ public final class HBCIInstitute implements IHandlerData {
         message.rawSet("ProcPrep.prodVersion", "2.5");
 
         return kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT,
-                HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
+            HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
     }
 
     private void anonymousDialogEnd(String dialogid) {

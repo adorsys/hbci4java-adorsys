@@ -34,12 +34,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Properties;
+
 
 public final class SyntaxCheck {
 
     private static String getArg(String[] args, int idx, String st)
-            throws IOException {
+        throws IOException {
         String ret = null;
 
         if (args != null && idx < args.length) {
@@ -54,7 +54,7 @@ public final class SyntaxCheck {
     }
 
     public static void main(String[] args)
-            throws IOException {
+        throws IOException {
         String ifilename = getArg(args, 0, "Dateiname der Datei mit der HBCI-Nachricht");
         String version = getArg(args, 1, "HBCI-Version");
         String msgName = getArg(args, 2, "Name der Nachricht");
@@ -63,8 +63,8 @@ public final class SyntaxCheck {
         String checkValids_st = getArg(args, 4, "Auf gültige Werte testen (0/1)");
         boolean checkValids = checkValids_st.equals("1");
 
-        Properties props = new Properties();
-        props.setProperty("log.loglevel.default", "6");
+        HashMap<String, String> props = new HashMap<>();
+        props.put("log.loglevel.default", "6");
 
         FileInputStream fi = new FileInputStream(ifilename);
         byte[] buffer = new byte[1024];

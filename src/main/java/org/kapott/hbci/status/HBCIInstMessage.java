@@ -27,7 +27,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 public final class HBCIInstMessage
-        implements Serializable {
+    implements Serializable {
     private String betreff;
     private String text;
 

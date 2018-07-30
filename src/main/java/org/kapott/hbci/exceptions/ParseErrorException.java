@@ -21,7 +21,7 @@
 package org.kapott.hbci.exceptions;
 
 public class ParseErrorException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public ParseErrorException(String st) {
         super(st);
     }

@@ -23,7 +23,7 @@ package org.kapott.cryptalgs;
 import java.security.spec.AlgorithmParameterSpec;
 
 public final class SignatureParamSpec
-        implements AlgorithmParameterSpec {
+    implements AlgorithmParameterSpec {
     private String hashAlg;
     private String provider;
 

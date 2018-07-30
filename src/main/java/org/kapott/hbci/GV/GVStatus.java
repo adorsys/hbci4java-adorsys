@@ -54,8 +54,8 @@ public final class GVStatus extends AbstractHBCIJob {
         entry.dialogid = result.get(header + ".MsgRef.dialogid");
         entry.msgnum = result.get(header + ".MsgRef.msgnum");
         entry.retval = new HBCIRetVal(result,
-                header + ".RetVal",
-                result.get(header + ".segref"));
+            header + ".RetVal",
+            result.get(header + ".segref"));
         entry.retval.element = null;
 
         String date = result.get(header + ".date");

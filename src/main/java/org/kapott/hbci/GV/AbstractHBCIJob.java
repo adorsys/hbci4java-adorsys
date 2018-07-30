@@ -50,13 +50,13 @@ public class AbstractHBCIJob {
     private String name;              /* Job-Name mit Versionsnummer */
     private String jobName;           /* Job-Name ohne Versionsnummer */
     private String segVersion;        /* Segment-Version */
-    private Properties llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
+    private HashMap<String, String> llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
     private int idx;                  /* idx gibt an, der wievielte task innerhalb der aktuellen message
                                          dieser GV ist */
     private boolean executed;
     private int contentCounter;       /* Zähler, wie viele Rückgabedaten bereits in outStore eingetragen wurden
                                            (entspricht der anzahl der antwort-segmente!)*/
-    private Hashtable<String, String[][]> constraints;    /* Festlegungen, welche Parameter eine Anwendung setzen muss, wie diese im
+    private HashMap<String, String[][]> constraints;    /* Festlegungen, welche Parameter eine Anwendung setzen muss, wie diese im
                                          HBCI-Kernel umgesetzt werden und welche default-Werte vorgesehen sind;
                                          die Hashtable hat als Schlüssel einen String, der angibt, wie ein Wert aus einer
                                          Anwendung heraus zu setzen ist. Der dazugehörige Value ist ein Array. Jedes Element
@@ -72,12 +72,12 @@ public class AbstractHBCIJob {
         this.passport = passport;
 
         findSpecNameForGV(jobnameLL);
-        this.llParams = new Properties();
+        this.llParams = new HashMap();
 
         this.jobResult = jobResult;
 
         this.contentCounter = 0;
-        this.constraints = new Hashtable<>();
+        this.constraints = new HashMap<>();
         this.indexedConstraints = new HashSet<>();
         this.executed = false;
 
@@ -88,7 +88,7 @@ public class AbstractHBCIJob {
            wenn es *nicht* benoetigt wird, schadet es auch nichts. und es ist
            auf keinen fall "zu viel" gesetzt, da dieser code nur ausgefuehrt wird,
            wenn das jeweilige segment tatsaechlich erzeugt werden soll */
-        llParams.setProperty(this.name, "requested");
+        llParams.put(this.name, "requested");
     }
 
     /* gibt den segmentcode für diesen job zurück */
@@ -198,7 +198,7 @@ public class AbstractHBCIJob {
                 // wenn segment mit namen des aktuellen jobs gefunden wurde
 
                 if (key.indexOf(jobnameLL + "Par") == 0 &&
-                        key.toString().endsWith(".SegHead.code")) {
+                    key.toString().endsWith(".SegHead.code")) {
                     // willuhn 2011-06-06 Maximal zulaessige Segment-Version ermitteln
                     // Hintergrund: Es gibt Szenarien, in denen nicht die hoechste verfuegbare
                     // Versionsnummer verwendet werden kann, weil die Voraussetzungen impliziert,
@@ -274,10 +274,8 @@ public class AbstractHBCIJob {
                 }
             }
         }
-
         return ret;
     }
-
 
     protected void addConstraint(String frontendName, String destinationName, String defValue) {
         addConstraint(frontendName, destinationName, defValue, false);
@@ -363,16 +361,15 @@ public class AbstractHBCIJob {
         SEG seg;
         try {
             seg = new SEG(getName(), getName(), null, 0, passport.getSyntaxDocument());
-            for (Enumeration e = getLowlevelParams().propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-                String value = getLowlevelParams().getProperty(key);
+            getLowlevelParams().forEach((key, value) -> {
                 seg.propagateValue(key, value,
-                        SyntaxElement.TRY_TO_CREATE,
-                        SyntaxElement.DONT_ALLOW_OVERWRITE);
-            }
+                    SyntaxElement.TRY_TO_CREATE,
+                    SyntaxElement.DONT_ALLOW_OVERWRITE);
+            });
+
             seg.propagateValue(getName() + ".SegHead.seq", Integer.toString(segnum),
-                    SyntaxElement.DONT_TRY_TO_CREATE,
-                    SyntaxElement.ALLOW_OVERWRITE);
+                SyntaxElement.DONT_TRY_TO_CREATE,
+                SyntaxElement.ALLOW_OVERWRITE);
         } catch (Exception ex) {
             throw new HBCI_Exception("*** the job segment for this task can not be created", ex);
         }
@@ -569,7 +566,7 @@ public class AbstractHBCIJob {
 
     protected void setLowlevelParam(String key, String value) {
         log.debug("setting lowlevel parameter " + key + " = " + value);
-        llParams.setProperty(key, value);
+        llParams.put(key, value);
     }
 
     /**
@@ -582,16 +579,16 @@ public class AbstractHBCIJob {
      *
      * @return aktuelle gesetzte Lowlevel-Parameter für diesen Job
      */
-    public Properties getLowlevelParams() {
+    public HashMap<String, String> getLowlevelParams() {
         return llParams;
     }
 
-    public void setLowlevelParams(Properties llParams) {
+    public void setLowlevelParams(HashMap<String, String> llParams) {
         this.llParams = llParams;
     }
 
     public String getLowlevelParam(String key) {
-        return getLowlevelParams().getProperty(key);
+        return getLowlevelParams().get(key);
     }
 
     public void setIdx(int idx) {
@@ -645,17 +642,14 @@ public class AbstractHBCIJob {
                 continue; // nicht betroffen
 
             // Alten Schluessel entfernen und neuen einfuegen
-            String value = this.llParams.getProperty(s);
+            String value = this.llParams.get(s);
             String newName = s.replaceFirst(oldName, this.name);
             this.llParams.remove(s);
-            this.llParams.setProperty(newName, value);
+            this.llParams.put(newName, value);
         }
 
         // Destination-Namen in den LowLevel-Parameter auf den neuen Namen umbiegen
-        Enumeration<String> e = constraints.keys();
-        while (e.hasMoreElements()) {
-            String frontendName = e.nextElement();
-            String[][] values = constraints.get(frontendName);
+        constraints.forEach((frontendName, values) -> {
             for (String[] value : values) {
                 // value[0] ist das Target
                 if (!value[0].startsWith(oldName))
@@ -664,7 +658,7 @@ public class AbstractHBCIJob {
                 // Hier ersetzen wir z.Bsp. "TAN2Step5.process" gegen "TAN2Step3.process"
                 value[0] = value[0].replaceFirst(oldName, this.name);
             }
-        }
+        });
     }
 
     /* stellt fest, ob für diesen Task ein neues Auftragssegment generiert werden muss.
@@ -734,8 +728,8 @@ public class AbstractHBCIJob {
                         }
 
                         keyHeaders.put(
-                                resnum,
-                                key.substring(0, key.length() - (".SegHead.ref").length()));
+                            resnum,
+                            key.substring(0, key.length() - (".SegHead.ref").length()));
                     }
                 }
             });
@@ -778,9 +772,9 @@ public class AbstractHBCIJob {
             jobResult.storeResult("basic.segnum", Integer.toString(ref));
 
             log.debug("basic values for " + getName() + " set to "
-                    + jobResult.getDialogId() + "/"
-                    + jobResult.getMsgNum()
-                    + "/" + jobResult.getSegNum());
+                + jobResult.getDialogId() + "/"
+                + jobResult.getMsgNum()
+                + "/" + jobResult.getSegNum());
         }
     }
 
@@ -820,8 +814,8 @@ public class AbstractHBCIJob {
         result.keySet().forEach(key -> {
             if (key.startsWith(header + ".")) {
                 jobResult.storeResult(HBCIUtils.withCounter("content", idx) +
-                        "." +
-                        key.substring(header.length() + 1), result.get(key));
+                    "." +
+                    key.substring(header.length() + 1), result.get(key));
             }
         });
     }
@@ -857,10 +851,10 @@ public class AbstractHBCIJob {
                 // wenn beim validieren ein fehler auftrat, nach neuen daten fragen
                 StringBuffer sb = new StringBuffer(blz).append("|").append(number);
                 passport.getCallback().callback(
-                        HBCICallback.HAVE_CRC_ERROR,
-                        HBCIUtils.getLocMsg("CALLB_HAVE_CRC_ERROR"),
-                        HBCICallback.TYPE_TEXT,
-                        sb);
+                    HBCICallback.HAVE_CRC_ERROR,
+                    HBCIUtils.getLocMsg("CALLB_HAVE_CRC_ERROR"),
+                    HBCICallback.TYPE_TEXT,
+                    sb);
 
                 int idx = sb.indexOf("|");
                 blz = sb.substring(0, idx);
@@ -899,10 +893,10 @@ public class AbstractHBCIJob {
             if (!crcok) {
                 StringBuffer sb = new StringBuffer(iban);
                 passport.getCallback().callback(
-                        HBCICallback.HAVE_IBAN_ERROR,
-                        HBCIUtils.getLocMsg("CALLB_HAVE_IBAN_ERROR"),
-                        HBCICallback.TYPE_TEXT,
-                        sb);
+                    HBCICallback.HAVE_IBAN_ERROR,
+                    HBCIUtils.getLocMsg("CALLB_HAVE_IBAN_ERROR"),
+                    HBCICallback.TYPE_TEXT,
+                    sb);
 
                 iban = sb.toString();
             }
@@ -927,8 +921,8 @@ public class AbstractHBCIJob {
             String lowlevelHeader = paramname.substring(0, paramname.lastIndexOf(".KIK.blz"));
 
             // basierend auf dem basis-namen blz/number holen
-            String blz = llParams.getProperty(lowlevelHeader + ".KIK.blz");
-            String number = llParams.getProperty(lowlevelHeader + ".number");
+            String blz = llParams.get(lowlevelHeader + ".KIK.blz");
+            String number = llParams.get(lowlevelHeader + ".number");
             // blz/number ueberpruefen
             _checkAccountCRC(frontendname, blz, number);
         }
@@ -939,7 +933,7 @@ public class AbstractHBCIJob {
             String paramname = data2[0][0];
             String lowlevelHeader = paramname.substring(0, paramname.lastIndexOf(".iban"));
 
-            String iban = llParams.getProperty(lowlevelHeader + ".iban");
+            String iban = llParams.get(lowlevelHeader + ".iban");
             _checkIBANCRC(frontendname, iban);
         }
     }
@@ -1029,5 +1023,9 @@ public class AbstractHBCIJob {
             }
         }
         return key;
+    }
+
+    public boolean needTan() {
+        return passport.getPinTanInfo(getHBCICode()).equals("J");
     }
 }

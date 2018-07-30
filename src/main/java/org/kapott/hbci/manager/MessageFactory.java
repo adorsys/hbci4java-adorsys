@@ -22,7 +22,6 @@ package org.kapott.hbci.manager;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
-import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
 
 /* Message-Generator-Klasse. Diese Klasse verwaltet die Syntax-Spezifikation
@@ -58,7 +57,6 @@ public final class MessageFactory {
         if (syncMode != null) {
             message.rawSet("Sync.mode", syncMode);
         }
-
         return message;
     }
 

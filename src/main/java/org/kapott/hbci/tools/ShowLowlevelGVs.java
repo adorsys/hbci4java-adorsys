@@ -88,7 +88,7 @@ import java.io.InputStreamReader;
 public class ShowLowlevelGVs extends AbstractShowLowlevelData {
 
     public static void main(String[] args)
-            throws Exception {
+        throws Exception {
         String hbciversion;
         if (args.length >= 1) {
             hbciversion = args[0];

@@ -27,9 +27,8 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.text.DecimalFormat;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
+
 
 public final class GVDauerEdit extends AbstractHBCIJob {
 
@@ -82,16 +81,9 @@ public final class GVDauerEdit extends AbstractHBCIJob {
         ((GVRDauerEdit) (jobResult)).setOrderIdOld(result.get(header + ".orderidold"));
 
         if (orderid != null && orderid.length() != 0) {
-            Properties p = getLowlevelParams();
-            Properties p2 = new Properties();
-
-            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-                if (!key.endsWith(".orderid")) {
-                    p2.setProperty(key.substring(key.indexOf(".") + 1),
-                            p.getProperty(key));
-                }
-            }
+            HashMap<String, String> p2 = new HashMap<>();
+            getLowlevelParams().forEach((key, value) ->
+                p2.put(key.substring(key.indexOf(".") + 1), value));
 
             passport.setPersistentData("dauer_" + orderid, p2);
         }
@@ -113,7 +105,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                 throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("turnus")) {
-            String timeunit = getLowlevelParams().getProperty(getName() + ".DauerDetails.timeunit");
+            String timeunit = getLowlevelParams().get(getName() + ".DauerDetails.timeunit");
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
@@ -141,7 +133,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                 }
             }
         } else if (paramName.equals("execday")) {
-            String timeunit = getLowlevelParams().getProperty(getName() + ".DauerDetails.timeunit");
+            String timeunit = getLowlevelParams().get(getName() + ".DauerDetails.timeunit");
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
@@ -187,19 +179,14 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                 throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("orderid")) {
-            Properties p = (Properties) passport.getPersistentData("dauer_" + value);
+            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("dauer_" + value);
             if (p != null) {
-                for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                    String key = (String) e.nextElement();
+                p.forEach((key, s2) -> {
                     String key2 = getName() + "." + key;
-
-                    if (!key.equals("date") &&
-                            !key.startsWith("Aussetzung.") &&
-                            getLowlevelParams().getProperty(key2) == null) {
-                        setLowlevelParam(key2,
-                                p.getProperty(key));
+                    if (!key.equals("date") && !key.startsWith("Aussetzung.") && getLowlevelParams().get(key2) == null) {
+                        setLowlevelParam(key2, value);
                     }
-                }
+                });
             }
         }
 
@@ -248,7 +235,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                 (st1=newParams.getProperty(getName()+".name2"))!=null &&
                 (st2=oldParams.getProperty("name2"))!=null &&
                 !st1.equals(st2)) {
-                throw new HBCI_Exception("*** can not edit recipient name"); 
+                throw new HBCI_Exception("*** can not edit recipient name");
             }
         }
 
@@ -346,7 +333,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                     newParams.setProperty(getName()+".Other.number","");
                 }
             }
-            
+
             if (res.getProperty("recnameeditable").equals("J")) {
                 if ((st1=newParams.getProperty(getName()+".name"))!=null &&
                     (st2=oldParams.getProperty("name"))!=null &&
@@ -358,7 +345,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                     newParams.setProperty(getName()+".name2","");
                 }
             }
-            
+
             if (res.getProperty("valueeditable").equals("J")) {
                 if ((st1=newParams.getProperty(getName()+".BTG.value"))!=null &&
                     (st2=oldParams.getProperty("BTG.value"))!=null &&
@@ -370,7 +357,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                     newParams.setProperty(getName()+".BTG.curr","");
                 }
             }
-            
+
             if (res.getProperty("keyeditable").equals("J")) {
                 if ((st1=newParams.getProperty(getName()+".key"))!=null &&
                     (st2=oldParams.getProperty("key"))!=null &&
@@ -382,7 +369,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                     newParams.setProperty(getName()+".addkey","");
                 }
             }
-            
+
             if (res.getProperty("usageeditable").equals("J")) {
                 boolean equal=true;
 
@@ -411,31 +398,31 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                     }
                 }
             }
-            
+
             if (res.getProperty("firstexeceditable").equals("J")) {
                 if (HBCIUtils.string2Date(newParams.getProperty((key=getName()+".DauerDetails.firstdate"))).equals(HBCIUtils.string2Date(oldParams.getProperty("DauerDetails.firstdate")))) {
                     newParams.setProperty(key,"");
                 }
             }
-            
+
             if (res.getProperty("timeuniteditable").equals("J")) {
                 if (newParams.getProperty((key=getName()+".DauerDetails.timeunit")).equals(oldParams.getProperty("DauerDetails.timeunit"))) {
                     newParams.setProperty(key,"");
                 }
             }
-            
+
             if (res.getProperty("turnuseditable").equals("J")) {
                 if (Integer.parseInt(newParams.getProperty((key=getName()+".DauerDetails.turnus")))==Integer.parseInt(oldParams.getProperty("DauerDetails.turnus"))) {
                     newParams.setProperty(key,"");
                 }
             }
-            
+
             if (res.getProperty("execdayeditable").equals("J")) {
                 if (Integer.parseInt(newParams.getProperty((key=getName()+".DauerDetails.execday")))==Integer.parseInt(oldParams.getProperty("DauerDetails.execday"))) {
                     newParams.setProperty(key,"");
                 }
             }
-            
+
             if (res.getProperty("lastexeceditable").equals("J")) {
                 if ((st1=newParams.getProperty((key=getName()+".DauerDetails.lastdate")))!=null &&
                     (st2=oldParams.getProperty("DauerDetails.lastdate"))!=null &&

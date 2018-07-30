@@ -21,9 +21,8 @@
 package org.kapott.hbci.callback;
 
 import org.kapott.hbci.GV.GVTAN2Step;
-import org.kapott.hbci.passport.HBCIPassport;
+import org.kapott.hbci.passport.PinTanPassport;
 
-import java.util.Properties;
 
 /**
  * <p>Schnittstelle, die eine Callback-Klasse implementieren muss. Beim Initialisieren von <em>HBCI4Java</em>
@@ -673,7 +672,7 @@ public interface HBCICallback {
      * @param passport
      * @param hktan    GVTAN2Step für spätere Einreichung
      */
-    void tanCallback(HBCIPassport passport, GVTAN2Step hktan);
+    void tanCallback(PinTanPassport passport, GVTAN2Step hktan);
 
     /**
      * Wird vom HBCI-Kernel aufgerufen, um einen bestimmten Status der

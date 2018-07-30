@@ -36,7 +36,7 @@ import org.kapott.hbci.structures.Value;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
+
 
 public final class GVTermUebSEPAList extends AbstractSEPAGV {
     private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
@@ -124,8 +124,8 @@ public final class GVTermUebSEPAList extends AbstractSEPAGV {
         entry.other.bic = separesult.get("dst.bic");
         entry.other.name = separesult.get("dst.name");
         entry.value = new Value(
-                separesult.get("value"),
-                separesult.get("curr"));
+            separesult.get("value"),
+            separesult.get("curr"));
         entry.addUsage(separesult.get("usage"));
 
         entry.orderid = result.get(header + ".orderid");
@@ -137,14 +137,14 @@ public final class GVTermUebSEPAList extends AbstractSEPAGV {
         ((GVRTermUebList) (jobResult)).addEntry(entry);
 
         if (entry.orderid != null && entry.orderid.length() != 0) {
-            Properties p2 = new Properties();
+            HashMap<String, String> p2 = new HashMap();
 
             result.keySet().forEach(key -> {
                 if (key.startsWith(header + ".") &&
-                        !key.startsWith(header + ".SegHead.") &&
-                        !key.endsWith(".orderid")) {
-                    p2.setProperty(key.substring(header.length() + 1),
-                            result.get(key));
+                    !key.startsWith(header + ".SegHead.") &&
+                    !key.endsWith(".orderid")) {
+                    p2.put(key.substring(header.length() + 1),
+                        result.get(key));
                 }
             });
 

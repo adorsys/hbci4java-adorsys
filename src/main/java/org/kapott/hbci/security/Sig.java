@@ -93,73 +93,73 @@ public final class Sig {
         Date d = new Date();
 
         sighead.propagateValue(sigheadName + ".secfunc", u_secfunc,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".seccheckref", seccheckref,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         /* TODO: enable this later (when other range types are supported)
              sighead.propagateValue(sigheadName+".range",range,false); */
         sighead.propagateValue(sigheadName + ".role", u_role,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".SecIdnDetails.func", (msg.getName().endsWith("Res") ? "2" : "1"),
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         if (u_cid.length() != 0) {
             // DDV
             sighead.propagateValue(sigheadName + ".SecIdnDetails.cid", "B" + u_cid,
-                    SyntaxElement.DONT_TRY_TO_CREATE,
-                    SyntaxElement.DONT_ALLOW_OVERWRITE);
+                SyntaxElement.DONT_TRY_TO_CREATE,
+                SyntaxElement.DONT_ALLOW_OVERWRITE);
         } else {
             // RDH und PinTan
             sighead.propagateValue(sigheadName + ".SecIdnDetails.sysid", u_sysid,
-                    SyntaxElement.DONT_TRY_TO_CREATE,
-                    SyntaxElement.DONT_ALLOW_OVERWRITE);
+                SyntaxElement.DONT_TRY_TO_CREATE,
+                SyntaxElement.DONT_ALLOW_OVERWRITE);
         }
         sighead.propagateValue(sigheadName + ".SecTimestamp.date", HBCIUtils.date2StringISO(d),
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".SecTimestamp.time", HBCIUtils.time2StringISO(d),
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
 
         sighead.propagateValue(sigheadName + ".secref", u_sigid,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
 
         sighead.propagateValue(sigheadName + ".HashAlg.alg", u_hashalg,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".SigAlg.alg", u_sigalg,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".SigAlg.mode", u_sigmode,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
 
         sighead.propagateValue(sigheadName + ".KeyName.KIK.country", u_keycountry,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".KeyName.KIK.blz", u_keyblz,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".KeyName.userid", u_keyuserid,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".KeyName.keynum", u_keynum,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".KeyName.keyversion", u_keyversion,
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
 
         sighead.propagateValue(sigheadName + ".SecProfile.method", passport.getProfileMethod(),
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
         sighead.propagateValue(sigheadName + ".SecProfile.version", passport.getProfileVersion(),
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
     }
 
     // sigtail-segment mit werten aus den lokalen variablen füllen
@@ -167,9 +167,9 @@ public final class Sig {
         String sigtailName = sigtail.getPath();
 
         sigtail.propagateValue(sigtailName + ".seccheckref",
-                sighead.getValueOfDE(sighead.getPath() + ".seccheckref"),
-                SyntaxElement.DONT_TRY_TO_CREATE,
-                SyntaxElement.DONT_ALLOW_OVERWRITE);
+            sighead.getValueOfDE(sighead.getPath() + ".seccheckref"),
+            SyntaxElement.DONT_TRY_TO_CREATE,
+            SyntaxElement.DONT_ALLOW_OVERWRITE);
     }
 
     /* daten zusammensammeln, die signiert werden müssen; idx gibt dabei an,
@@ -295,20 +295,20 @@ public final class Sig {
                             // (wird für server benötigt)
                             String pin = pintan.substring(0, pos);
                             msg.propagateValue(sigtail.getPath() + ".UserSig.pin", pin,
-                                    SyntaxElement.DONT_TRY_TO_CREATE,
-                                    SyntaxElement.DONT_ALLOW_OVERWRITE);
+                                SyntaxElement.DONT_TRY_TO_CREATE,
+                                SyntaxElement.DONT_ALLOW_OVERWRITE);
 
                             if (pos < pintan.length() - 1) {
                                 String tan = pintan.substring(pos + 1);
                                 msg.propagateValue(sigtail.getPath() + ".UserSig.tan", tan,
-                                        SyntaxElement.DONT_TRY_TO_CREATE,
-                                        SyntaxElement.DONT_ALLOW_OVERWRITE);
+                                    SyntaxElement.DONT_TRY_TO_CREATE,
+                                    SyntaxElement.DONT_ALLOW_OVERWRITE);
                             }
                         }
                     } else { // normale signatur
                         msg.propagateValue(sigtail.getPath() + ".sig", "B" + new String(signature, CommPinTan.ENCODING),
-                                SyntaxElement.DONT_TRY_TO_CREATE,
-                                SyntaxElement.DONT_ALLOW_OVERWRITE);
+                            SyntaxElement.DONT_TRY_TO_CREATE,
+                            SyntaxElement.DONT_ALLOW_OVERWRITE);
                     }
 
                     msg.validate();
@@ -392,9 +392,9 @@ public final class Sig {
         }
 
         // TODO: dieser test ist erst mal deaktiviert. grund: beim pin/tan-zwei-
-        // schritt-verfahren ist die passport.getSigFunction()==922 (z.B.). 
+        // schritt-verfahren ist die passport.getSigFunction()==922 (z.B.).
         // wenn jedoch zeitgleich HITAN über eine bankensignatur abgesichert
-        // wird, steht in der antwort secfunc=1 (RDH) drin. 
+        // wird, steht in der antwort secfunc=1 (RDH) drin.
         /*
         if (!u_secfunc.equals(mainPassport.getSigFunction())) {
             String errmsg=HBCIUtils.getLocMsg("EXCMSG_SIGTYPEFAIL",new String[] {u_secfunc,mainPassport.getSigFunction()});

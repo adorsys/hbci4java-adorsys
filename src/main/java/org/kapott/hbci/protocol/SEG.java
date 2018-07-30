@@ -100,7 +100,7 @@ public final class SEG extends SyntaxElement {
         String targetPath = getPath() + "." + segcounterPath;
 
         if (!propagateValue(targetPath,
-                Integer.toString(idx), DONT_TRY_TO_CREATE, allowOverwrite))
+            Integer.toString(idx), DONT_TRY_TO_CREATE, allowOverwrite))
             throw new NoSuchPathException(targetPath);
     }
 

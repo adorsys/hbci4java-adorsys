@@ -86,9 +86,9 @@ public class GVWPDepotUms extends AbstractHBCIJob {
             pos1 += 3;
         }
         return new TypedValue(
-                (neg ? "-" : "") + st.substring(pos1).replace(',', '.'),
-                curr,
-                saldo_type);
+            (neg ? "-" : "") + st.substring(pos1).replace(',', '.'),
+            curr,
+            saldo_type);
     }
 
 
@@ -255,7 +255,7 @@ public class GVWPDepotUms extends AbstractHBCIJob {
                             instrument.preis = parseTypedValue(st);
                         }
 
-                        //Parse einzelne Transaktionen 
+                        //Parse einzelne Transaktionen
                         while (trans_start >= 0) {
                             int trans_end = oneinstrument.indexOf(":16S:TRAN\r\n", trans_start);
                             if (trans_end < 0)
@@ -316,8 +316,8 @@ public class GVWPDepotUms extends AbstractHBCIJob {
                                             if (t19a.charAt(off) == 'N')
                                                 off++;
                                             transaction.betrag = new BigDecimalValue(
-                                                    t19a.substring(off + 3).replace(',', '.'),
-                                                    t19a.substring(off, off + 3));
+                                                t19a.substring(off + 3).replace(',', '.'),
+                                                t19a.substring(off, off + 3));
                                             if (off > 7)
                                                 transaction.betrag.setValue(transaction.betrag.getValue().negate());
                                         } else if (t19a.startsWith(":ACRU")) {
@@ -325,8 +325,8 @@ public class GVWPDepotUms extends AbstractHBCIJob {
                                             if (t19a.charAt(off) == 'N')
                                                 off++;
                                             transaction.stueckzinsen = new BigDecimalValue(
-                                                    t19a.substring(off + 3).replace(',', '.'),
-                                                    t19a.substring(off, off + 3));
+                                                t19a.substring(off + 3).replace(',', '.'),
+                                                t19a.substring(off, off + 3));
                                             if (off > 7)
                                                 transaction.stueckzinsen.setValue(transaction.stueckzinsen.getValue().negate());
                                         } else {

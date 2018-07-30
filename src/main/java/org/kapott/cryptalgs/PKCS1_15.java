@@ -30,7 +30,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 
 public class PKCS1_15
-        extends SignatureSpi {
+    extends SignatureSpi {
     private RSAPublicKey pubKey;
     private PrivateKey privKey;
     private SignatureParamSpec param;
@@ -174,9 +174,9 @@ public class PKCS1_15
 
         } else if (spec.getHashAlg().equals("SHA-256")) {
             result = new byte[]{
-                    (byte) 0x60, (byte) 0x86, (byte) 0x48, (byte) 0x01,
-                    (byte) 0x65, (byte) 0x03, (byte) 0x04, (byte) 0x02,
-                    (byte) 0x01};
+                (byte) 0x60, (byte) 0x86, (byte) 0x48, (byte) 0x01,
+                (byte) 0x65, (byte) 0x03, (byte) 0x04, (byte) 0x02,
+                (byte) 0x01};
 
         } else {
             throw new IllegalArgumentException("dont know OID for " + spec.getHashAlg());
@@ -243,14 +243,14 @@ public class PKCS1_15
     @Override
     @Deprecated
     protected void engineSetParameter(String param1, Object value)
-            throws InvalidParameterException {
+        throws InvalidParameterException {
         // do nothing
 
     }
 
     @Override
     protected void engineSetParameter(AlgorithmParameterSpec params)
-            throws InvalidAlgorithmParameterException {
+        throws InvalidAlgorithmParameterException {
         if (params instanceof SignatureParamSpec)
             this.param = (SignatureParamSpec) (params);
         else {
@@ -261,7 +261,7 @@ public class PKCS1_15
     @Override
     @Deprecated
     protected Object engineGetParameter(String param1)
-            throws InvalidParameterException {
+        throws InvalidParameterException {
         return null;
     }
 

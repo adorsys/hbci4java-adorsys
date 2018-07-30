@@ -56,7 +56,7 @@ public final class INILetter {
     private static HBCIPassport passport;
 
     private static String getArg(String[] args, int idx, String st)
-            throws IOException {
+        throws IOException {
         String ret = null;
 
         System.out.print(st + ": ");

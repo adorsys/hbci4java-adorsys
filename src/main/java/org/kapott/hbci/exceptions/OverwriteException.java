@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class OverwriteException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public OverwriteException(String path, String current, String newValue) {
         super(HBCIUtils.getLocMsg("EXCMSG_OVERWRITE", new Object[]{path, current, newValue}));
     }

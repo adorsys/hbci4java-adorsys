@@ -73,10 +73,10 @@ public class GVSaldoReq extends AbstractHBCIJob {
         String bookedValue = result.get(header + ".booked.BTG.value") != null ? result.get(header + ".booked.BTG.value") : "0";
         String st = (cd.equals("D") ? "-" : "") + bookedValue;
         info.ready.value = new Value(
-                st,
-                result.get(header + ".booked.BTG.curr"));
+            st,
+            result.get(header + ".booked.BTG.curr"));
         info.ready.timestamp = HBCIUtils.strings2DateTimeISO(result.get(header + ".booked.date"),
-                result.get(header + ".booked.time"));
+            result.get(header + ".booked.time"));
 
         cd = result.get(header + ".pending.CreditDebit");
         if (cd != null) {
@@ -84,31 +84,31 @@ public class GVSaldoReq extends AbstractHBCIJob {
             st = (cd.equals("D") ? "-" : "") + pendingValue;
             info.unready = new Saldo();
             info.unready.value = new Value(
-                    st,
-                    result.get(header + ".pending.BTG.curr"));
+                st,
+                result.get(header + ".pending.BTG.curr"));
             info.unready.timestamp = HBCIUtils.strings2DateTimeISO(result.get(header + ".pending.date"),
-                    result.get(header + ".pending.time"));
+                result.get(header + ".pending.time"));
         }
 
         st = result.get(header + ".kredit.value");
         if (st != null) {
             info.kredit = new Value(
-                    st,
-                    result.get(header + ".kredit.curr"));
+                st,
+                result.get(header + ".kredit.curr"));
         }
 
         st = result.get(header + ".available.value");
         if (st != null) {
             info.available = new Value(
-                    st,
-                    result.get(header + ".available.curr"));
+                st,
+                result.get(header + ".available.curr"));
         }
 
         st = result.get(header + ".used.value");
         if (st != null) {
             info.used = new Value(
-                    st,
-                    result.get(header + ".used.curr"));
+                st,
+                result.get(header + ".used.curr"));
         }
 
         ((GVRSaldoReq) (jobResult)).store(info);

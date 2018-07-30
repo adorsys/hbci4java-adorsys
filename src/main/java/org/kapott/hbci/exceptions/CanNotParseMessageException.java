@@ -22,7 +22,7 @@ package org.kapott.hbci.exceptions;
 
 
 public final class CanNotParseMessageException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     private String message;
 
     public CanNotParseMessageException(String txt, String message, Exception e) {

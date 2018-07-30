@@ -67,12 +67,12 @@ public class SyntaxDTAUS extends SyntaxAN {
             char ch = st.charAt(i);
 
             if (!((ch >= 'A' && ch <= 'Z') ||
-                    (ch >= '0' && ch <= '9') ||
-                    (ch == ' ') || (ch == '.') || (ch == ',') ||
-                    (ch == '&') || (ch == '-') || (ch == '+') ||
-                    (ch == '*') || (ch == '%') || (ch == '/') ||
-                    (ch == '$') ||
-                    (ch == 0x5B) || (ch == 0x5C) || (ch == 0x5D) || (ch == 0x7E))) {              // Ã Ã Ã Ã
+                (ch >= '0' && ch <= '9') ||
+                (ch == ' ') || (ch == '.') || (ch == ',') ||
+                (ch == '&') || (ch == '-') || (ch == '+') ||
+                (ch == '*') || (ch == '%') || (ch == '/') ||
+                (ch == '$') ||
+                (ch == 0x5B) || (ch == 0x5C) || (ch == 0x5D) || (ch == 0x7E))) {              // Ã Ã Ã Ã
 
                 String msg = HBCIUtils.getLocMsg("EXC_DTAUS_INV_CHAR", Character.toString(ch));
 

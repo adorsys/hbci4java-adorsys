@@ -50,8 +50,8 @@ public final class GVInfoOrder extends AbstractHBCIJob {
 
         for (int i = 1; i < 10; i++) {
             addConstraint(HBCIUtils.withCounter("code", i),
-                    HBCIUtils.withCounter("InfoCodes.code", i),
-                    "");
+                HBCIUtils.withCounter("InfoCodes.code", i),
+                "");
         }
     }
 

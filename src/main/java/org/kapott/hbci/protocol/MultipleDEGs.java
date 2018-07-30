@@ -109,15 +109,15 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         } else {
             if (deref == null) {
                 p.put(Integer.toString(segref[0]) +
-                        ":" + Integer.toString(degref[0]), getPath());
+                    ":" + Integer.toString(degref[0]), getPath());
                 degref[0]++;
             } else {
                 p.put(Integer.toString(segref[0]) +
-                                ":" +
-                                Integer.toString(degref[0]) +
-                                "," +
-                                Integer.toString(deref[0]),
-                        getPath());
+                        ":" +
+                        Integer.toString(degref[0]) +
+                        "," +
+                        Integer.toString(deref[0]),
+                    getPath());
                 deref[0]++;
             }
         }

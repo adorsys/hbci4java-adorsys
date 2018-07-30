@@ -194,7 +194,7 @@ public abstract class SyntaxDE {
         int len = st.length();
         if (len < minsize || (maxsize != 0 && len > maxsize)) {
             String msg = HBCIUtils.getLocMsg("EXC_DT_INV_STRINGLEN", new Object[]{
-                    st, Integer.toString(len), Integer.toString(minsize), Integer.toString(maxsize)});
+                st, Integer.toString(len), Integer.toString(minsize), Integer.toString(maxsize)});
             if (len == 0)
                 throw new InvalidArgumentException(msg);
         }

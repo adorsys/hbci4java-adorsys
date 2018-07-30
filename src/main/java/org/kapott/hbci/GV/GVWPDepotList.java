@@ -126,8 +126,8 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                             pos1++;
 
                         entry.total = new BigDecimalValue(
-                                st.substring(pos1 + 3).replace(',', '.'),
-                                st.substring(pos1, pos1 + 3));
+                            st.substring(pos1 + 3).replace(',', '.'),
+                            st.substring(pos1, pos1 + 3));
 
                         if (pos1 > 7)
                             entry.total.setValue(entry.total.getValue().negate());
@@ -185,7 +185,7 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                         st = SwiftLegacy.getTagValue(onegattung, "90", new String[]{"A", "B"}, 0);
                         if (st != null) {
                             gattung.pricequalifier = (st.substring(1, 5).equals("MRKT")) ? GVRWPDepotList.Entry.Gattung.PRICE_QUALIF_MRKT
-                                    : GVRWPDepotList.Entry.Gattung.PRICE_QUALIF_HINT;
+                                : GVRWPDepotList.Entry.Gattung.PRICE_QUALIF_HINT;
 
                             int next = 0;
                             String curr;
@@ -201,8 +201,8 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                             }
 
                             gattung.price = new BigDecimalValue(
-                                    st.substring(next).replace(',', '.'),
-                                    curr);
+                                st.substring(next).replace(',', '.'),
+                                curr);
                         }
 
                         st = Swift.getTagValue(onegattung, "94B", 0);
@@ -269,12 +269,12 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                         pos1 = 12;
                         if (st.charAt(pos1) == 'N')
                             gattung.saldo = new BigDecimalValue(
-                                    "-" + st.substring(pos1 + 1).replace(',', '.'),
-                                    curr);
+                                "-" + st.substring(pos1 + 1).replace(',', '.'),
+                                curr);
                         else
                             gattung.saldo = new BigDecimalValue(
-                                    st.substring(pos1).replace(',', '.'),
-                                    curr);
+                                st.substring(pos1).replace(',', '.'),
+                                curr);
 
                         st = Swift.getTagValue(onegattung, "99A", 0);
                         if (st != null) {
@@ -296,8 +296,8 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                                 if (st.charAt(pos1) == 'N')
                                     pos1++;
                                 gattung.depotwert = new BigDecimalValue(
-                                        st.substring(pos1 + 3).replace(',', '.'),
-                                        st.substring(pos1, pos1 + 3));
+                                    st.substring(pos1 + 3).replace(',', '.'),
+                                    st.substring(pos1, pos1 + 3));
                                 if (pos1 > 7)
                                     gattung.depotwert.setValue(gattung.depotwert.getValue().negate());
                                 break;
@@ -315,8 +315,8 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                                 if (st.charAt(pos1) == 'N')
                                     pos1++;
                                 gattung.stueckzinsbetrag = new BigDecimalValue(
-                                        st.substring(pos1 + 3).replace(',', '.'),
-                                        st.substring(pos1, pos1 + 3));
+                                    st.substring(pos1 + 3).replace(',', '.'),
+                                    st.substring(pos1, pos1 + 3));
                                 if (pos1 > 7)
                                     gattung.stueckzinsbetrag.setValue(gattung.stueckzinsbetrag.getValue().negate());
                                 break;
@@ -349,8 +349,8 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                             st = SwiftLegacy.getLineFieldValue(formtext, "2", 0);
                             if (st != null) {
                                 gattung.einstandspreis = new BigDecimalValue(
-                                        st.replace(',', '.'),
-                                        "%");
+                                    st.replace(',', '.'),
+                                    "%");
                             }
                             st = SwiftLegacy.getLineFieldValue(formtext, "2", 1);
                             if (st != null)
@@ -392,12 +392,12 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                             pos1 = 17;
                             if (st.charAt(pos1) == 'N')
                                 subsaldo.saldo = new BigDecimalValue(
-                                        "-" + st.substring(pos1 + 1).replace(',', '.'),
-                                        curr);
+                                    "-" + st.substring(pos1 + 1).replace(',', '.'),
+                                    curr);
                             else
                                 subsaldo.saldo = new BigDecimalValue(
-                                        st.substring(pos1).replace(',', '.'),
-                                        curr);
+                                    st.substring(pos1).replace(',', '.'),
+                                    curr);
 
                             st = Swift.getTagValue(onesubsaldo, "94C", 0);
                             if (st != null)

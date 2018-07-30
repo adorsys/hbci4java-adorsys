@@ -37,7 +37,7 @@ import org.kapott.hbci.structures.Value;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
+
 
 @Slf4j
 public final class GVDauerSEPAList extends AbstractSEPAGV {
@@ -132,8 +132,8 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         entry.purposecode = separesult.get("purposecode");
 
         entry.value = new Value(
-                separesult.get("value"),
-                separesult.get("curr"));
+            separesult.get("value"),
+            separesult.get("curr"));
         entry.addUsage(separesult.get("usage"));
 
         String st;
@@ -156,8 +156,8 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
             entry.aus_breakcount = result.get(header + ".Aussetzung.number");
             if ((st = result.get(header + ".Aussetzung.newvalue.value")) != null) {
                 entry.aus_newvalue = new Value(
-                        st,
-                        result.get(header + ".Aussetzung.newvalue.curr"));
+                    st,
+                    result.get(header + ".Aussetzung.newvalue.curr"));
             }
         }
 
@@ -168,14 +168,14 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         ((GVRDauerList) (jobResult)).addEntry(entry);
 
         if (entry.orderid != null && entry.orderid.length() != 0) {
-            Properties p2 = new Properties();
+            HashMap<String, String> p2 = new HashMap<>();
 
             for (String key : result.keySet()) {
                 if (key.startsWith(header + ".") &&
-                        !key.startsWith(header + ".SegHead.") &&
-                        !key.endsWith(".orderid")) {
-                    p2.setProperty(key.substring(header.length() + 1),
-                            result.get(key));
+                    !key.startsWith(header + ".SegHead.") &&
+                    !key.endsWith(".orderid")) {
+                    p2.put(key.substring(header.length() + 1),
+                        result.get(key));
                 }
             }
 

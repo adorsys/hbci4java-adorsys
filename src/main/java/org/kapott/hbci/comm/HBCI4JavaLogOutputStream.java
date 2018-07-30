@@ -44,18 +44,18 @@ public class HBCI4JavaLogOutputStream extends OutputStream {
     }
 
     public void write(byte[] b)
-            throws IOException {
+        throws IOException {
         this.logdata.write(b);
     }
 
     public void close()
-            throws IOException {
+        throws IOException {
         this.logdata.flush();
         this.logdata.close();
     }
 
     public void flush()
-            throws IOException {
+        throws IOException {
         if (this.logdata.size() != 0) {
             log.debug("socket log: " + this.logdata.toString(CommPinTan.ENCODING));
         }

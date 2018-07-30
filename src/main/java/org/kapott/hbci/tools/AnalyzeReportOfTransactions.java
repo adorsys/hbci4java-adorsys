@@ -38,7 +38,7 @@ import java.util.List;
 
 public final class AnalyzeReportOfTransactions {
     public static void main(String[] args)
-            throws Exception {
+        throws Exception {
 
         HBCIUtils.refreshBLZList(ClassLoader.getSystemResource("blz.properties").openStream());
 
@@ -57,7 +57,7 @@ public final class AnalyzeReportOfTransactions {
 
         // Initialize User Passport
         PinTanPassport passport = (PinTanPassport) PinTanPassport
-                .getInstance(new HBCICallbackConsole(), properties);
+            .getInstance(new HBCICallbackConsole(), properties);
         HBCIDialog dialog = new HBCIDialog(passport);
 
         passport.setPIN(System.getProperty("pin"));

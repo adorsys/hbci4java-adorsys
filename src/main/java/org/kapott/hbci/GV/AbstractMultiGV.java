@@ -41,7 +41,7 @@ public abstract class AbstractMultiGV extends AbstractHBCIJob {
         String ret = null;
 
         if (path.startsWith("sum")) {
-            String dtausdata = getLowlevelParams().getProperty(getName() + ".data");
+            String dtausdata = getLowlevelParams().get(getName() + ".data");
             DTAUS dtaus = new DTAUS(dtausdata.substring(1));
 
             if (path.equals("sumOthers")) {

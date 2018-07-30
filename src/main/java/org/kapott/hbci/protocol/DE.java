@@ -204,7 +204,7 @@ public final class DE extends SyntaxElement {
         if (predefined != null) {
             if (!valueString.equals(predefined)) {
                 throw new ParseErrorException(HBCIUtils.getLocMsg("EXCMSG_PREDEFERR",
-                        new Object[]{getPath(), predefined, value}));
+                    new Object[]{getPath(), predefined, value}));
             }
         }
 
@@ -216,7 +216,7 @@ public final class DE extends SyntaxElement {
                 String key = e.nextElement();
 
                 if (key.startsWith(header) &&
-                        key.indexOf(".", header.length()) == -1) {
+                    key.indexOf(".", header.length()) == -1) {
 
                     atLeastOne = true;
                     String validValue = valids.get(key);
@@ -283,15 +283,15 @@ public final class DE extends SyntaxElement {
     public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
         if (deref == null) {
             p.setProperty(Integer.toString(segref[0]) +
-                    ":" + Integer.toString(degref[0]), getPath());
+                ":" + Integer.toString(degref[0]), getPath());
             degref[0]++;
         } else {
             p.setProperty(Integer.toString(segref[0]) +
-                            ":" +
-                            Integer.toString(degref[0]) +
-                            "," +
-                            Integer.toString(deref[0]),
-                    getPath());
+                    ":" +
+                    Integer.toString(degref[0]) +
+                    "," +
+                    Integer.toString(deref[0]),
+                getPath());
             deref[0]++;
         }
     }

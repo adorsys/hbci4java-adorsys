@@ -31,7 +31,7 @@ import java.text.DecimalFormatSymbols;
 /* a class for representing the HBCI-datatype "float" */
 // interne Speicherung im HBCI-MSG-Format
 public class SyntaxFloat
-        extends SyntaxDE {
+    extends SyntaxDE {
     public SyntaxFloat(String x, int minsize, int maxsize) {
         super(double2string(x), minsize, maxsize);
     }

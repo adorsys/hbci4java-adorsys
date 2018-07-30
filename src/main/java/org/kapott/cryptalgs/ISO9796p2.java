@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class ISO9796p2
-        extends SignatureSpi {
+    extends SignatureSpi {
     private RSAPublicKey pubKey;
     private PrivateKey privKey;
     private MessageDigest dig;
@@ -125,7 +125,7 @@ public class ISO9796p2
 
     @Override
     protected void engineSetParameter(AlgorithmParameterSpec param1)
-            throws InvalidAlgorithmParameterException {
+        throws InvalidAlgorithmParameterException {
         if (param1 instanceof SignatureParamSpec)
             this.param = (SignatureParamSpec) (param1);
         else {
@@ -149,7 +149,7 @@ public class ISO9796p2
 
     @Override
     protected int engineSign(byte[] output, int offset, int len)
-            throws SignatureException {
+        throws SignatureException {
         byte[] sig = engineSign();
 
         if (offset + len > output.length)

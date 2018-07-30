@@ -37,8 +37,8 @@ public class RInvalidSuppHBCIVersion extends Rewrite {
         // empfangene Nachricht parsen, dabei die validvalues-Überprüfung weglassen
         String myMsgName = msgName + "Res";
         Message msg = new Message(myMsgName, st, st.length(),
-                document,
-                Message.DONT_CHECK_SEQ, Message.DONT_CHECK_VALIDS);
+            document,
+            Message.DONT_CHECK_SEQ, Message.DONT_CHECK_VALIDS);
 
         // in einer Schleife durch alle SuppVersions-Datensätze laufen
         for (int i = 0; ; i++) {

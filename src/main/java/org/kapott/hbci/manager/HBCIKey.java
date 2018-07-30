@@ -35,7 +35,7 @@ import java.security.Key;
  * administrativen.
  */
 public final class HBCIKey
-        implements Serializable {
+    implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

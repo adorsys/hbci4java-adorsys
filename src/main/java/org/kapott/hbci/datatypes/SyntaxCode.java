@@ -22,7 +22,7 @@ package org.kapott.hbci.datatypes;
 
 
 public class SyntaxCode
-        extends SyntaxAN {
+    extends SyntaxAN {
     public SyntaxCode(String x, int minlen, int maxlen) {
         super(x, minlen, maxlen);
     }

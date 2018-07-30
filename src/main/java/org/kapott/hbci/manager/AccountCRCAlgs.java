@@ -285,10 +285,10 @@ public class AccountCRCAlgs {
 
         } else {
             int[][] trafo = new int[][]{
-                    {0, 1, 5, 9, 3, 7, 4, 8, 2, 6},
-                    {0, 1, 7, 6, 9, 8, 3, 2, 5, 4},
-                    {0, 1, 8, 4, 6, 2, 9, 5, 7, 3},
-                    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+                {0, 1, 5, 9, 3, 7, 4, 8, 2, 6},
+                {0, 1, 7, 6, 9, 8, 3, 2, 5, 4},
+                {0, 1, 8, 4, 6, 2, 9, 5, 7, 3},
+                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
             };
 
             int sum = 0;
@@ -313,10 +313,10 @@ public class AccountCRCAlgs {
 
     public static boolean alg_29(int[] blz, int[] number) {
         int[][] transform = new int[][]{
-                {0, 1, 5, 9, 3, 7, 4, 8, 2, 6},
-                {0, 1, 7, 6, 9, 8, 3, 2, 5, 4},
-                {0, 1, 8, 4, 6, 2, 9, 5, 7, 3},
-                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
+            {0, 1, 5, 9, 3, 7, 4, 8, 2, 6},
+            {0, 1, 7, 6, 9, 8, 3, 2, 5, 4},
+            {0, 1, 8, 4, 6, 2, 9, 5, 7, 3},
+            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
 
         int sum = 0;
         for (int i = 0; i < 9; i++) {
@@ -346,7 +346,7 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-    // TODO: hier weiter 
+    // TODO: hier weiter
 
     public static boolean alg_33(int[] blz, int[] number) {
         int sum = addProducts(number, 4, 8, new int[]{6, 5, 4, 3, 2}, false);
@@ -358,7 +358,7 @@ public class AccountCRCAlgs {
 
     public static boolean alg_34(int[] blz, int[] number) {
         int sum = addProducts(number, 0, 6, new int[]{7, 9, 10, 5, 8, 4, 2},
-                false);
+            false);
         int crc = 11 - sum % 11;
         if (crc > 9)
             crc = 0;
@@ -367,7 +367,7 @@ public class AccountCRCAlgs {
 
     public static boolean alg_38(int[] blz, int[] number) {
         int sum = addProducts(number, 3, 8, new int[]{9, 10, 5, 8, 4, 2},
-                false);
+            false);
         int crc = 11 - sum % 11;
         if (crc > 9)
             crc = 0;
@@ -662,8 +662,8 @@ public class AccountCRCAlgs {
 
         // pruefziffer an zehnter stelle
         if (first == 51 || first == 55 || first == 61 || (first >= 64 && first <= 66) ||
-                first == 66 || first == 70 || first == 73 ||
-                (first >= 75 && first <= 82) || first == 88 || first == 94 || first == 95) {
+            first == 66 || first == 70 || first == 73 ||
+            (first >= 75 && first <= 82) || first == 88 || first == 94 || first == 95) {
             int sum = addProducts(number, 0, 8, new int[]{1, 2, 1, 2, 1, 2, 1, 2, 1}, true);
             int crc = (10 - sum % 10) % 10;
             return number[9] == crc;
@@ -671,11 +671,11 @@ public class AccountCRCAlgs {
 
         // pruefziffer an dritter stelle
         if ((first >= 32 && first <= 39) || (first >= 41 && first <= 49) ||
-                (first >= 52 && first <= 54) || (first >= 56 && first <= 60) ||
-                first == 62 || first == 63 || (first >= 67 && first <= 69) ||
-                first == 71 || first == 72 || first == 74 || (first >= 83 && first <= 87) ||
-                first == 89 || first == 90 || first == 92 || first == 93 ||
-                (first >= 96 && first <= 98)) {
+            (first >= 52 && first <= 54) || (first >= 56 && first <= 60) ||
+            first == 62 || first == 63 || (first >= 67 && first <= 69) ||
+            first == 71 || first == 72 || first == 74 || (first >= 83 && first <= 87) ||
+            first == 89 || first == 90 || first == 92 || first == 93 ||
+            (first >= 96 && first <= 98)) {
             int sum = addProducts(number, 0, 9, new int[]{1, 2, 0, 1, 2, 1, 2, 1, 2, 1}, true);
             int crc = (10 - sum % 10) % 10;
             return number[2] == crc;
@@ -819,9 +819,9 @@ public class AccountCRCAlgs {
         }
 
         int[][] trafo = {{0, 1, 5, 9, 3, 7, 4, 8, 2, 6},
-                {0, 1, 7, 6, 9, 8, 3, 2, 5, 4},
-                {0, 1, 8, 4, 6, 2, 9, 5, 7, 3},
-                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
+            {0, 1, 7, 6, 9, 8, 3, 2, 5, 4},
+            {0, 1, 8, 4, 6, 2, 9, 5, 7, 3},
+            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
         int sum = 0;
         for (int i = 9; i != 0; i--) {
             int digit = number[i - 1];
@@ -1231,11 +1231,11 @@ public class AccountCRCAlgs {
         if (number[0] == 0) {
             long bigint = calculateIntFromNumber(number);
             if (bigint >= 1 && bigint <= 1999999 ||
-                    bigint >= 9000000 && bigint <= 25999999 ||
-                    bigint >= 396000000 && bigint <= 499999999 ||
-                    bigint >= 700000000 && bigint <= 799999999 ||
-                    bigint >= 910000000 && bigint <= 989999999
-                    ) {
+                bigint >= 9000000 && bigint <= 25999999 ||
+                bigint >= 396000000 && bigint <= 499999999 ||
+                bigint >= 700000000 && bigint <= 799999999 ||
+                bigint >= 910000000 && bigint <= 989999999
+                ) {
                 return true;
             }
         }
@@ -1267,8 +1267,8 @@ public class AccountCRCAlgs {
         boolean ret = true;
         if (bigint < 396000000 || bigint > 499999999) {
             int sum
-                    = addProducts(number, 0, 8,
-                    new int[]{4, 3, 2, 7, 6, 5, 4, 3, 2}, false);
+                = addProducts(number, 0, 8,
+                new int[]{4, 3, 2, 7, 6, 5, 4, 3, 2}, false);
             int crc = 11 - sum % 11;
             if (crc > 9)
                 crc = 0;
@@ -1466,7 +1466,7 @@ public class AccountCRCAlgs {
 
     public static boolean alg_B8(int[] blz, int[] number) {
         int sum = addProducts(number, 0, 8,
-                new int[]{3, 9, 8, 7, 6, 5, 4, 3, 2}, false);
+            new int[]{3, 9, 8, 7, 6, 5, 4, 3, 2}, false);
         int crc = 11 - sum % 11;
         if (crc > 9)
             crc = 0;

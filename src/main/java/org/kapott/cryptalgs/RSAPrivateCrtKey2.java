@@ -24,7 +24,7 @@ import java.math.BigInteger;
 import java.security.PrivateKey;
 
 public class RSAPrivateCrtKey2
-        implements PrivateKey {
+    implements PrivateKey {
     private final static long serialVersionUID = 1;
 
     private BigInteger p;

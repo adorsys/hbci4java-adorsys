@@ -23,7 +23,7 @@ package org.kapott.hbci.manager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Properties;
+
 
 /**
  * <p>ClassLoader, der für das Laden eines Property-Files aus dem Filesystem benutzt
@@ -38,12 +38,12 @@ import java.util.Properties;
  * {@link org.kapott.hbci.manager.HBCIUtils#init(Properties, org.kapott.hbci.callback.HBCICallback)}).</p>
  */
 public class FileSystemClassLoader
-        extends URLClassLoader {
+    extends URLClassLoader {
     /**
      * Erzeugen einer neuen Instanz dieser Klasse
      */
     public FileSystemClassLoader()
-            throws MalformedURLException {
+        throws MalformedURLException {
         super(new URL[]{new URL("file:///")});
     }
 }

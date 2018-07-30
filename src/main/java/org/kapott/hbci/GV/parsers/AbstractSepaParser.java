@@ -15,7 +15,7 @@ public abstract class AbstractSepaParser implements ISEPAParser {
      * @param value der Wert.
      */
     void put(HashMap<String, String> props, Names name, String value) {
-        // BUGZILLA 1610 - "java.util.Properties" ist von Hashtable abgeleitet und unterstuetzt keine NULL-Werte
+        // BUGZILLA 1610 - "" ist von Hashtable abgeleitet und unterstuetzt keine NULL-Werte
         if (value == null)
             return;
 

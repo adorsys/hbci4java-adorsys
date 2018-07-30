@@ -29,7 +29,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      */
     public final static String ENDTOEND_ID_NOTPROVIDED = "NOTPROVIDED";
 
-    protected final Properties sepaParams = new Properties();
+    protected final HashMap<String, String> sepaParams = new HashMap<>();
     private PainVersion pain = null;
     private ISEPAGenerator generator = null;
 
@@ -163,7 +163,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
 
         if (key.startsWith(intern)) {
             String realKey = key.substring(intern.length());
-            this.sepaParams.setProperty(realKey, value);
+            this.sepaParams.put(realKey, value);
             log.debug("setting SEPA param " + realKey + " = " + value);
         } else {
             super.setLowlevelParam(key, value);
@@ -303,7 +303,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     }
 
     protected void setSEPAParam(String name, String value) {
-        this.sepaParams.setProperty(name, value);
+        this.sepaParams.put(name, value);
     }
 
     /**
@@ -314,7 +314,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * @return Value
      */
     public String getSEPAParam(String name) {
-        return this.sepaParams.getProperty(name);
+        return this.sepaParams.get(name);
     }
 
     /**

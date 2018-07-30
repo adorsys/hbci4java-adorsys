@@ -652,15 +652,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return "0";
     }
 
-    public HBCIKey getMyPublicEncKey() {
-        return null;
-    }
-
     public void setMyPublicEncKey(HBCIKey key) {
-    }
-
-    public HBCIKey getMyPrivateEncKey() {
-        return null;
     }
 
     public void setMyPrivateEncKey(HBCIKey key) {
@@ -756,13 +748,13 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return ret.toString();
     }
 
-    public String getPinTanInfo(String code) {
+    public String getPinTanInfo(String jobHbciCode) {
         String ret = "";
         HashMap<String, String> bpd = getBPD();
 
         if (bpd != null) {
             boolean isGV = false;
-            StringBuffer paramCode = new StringBuffer(code).replace(1, 2, "I").append("S");
+            StringBuffer paramCode = new StringBuffer(jobHbciCode).replace(1, 2, "I").append("S");
 
             for (String key : bpd.keySet()) {
                 if (key.startsWith("Params") &&
@@ -770,13 +762,13 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     key.contains(".ParPinTan.PinTanGV") &&
                     key.endsWith(".segcode")) {
                     String code2 = bpd.get(key);
-                    if (code.equals(code2)) {
+                    if (jobHbciCode.equals(code2)) {
                         key = key.substring(0, key.length() - ("segcode").length()) + "needtan";
                         ret = bpd.get(key);
                         break;
                     }
                 } else if (key.startsWith("Params") &&
-                    key.endsWith(".SegHead.code")) {
+                    key.endsWith(".SegHead.jobHbciCode")) {
 
                     String code2 = bpd.get(key);
                     if (paramCode.equals(code2)) {
@@ -787,7 +779,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
             // wenn das kein GV ist, dann ist es ein Admin-Segment
             if (ret.length() == 0 && !isGV) {
-                if (verifyTANMode && code.equals("HKIDN")) {
+                if (verifyTANMode && jobHbciCode.equals("HKIDN")) {
                     // im TAN-verify-mode wird bei der dialog-initialisierung
                     // eine TAN mit versandt; die Dialog-Initialisierung erkennt
                     // man am HKIDN-segment

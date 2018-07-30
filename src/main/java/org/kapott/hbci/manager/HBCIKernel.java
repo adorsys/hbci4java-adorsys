@@ -33,7 +33,10 @@ import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
 
 @Slf4j
 public final class HBCIKernel {
@@ -54,8 +57,8 @@ public final class HBCIKernel {
         this.passport = passport;
 
         this.commPinTan = new CommPinTan(passport.getProperties().get("kernel.rewriter"), passport.getHost(), passport.getCallback())
-                .withProxy(passport.getProxy(), passport.getProxyUser(),
-                        passport.getProxyPass());
+            .withProxy(passport.getProxy(), passport.getProxyUser(),
+                passport.getProxyPass());
     }
 
     /*  Processes the current message (mid-level API).
@@ -115,7 +118,7 @@ public final class HBCIKernel {
             if (message.getName().startsWith("DialogEnd")) {
                 log.error(e.getMessage(), e);
                 log.warn("error while receiving DialogEnd response - " +
-                        "but ignoring it because of special setting");
+                    "but ignoring it because of special setting");
             } else {
                 msgStatus.addException(e);
             }
@@ -150,7 +153,7 @@ public final class HBCIKernel {
         int maxmsgsize = passport.getMaxMsgSizeKB();
         if (maxmsgsize != 0 && (outstring.length() >> 10) > maxmsgsize) {
             String errmsg = HBCIUtils.getLocMsg("EXCMSG_MSGTOOLARGE",
-                    new Object[]{Integer.toString(outstring.length() >> 10), Integer.toString(maxmsgsize)});
+                new Object[]{Integer.toString(outstring.length() >> 10), Integer.toString(maxmsgsize)});
             throw new HBCI_Exception(errmsg);
         }
     }
@@ -162,7 +165,7 @@ public final class HBCIKernel {
             String rewriterName = tok.nextToken().trim();
             if (rewriterName.length() != 0) {
                 Class cl = this.getClass().getClassLoader().loadClass("org.kapott.hbci.rewrite.R" +
-                        rewriterName);
+                    rewriterName);
                 Constructor con = cl.getConstructor((Class[]) null);
                 rewriters.add((Rewrite) (con.newInstance((Object[]) null)));
             }
@@ -222,7 +225,7 @@ public final class HBCIKernel {
         log.debug("communicating dialogid/msgnum " + dialogid + "/" + msgnum);
 
         Message response = commPinTan.pingpong(message, messageName, rewriters, msgStatus);
-        response = decryptMessage(rewriters, response, messageName+"Res");
+        response = decryptMessage(rewriters, response, messageName + "Res");
 
         // alle patches für die plaintextnachricht durchlaufen
         for (Rewrite rewriter : rewriters) {
@@ -253,7 +256,7 @@ public final class HBCIKernel {
         String hbciversion2 = response.getValueOfDE(responsePath + ".MsgHead.hbciversion");
         if (!hbciversion2.equals(hbciversion))
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVVERSION", new Object[]{hbciversion2,
-                    hbciversion}));
+                hbciversion}));
         String msgnum2 = response.getValueOfDE(responsePath + ".MsgHead.msgnum");
         if (!msgnum2.equals(msgnum))
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_HEAD", new Object[]{msgnum2, msgnum}));

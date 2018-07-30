@@ -332,9 +332,9 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
 
                 if (timestamp_price != null) {
                     DateFormat df = DateFormat.getDateTimeInstance(
-                            DateFormat.SHORT,
-                            DateFormat.SHORT,
-                            HBCIUtils.getLocale());
+                        DateFormat.SHORT,
+                        DateFormat.SHORT,
+                        HBCIUtils.getLocale());
                     ret.append("Zeitpunkt: ").append(df.format(timestamp_price)).append(linesep);
                 }
 
@@ -441,9 +441,9 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
                         ret.append("locked");
                         if (lockeduntil != null) {
                             DateFormat df = DateFormat.getDateTimeInstance(
-                                    DateFormat.SHORT,
-                                    DateFormat.SHORT,
-                                    Locale.getDefault());
+                                DateFormat.SHORT,
+                                DateFormat.SHORT,
+                                Locale.getDefault());
                             ret.append(" until ").append(df.format(lockeduntil));
                         }
                     } else {

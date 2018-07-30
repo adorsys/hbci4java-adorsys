@@ -41,6 +41,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+
 @Slf4j
 public final class CommPinTan {
 
@@ -88,8 +89,8 @@ public final class CommPinTan {
             String[] proxyData = proxyHost.split(":");
             if (proxyData.length == 2) {
                 log.info(
-                        "HTTPS connections will be made using proxy " +
-                                proxyData[0] + "(Port " + proxyData[1] + ")");
+                    "HTTPS connections will be made using proxy " +
+                        proxyData[0] + "(Port " + proxyData[1] + ")");
 
                 Properties sysProps = System.getProperties();
                 sysProps.put("https.proxyHost", proxyData[0]);

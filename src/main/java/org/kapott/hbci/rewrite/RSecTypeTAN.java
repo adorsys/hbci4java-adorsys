@@ -50,8 +50,8 @@ public class RSecTypeTAN extends Rewrite {
         // empfangene Nachricht parsen, dabei die validvalues-Überprüfung weglassen
         String myMsgName = msgName + "Res";
         Message msg = new Message(myMsgName, st, st.length(),
-                document,
-                Message.CHECK_SEQ, Message.DONT_CHECK_VALIDS);
+            document,
+            Message.CHECK_SEQ, Message.DONT_CHECK_VALIDS);
 
         // in einer Schleife durch alle SuppSecMethods-Datensätze laufen
         for (int i = 0; ; i++) {
@@ -95,10 +95,10 @@ public class RSecTypeTAN extends Rewrite {
                 if (number > 1) { // nur das eine fehlerhafte TAN:1 löschen
                     startpos = elem.getPosInMsg();
                     endpos = startpos
-                            + 1
-                            + elem.toString(0).length()
-                            + 1
-                            + msg.getElement(elemBaseName + ".version").toString(0).length();
+                        + 1
+                        + elem.toString(0).length()
+                        + 1
+                        + msg.getElement(elemBaseName + ".version").toString(0).length();
                 } else { // komplettes segment "SecMethod" löschen
                     startpos = parent.getPosInMsg() + 1;
                     endpos = startpos + parent.toString(0).length();

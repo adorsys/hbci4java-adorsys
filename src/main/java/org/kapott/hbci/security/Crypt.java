@@ -25,7 +25,6 @@ import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MessageFactory;
-import org.kapott.hbci.passport.AbstractHBCIPassport;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
@@ -167,8 +166,8 @@ public final class Crypt {
                     }
 
                     newmsg.propagateValue(newmsg.getPath() + ".MsgTail.SegHead.seq", segnum,
-                            SyntaxElement.DONT_TRY_TO_CREATE,
-                            SyntaxElement.ALLOW_OVERWRITE);
+                        SyntaxElement.DONT_TRY_TO_CREATE,
+                        SyntaxElement.ALLOW_OVERWRITE);
                     newmsg.autoSetMsgSize();
                 } catch (Exception ex) {
                     throw new HBCI_Exception("*** error while encrypting", ex);
@@ -195,13 +194,13 @@ public final class Crypt {
                 // key extrahieren
                 SEG crypthead = (SEG) childs.get(1).getElements().get(0);
                 byte[] cryptedkey = crypthead.getValueOfDE(msgName +
-                        ".CryptHead.CryptAlg.enckey").getBytes(CommPinTan.ENCODING);
+                    ".CryptHead.CryptAlg.enckey").getBytes(CommPinTan.ENCODING);
 
                 // neues secfunc (klartext/encrypted)
                 String secfunc = crypthead.getValueOfDE(msgName + ".CryptHead.secfunc");
                 if (!secfunc.equals(passport.getCryptFunction())) {
                     String errmsg = HBCIUtils.getLocMsg("EXCMSG_CRYPTSFFAIL", new Object[]{secfunc,
-                            passport.getCryptFunction()});
+                        passport.getCryptFunction()});
                     throw new HBCI_Exception(errmsg);
                 }
 
@@ -220,8 +219,8 @@ public final class Crypt {
                 // neuen nachrichtenstring zusammenbauen
                 StringBuffer ret = new StringBuffer(1024);
                 ret.append(msghead.toString(0)).
-                        append(new String(plainMsg, 0, plainMsg.length - padLength, CommPinTan.ENCODING)).
-                        append(msgtail.toString(0));
+                    append(new String(plainMsg, 0, plainMsg.length - padLength, CommPinTan.ENCODING)).
+                    append(msgtail.toString(0));
 
                 log.debug("decrypted message: " + ret);
 

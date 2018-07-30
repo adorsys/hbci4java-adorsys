@@ -32,7 +32,7 @@ import java.util.Date;
  * Unterscheidung zwischen Soll und Haben.
  */
 public final class Saldo
-        implements Serializable {
+    implements Serializable {
     /**
      * Betrag des Saldos.
      */

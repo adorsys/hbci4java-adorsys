@@ -9,9 +9,7 @@ import org.kapott.hbci.sepa.PainVersion.Type;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.text.DecimalFormat;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
 
 public class GVDauerSEPAEdit extends AbstractSEPAGV {
 
@@ -98,7 +96,7 @@ public class GVDauerSEPAEdit extends AbstractSEPAGV {
                 throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("turnus")) {
-            String timeunit = getLowlevelParams().getProperty(getName() + ".DauerDetails.timeunit");
+            String timeunit = getLowlevelParams().get(getName() + ".DauerDetails.timeunit");
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
@@ -126,7 +124,7 @@ public class GVDauerSEPAEdit extends AbstractSEPAGV {
                 }
             }
         } else if (paramName.equals("execday")) {
-            String timeunit = getLowlevelParams().getProperty(getName() + ".DauerDetails.timeunit");
+            String timeunit = getLowlevelParams().get(getName() + ".DauerDetails.timeunit");
 
             if (timeunit != null) {
                 if (timeunit.equals("W")) {
@@ -161,14 +159,9 @@ public class GVDauerSEPAEdit extends AbstractSEPAGV {
         ((GVRDauerEdit) (jobResult)).setOrderIdOld(result.get(header + ".orderidold"));
 
         if (orderid != null && orderid.length() != 0) {
-            Properties p = getLowlevelParams();
-            Properties p2 = new Properties();
-
-            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-                p2.setProperty(key.substring(key.indexOf(".") + 1),
-                        p.getProperty(key));
-            }
+            HashMap<String, String> p2 = new HashMap<>();
+            getLowlevelParams().forEach((key, value) ->
+                p2.put(key.substring(key.indexOf(".") + 1), value));
 
             passport.setPersistentData("dauer_" + orderid, p2);
         }

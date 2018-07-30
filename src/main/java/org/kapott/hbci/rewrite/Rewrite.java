@@ -24,8 +24,6 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
 
-import java.util.Hashtable;
-
 public abstract class Rewrite {
 
     protected Rewrite() {

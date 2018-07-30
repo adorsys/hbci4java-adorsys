@@ -152,7 +152,7 @@ public class DTAUS_CH {
             ret.append(expand(myAccount.name, 24, (byte) 0x20, ALIGN_LEFT));
             for (int i = 0; i < 3; i++) {
                 ret.append(expand((i < myAddress.length ? myAddress[i] : ""),
-                        24, (byte) 0x20, ALIGN_LEFT));
+                    24, (byte) 0x20, ALIGN_LEFT));
             }
             ret.append(expand("", 30, (byte) 0x20, ALIGN_LEFT));
 
@@ -167,7 +167,7 @@ public class DTAUS_CH {
             ret.append("04");
             for (int i = 0; i < 4; i++) {
                 ret.append(expand((i < usage.size() ? (String) usage.get(i) : ""),
-                        28, (byte) 0x20, ALIGN_LEFT));
+                    28, (byte) 0x20, ALIGN_LEFT));
             }
             ret.append(expand("", 14, (byte) 0x20, ALIGN_LEFT));
 

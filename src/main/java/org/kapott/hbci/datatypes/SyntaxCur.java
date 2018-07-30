@@ -22,7 +22,7 @@ package org.kapott.hbci.datatypes;
 
 /* the representation of the datatype "cur" (currency) */
 public final class SyntaxCur
-        extends SyntaxDE {
+    extends SyntaxDE {
     public SyntaxCur(String x, int minsize, int maxsize) {
         super(x.trim(), 3, 3);
     }

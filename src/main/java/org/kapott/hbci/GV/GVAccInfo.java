@@ -73,9 +73,9 @@ public class GVAccInfo extends AbstractHBCIJob {
             info.kredit = new Value(st, result.get(header + ".kredit.curr"));
         if ((st = result.get(header + ".refkto.number")) != null)
             info.refAccount = new Konto(result.get(header + ".refkto.KIK.country"),
-                    result.get(header + ".refkto.KIK.blz"),
-                    st,
-                    result.get(header + ".refkto.subnumber"));
+                result.get(header + ".refkto.KIK.blz"),
+                st,
+                result.get(header + ".refkto.subnumber"));
         info.turnus = ((st = result.get(header + ".turnus")) != null) ? Integer.parseInt(st) : -1;
         info.versandart = ((st = result.get(header + ".versandart")) != null) ? Integer.parseInt(st) : -1;
         info.type = ((st = result.get(header + ".acctype")) != null) ? Integer.parseInt(st) : -1;

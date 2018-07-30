@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 public final class ProcessException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     private HBCIMsgStatus msgStatus;
 
     public ProcessException(String st, HBCIMsgStatus ret) {

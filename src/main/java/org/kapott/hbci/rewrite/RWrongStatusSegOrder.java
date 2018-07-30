@@ -23,9 +23,10 @@ package org.kapott.hbci.rewrite;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
+
 
 // dieser Rewriter muss *VOR* "WrongSequenceNumbers" ausgeführt werden,
 // weil hierbei u.U. die Segment-Sequenz-Nummern durcheinandergebracht werden
@@ -33,8 +34,8 @@ import java.util.Properties;
 public class RWrongStatusSegOrder extends Rewrite {
 
     // Liste mit segmentInfo-Properties aus der Nachricht erzeugen
-    private List<Properties> createSegmentListFromMessage(String msg) {
-        List<Properties> segmentList = new ArrayList<Properties>();
+    private List<HashMap<String, String>> createSegmentListFromMessage(String msg) {
+        List<HashMap<String, String>> segmentList = new ArrayList<HashMap<String, String>>();
 
         boolean quoteNext = false;
         int startPosi = 0;
@@ -49,10 +50,10 @@ public class RWrongStatusSegOrder extends Rewrite {
                 i += Integer.parseInt(len_st) + 1 + len_st.length();
             } else if (!quoteNext && ch == '\'') {
                 // segment-ende gefunden
-                Properties segmentInfo = new Properties();
-                segmentInfo.setProperty("code", msg.substring(startPosi, msg.indexOf(":", startPosi)));
-                segmentInfo.setProperty("start", Integer.toString(startPosi));
-                segmentInfo.setProperty("length", Integer.toString(i - startPosi + 1));
+                HashMap<String, String> segmentInfo = new HashMap<>();
+                segmentInfo.put("code", msg.substring(startPosi, msg.indexOf(":", startPosi)));
+                segmentInfo.put("start", Integer.toString(startPosi));
+                segmentInfo.put("length", Integer.toString(i - startPosi + 1));
 
                 segmentList.add(segmentInfo);
                 startPosi = i + 1;
@@ -65,12 +66,12 @@ public class RWrongStatusSegOrder extends Rewrite {
 
     @Override
     public String incomingClearText(String st) {
-        List<Properties> segmentList = createSegmentListFromMessage(st);
+        List<HashMap<String, String>> segmentList = createSegmentListFromMessage(st);
 
-        List<Properties> headerList = new ArrayList<Properties>();
-        List<Properties> HIRMGList = new ArrayList<Properties>();
-        List<Properties> HIRMSList = new ArrayList<Properties>();
-        List<Properties> dataList = new ArrayList<Properties>();
+        List<HashMap<String, String>> headerList = new ArrayList<>();
+        List<HashMap<String, String>> HIRMGList = new ArrayList<>();
+        List<HashMap<String, String>> HIRMSList = new ArrayList<>();
+        List<HashMap<String, String>> dataList = new ArrayList<>();
 
         boolean inHeader = true;
         boolean inGlob = false;
@@ -80,9 +81,9 @@ public class RWrongStatusSegOrder extends Rewrite {
 
         // alle segmente aus der nachricht durchlaufen und der richtigen liste
         // zuordnen (header, globstatus, segstatus, rest)
-        for (Iterator<Properties> i = segmentList.iterator(); i.hasNext(); ) {
-            Properties segmentInfo = i.next();
-            String segmentCode = segmentInfo.getProperty("code");
+        for (Iterator<HashMap<String, String>> i = segmentList.iterator(); i.hasNext(); ) {
+            HashMap<String, String> segmentInfo = i.next();
+            String segmentCode = segmentInfo.get("code");
 
             if (segmentCode.equals("HNHBK") || segmentCode.equals("HNSHK")) {
                 // HNHBK und HNSHK gehören in den header-bereich
@@ -137,11 +138,11 @@ public class RWrongStatusSegOrder extends Rewrite {
 
         StringBuffer new_msg = new StringBuffer();
         if (errorOccured) {
-            // nachricht mit den richtig sortierten segmenten wieder 
+            // nachricht mit den richtig sortierten segmenten wieder
             // zusammensetzen
             int counter = 1;
 
-            // alle segmente aus dem header 
+            // alle segmente aus dem header
             new_msg.append(getDataForSegmentList(st, headerList, counter));
             counter += headerList.size();
 
@@ -165,13 +166,13 @@ public class RWrongStatusSegOrder extends Rewrite {
         return new_msg.toString();
     }
 
-    private String getDataForSegmentList(String origMsg, List<Properties> list, int counter) {
+    private String getDataForSegmentList(String origMsg, List<HashMap<String, String>> list, int counter) {
         StringBuffer data = new StringBuffer();
 
-        for (Iterator<Properties> i = list.iterator(); i.hasNext(); ) {
-            Properties segmentInfo = i.next();
-            int start = Integer.parseInt(segmentInfo.getProperty("start"));
-            int len = Integer.parseInt(segmentInfo.getProperty("length"));
+        for (Iterator<HashMap<String, String>> i = list.iterator(); i.hasNext(); ) {
+            HashMap<String, String> segmentInfo = i.next();
+            int start = Integer.parseInt(segmentInfo.get("start"));
+            int len = Integer.parseInt(segmentInfo.get("length"));
 
             // segment aus originalnachricht extrahieren
             StringBuffer segmentData = new StringBuffer(origMsg.substring(start, start + len));

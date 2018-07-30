@@ -33,7 +33,7 @@ import java.io.InputStreamReader;
  * TODO: doku fehlt (analog zu ShowLowlevelGVRs
  */
 public class ShowLowlevelGVRestrictions
-        extends AbstractShowLowlevelData {
+    extends AbstractShowLowlevelData {
     public static void main(String[] args) throws Exception {
         String hbciversion;
         if (args.length >= 1) {
@@ -42,7 +42,7 @@ public class ShowLowlevelGVRestrictions
             System.out.print("hbciversion: ");
             System.out.flush();
             hbciversion = new BufferedReader(new InputStreamReader(System.in))
-                    .readLine();
+                .readLine();
         }
 
         Document syntax = DocumentFactory.createDocument(hbciversion);

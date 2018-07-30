@@ -8,7 +8,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
+
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,9 +84,9 @@ public class SepaUtil {
      * @param properties die Properties, mit denen gearbeitet werden soll
      * @return Maximaler Index, oder {@code null}, wenn keine indizierten Properties gefunden wurden
      */
-    public static Integer maxIndex(Properties properties) {
+    public static Integer maxIndex(HashMap<String, String> properties) {
         Integer max = null;
-        for (String key : properties.stringPropertyNames()) {
+        for (String key : properties.keySet()) {
             Matcher m = INDEX_PATTERN.matcher(key);
             if (m.matches()) {
                 int index = Integer.parseInt(m.group(1));
@@ -106,18 +107,18 @@ public class SepaUtil {
      * @param max        Maximaler Index, oder {@code null} für Einzeltransaktionen
      * @return Summe aller Beträge
      */
-    public static BigDecimal sumBtgValue(Properties sepaParams, Integer max) {
+    public static BigDecimal sumBtgValue(HashMap<String, String> sepaParams, Integer max) {
         if (max == null)
-            return new BigDecimal(sepaParams.getProperty("btg.value"));
+            return new BigDecimal(sepaParams.get("btg.value"));
 
         BigDecimal sum = BigDecimal.ZERO;
         String curr = null;
 
         for (int index = 0; index <= max; index++) {
-            sum = sum.add(new BigDecimal(sepaParams.getProperty(insertIndex("btg.value", index))));
+            sum = sum.add(new BigDecimal(sepaParams.get(insertIndex("btg.value", index))));
 
             // Sicherstellen, dass alle Transaktionen die gleiche Währung verwenden
-            String indexCurr = sepaParams.getProperty(insertIndex("btg.curr", index));
+            String indexCurr = sepaParams.get(insertIndex("btg.curr", index));
             if (curr != null) {
                 if (!curr.equals(indexCurr)) {
                     throw new InvalidArgumentException("mixed currencies on multiple transactions");
@@ -155,10 +156,10 @@ public class SepaUtil {
      * @param properties Auftrags-Properties.
      * @return das Value-Objekt mit der Summe.
      */
-    public static Value sumBtgValueObject(Properties properties) {
+    public static Value sumBtgValueObject(HashMap<String, String> properties) {
         Integer maxIndex = maxIndex(properties);
         BigDecimal btg = sumBtgValue(properties, maxIndex);
-        String curr = properties.getProperty(insertIndex("btg.curr", maxIndex == null ? null : 0));
+        String curr = properties.get(insertIndex("btg.curr", maxIndex == null ? null : 0));
         return new Value(btg, curr);
     }
 
@@ -171,8 +172,8 @@ public class SepaUtil {
      * @param defaultValue der Default-Wert.
      * @return der Wert.
      */
-    public static String getProperty(Properties props, String name, String defaultValue) {
-        String value = props.getProperty(name);
+    public static String getProperty(HashMap<String, String> props, String name, String defaultValue) {
+        String value = props.get(name);
         return value != null && value.length() > 0 ? value : defaultValue;
     }
 }

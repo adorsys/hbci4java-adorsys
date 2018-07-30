@@ -81,7 +81,7 @@ public final class HBCIMsgStatus {
             HBCIRetVal rv = null;
             try {
                 rv = new HBCIRetVal(data,
-                        HBCIUtils.withCounter("RetGlob.RetVal", i));
+                    HBCIUtils.withCounter("RetGlob.RetVal", i));
             } catch (Exception e) {
                 break;
             }
@@ -101,8 +101,8 @@ public final class HBCIMsgStatus {
                 HBCIRetVal rv = null;
                 try {
                     rv = new HBCIRetVal(data,
-                            HBCIUtils.withCounter(segheader + ".RetVal", j),
-                            segref);
+                        HBCIUtils.withCounter(segheader + ".RetVal", j),
+                        segref);
                 } catch (Exception e) {
                     break;
                 }
@@ -222,7 +222,7 @@ public final class HBCIMsgStatus {
     public boolean isInvalidPIN() {
         for (HBCIRetVal hbciRetVal : globStatus.getErrors()) {
             if (hbciRetVal.code.equals("9931") || hbciRetVal.code.equals("9942") ||      // PIN falsch (konkret)
-                    hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
+                hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
             {
                 return true;
             }
@@ -230,7 +230,7 @@ public final class HBCIMsgStatus {
 
         for (HBCIRetVal hbciRetVal : segStatus.getErrors()) {
             if (hbciRetVal.code.equals("9931") || hbciRetVal.code.equals("9942") ||      // PIN falsch (konkret)
-                    hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
+                hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
             {
                 return true;
             }

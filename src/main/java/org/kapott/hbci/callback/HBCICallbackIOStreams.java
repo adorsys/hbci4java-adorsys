@@ -27,6 +27,7 @@ import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassport;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.io.BufferedReader;
@@ -238,9 +239,9 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
 
                         String tempblz;
                         getOutStream().println(tok2.nextToken() + ": " +
-                                HBCIUtils.getLocMsg("BLZ") + "=" + (tempblz = tok2.nextToken()) +
-                                " (" + HBCIUtils.getNameForBLZ(tempblz) + ") " +
-                                HBCIUtils.getLocMsg("USERID") + "=" + tok2.nextToken());
+                            HBCIUtils.getLocMsg("BLZ") + "=" + (tempblz = tok2.nextToken()) +
+                            " (" + HBCIUtils.getNameForBLZ(tempblz) + ") " +
+                            HBCIUtils.getLocMsg("USERID") + "=" + tok2.nextToken());
                     }
                     getOutStream().print(HBCIUtils.getLocMsg("CALLB_SELECT_ENTRY") + ": ");
                     getOutStream().flush();
@@ -306,7 +307,7 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     }
 
     @Override
-    public void tanCallback(HBCIPassport passport, GVTAN2Step hktan) {
+    public void tanCallback(PinTanPassport passport, GVTAN2Step hktan) {
     }
 
     /**

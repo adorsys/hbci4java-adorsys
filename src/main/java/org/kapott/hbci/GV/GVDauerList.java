@@ -28,7 +28,7 @@ import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
 import java.util.HashMap;
-import java.util.Properties;
+
 
 public final class GVDauerList extends AbstractHBCIJob {
 
@@ -67,8 +67,8 @@ public final class GVDauerList extends AbstractHBCIJob {
         entry.other.name2 = result.get(header + ".name2");
 
         entry.value = new Value(
-                result.get(header + ".BTG.value"),
-                result.get(header + ".BTG.curr"));
+            result.get(header + ".BTG.value"),
+            result.get(header + ".BTG.curr"));
         entry.key = result.get(header + ".key");
         entry.addkey = result.get(header + ".addkey");
 
@@ -102,22 +102,22 @@ public final class GVDauerList extends AbstractHBCIJob {
             entry.aus_breakcount = result.get(header + ".Aussetzung.number");
             if ((st = result.get(header + ".Aussetzung.newvalue.value")) != null) {
                 entry.aus_newvalue = new Value(
-                        st,
-                        result.get(header + ".Aussetzung.newvalue.curr"));
+                    st,
+                    result.get(header + ".Aussetzung.newvalue.curr"));
             }
         }
 
         ((GVRDauerList) (jobResult)).addEntry(entry);
 
         if (entry.orderid != null && entry.orderid.length() != 0) {
-            Properties p2 = new Properties();
+            HashMap<String, String> p2 = new HashMap<>();
 
             for (String key : result.keySet()) {
                 if (key.startsWith(header + ".") &&
-                        !key.startsWith(header + ".SegHead.") &&
-                        !key.endsWith(".orderid")) {
-                    p2.setProperty(key.substring(header.length() + 1),
-                            result.get(key));
+                    !key.startsWith(header + ".SegHead.") &&
+                    !key.endsWith(".orderid")) {
+                    p2.put(key.substring(header.length() + 1),
+                        result.get(key));
                 }
             }
 

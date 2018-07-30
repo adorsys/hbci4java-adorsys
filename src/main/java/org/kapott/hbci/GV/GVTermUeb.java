@@ -26,12 +26,10 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
 
 public final class GVTermUeb
-        extends AbstractHBCIJob {
+    extends AbstractHBCIJob {
     public GVTermUeb(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTermUeb(passport));
 
@@ -70,14 +68,9 @@ public final class GVTermUeb
         ((GVRTermUeb) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {
-            Properties p = getLowlevelParams();
-            Properties p2 = new Properties();
-
-            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-                p2.setProperty(key.substring(key.indexOf(".") + 1),
-                        p.getProperty(key));
-            }
+            HashMap<String, String> p2 = new HashMap<>();
+            getLowlevelParams().forEach((key, value) ->
+                p2.put(key.substring(key.indexOf(".") + 1), value));
 
             passport.setPersistentData("termueb_" + orderid, p2);
         }

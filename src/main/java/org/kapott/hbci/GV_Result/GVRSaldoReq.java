@@ -70,7 +70,7 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
      * Saldo-Informationen für ein Konto
      */
     public static final class Info
-            implements Serializable {
+        implements Serializable {
         /**
          * Saldo für welches Konto
          */

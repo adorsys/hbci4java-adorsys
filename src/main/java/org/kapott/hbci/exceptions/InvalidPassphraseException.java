@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class InvalidPassphraseException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public InvalidPassphraseException() {
         super(HBCIUtils.getLocMsg("EXCMSG_INV_PASSPHRASE"));
     }

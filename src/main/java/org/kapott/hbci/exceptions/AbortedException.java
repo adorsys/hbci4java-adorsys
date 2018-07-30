@@ -21,7 +21,7 @@
 package org.kapott.hbci.exceptions;
 
 public class AbortedException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public AbortedException(String s) {
         super(s);
     }

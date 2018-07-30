@@ -379,9 +379,9 @@ public abstract class SyntaxElement {
             for (Node ref = def.getFirstChild(); ref != null; ref = ref.getNextSibling()) {
                 if (ref.getNodeType() == Node.ELEMENT_NODE) {
                     MultipleSyntaxElements child = parseAndAppendNewChildContainer(ref,
-                            ((counter++) == 0) ? predelim : getInDelim(),
-                            getInDelim(),
-                            res, fullResLen, document, predefs, valids);
+                        ((counter++) == 0) ? predelim : getInDelim(),
+                        getInDelim(),
+                        res, fullResLen, document, predefs, valids);
 
                     if (child != null) {
                         child.setParent(this);
@@ -398,8 +398,8 @@ public abstract class SyntaxElement {
                         // antwort in ein eigenes GVRes kommt, damit die zuordnung reihenfolge-erkennung
                         // der empfangenen GVRes-segmente funktioniert (in HBCIJobImpl.fillJobResult())
                         if ((this instanceof SF) &&
-                                (getName().equals("Params") || getName().equals("GVRes")) &&
-                                ((MultipleSEGs) child).hasValidChilds()) {
+                            (getName().equals("Params") || getName().equals("GVRes")) &&
+                            ((MultipleSEGs) child).hasValidChilds()) {
                             break;
                         }
                     }

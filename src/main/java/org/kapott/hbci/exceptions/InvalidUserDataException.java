@@ -22,7 +22,7 @@ package org.kapott.hbci.exceptions;
 
 
 public class InvalidUserDataException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public InvalidUserDataException(String msg) {
         super(msg);
     }

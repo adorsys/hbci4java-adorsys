@@ -26,7 +26,7 @@ import org.kapott.hbci.manager.HBCIUtils;
 /* a class representing the datatype "jn", where the
     value can be only either "J" or "N" */
 public class SyntaxJN
-        extends SyntaxAN {
+    extends SyntaxAN {
     public SyntaxJN(String x, int minlen, int maxlen) {
         super(check(x.trim()), 1, 1);
     }

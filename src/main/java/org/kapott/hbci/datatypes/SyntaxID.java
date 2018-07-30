@@ -23,7 +23,7 @@ package org.kapott.hbci.datatypes;
 /* a special case of the datatype AN, where maxlen is
     predefined to be 30 */
 public final class SyntaxID
-        extends SyntaxAN {
+    extends SyntaxAN {
     public SyntaxID(String x, int minlen, int maxlen) {
         super(x, minlen, 30);
     }

@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NeedKeyAckException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public NeedKeyAckException() {
         super(HBCIUtils.getLocMsg("EXCMSG_NEEDKEYACK"));
     }

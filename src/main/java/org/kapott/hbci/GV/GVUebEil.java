@@ -26,7 +26,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import java.util.HashMap;
 
 public class GVUebEil
-        extends GVUeb {
+    extends GVUeb {
     public GVUebEil(HBCIPassportInternal passport) {
         super(passport, getLowlevelName());
 

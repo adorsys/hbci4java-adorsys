@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class TooMuchElementsException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public TooMuchElementsException(String path, int idx) {
         super(HBCIUtils.getLocMsg("EXCMSG_TOOMUCHELEMS", new Object[]{path, Integer.toString(idx + 1)}));
     }

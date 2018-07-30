@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NoSuchConstructorException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public NoSuchConstructorException(String type) {
         super(HBCIUtils.getLocMsg("EXCMSG_NOCONSTR", "Syntax" + type));
     }

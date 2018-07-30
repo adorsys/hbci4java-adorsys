@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class NoValidValueException
-        extends HBCI_Exception {
+    extends HBCI_Exception {
     public NoValidValueException(String path, String value) {
         super(HBCIUtils.getLocMsg("EXCMSG_INVVALUE", new Object[]{path, value}));
     }

@@ -90,9 +90,9 @@ public class AbstractShowLowlevelData {
                         maxnum = Integer.parseInt(st);
 
                     System.out.println(spaces + pathWithDot(path) + name + ":" + datatype +
-                            ((minlen.length() != 0) ? (" min:" + minlen) : "") +
-                            ((maxlen.length() != 0) ? (" max:" + maxlen) : "") +
-                            " {" + minnum + "," + maxnum + "}");
+                        ((minlen.length() != 0) ? (" min:" + minlen) : "") +
+                        ((maxlen.length() != 0) ? (" max:" + maxlen) : "") +
+                        " {" + minnum + "," + maxnum + "}");
                 }
             } else {
                 String nextPath = path;
@@ -128,8 +128,8 @@ public class AbstractShowLowlevelData {
                     Node content = defcontent.item(i);
                     if (content.getNodeType() == Node.ELEMENT_NODE)
                         displayContentRef(
-                                nextPath, (Element) content, document,
-                                nextIndent, currentLevel + 1, minLevel);
+                            nextPath, (Element) content, document,
+                            nextIndent, currentLevel + 1, minLevel);
                 }
             }
         }

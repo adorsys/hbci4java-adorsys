@@ -101,8 +101,8 @@ public class SyntaxBin extends SyntaxDE {
                 break;
             default:
                 throw new InvalidArgumentException(HBCIUtils.getLocMsg(
-                        "EXC_DTBIN_NO_VALID_FORMAT",
-                        Character.toString(format)));
+                    "EXC_DTBIN_NO_VALID_FORMAT",
+                    Character.toString(format)));
         }
 
         return ret;

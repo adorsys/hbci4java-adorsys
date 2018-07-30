@@ -41,7 +41,7 @@ import java.util.HashMap;
  * Problems möglich ist.</p>
  */
 public final class HBCIRetVal
-        implements Serializable {
+    implements Serializable {
     /**
      * <p>HBCI-Fehlercode. Diese Codes bestehen immer aus vier Ziffern. Die erste
      * Ziffer kennzeichnet dabei die Art:</p>

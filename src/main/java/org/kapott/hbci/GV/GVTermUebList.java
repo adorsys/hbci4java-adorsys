@@ -28,7 +28,7 @@ import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
 import java.util.HashMap;
-import java.util.Properties;
+
 
 public final class GVTermUebList extends AbstractHBCIJob {
 
@@ -74,8 +74,8 @@ public final class GVTermUebList extends AbstractHBCIJob {
         entry.date = HBCIUtils.string2DateISO(result.get(header + ".date"));
 
         entry.value = new Value(
-                result.get(header + ".BTG.value"),
-                result.get(header + ".BTG.curr"));
+            result.get(header + ".BTG.value"),
+            result.get(header + ".BTG.curr"));
 
         for (int i = 0; ; i++) {
             String usage = result.get(HBCIUtils.withCounter(header + ".usage.usage", i));
@@ -88,16 +88,16 @@ public final class GVTermUebList extends AbstractHBCIJob {
         ((GVRTermUebList) jobResult).addEntry(entry);
 
         if (entry.orderid != null && entry.orderid.length() != 0) {
-            Properties p2 = new Properties();
+            HashMap<String, String> p2 = new HashMap();
 
-            for (String key : result.keySet()) {
+            p2.keySet().forEach(key -> {
                 if (key.startsWith(header + ".") &&
-                        !key.startsWith(header + ".SegHead.") &&
-                        !key.endsWith(".id")) {
-                    p2.setProperty(key.substring(header.length() + 1),
-                            result.get(key));
+                    !key.startsWith(header + ".SegHead.") &&
+                    !key.endsWith(".id")) {
+                    p2.put(key.substring(header.length() + 1),
+                        result.get(key));
                 }
-            }
+            });
 
             passport.setPersistentData("termueb_" + entry.orderid, p2);
         }

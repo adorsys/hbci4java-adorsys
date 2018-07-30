@@ -193,8 +193,8 @@ public final class SF extends SyntaxElement {
             String[] segRefId = getRefSegId(segref, document);
 
             if (segRefId[0].equals(nextSegId[0]) && segRefId[1].equals(nextSegId[1])
-                    || segRefId[0].equals("")
-                    || segRefId[1].equals("")) {
+                || segRefId[0].equals("")
+                || segRefId[1].equals("")) {
                 // das Segment wird nur geparst, wenn entweder segcode und segversion
                 // mit dem aus der document-spez übereinstimmen oder wenn in der document-
                 // spez. keine konkreten werte dafür gefunden wurden

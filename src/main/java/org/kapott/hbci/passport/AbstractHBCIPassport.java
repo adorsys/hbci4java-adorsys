@@ -180,7 +180,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                     Limit limit = new Limit();
                     limit.type = st.charAt(0);
                     limit.value = new Value(upd.get(header + ".KLimit.BTG.value"),
-                            upd.get(header + ".KLimit.BTG.curr"));
+                        upd.get(header + ".KLimit.BTG.curr"));
                     if ((st = upd.get(header + ".KLimit.limitdays")) != null)
                         limit.days = Integer.parseInt(st);
                 }
@@ -215,7 +215,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             String temp_iban = HBCIUtils.stripLeadingZeroes(account1.iban);
 
             if (haveNumber && number.equals(temp_number) ||
-                    haveIBAN && iban.equals(temp_iban)) {
+                haveIBAN && iban.equals(temp_iban)) {
                 account.blz = account1.blz;
                 account.country = account1.country;
                 account.number = account1.number;
@@ -342,7 +342,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             int i = 0;
 
             while ((header = HBCIUtils.withCounter("BPA.SuppVersions.version", i)) != null &&
-                    (value = bpd.get(header)) != null) {
+                (value = bpd.get(header)) != null) {
                 temp.add(value);
                 i++;
             }
@@ -381,7 +381,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
         bpd.keySet().forEach(key -> {
             if (key.startsWith("Params") &&
-                    key.endsWith(".SegHead.code")) {
+                key.endsWith(".SegHead.code")) {
                 int dotPos = key.indexOf('.');
                 int dotPos2 = key.indexOf('.', dotPos + 1);
 
@@ -404,7 +404,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                     String knownVersion = (String) ret.get(gvname);
 
                     if (knownVersion == null ||
-                            Integer.parseInt(version) > Integer.parseInt(knownVersion)) {
+                        Integer.parseInt(version) > Integer.parseInt(knownVersion)) {
                         ret.put(gvname, version);
                     }
                 }
@@ -423,8 +423,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         }
 
         return getJobRestrictions(
-                specname.substring(0, versionPos + 1),
-                specname.substring(versionPos + 1));
+            specname.substring(0, versionPos + 1),
+            specname.substring(versionPos + 1));
     }
 
     public HashMap<String, String> getJobRestrictions(String gvname, String version) {
@@ -433,11 +433,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         String searchstring = gvname + "Par" + version;
         bpd.keySet().forEach(key -> {
             if (key.startsWith("Params") &&
-                    key.indexOf("." + searchstring + ".Par") != -1) {
+                key.indexOf("." + searchstring + ".Par") != -1) {
                 int searchIdx = key.indexOf(searchstring);
                 result.put(key.substring(key.indexOf(".",
-                        searchIdx + searchstring.length() + 4) + 1),
-                        bpd.get(key));
+                    searchIdx + searchstring.length() + 4) + 1),
+                    bpd.get(key));
             }
         });
 
@@ -517,7 +517,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     /**
-     * @param type     the name of the syntaxelement to be returned
+     * @param type the name of the syntaxelement to be returned
      * @return a XML-node with the definition of the requested syntaxelement
      */
     public Node getSyntaxDef(String type) {

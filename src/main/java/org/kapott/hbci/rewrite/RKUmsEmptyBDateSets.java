@@ -54,14 +54,14 @@ public class RKUmsEmptyBDateSets extends Rewrite {
 
         for (String key : data.keySet()) {
             if (key.startsWith(header) &&
-                    key.indexOf("KUms") != -1 &&
-                    key.endsWith(".booked")) {
+                key.indexOf("KUms") != -1 &&
+                key.endsWith(".booked")) {
 
                 String st = msg.getValueOfDE(msg.getName() + "." + key);
                 st = rewriteKUms(st);
                 msg.propagateValue(msg.getName() + "." + key, "B" + st,
-                        SyntaxElement.DONT_TRY_TO_CREATE,
-                        SyntaxElement.ALLOW_OVERWRITE);
+                    SyntaxElement.DONT_TRY_TO_CREATE,
+                    SyntaxElement.ALLOW_OVERWRITE);
             }
         }
 

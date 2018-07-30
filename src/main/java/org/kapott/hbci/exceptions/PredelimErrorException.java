@@ -23,7 +23,7 @@ package org.kapott.hbci.exceptions;
 import org.kapott.hbci.manager.HBCIUtils;
 
 public final class PredelimErrorException
-        extends ParseErrorException {
+    extends ParseErrorException {
     public PredelimErrorException(String path, String expected, String found) {
         super(HBCIUtils.getLocMsg("EXCMSG_PREDELIM", new Object[]{path, expected, found}));
     }

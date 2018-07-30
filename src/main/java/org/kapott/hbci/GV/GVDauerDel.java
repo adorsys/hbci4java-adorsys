@@ -27,7 +27,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Properties;
+
 
 public final class GVDauerDel extends AbstractHBCIJob {
 
@@ -90,17 +90,14 @@ public final class GVDauerDel extends AbstractHBCIJob {
 
             // TODO: minpretime und maxpretime auswerten
         } else if (paramName.equals("orderid")) {
-            Properties p = (Properties) passport.getPersistentData("dauer_" + value);
+            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("dauer_" + value);
             if (p != null && p.size() != 0) {
-                for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                    String key = (String) e.nextElement();
-
+                p.keySet().forEach(key -> {
                     if (!key.equals("date") &&
-                            !key.startsWith("Aussetzung.")) {
-                        setLowlevelParam(getName() + "." + key,
-                                p.getProperty(key));
+                        !key.startsWith("Aussetzung.")) {
+                        setLowlevelParam(getName() + "." + key, p.get(key));
                     }
-                }
+                });
             }
         }
 

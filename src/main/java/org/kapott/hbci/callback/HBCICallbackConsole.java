@@ -32,7 +32,7 @@ import java.io.InputStreamReader;
  * Input- resp. Output-Streams.
  */
 public class HBCICallbackConsole
-        extends HBCICallbackIOStreams {
+    extends HBCICallbackIOStreams {
     public HBCICallbackConsole() {
         super(System.out, new BufferedReader(new InputStreamReader(System.in)));
     }

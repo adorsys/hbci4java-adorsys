@@ -57,7 +57,7 @@ public class GVFestCondList extends AbstractHBCIJob {
             entry.name = result.get(condheader + ".condbez");
 
             entry.date = HBCIUtils.strings2DateTimeISO(result.get(header + ".FestCondVersion.date"),
-                    result.get(header + ".FestCondVersion.time"));
+                result.get(header + ".FestCondVersion.time"));
             entry.version = result.get(header + ".FestCondVersion.version");
 
             String st = result.get(condheader + ".zinsmethode");
@@ -76,14 +76,14 @@ public class GVFestCondList extends AbstractHBCIJob {
 
             entry.zinssatz = HBCIUtils.string2Long(result.get(condheader + ".zinssatz"), 1000);
             entry.minbetrag = new Value(
-                    result.get(condheader + ".MinBetrag.value"),
-                    result.get(condheader + ".MinBetrag.curr"));
+                result.get(condheader + ".MinBetrag.value"),
+                result.get(condheader + ".MinBetrag.curr"));
             entry.name = result.get(condheader + ".condbez");
 
             if (result.get(condheader + ".MaxBetrag.value") != null) {
                 entry.maxbetrag = new Value(
-                        result.get(condheader + ".MaxBetrag.value"),
-                        result.get(condheader + ".MaxBetrag.curr"));
+                    result.get(condheader + ".MaxBetrag.value"),
+                    result.get(condheader + ".MaxBetrag.curr"));
             }
 
             ((GVRFestCondList) jobResult).addEntry(entry);

@@ -107,12 +107,12 @@ public final class MultipleDEs extends MultipleSyntaxElements {
                 String key = (e.nextElement());
 
                 if (key.startsWith(header) &&
-                        key.indexOf(".", header.length()) == -1) {
+                    key.indexOf(".", header.length()) == -1) {
 
                     int dotPos = key.lastIndexOf('.');
                     String newkey = key.substring(0, dotPos) +
-                            HBCIUtils.withCounter("", idx) +
-                            key.substring(dotPos);
+                        HBCIUtils.withCounter("", idx) +
+                        key.substring(dotPos);
                     valids.put(newkey, valids.get(key));
                 }
             }
@@ -143,15 +143,15 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         } else {
             if (deref == null) {
                 p.put(Integer.toString(segref[0]) +
-                        ":" + Integer.toString(degref[0]), getPath());
+                    ":" + Integer.toString(degref[0]), getPath());
                 degref[0]++;
             } else {
                 p.put(Integer.toString(segref[0]) +
-                                ":" +
-                                Integer.toString(degref[0]) +
-                                "," +
-                                Integer.toString(deref[0]),
-                        getPath());
+                        ":" +
+                        Integer.toString(degref[0]) +
+                        "," +
+                        Integer.toString(deref[0]),
+                    getPath());
                 deref[0]++;
             }
         }

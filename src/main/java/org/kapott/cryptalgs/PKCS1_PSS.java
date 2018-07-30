@@ -29,7 +29,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 
 public class PKCS1_PSS
-        extends SignatureSpi {
+    extends SignatureSpi {
     private RSAPublicKey pubKey;
     private PrivateKey privKey;
     private SignatureParamSpec param;
@@ -270,7 +270,7 @@ public class PKCS1_PSS
 
     @Override
     protected void engineSetParameter(AlgorithmParameterSpec param1)
-            throws InvalidAlgorithmParameterException {
+        throws InvalidAlgorithmParameterException {
         if (param1 instanceof SignatureParamSpec)
             this.param = (SignatureParamSpec) (param1);
         else {
@@ -310,7 +310,7 @@ public class PKCS1_PSS
 
     @Override
     protected int engineSign(byte[] output, int offset, int len)
-            throws SignatureException {
+        throws SignatureException {
         byte[] sig = engineSign();
 
         if (offset + len > output.length)

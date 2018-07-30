@@ -31,7 +31,7 @@ import java.util.List;
  * eines Kunden bei einer Bank.
  */
 public class Konto
-        implements Serializable {
+    implements Serializable {
     /**
      * Länderkennzeichen des Kontos.
      * Normalerweise ist hier der Wert <code>DE</code> für

@@ -46,9 +46,9 @@ public final class Message extends SyntaxElement {
 
     public Message(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
         super(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
-                document,
-                new Hashtable<>(),
-                checkValids ? new Hashtable<>() : null);
+            document,
+            new Hashtable<>(),
+            checkValids ? new Hashtable<>() : null);
         initData(checkSeq);
     }
 
@@ -154,8 +154,8 @@ public final class Message extends SyntaxElement {
 
     public void init(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
         super.init(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
-                document, new Hashtable<>(),
-                checkValids ? new Hashtable<>() : null);
+            document, new Hashtable<>(),
+            checkValids ? new Hashtable<>() : null);
         initData(checkSeq);
     }
 

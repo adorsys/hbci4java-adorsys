@@ -24,6 +24,7 @@ package org.kapott.hbci.GV;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
@@ -122,7 +123,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
             String challenge = result.get(header + ".challenge");
             if (challenge != null) {
                 log.debug("found challenge '" + challenge + "' in HITAN - saving it temporarily in passport");
-                // das ist für PV#1 (die antwort auf das einreichen des auftrags-hashs) oder 
+                // das ist für PV#1 (die antwort auf das einreichen des auftrags-hashs) oder
                 // für PV#2 (die antwort auf das einreichen des auftrages)
                 // in jedem fall muss mit der nächsten nachricht die TAN übertragen werden
                 passport.setPersistentData("pintan_challenge", challenge);
@@ -162,7 +163,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
                 }
             }
 
-            passport.getCallback().tanCallback(passport, otherTAN2StepTask);
+            passport.getCallback().tanCallback((PinTanPassport) passport, otherTAN2StepTask);
         }
     }
 }

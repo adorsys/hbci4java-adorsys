@@ -72,25 +72,25 @@ public class GVRTANList extends HBCIJobResultImpl {
          * Feld zum "Übersetzen" der Verwendungs-Codes ({@link #usagecode}) in einen Klartext.
          */
         public static final String[] usageCodes = {
-                "TAN ist frei",
-                "(not used)",
-                "PIN-Änderung",
-                "Kontosperre aufheben",
-                "Aktivieren neuer TAN-Liste",
-                "Entwertete TAN (maschinell)",
-                "Mitteilung mit TAN",
-                "Überweisung",
-                "Wertpapierorder",
-                "Dauerauftrag",
-                "Entwertet wegen Zeitüberschreitung im Zweischritt-Verfahren",
-                "Entwertet wegen Zeitüberschreitung im Zweischritt-Verfahren (Mehrfach-Signaturen)",
-                "Entwertet (falsche Antwort auf Challenge?)",
-                "", "", "", "", "", "", "",
-                "Lastschriften",
-                "Euro-Überweisung",
-                "Auslandsüberweisung",
-                "Terminüberweisung",
-                "Umbuchung"
+            "TAN ist frei",
+            "(not used)",
+            "PIN-Änderung",
+            "Kontosperre aufheben",
+            "Aktivieren neuer TAN-Liste",
+            "Entwertete TAN (maschinell)",
+            "Mitteilung mit TAN",
+            "Überweisung",
+            "Wertpapierorder",
+            "Dauerauftrag",
+            "Entwertet wegen Zeitüberschreitung im Zweischritt-Verfahren",
+            "Entwertet wegen Zeitüberschreitung im Zweischritt-Verfahren (Mehrfach-Signaturen)",
+            "Entwertet (falsche Antwort auf Challenge?)",
+            "", "", "", "", "", "", "",
+            "Lastschriften",
+            "Euro-Überweisung",
+            "Auslandsüberweisung",
+            "Terminüberweisung",
+            "Umbuchung"
         };
 
         /**
@@ -133,7 +133,7 @@ public class GVRTANList extends HBCIJobResultImpl {
         public String toString() {
             String usage = usagecode < usageCodes.length ? usageCodes[usagecode] : "(unknown)";
             return "TAN:" + tan + " Verwendung:" + usagecode + " (" + usage + ") (" + usagetxt + ")" +
-                    (timestamp != null ? (" Zeitpunkt:" + HBCIUtils.datetime2StringLocal(timestamp)) : "");
+                (timestamp != null ? (" Zeitpunkt:" + HBCIUtils.datetime2StringLocal(timestamp)) : "");
         }
     }
 

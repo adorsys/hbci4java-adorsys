@@ -27,7 +27,8 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
 import java.util.Enumeration;
-import java.util.Properties;
+import java.util.HashMap;
+
 
 @Slf4j
 public final class GVTermUebDel extends AbstractHBCIJob {
@@ -46,18 +47,16 @@ public final class GVTermUebDel extends AbstractHBCIJob {
         super.setParam(paramName, value);
 
         if (paramName.equals("orderid")) {
-            Properties p = (Properties) passport.getPersistentData("termueb_" + value);
+            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("termueb_" + value);
             if (p == null) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS", value);
                 throw new InvalidUserDataException(msg);
             }
 
-            for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-
-                setLowlevelParam(getName() + "." + key,
-                        p.getProperty(key));
-            }
+            p.forEach((key, obj) -> {
+                setLowlevelParam(getName() + "." + key, obj);
+            });
+            
         }
     }
 }
