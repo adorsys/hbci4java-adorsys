@@ -78,10 +78,9 @@ public final class HBCIMsgStatus {
 
         // globale return-codes extrahieren
         for (int i = 0; true; i++) {
-            HBCIRetVal rv = null;
+            HBCIRetVal rv;
             try {
-                rv = new HBCIRetVal(data,
-                    HBCIUtils.withCounter("RetGlob.RetVal", i));
+                rv = new HBCIRetVal(data, HBCIUtils.withCounter("RetGlob.RetVal", i));
             } catch (Exception e) {
                 break;
             }
@@ -100,9 +99,7 @@ public final class HBCIMsgStatus {
             for (int j = 0; true; j++) {
                 HBCIRetVal rv = null;
                 try {
-                    rv = new HBCIRetVal(data,
-                        HBCIUtils.withCounter(segheader + ".RetVal", j),
-                        segref);
+                    rv = new HBCIRetVal(data, HBCIUtils.withCounter(segheader + ".RetVal", j), segref);
                 } catch (Exception e) {
                     break;
                 }

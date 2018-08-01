@@ -244,11 +244,6 @@ public final class HBCIInstitute implements IHandlerData {
         // tatsaechlich unterstuetzt wird
         log.debug("checking if requested hbci parameters are supported");
         if (passport.getBPD() != null) {
-            if (!passport.isSupported()) {
-                String msg = HBCIUtils.getLocMsg("EXCMSG_SECMETHNOTSUPP");
-                throw new InvalidUserDataException(msg);
-            }
-
             if (!Arrays.asList(passport.getSuppVersions()).contains(passport.getHBCIVersion())) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_VERSIONNOTSUPP");
                 throw new InvalidUserDataException(msg);
@@ -261,17 +256,8 @@ public final class HBCIInstitute implements IHandlerData {
     }
 
     private HBCIMsgStatus anonymousDialogInit() {
-        Message message = MessageFactory.createMessage("DialogInitAnon", passport.getSyntaxDocument());
-        message.rawSet("Idn.KIK.blz", passport.getBLZ());
-        message.rawSet("Idn.KIK.country", passport.getCountry());
-        message.rawSet("ProcPrep.BPD", "0");
-        message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
-        message.rawSet("ProcPrep.lang", "0");
-        message.rawSet("ProcPrep.prodName", "HBCI4Java");
-        message.rawSet("ProcPrep.prodVersion", "2.5");
-
-        return kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT,
-            HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
+        Message message = MessageFactory.createAnonymouaDialogInit(passport);
+        return kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT);
     }
 
     private void anonymousDialogEnd(String dialogid) {
@@ -282,7 +268,7 @@ public final class HBCIInstitute implements IHandlerData {
         message.rawSet("MsgHead.msgnum", "2");
         message.rawSet("DialogEndS.dialogid", dialogid);
         message.rawSet("MsgTail.msgnum", "2");
-        HBCIMsgStatus status = kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT, HBCIKernel.DONT_NEED_SIG, HBCIKernel.DONT_NEED_CRYPT);
+        HBCIMsgStatus status = kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT);
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {

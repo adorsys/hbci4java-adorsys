@@ -49,7 +49,7 @@ public class HBCIExecStatus {
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
-    public void addDialogStatus(HBCIDialogStatus status) {
+    public void setDialogStatus(HBCIDialogStatus status) {
         this.statusData = status;
     }
 
@@ -59,8 +59,8 @@ public class HBCIExecStatus {
     public void addException(Exception e) {
         if (exceptions == null) {
             exceptions = new ArrayList<>();
-            exceptions.add(e);
         }
+        exceptions.add(e);
         log.error(e.getMessage(), e);
     }
 
@@ -158,8 +158,7 @@ public class HBCIExecStatus {
         HBCIDialogStatus status = getDialogStatus();
 
         ok &= (exc == null || exc.size() == 0);
-        ok &= (status != null);
-        ok &= status.isOK();
+        ok &= (status != null && status.isOK());
 
         return ok;
     }

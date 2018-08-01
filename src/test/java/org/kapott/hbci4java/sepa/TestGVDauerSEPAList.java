@@ -31,7 +31,6 @@ public class TestGVDauerSEPAList extends AbstractTest {
     private final static Map<Integer, String> settings = new HashMap<Integer, String>() {{
         // Demo-Konto bei der GAD
         put(HBCICallback.NEED_COUNTRY, "DE");
-        put(HBCICallback.NEED_FILTER, "Base64");
         put(HBCICallback.NEED_PASSPHRASE_LOAD, "test");
         put(HBCICallback.NEED_PASSPHRASE_SAVE, "test");
         put(HBCICallback.NEED_PORT, "443");
@@ -82,7 +81,6 @@ public class TestGVDauerSEPAList extends AbstractTest {
         settings.put(HBCICallback.NEED_HOST, params.getProperty("host"));
         settings.put(HBCICallback.NEED_PT_PIN, params.getProperty("pin"));
         settings.put(HBCICallback.NEED_USERID, params.getProperty("userid"));
-        settings.put(HBCICallback.NEED_PT_SECMECH, params.getProperty("secmech"));
 
         Properties props = new Properties();
         props.put("log.loglevel.default", Integer.toString(LOGLEVEL));

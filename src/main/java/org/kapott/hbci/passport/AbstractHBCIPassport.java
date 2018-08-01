@@ -28,7 +28,6 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.DocumentFactory;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Limit;
 import org.kapott.hbci.structures.Value;
@@ -380,8 +379,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         HashMap<String, String> ret = new HashMap<>();
 
         bpd.keySet().forEach(key -> {
-            if (key.startsWith("Params") &&
-                key.endsWith(".SegHead.code")) {
+            if (key.startsWith("Params") && key.endsWith(".SegHead.code")) {
                 int dotPos = key.indexOf('.');
                 int dotPos2 = key.indexOf('.', dotPos + 1);
 
@@ -469,15 +467,15 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * @return Liste aller möglichen Property-Keys, für die im Result-Objekt eines Lowlevel-Jobs
      * Werte vorhanden sein könnten
      */
-    public List<String> getLowlevelJobResultNames(Document document, String gvname, Message msgGen) {
+    public List<String> getLowlevelJobResultNames(String gvname) {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs(document).get(gvname);
+        String version = getSupportedLowlevelJobs().get(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
-        return getGVResultNames(document, gvname, version);
+        return getGVResultNames(syntaxDocument, gvname, version);
     }
 
     /**
@@ -502,18 +500,22 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * Geschäftsvorfallnamen (Lowlevel) mit der jeweils von <em>HBCI4Java</em>
      * verwendeten GV-Versionsnummer.
      */
-    public HashMap<String, String> getSupportedLowlevelJobs(Document document) {
+    public HashMap<String, String> getSupportedLowlevelJobs() {
         HashMap<String, String> paramSegments = getParamSegmentNames();
         HashMap<String, String> result = new HashMap<>();
 
         paramSegments.keySet().forEach(segName -> {
             // überprüfen, ob parameter-segment tatsächlich zu einem GV gehört
             // gilt z.b. für "PinTan" nicht
-            if (getLowlevelGVs(document).containsKey(segName))
+            if (getLowlevelGVs(syntaxDocument).containsKey(segName))
                 result.put(segName, paramSegments.get(segName));
         });
 
         return result;
+    }
+
+    public boolean jobSupported(String jobName) {
+        return getSupportedLowlevelJobs().containsKey(jobName);
     }
 
     /**
@@ -550,11 +552,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      *               ermittelt werden sollen
      * @return Properties-Objekt mit den einzelnen Restriktionen
      */
-    public HashMap<String, String> getLowlevelJobRestrictions(String gvname, Document document) {
+    public HashMap<String, String> getLowlevelJobRestrictions(String gvname) {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
-        String version = getSupportedLowlevelJobs(document).get(gvname);
+        String version = getSupportedLowlevelJobs().get(gvname);
         if (version == null)
             throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
 
@@ -713,24 +715,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                         addLowlevelProperties(document, result, pathWithDot(path) + name, (Element) content);
                 }
             }
-        }
-    }
-
-    /**
-     * @param jobnameHL der Highlevel-Name des Jobs, dessen Unterstützung überprüft werden soll
-     * @return <code>true</code>, wenn dieser Job von der Bank unterstützt wird und
-     * mit <em>HBCI4Java</em> verwendet werden kann; ansonsten <code>false</code>
-     */
-    public boolean isSupported(String jobnameHL, Document document) {
-        if (jobnameHL == null || jobnameHL.length() == 0)
-            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
-
-        try {
-            Class cl = Class.forName("org.kapott.hbci.GV.GV" + jobnameHL);
-            String lowlevelName = (String) cl.getMethod("getLowlevelName", (Class[]) null).invoke(null, (Object[]) null);
-            return getSupportedLowlevelJobs(document).keySet().contains(lowlevelName);
-        } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_HANDLER_HLCHECKERR", jobnameHL), e);
         }
     }
 

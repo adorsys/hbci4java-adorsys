@@ -53,12 +53,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     void setInstEncKey(HBCIKey key);
 
-    void clearMySigKey();
-
-    void clearMyEncKey();
-
-    void clearMyDigKey();
-
     void setMyPublicSigKey(HBCIKey key);
 
     void setMyPrivateSigKey(HBCIKey key);
@@ -122,11 +116,11 @@ public interface HBCIPassportInternal extends HBCIPassport {
     Object getPersistentData(String id);
 
     /* Diese Methode wird nach jeder Dialog-Initialisierung aufgerufen. Ein
-     * Passport-Objekt kann den Status der Response mit Hilfe von msgStatus
+     * Passport-Objekt kann den Status der Response mit Hilfe von msgStatusList
      * auswerten. Durch Zurückgeben von "true" wird angezeigt, dass eine
      * erneute Dialog-Initialisierung stattfinden sollte (z.B. weil sich grund-
      * legende Zugangsdaten geändert haben, secMechs neu festgelegt wurden o.ä.) */
-    boolean postInitResponseHook(HBCIMsgStatus msgStatus);
+    void postInitResponseHook(HBCIMsgStatus msgStatus);
 
     /* Gibt zurück, wieviele GV-Segmente in einer Nachricht enthalten sein dürfen.
      * Normalerweise wird das schon durch die BPD bzw. die Job-Params festgelegt,
@@ -154,9 +148,9 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     byte[] sign(byte[] hashresult);
 
-    HashMap<String, String> getSupportedLowlevelJobs(Document document);
+    HashMap<String, String> getSupportedLowlevelJobs();
 
-    HashMap<String, String> getLowlevelJobRestrictions(String gvname, Document document);
+    HashMap<String, String> getLowlevelJobRestrictions(String gvname);
 
     Document getSyntaxDocument();
 

@@ -43,7 +43,7 @@ import org.w3c.dom.Document;
 public final class MessageFactory {
 
     public static Message createDialogInit(String msgName, String syncMode, HBCIPassportInternal passport) {
-        Message message = MessageFactory.createMessage(msgName, passport.getSyntaxDocument());
+        Message message = createMessage(msgName, passport.getSyntaxDocument());
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
         message.rawSet("Idn.KIK.country", passport.getCountry());
         message.rawSet("Idn.customerid", passport.getCustomerId());
@@ -57,6 +57,29 @@ public final class MessageFactory {
         if (syncMode != null) {
             message.rawSet("Sync.mode", syncMode);
         }
+        return message;
+    }
+
+    public static Message createAnonymouaDialogInit(HBCIPassportInternal passport) {
+        Message message = createMessage("DialogInitAnon", passport.getSyntaxDocument());
+        message.rawSet("Idn.KIK.blz", passport.getBLZ());
+        message.rawSet("Idn.KIK.country", passport.getCountry());
+        message.rawSet("ProcPrep.BPD", "0");
+        message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
+        message.rawSet("ProcPrep.lang", "0");
+        message.rawSet("ProcPrep.prodName", "HBCI4Java");
+        message.rawSet("ProcPrep.prodVersion", "2.5");
+
+        return message;
+    }
+
+    public static Message createDialogEnd(HBCIPassportInternal passport, String dialogid, long msgNumber) {
+        Message message = MessageFactory.createMessage("DialogEnd", passport.getSyntaxDocument());
+        message.rawSet("DialogEndS.dialogid", dialogid);
+        message.rawSet("MsgHead.dialogid", dialogid);
+        message.rawSet("MsgHead.msgnum", Long.toString(msgNumber));
+        message.rawSet("MsgTail.msgnum", Long.toString(msgNumber));
+
         return message;
     }
 

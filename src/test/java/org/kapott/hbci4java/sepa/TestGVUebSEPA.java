@@ -56,7 +56,6 @@ public class TestGVUebSEPA extends AbstractTest {
         put(HBCICallback.NEED_COUNTRY, "DE");
         put(HBCICallback.NEED_BLZ, "12030000");
         put(HBCICallback.NEED_CUSTOMERID, "1007318833");
-        put(HBCICallback.NEED_FILTER, "Base64");
         put(HBCICallback.NEED_HOST, "hbci-pintan-by.s-hbci.de/PinTanServlet");
         put(HBCICallback.NEED_PASSPHRASE_LOAD, "test");
         put(HBCICallback.NEED_PASSPHRASE_SAVE, "test");

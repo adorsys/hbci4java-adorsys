@@ -6,7 +6,9 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 public class GVTANMediaList extends AbstractHBCIJob {
@@ -24,24 +26,23 @@ public class GVTANMediaList extends AbstractHBCIJob {
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
 
-        String s = result.get(header + ".tanoption");
-        if (s != null) {
-            ((GVRTANMediaList) jobResult).setTanOption(Integer.parseInt(s));
+        String value = result.get(header + ".tanoption");
+        if (value != null) {
+            ((GVRTANMediaList) jobResult).setTanOption(Integer.parseInt(value));
         }
 
-        // Da drin speichern wir die Namen der TAN-Medien - kommt direkt in die UPD im Passport
-        StringBuffer mediaNames = new StringBuffer();
+        List<GVRTANMediaList.TANMediaInfo> tanMedias = new ArrayList<>();
 
         for (int i = 0; ; i++) {
             String mediaheader = HBCIUtils.withCounter(header + ".MediaInfo", i);
 
-            String st = result.get(mediaheader + ".mediacategory");
-            if (st == null)
+            value = result.get(mediaheader + ".mediacategory");
+            if (value == null)
                 break;
 
             GVRTANMediaList.TANMediaInfo info = new GVRTANMediaList.TANMediaInfo();
 
-            info.mediaCategory = st;
+            info.mediaCategory = value;
             info.cardNumber = result.get(mediaheader + ".cardnumber");
             info.cardSeqNumber = result.get(mediaheader + ".cardseqnumber");
             info.mediaName = result.get(mediaheader + ".medianame");
@@ -50,30 +51,30 @@ public class GVTANMediaList extends AbstractHBCIJob {
             info.status = result.get(mediaheader + ".status");
             info.tanListNumber = result.get(mediaheader + ".tanlistnumber");
 
-            st = result.get(mediaheader + ".freetans");
-            if (st != null) info.freeTans = Integer.parseInt(st);
+            value = result.get(mediaheader + ".freetans");
+            if (value != null) info.freeTans = Integer.parseInt(value);
 
-            st = result.get(mediaheader + ".cardtype");
-            if (st != null) info.cardType = Integer.parseInt(st);
+            value = result.get(mediaheader + ".cardtype");
+            if (value != null) info.cardType = Integer.parseInt(value);
 
-            st = result.get(mediaheader + ".validfrom");
-            if (st != null) {
-                info.validFrom = HBCIUtils.string2DateISO(st);
+            value = result.get(mediaheader + ".validfrom");
+            if (value != null) {
+                info.validFrom = HBCIUtils.string2DateISO(value);
             }
 
-            st = result.get(mediaheader + ".validto");
-            if (st != null) {
-                info.validTo = HBCIUtils.string2DateISO(st);
+            value = result.get(mediaheader + ".validto");
+            if (value != null) {
+                info.validTo = HBCIUtils.string2DateISO(value);
             }
 
-            st = result.get(mediaheader + ".lastuse");
-            if (st != null) {
-                info.lastUse = HBCIUtils.string2DateISO(st);
+            value = result.get(mediaheader + ".lastuse");
+            if (value != null) {
+                info.lastUse = HBCIUtils.string2DateISO(value);
             }
 
-            st = result.get(mediaheader + ".activatedon");
-            if (st != null) {
-                info.activatedOn = HBCIUtils.string2DateISO(st);
+            value = result.get(mediaheader + ".activatedon");
+            if (value != null) {
+                info.activatedOn = HBCIUtils.string2DateISO(value);
             }
 
             ((GVRTANMediaList) jobResult).add(info);
@@ -83,21 +84,12 @@ public class GVTANMediaList extends AbstractHBCIJob {
             boolean haveName = info.mediaName != null && info.mediaName.length() > 0;
             // boolean isMobileTan = info.mediaCategory != null && info.mediaCategory.equalsIgnoreCase("M");
 
-            // Zu den UPD hinzufuegen
             if (isActive && haveName) {
-                if (mediaNames.length() != 0)
-                    mediaNames.append("|");
-
-                mediaNames.append(info.mediaName);
+                log.info("adding TAN media: " + info.mediaName);
+                tanMedias.add(info);
             }
         }
-
-        String names = mediaNames.toString();
-        if (names.length() > 0) {
-            log.info("adding TAN media names to UPD: " + names);
-            ;
-            passport.getUPD().put("tanmedia.names", names);
-        }
+        passport.setTanMedias(tanMedias);
     }
 
 }

@@ -49,7 +49,7 @@ public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
             resultData.put(key, value);
     }
 
-    public int getRetNumber() {
+    public int getResultsSize() {
         return jobStatus.getRetVals().size();
     }
 

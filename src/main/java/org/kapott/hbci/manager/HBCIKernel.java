@@ -79,7 +79,7 @@ public final class HBCIKernel {
         @param cryptit A boolean value specifying, if the message to be sent should be encrypted.
         @return A Properties object that contains a path-value-pair for each dataelement of
                 the received message. */
-    public HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit, boolean needSig, boolean needCrypt) {
+    public HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit) {
         HBCIMsgStatus msgStatus = new HBCIMsgStatus();
 
         try {
@@ -128,14 +128,14 @@ public final class HBCIKernel {
     }
 
     private void processMessage(Message message, HBCIMsgStatus msgStatus) {
-    /* zu jeder SyntaxElement-Referenz (2:3,1)==(SEG:DEG,DE) den Pfad
-       des jeweiligen Elementes speichern */
+        /* zu jeder SyntaxElement-Referenz (2:3,1)==(SEG:DEG,DE) den Pfad
+           des jeweiligen Elementes speichern */
         HashMap<String, String> paths = new HashMap<>();
         message.getElementPaths(paths, null, null, null);
         msgStatus.addData(paths);
 
-            /* für alle Elemente (Pfadnamen) die aktuellen Werte speichern,
-               wie sie bei der ausgehenden Nachricht versandt werden */
+        /* für alle Elemente (Pfadnamen) die aktuellen Werte speichern,
+           wie sie bei der ausgehenden Nachricht versandt werden */
         HashMap<String, String> current = new HashMap<>();
         message.extractValues(current);
         HashMap<String, String> origs = new HashMap<>();
@@ -216,14 +216,6 @@ public final class HBCIKernel {
     }
 
     private void sendMessage(Message message, String messageName, HBCIMsgStatus msgStatus, List<Rewrite> rewriters) {
-        String messagePath = message.getPath();
-        String msgnum = message.getValueOfDE(messagePath + ".MsgHead.msgnum");
-        String dialogid = message.getValueOfDE(messagePath + ".MsgHead.dialogid");
-        String hbciversion = message.getValueOfDE(messagePath + ".MsgHead.hbciversion");
-
-        // nachricht versenden und antwortnachricht empfangen
-        log.debug("communicating dialogid/msgnum " + dialogid + "/" + msgnum);
-
         Message response = commPinTan.pingpong(message, messageName, rewriters, msgStatus);
         response = decryptMessage(rewriters, response, messageName + "Res");
 
@@ -235,7 +227,8 @@ public final class HBCIKernel {
         // daten aus nachricht in status-objekt einstellen
         log.debug("extracting data from received message");
         msgStatus.addData(response.getData());
-        checkResponse(response, msgnum, dialogid, hbciversion);
+        checkResponse(response);
+        checkSig(response);
     }
 
     private void checkSig(Message message) {
@@ -249,9 +242,12 @@ public final class HBCIKernel {
         }
     }
 
-    private void checkResponse(Message response, String msgnum, String dialogid, String hbciversion) {
+    private void checkResponse(Message response) {
         // überprüfen einiger constraints, die in einer antwortnachricht eingehalten werden müssen
         String responsePath = response.getPath();
+        String msgnum = response.getValueOfDE(responsePath + ".MsgHead.msgnum");
+        String dialogid = response.getValueOfDE(responsePath + ".MsgHead.dialogid");
+        String hbciversion = response.getValueOfDE(responsePath + ".MsgHead.hbciversion");
 
         String hbciversion2 = response.getValueOfDE(responsePath + ".MsgHead.hbciversion");
         if (!hbciversion2.equals(hbciversion))
@@ -270,8 +266,6 @@ public final class HBCIKernel {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVDIALOGID_REF"));
         if (!response.getValueOfDE(responsePath + ".MsgHead.MsgRef.msgnum").equals(msgnum))
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVMSGNUM_REF"));
-
-        checkSig(response);
     }
 
     private Message decryptMessage(List<Rewrite> rewriters, Message response, String responseMessageName) {

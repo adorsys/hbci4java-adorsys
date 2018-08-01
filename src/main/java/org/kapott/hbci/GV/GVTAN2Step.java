@@ -163,7 +163,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
                 }
             }
 
-            passport.getCallback().tanCallback((PinTanPassport) passport, otherTAN2StepTask);
+            passport.getCallback().tanChallengeCallback(challenge);
         }
     }
 }

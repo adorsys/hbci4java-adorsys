@@ -22,6 +22,8 @@ package org.kapott.hbci.status;
 
 import org.kapott.hbci.manager.HBCIUtils;
 
+import java.util.List;
+
 /**
  * <p>Status-Informationen für einen kompletten HBCI-Dialog. Objekte
  * dieser Klasse werden von {@link HBCIExecStatus}-Objekten verwaltet.
@@ -50,7 +52,7 @@ public final class HBCIDialogStatus {
      * Geschäftsvorfall passende Nachrichtennummer zu ermitteln, um damit
      * das entsprechende Element aus diesem Array zu extrahieren. </p>
      */
-    public HBCIMsgStatus[] msgStatus;
+    public List<HBCIMsgStatus> msgStatusList;
     /**
      * Statusinformationen zur Dialog-Initialisierungs-Nachricht. In diesem
      * Feld werden alle Status-Informationen gespeichert, die die
@@ -64,12 +66,6 @@ public final class HBCIDialogStatus {
      */
     public HBCIMsgStatus endStatus;
 
-    public HBCIDialogStatus() {
-        msgStatus = null;
-        initStatus = null;
-        endStatus = null;
-    }
-
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
@@ -80,8 +76,8 @@ public final class HBCIDialogStatus {
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
-    public void setMsgStatus(HBCIMsgStatus[] status) {
-        this.msgStatus = status;
+    public void setMsgStatusList(List<HBCIMsgStatus> status) {
+        this.msgStatusList = status;
     }
 
     /**
@@ -117,7 +113,7 @@ public final class HBCIDialogStatus {
      * Fehler aufgetreten sind oder nicht).</p>
      * <p>Um also sicher zu gehen, dass alle gewünschten Aufträge auch wirklich
      * erfolgreich ausgeführt wurden, sollte von jedem ursprünglich erzeugten
-     * <code>HBCIJob</code> der Status mit {@link org.kapott.hbci.GV.HBCIJob#getJobResult()} und
+     * <code>HBCIJob</code> der Status mit {@link org.kapott.hbci.GV.AbstractHBCIJob#getJobResult()} und
      * {@link org.kapott.hbci.GV_Result.HBCIJobResult#isOK()} geprüft werden.</p>
      *
      * @return <code>true</code>, wenn keine Nachricht des Dialoges einen Fehler
@@ -131,9 +127,9 @@ public final class HBCIDialogStatus {
             ret &= initStatus.isOK();
         }
 
-        if (msgStatus != null) {
-            for (int i = 0; i < msgStatus.length; i++) {
-                ret &= msgStatus[i].isOK();
+        if (msgStatusList != null) {
+            for (HBCIMsgStatus hbciMsgStatus : msgStatusList) {
+                ret &= hbciMsgStatus.isOK();
             }
         }
 
@@ -167,9 +163,9 @@ public final class HBCIDialogStatus {
             }
         }
 
-        if (msgStatus != null) {
-            for (int i = 0; i < msgStatus.length; i++) {
-                String s = msgStatus[i].getErrorString();
+        if (msgStatusList != null) {
+            msgStatusList.forEach(msgStatus -> {
+                String s = msgStatus.getErrorString();
                 if (s.length() != 0) {
                     // ret.append(HBCIUtils.getLocMsg("STAT_MSG")).append(" ");
                     // ret.append(Integer.toString(i+1));
@@ -178,7 +174,7 @@ public final class HBCIDialogStatus {
                     ret.append(s);
                     ret.append(System.getProperty("line.separator"));
                 }
-            }
+            });
         }
 
         if (endStatus != null) {
@@ -214,10 +210,10 @@ public final class HBCIDialogStatus {
         }
         ret.append(System.getProperty("line.separator"));
 
-        if (msgStatus != null) {
-            for (int i = 0; i < msgStatus.length; i++) {
+        if (msgStatusList != null) {
+            for (int i = 0; i < msgStatusList.size(); i++) {
                 ret.append(HBCIUtils.getLocMsg("STAT_MSG")).append(" #").append(i + 1).append(":").append(System.getProperty("line.separator"));
-                ret.append(msgStatus[i].toString());
+                ret.append(msgStatusList.get(i).toString());
                 ret.append(System.getProperty("line.separator"));
             }
         }

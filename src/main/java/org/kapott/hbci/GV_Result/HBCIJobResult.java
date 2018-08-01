@@ -44,12 +44,12 @@ public interface HBCIJobResult {
      *
      * @return Anzahl der HBCI-Statuscodes in den Job-Statusinformationen
      */
-    int getRetNumber();
+    int getResultsSize();
 
     /**
      * Gibt einen bestimmten HBCI-Statuscode aus den Job-Statusinformationen
      * zurück. Die Anzahl der hier zur Verfügung stehenden Rückgabewerte kann
-     * mit {@link #getRetNumber()} ermittelt werden.
+     * mit {@link #getResultsSize()} ermittelt werden.
      *
      * @param idx Indenummer des HBCI-Statuscodes (von 0 bis Anzahl-1)
      * @return einen HBCI-Statuscode

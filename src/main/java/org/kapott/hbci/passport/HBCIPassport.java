@@ -20,10 +20,12 @@
 
 package org.kapott.hbci.passport;
 
+import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.structures.Konto;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * <p>Public Interface für HBCI-Passports. Ein HBCI-Passport ist eine Art "Ausweis",
@@ -226,8 +228,6 @@ public interface HBCIPassport {
      */
     void setCustomerId(String customerid);
 
-    boolean isSupported();
-
     boolean hasInstSigKey();
 
     boolean hasInstEncKey();
@@ -288,4 +288,10 @@ public interface HBCIPassport {
     Object getCryptFunction();
 
     byte[] decrypt(byte[] cryptedkey, byte[] cryptedstring);
+
+    List<GVRTANMediaList.TANMediaInfo> getTanMedias();
+
+    void setTanMedias(List<GVRTANMediaList.TANMediaInfo> tanMedias);
+
+    boolean jobSupported(String jobName);
 }

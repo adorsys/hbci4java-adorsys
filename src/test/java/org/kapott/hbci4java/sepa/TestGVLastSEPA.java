@@ -61,15 +61,12 @@ public class TestGVLastSEPA extends AbstractTest {
         put(HBCICallback.NEED_COUNTRY, "DE");
         put(HBCICallback.NEED_BLZ, "30060601");
         put(HBCICallback.NEED_CUSTOMERID, "0001956434");
-        put(HBCICallback.NEED_FILTER, "Base64");
         put(HBCICallback.NEED_HOST, "hbcibanking.apobank.de/fints_pintan/receiver");
         put(HBCICallback.NEED_PASSPHRASE_LOAD, "test");
         put(HBCICallback.NEED_PASSPHRASE_SAVE, "test");
         put(HBCICallback.NEED_PORT, "443");
         put(HBCICallback.NEED_PT_PIN, "11111");
-        put(HBCICallback.NEED_PT_TAN, "123456"); // hier geht jede 6-stellige Zahl
         put(HBCICallback.NEED_USERID, "0001956434");
-        put(HBCICallback.NEED_PT_SECMECH, "900"); // wird IMHO nicht benoetigt, weil es beim Demo-Account eh nur dieses eine Verfahren gibt
         put(HBCICallback.NEED_CONNECTION, ""); // ignorieren
         put(HBCICallback.CLOSE_CONNECTION, ""); // ignorieren
     }};

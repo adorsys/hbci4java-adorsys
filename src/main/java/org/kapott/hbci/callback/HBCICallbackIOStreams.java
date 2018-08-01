@@ -23,6 +23,7 @@ package org.kapott.hbci.callback;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV.GVTAN2Step;
+import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
@@ -33,6 +34,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import java.io.BufferedReader;
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -143,7 +145,6 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
 
                 case NEED_SOFTPIN:
                 case NEED_PT_PIN:
-                case NEED_PT_TAN:
                 case NEED_PT_PHOTOTAN:
                 case NEED_PROXY_PASS:
                     getOutStream().print(msg + ": ");
@@ -164,7 +165,6 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
                 case NEED_BLZ:
                 case NEED_HOST:
                 case NEED_PORT:
-                case NEED_FILTER:
                 case NEED_USERID:
                 case NEED_CUSTOMERID:
                 case NEED_PROXY_USER:
@@ -247,21 +247,6 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
                     getOutStream().flush();
                     retData.replace(0, retData.length(), getInStream().readLine());
                     break;
-
-                case NEED_PT_SECMECH:
-                    String[] entries = retData.toString().split("\\|");
-                    int len = entries.length;
-                    for (int i = 0; i < len; i++) {
-                        String entry = entries[i];
-                        String[] values = entry.split(":");
-
-                        getOutStream().println(values[0] + ": " + values[1]);
-                    }
-                    getOutStream().print(HBCIUtils.getLocMsg("CALLB_SELECT_ENTRY") + ": ");
-                    getOutStream().flush();
-                    retData.replace(0, retData.length(), getInStream().readLine());
-                    break;
-
                 case NEED_INFOPOINT_ACK:
                     getOutStream().println(msg);
                     getOutStream().println(retData);
@@ -291,23 +276,25 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     }
 
     @Override
-    public String tanMediaCallback(String medialist) {
-        if (medialist.length() > 0 && !medialist.contains("|")) {
+    public String selectTanMedia(List<GVRTANMediaList.TANMediaInfo> medialist) {
+        if (medialist.size() == 1) {
             // Wenn wir eine Medienbezeichnung gekriegt haben und das
             // genau eine einzige ist. Dann uebernehmen wir diese
             // ohne Rueckfrage.
-            return medialist;
+            return medialist.get(0).mediaName;
         } else {
             // Ansonsten fragen wir den User
-            String[] medias = medialist.split("\\|");
-
             return null;
-
         }
     }
 
     @Override
-    public void tanCallback(PinTanPassport passport, GVTAN2Step hktan) {
+    public void tanChallengeCallback(String challenge) {
+    }
+
+    @Override
+    public String needTankCallback() {
+        return null;
     }
 
     /**

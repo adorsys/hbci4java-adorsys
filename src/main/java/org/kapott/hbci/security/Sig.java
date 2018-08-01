@@ -327,30 +327,6 @@ public final class Sig {
         String sigheadName = msg.getName() + ".SigHead";
 
         u_secfunc = msg.getValueOfDE(sigheadName + ".secfunc");
-
-        // TODO: das ist abgeschaltet, weil das Thema "Sicherheitsfunktion, kodiert"
-        // ab FinTS-3 anders behandelt wird - siehe Spez.
-        /*
-        if (u_secfunc.equals("2")) {
-            // DDV
-            u_cid=msg.getValueOfDE(sigheadName+".SecIdnDetails.cid");
-            if (!u_cid.equals(mainPassport.getCID())) {
-                String errmsg=HBCIUtils.getLocMsg("EXCMSG_CRYPTCIDFAIL");
-                if (!HBCIUtils.ignoreError(null,"client.errors.ignoreSignErrors",errmsg))
-                    throw new HBCI_Exception(errmsg);
-            }
-        } else {
-            // RDH und PinTan (= 2 und 999)
-            try {
-                // falls noch keine system-id ausgehandelt wurde, so sendet der
-                // hbci-server auch keine... deshalb der try-catch-block
-                u_sysid=msg.getValueOfDE(sigheadName+".SecIdnDetails.sysid");
-            } catch (Exception e) {
-                u_sysid="0";
-            }
-        }
-        */
-
         u_role = msg.getValueOfDE(sigheadName + ".role");
         u_range = msg.getValueOfDE(sigheadName + ".range");
         u_keycountry = msg.getValueOfDE(sigheadName + ".KeyName.KIK.country");
@@ -390,31 +366,6 @@ public final class Sig {
             String errmsg = HBCIUtils.getLocMsg("EXCMSG_SIGREFFAIL");
             throw new HBCI_Exception(errmsg);
         }
-
-        // TODO: dieser test ist erst mal deaktiviert. grund: beim pin/tan-zwei-
-        // schritt-verfahren ist die passport.getSigFunction()==922 (z.B.).
-        // wenn jedoch zeitgleich HITAN über eine bankensignatur abgesichert
-        // wird, steht in der antwort secfunc=1 (RDH) drin.
-        /*
-        if (!u_secfunc.equals(mainPassport.getSigFunction())) {
-            String errmsg=HBCIUtils.getLocMsg("EXCMSG_SIGTYPEFAIL",new String[] {u_secfunc,mainPassport.getSigFunction()});
-            if (!HBCIUtils.ignoreError(null,"client.errors.ignoreSignErrors",errmsg))
-                throw new HBCI_Exception(errmsg);
-        }
-        */
-
-        // TODO: hier auch die DEG SecProfile lesen und überprüfen
-
-        // TODO: diese checks werden vorerst abgeschaltet, damit die pin-tan sigs
-        // ohne probleme funktionieren
-        /*
-        if (!u_sigalg.equals(passport.getSigAlg()))
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SIGALGFAIL",new String[] {u_sigalg,passport.getSigAlg()}));
-        if (!u_sigmode.equals(passport.getSigMode()))
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SIGMODEFAIL",new String[] {u_sigmode,passport.getSigMode()}));
-        if (!u_hashalg.equals(passport.getHashAlg()))
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SIGHASHFAIL",new String[] {u_hashalg,passport.getHashAlg()}));
-        */
     }
 
     private boolean hasSig() {

@@ -20,13 +20,14 @@
 
 package org.kapott.hbci.callback;
 
-import org.kapott.hbci.GV.GVTAN2Step;
+import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.passport.PinTanPassport;
+
+import java.util.List;
 
 
 /**
  * <p>Schnittstelle, die eine Callback-Klasse implementieren muss. Beim Initialisieren von <em>HBCI4Java</em>
- * ({@link org.kapott.hbci.manager.HBCIUtils#init(Properties, org.kapott.hbci.callback.HBCICallback)})
  * muss ein Callback-Objekt angegeben werden. Die Klasse dieses Objektes muss die HBCICallback-Schnittstelle
  * implementieren. Der HBCI-Kernel ruft in bestimmten Situationen Methoden dieser Klasse auf. Das ist
  * z.B. dann der Fall, wenn eine bestimmte Aktion (Einlegen der Chipkarte) oder Eingabe (Passwort)
@@ -120,8 +121,7 @@ public interface HBCICallback {
 
     /**
      * Ursache des Callback-Aufrufes: Institutsnachricht erhalten. Tritt dieser Callback auf, so enthält
-     * der <code>msg</code>-Parameter der <code>callback</code>-Methode (siehe
-     * {@link #callback(org.kapott.hbci.passport.HBCIPassport, int, String, int, StringBuffer)} einen
+     * der <code>msg</code>-Parameter der <code>callback</code>-Methode einen
      * String, den die Bank als Kreditinstitutsnachricht an den Kunden gesandt hat. Diese Nachricht sollte
      * dem Anwender i.d.R. angezeigt werden. <em>HBCI4Java</em> erwartet auf diesen Callback keine Antwortdaten.
      */
@@ -137,12 +137,6 @@ public interface HBCICallback {
      * erzeugen, wird sie über diesen Callback abgefragt.
      */
     int NEED_PT_PIN = 16;
-    /**
-     * Ursache des Callback-Aufrufes: eine TAN für PIN/TAN-Verfahren benötigt. Dieser Callback tritt nur bei
-     * Verwendung von PIN/TAN-Passports auf. Benötigt <em>HBCI4Java</em> eine TAN, um eine digitale Signatur zu
-     * erzeugen, wird sie über diesen Callback abgefragt.
-     */
-    int NEED_PT_TAN = 17;
     /**
      * Ursache des Callback-Aufrufes: Kunden-ID für HBCI-Zugang benötigt. Dieser Callback tritt nur beim
      * Erzeugen eines neuen Passports auf. <em>HBCI4Java</em> benötigt die Kunden-ID, die das Kreditinstitut
@@ -169,9 +163,7 @@ public interface HBCICallback {
      * <p>Die automatische Ãberprüfung von Kontonummern findet statt, wenn HBCI-Jobs mit
      * Hilfe des Highlevel-Interfaces (siehe dazu Paketbeschreibung von <code>org.kapott.hbci.GV</code>)
      * erzeugt werden. Beim Hinzufügen eines so erzeugten Jobs zur Menge der auszuführenden
-     * Aufträge
-     * ({@link org.kapott.hbci.GV.HBCIJob#addToQueue()})
-     * wird die Ãberprüfung für alle in diesem Job benutzten Kontonummern durchgeführt. Für jeden
+     * Aufträge wird die Ãberprüfung für alle in diesem Job benutzten Kontonummern durchgeführt. Für jeden
      * Prüfzifferfehler, der dabei entdeckt wird, wird dieser Callback erzeugt.<br/>
      * Tritt beim Ãberprüfen einer IBAN ein Fehler auf, wird statt dessen
      * {@link #HAVE_IBAN_ERROR} als Callback-Reason verwendet.
@@ -179,8 +171,7 @@ public interface HBCICallback {
     int HAVE_CRC_ERROR = 19;
     /**
      * <p>Ursache des Callback-Aufrufes: Es ist ein Fehler aufgetreten, der auf Wunsch
-     * des Anwenders ignoriert werden kann. Durch Setzen bestimmter Kernel-Parameter
-     * (siehe {@link org.kapott.hbci.manager.HBCIUtils#setParam(String, String)}) kann
+     * des Anwenders ignoriert werden kann. Durch Setzen bestimmter Kernel-Parameter kann
      * festgelegt werden, dass beim Auftreten bestimmter Fehler zur Laufzeit nicht sofort eine Exception
      * geworfen wird, sondern dass statt dessen erst dieser Callback erzeugt wird, welcher als <code>msg</code>
      * eine entsprechende Problembeschreibung enthält. <em>HBCI4Java</em> erwartet einen
@@ -265,38 +256,6 @@ public interface HBCICallback {
      * erwartet
      */
     int CLOSE_CONNECTION = 25;
-    /**
-     * <p>Ursache des Callback-Aufrufes: es wird die Bezeichnung des zu verwendenden
-     * Datenfilters benötigt. Mögliche Filterbezeichnungen sind "<code>None</code>"
-     * (kein Filter) und "<code>Base64</code>" (Daten BASE64-kodieren). Die
-     * jeweilige Filterbezeichnung ist in <code>retData</code> zurückzugeben.
-     * Dieser Callback tritt zur Zeit nur bei Verwendung von PIN/TAN-Passports
-     * auf, weil hier nicht alle Banken einheitlich mit der gleichen Art der
-     * Filterung arbeiten.</p>
-     * <p>Normalweise wird bei PIN/TAN der <code>Base64</code>-Filter benutzt.
-     * Wenn bei dessen Verwendung aber keine Antwortdaten von der Bank empfangen
-     * werden, dann sollte die andere Variante (<code>None</code>) ausprobiert
-     * werden.</p>
-     */
-    int NEED_FILTER = 26;
-
-    /**
-     * <p>Ursache des Callbacks: bei Verwendung von HBCI-PIN/TAN muss eines der
-     * unterstützten Verfahren ausgewählt werden. Seit FinTS-3.0 gibt es mehrere
-     * Verfahren für PIN/TAN - das "normale" Einschrittverfahren sowie mehrere
-     * Zweischritt-Verfahren. Unterstützt eine Bank mehr als ein Verfahren, so
-     * wird dieser Callback erzeugt, damit der Anwender das zu verwendende
-     * Verfahren auswählen kann.</p>
-     * <p>Dazu wird in <code>retData</code> ein String mit folgendem Format
-     * an die Callback-Methode übergeben:
-     * "<code>ID1:Beschreibung1|ID2:Beschreibung2...</code>". Jedes Token
-     * "<code>ID:Beschreibung</code>" steht dabei für ein unterstütztes
-     * PIN/TAN-Verfahren. Die Callback-Methode muss die ID des vom Anwender
-     * ausgewählten PIN/TAN-Verfahrens anschlieÃend in <code>retData</code>
-     * zurückgeben.</p>
-     */
-    int NEED_PT_SECMECH = 27;
-
     /**
      * Ursache des Callbacks: es wird ein Nutzername für die Authentifizierung
      * am Proxy-Server benötigt. Wird für die HTTPS-Verbindungen bei HBCI-PIN/TAN
@@ -407,7 +366,6 @@ public interface HBCICallback {
     int STATUS_SEND_TASK_DONE = 2;
     /**
      * Kernel-Status: hole BPD. Kann nur während der Passport-Initialisierung
-     * ({@link org.kapott.hbci.manager.HBCIHandler#HBCIHandler(String, org.kapott.hbci.passport.HBCIPassport)})
      * auftreten und zeigt an, dass die BPD von der Bank abgeholt werden müssen,
      * weil sie noch nicht lokal vorhanden sind. Es werden keine zusätzlichen
      * Informationen übergeben.
@@ -424,8 +382,7 @@ public interface HBCICallback {
     /**
      * Kernel-Status: hole Institutsschlüssel. Dieser Status-Callback zeigt an, dass
      * <em>HBCI4Java</em> die öffentlichen Schlüssel des Kreditinstitutes abholt.
-     * Dieser Callback kann nur beim Initialisieren eines Passportes (siehe
-     * {@link org.kapott.hbci.manager.HBCIHandler#HBCIHandler(String, org.kapott.hbci.passport.HBCIPassport)})
+     * Dieser Callback kann nur beim Initialisieren eines Passportes
      * und bei Verwendung von RDH als Sicherheitsverfahren auftreten. Es werden keine
      * zusätzlichen Informationen übergeben.
      */
@@ -458,7 +415,6 @@ public interface HBCICallback {
      * Kernel-Status: aktualisiere System-ID. Dieser Status-Callback wird erzeugt, wenn
      * <em>HBCI4Java</em> die System-ID, die für das RDH-Verfahren benötigt
      * wird, synchronisiert. Der Callback kann nur beim Initialisieren eines Passports
-     * (siehe {@link org.kapott.hbci.manager.HBCIHandler#HBCIHandler(String, org.kapott.hbci.passport.HBCIPassport)})
      * auftreten. Es werden keine Zusatzinformationen übergeben.
      */
     int STATUS_INIT_SYSID = 9;
@@ -472,7 +428,6 @@ public interface HBCICallback {
     int STATUS_INIT_SYSID_DONE = 10;
     /**
      * Kernel-Status: hole UPD. Kann nur während der Passport-Initialisierung
-     * ({@link org.kapott.hbci.manager.HBCIHandler#HBCIHandler(String, org.kapott.hbci.passport.HBCIPassport)})
      * auftreten und zeigt an, dass die UPD von der Bank abgeholt werden müssen,
      * weil sie noch nicht lokal vorhanden sind. Es werden keine zusätzlichen
      * Informationen übergeben.
@@ -505,7 +460,6 @@ public interface HBCICallback {
      * Kernel-Status: aktualisiere Signatur-ID. Dieser Status-Callback wird erzeugt, wenn
      * <em>HBCI4Java</em> die Signatur-ID, die für das RDH-Verfahren benötigt
      * wird, synchronisiert. Der Callback kann nur beim Initialisieren eines Passports
-     * (siehe {@link org.kapott.hbci.manager.HBCIHandler#HBCIHandler(String, org.kapott.hbci.passport.HBCIPassport)})
      * auftreten. Es werden keine Zusatzinformationen übergeben.
      */
     int STATUS_INIT_SIGID = 15;
@@ -666,13 +620,11 @@ public interface HBCICallback {
     /**
      * gibt tan medium zurück
      */
-    public String tanMediaCallback(String medialist);
+    String selectTanMedia(List<GVRTANMediaList.TANMediaInfo> tanMedias);
 
-    /**
-     * @param passport
-     * @param hktan    GVTAN2Step für spätere Einreichung
-     */
-    void tanCallback(PinTanPassport passport, GVTAN2Step hktan);
+    void tanChallengeCallback(String challenge);
+
+    String needTankCallback();
 
     /**
      * Wird vom HBCI-Kernel aufgerufen, um einen bestimmten Status der

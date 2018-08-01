@@ -95,7 +95,6 @@ public class HITANSTest extends AbstractTest {
     public void testCurrentSecMechInfo() throws Exception {
         HashMap<String, String> bpd = getBPD("bpd/bpd2-formatted.txt", "300");
         PinTanPassport passport = new PinTanPassport(null, null, null);
-        passport.setCurrentTANMethod("942");
         passport.setBPD(bpd);
 
         HashMap<String, String> secmech = passport.getCurrentSecMechInfo();

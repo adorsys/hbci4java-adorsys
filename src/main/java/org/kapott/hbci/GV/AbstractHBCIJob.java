@@ -163,18 +163,16 @@ public class AbstractHBCIJob {
             return s.equalsIgnoreCase("J");
         }
 
-
         log.debug("searching for value of \"cannationalacc\" in HISPAS");
 
         // Ansonsten suchen wir in HISPAS - aber nur, wenn wir die Daten schon haben
-        if (passport.getSupportedLowlevelJobs(passport.getSyntaxDocument()).get("SEPAInfo") == null) {
+        if (!passport.jobSupported("SEPAInfo")) {
             log.info("no HISPAS data found");
             return false; // Ne, noch nicht. Dann lassen wir das erstmal weg
         }
 
-
         // SEPAInfo laden und darüber iterieren
-        HashMap<String, String> props = passport.getLowlevelJobRestrictions("SEPAInfo", passport.getSyntaxDocument());
+        HashMap<String, String> props = passport.getLowlevelJobRestrictions("SEPAInfo");
         String value = props.get("cannationalacc");
         log.debug("cannationalacc=" + value);
         return value != null && value.equalsIgnoreCase("J");
@@ -665,30 +663,24 @@ public class AbstractHBCIJob {
        Das ist in zwei Fällen der Fall: der Task wurde noch nie ausgeführt; oder der Task
        wurde bereits ausgeführt, hat aber eine "offset"-Meldung zurückgegeben */
     public boolean needsContinue(int loop) {
-        boolean needs = false;
+        if (!executed) {
+            return true;
+        }
 
-        if (executed) {
-            HBCIRetVal retval;
-            int num = jobResult.getRetNumber();
-
-            for (int i = 0; i < num; i++) {
-                retval = jobResult.getRetVal(i);
-
-                if (retval.code.equals("3040") && retval.params.length != 0 && (--loop) == 0) {
-                    needs = true;
-                    break;
-                }
+        for (HBCIRetVal retval: jobResult.getJobStatus().getRetVals()) {
+            if (retval.code.equals("3040") && retval.params.length != 0 && (--loop) == 0) {
+                return true;
             }
-        } else needs = true;
+        }
 
-        return needs;
+        return false;
     }
 
     /* gibt (sofern vorhanden) den offset-Wert des letzten HBCI-Rückgabecodes
        zurück */
     private String getContinueOffset(int loop) {
         String ret = null;
-        int num = jobResult.getRetNumber();
+        int num = jobResult.getResultsSize();
 
         for (int i = 0; i < num; i++) {
             HBCIRetVal retval = jobResult.getRetVal(i);

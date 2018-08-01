@@ -22,9 +22,10 @@ package org.kapott.hbci.passport;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.GVTAN2Step;
+import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
+import org.kapott.hbci.exceptions.MissingTanMediaException;
 import org.kapott.hbci.manager.HBCIKey;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.security.Crypt;
@@ -33,6 +34,8 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
 
 import java.util.*;
+
+import static org.kapott.hbci.security.Sig.SECFUNC_SIG_PT_1STEP;
 
 @Slf4j
 public class PinTanPassport extends AbstractHBCIPassport {
@@ -44,10 +47,9 @@ public class PinTanPassport extends AbstractHBCIPassport {
     private boolean verifyTANMode;
 
     private HashMap<String, HashMap<String, String>> twostepMechanisms = new HashMap<>();
+    private HashMap<String, String> currentSecMechInfo;
     private List<String> allowedTwostepMechanisms = new ArrayList<>();
-
-    private String currentTANMethod;
-    private boolean currentTANMethodWasAutoSelected;
+    private List<GVRTANMediaList.TANMediaInfo> tanMedias;
 
     private String pin;
 
@@ -81,78 +83,19 @@ public class PinTanPassport extends AbstractHBCIPassport {
             // PV=2 und passport.contains(challenge+reference) und HKTAN
             // ermittelt werden
 
-            String pintanMethod = getCurrentTANMethod(false);
+            log.debug("twostep method - checking passport(challenge) to decide whether or not we need a TAN");
+            // gespeicherte challenge aus passport holen
+            String challenge = (String) getPersistentData("pintan_challenge");
+            setPersistentData("pintan_challenge", null);
 
-            if (pintanMethod.equals(Sig.SECFUNC_SIG_PT_1STEP)) {
-                // nur beim normalen einschritt-verfahren muss anhand der
-                // segment-
-                // codes ermittelt werden, ob eine tan benötigt wird
-                log.debug("onestep method - checking GVs to decide whether or not we need a TAN");
-
-                // segment-codes durchlaufen
-                String codes = collectSegCodes(new String(bytes, "ISO-8859-1"));
-                StringTokenizer tok = new StringTokenizer(codes, "|");
-
-                while (tok.hasMoreTokens()) {
-                    String code = tok.nextToken();
-                    String info = getPinTanInfo(code);
-
-                    if (info.equals("J")) {
-                        // für dieses segment wird eine tan benötigt
-                        log.info("the job with the code " + code + " needs a TAN");
-
-                        if (tan.length() == 0) {
-                            // noch keine tan bekannt --> callback
-
-                            StringBuffer callbackReturn = new StringBuffer();
-                            getCallback().callback(
-                                HBCICallback.NEED_PT_TAN,
-                                HBCIUtils
-                                    .getLocMsg("CALLB_NEED_PTTAN"),
-                                HBCICallback.TYPE_TEXT, callbackReturn);
-                            if (callbackReturn.length() == 0) {
-                                throw new HBCI_Exception(
-                                    HBCIUtils.getLocMsg("EXCMSG_TANZERO"));
-                            }
-                            tan = callbackReturn.toString();
-                        } else {
-                            log.warn("there should be only one job that needs a TAN!");
-                        }
-
-                    } else if (info.equals("N")) {
-                        log.debug("the job with the code " + code
-                            + " does not need a TAN");
-
-                    }
-                }
+            if (challenge == null) {
+                // es gibt noch keine challenge
+                log.debug("will not sign with a TAN, because there is no challenge");
             } else {
-                log.debug("twostep method - checking passport(challenge) to decide whether or not we need a TAN");
-                HashMap<String, String> secmechInfo = getCurrentSecMechInfo();
+                log.info("found challenge in passport, so we ask for a TAN");
+                // es gibt eine challenge, also damit tan ermitteln
 
-                // gespeicherte challenge aus passport holen
-                String challenge = (String) getPersistentData("pintan_challenge");
-                setPersistentData("pintan_challenge", null);
-
-                if (challenge == null) {
-                    // es gibt noch keine challenge
-                    log.debug("will not sign with a TAN, because there is no challenge");
-                } else {
-                    log.info("found challenge in passport, so we ask for a TAN");
-                    // es gibt eine challenge, also damit tan ermitteln
-
-                    StringBuffer s = new StringBuffer();
-                    callback.callback(
-                        HBCICallback.NEED_PT_TAN,
-                        secmechInfo.get("name") + " "
-                            + secmechInfo.get("inputinfo")
-                            + ": " + challenge, HBCICallback.TYPE_TEXT,
-                        s);
-                    if (s.length() == 0) {
-                        throw new HBCI_Exception(
-                            HBCIUtils.getLocMsg("EXCMSG_TANZERO"));
-                    }
-                    tan = s.toString();
-                }
+                tan = callback.needTankCallback();
             }
             return (getPIN() + "|" + tan).getBytes("ISO-8859-1");
         } catch (Exception ex) {
@@ -182,10 +125,33 @@ public class PinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    public void setBPD(HashMap<String, String> p) {
-        super.setBPD(p);
+    @Override
+    public List<GVRTANMediaList.TANMediaInfo> getTanMedias() {
+        return tanMedias;
+    }
 
-        if (p != null && p.size() != 0) {
+    public GVRTANMediaList.TANMediaInfo getTanMedia(String name) {
+        if (tanMedias != null) {
+            Optional<GVRTANMediaList.TANMediaInfo> tanMediaInfoOptional = tanMedias.stream()
+                .filter(tanMediaInfo -> tanMediaInfo.mediaName.equals(name))
+                .findFirst();
+
+            if (tanMediaInfoOptional.isPresent()) {
+                return tanMediaInfoOptional.get();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void setTanMedias(List<GVRTANMediaList.TANMediaInfo> tanMedias) {
+        this.tanMedias = tanMedias;
+    }
+
+    public void setBPD(HashMap<String, String> newBPD) {
+        super.setBPD(newBPD);
+
+        if (newBPD != null && newBPD.size() != 0) {
             // hier die liste der verfügbaren sicherheitsverfahren aus den
             // bpd (HITANS) extrahieren
 
@@ -203,8 +169,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
             int maxAllowedVersion = 0;
 
 
-            for (String key : p.keySet()) {
-                // p.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.TAN2StepParamsX_z.*")
+            for (String key : newBPD.keySet()) {
+                // newBPD.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.TAN2StepParamsX_z.*")
                 if (key.startsWith("Params")) {
                     String subkey = key.substring(key.indexOf('.') + 1);
                     if (subkey.startsWith("TAN2StepPar")) {
@@ -222,7 +188,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                                 continue;
                             }
 
-                            String secfunc = p.get(key);
+                            String secfunc = newBPD.get(key);
 
                             // willuhn 2011-05-13 Checken, ob wir das Verfahren schon aus einer aktuelleren Segment-Version haben
                             HashMap<String, String> prev = twostepMechanisms.get(secfunc);
@@ -248,14 +214,14 @@ public class PinTanPassport extends AbstractHBCIPassport {
                             // alle properties durchlaufen und alle suchen, die mit dem
                             // paramheader beginnen, und die entsprechenden werte im
                             // entry abspeichern
-                            for (String key2 : p.keySet()) {
+                            for (String key2 : newBPD.keySet()) {
 
                                 if (key2.startsWith(paramHeader + ".")) {
                                     int dotPos = key2.lastIndexOf('.');
 
                                     entry.put(
                                         key2.substring(dotPos + 1),
-                                        p.get(key2));
+                                        newBPD.get(key2));
                                 }
                             }
 
@@ -276,8 +242,12 @@ public class PinTanPassport extends AbstractHBCIPassport {
                 int l2 = ret.params.length;
                 this.allowedTwostepMechanisms.addAll(Arrays.asList(ret.params).subList(0, l2));
 
-                log.debug("autosecfunc: found 3920 in response - updated list of allowed twostepmechs with " + allowedTwostepMechanisms.size() + " entries");
+                if (allowedTwostepMechanisms.size() > 0) {
+                    currentSecMechInfo = twostepMechanisms.get(allowedTwostepMechanisms.get(0));
+                    log.info("using secfunc: {}", allowedTwostepMechanisms.get(0));
+                }
             }
+            log.debug("autosecfunc: found 3920 in response - updated list of allowed twostepmechs with " + allowedTwostepMechanisms.size() + " entries");
         }
     }
 
@@ -307,7 +277,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    public boolean postInitResponseHook(HBCIMsgStatus msgStatus) {
+    public void postInitResponseHook(HBCIMsgStatus msgStatus) {
         if (!msgStatus.isOK()) {
             log.debug("dialog init ended with errors - searching for return code 'wrong PIN'");
 
@@ -328,272 +298,15 @@ public class PinTanPassport extends AbstractHBCIPassport {
         searchFor3072s(msgStatus.segStatus.getWarnings());
 
         setPersistentData("_authed_dialog_executed", Boolean.TRUE);
-
-        // aktuelle secmech merken und neue auswählen (basierend auf evtl. gerade
-        // neu empfangenen informationen (3920s))
-        String oldTANMethod = currentTANMethod;
-        String updatedTANMethod = getCurrentTANMethod(true);
-
-        if (oldTANMethod != null && !oldTANMethod.equals(updatedTANMethod)) {
-            // wenn sich das ausgewählte secmech geändert hat, müssen wir
-            // einen dialog-restart fordern, weil während eines dialoges
-            // das secmech nicht gewechselt werden darf
-            log.info("autosecfunc: after this dialog-init we had to change selected pintan method from " + oldTANMethod + " to " + updatedTANMethod + ", so a restart of this dialog is needed");
-            return true;
-        }
-
-        return false;
     }
 
-    public boolean isSupported() {
-        boolean ret = false;
-        HashMap<String, String> bpd = getBPD();
-
-        if (bpd != null && bpd.size() != 0) {
-            // loop through bpd and search for PinTanPar segment
-            for (String key : bpd.keySet()) {
-
-                if (key.startsWith("Params")) {
-                    int posi = key.indexOf(".");
-                    if (key.substring(posi + 1).startsWith("PinTanPar")) {
-                        ret = true;
-                        break;
-                    }
-                }
-            }
-
-            if (ret) {
-                // prüfen, ob gewähltes sicherheitsverfahren unterstützt wird
-                // autosecmech: hier wird ein flag uebergeben, das anzeigt, dass getCurrentTANMethod()
-                // hier evtl. automatisch ermittelte secmechs neu verifzieren soll
-                String current = getCurrentTANMethod(true);
-
-                if (current.equals(Sig.SECFUNC_SIG_PT_1STEP)) {
-                    // einschrittverfahren gewählt
-                    if (!isOneStepAllowed()) {
-                        log.error("not supported: onestep method not allowed by BPD");
-                        ret = false;
-                    } else {
-                        log.debug("supported: pintan-onestep");
-                    }
-                } else {
-                    // irgendein zweischritt-verfahren gewählt
-                    HashMap<String, String> entry = twostepMechanisms.get(current);
-                    if (entry == null) {
-                        // es gibt keinen info-eintrag für das gewählte verfahren
-                        log.error("not supported: twostep-method " + current + " selected, but this is not supported");
-                        ret = false;
-                    } else {
-                        log.debug("selected twostep-method " + current + " (" + entry.get("name") + ") is supported");
-                    }
-                }
-            }
-        } else {
-            ret = true;
-        }
-
-        return ret;
-    }
-
-    private boolean isOneStepAllowed() {
-        // default ist true, weil entweder *nur* das einschritt-verfahren unter-
-        // stützt wird oder keine BPD vorhanden sind, um das zu entscheiden
-        boolean ret = true;
-
-        HashMap<String, String> bpd = getBPD();
-        if (bpd != null) {
-            for (String key : bpd.keySet()) {
-                // TODO: willuhn 2011-05-13: Das nimmt einfach den ersten gefundenen Parameter, liefert
-                // jedoch faelschlicherweise false, wenn das erste gefundene kein Einschritt-Verfahren ist
-                // Hier muesste man durch alle iterieren und dann true liefern, wenn wenigstens
-                // eines den Wert "J" hat.
-
-                // p.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.can1step")
-                if (key.startsWith("Params")) {
-                    String subkey = key.substring(key.indexOf('.') + 1);
-                    if (subkey.startsWith("TAN2StepPar") &&
-                        subkey.endsWith(".can1step")) {
-                        String value = bpd.get(key);
-                        ret = value.equals("J");
-                        break;
-                    }
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    public void setCurrentTANMethod(String method) {
-        this.currentTANMethod = method;
-    }
-
-    public String getCurrentTANMethod(boolean recheckSupportedSecMechs) {
-        // autosecmech: hier auch dann checken, wenn recheckSupportedSecMechs==true
-        // UND die vorherige auswahl AUTOMATISCH getroffen wurde (manuelle auswahl
-        // also in jedem fall weiter verwenden) (das AUTOMATISCH erkennt man daran,
-        // dass recheckCurrentTANMethodNeeded==true ist)
-        if (currentTANMethod == null || recheckSupportedSecMechs) {
-            log.debug("autosecfunc: (re)checking selected pintan secmech");
-
-            // es ist noch kein zweischrittverfahren ausgewaehlt, oder die
-            // aktuelle auswahl soll gegen die liste der tatsaechlich unterstuetzten
-            // verfahren validiert werden
-
-            List<String[]> options = new ArrayList<>();
-
-            if (isOneStepAllowed()) {
-                // wenn einschrittverfahren unterstützt, dass zur liste hinzufügen
-                if (allowedTwostepMechanisms.size() == 0 || allowedTwostepMechanisms.contains(Sig.SECFUNC_SIG_PT_1STEP)) {
-                    options.add(new String[]{Sig.SECFUNC_SIG_PT_1STEP, "Einschritt-Verfahren"});
-                }
-            }
-
-            // alle zweischritt-verfahren zur auswahlliste hinzufügen
-            String[] secfuncs = twostepMechanisms.keySet().toArray(new String[0]);
-            Arrays.sort(secfuncs);
-            for (String secfunc : secfuncs) {
-                if (allowedTwostepMechanisms.size() == 0 || allowedTwostepMechanisms.contains(secfunc)) {
-                    HashMap<String, String> entry = twostepMechanisms.get(secfunc);
-                    options.add(new String[]{secfunc, entry.get("name")});
-                }
-            }
-
-            if (options.size() == 1) {
-                // wenn nur ein verfahren unterstützt wird, das automatisch auswählen
-                String autoSelection = (options.get(0))[0];
-
-                log.debug("autosecfunc: there is only one pintan method (" + autoSelection + ") supported - choosing this automatically");
-                if (currentTANMethod != null && !autoSelection.equals(currentTANMethod)) {
-                    log.debug("autosecfunc: currently selected method (" + currentTANMethod + ") differs from auto-selected method (" + autoSelection + ")");
-                }
-
-                setCurrentTANMethod(autoSelection);
-
-                // autosecmech: hier merken, dass dieses verfahren AUTOMATISCH
-                // ausgewaehlt wurde, so dass wir spaeter immer mal wieder pruefen
-                // muessen, ob inzwischen nicht mehr/andere unterstuetzte secmechs bekannt sind
-                // (passiert z.b. wenn das anonyme abholen der bpd fehlschlaegt)
-                this.currentTANMethodWasAutoSelected = true;
-
-            } else if (options.size() > 1) {
-                // es werden mehrere verfahren unterstützt
-
-                if (currentTANMethod != null) {
-                    // es ist schon ein verfahren ausgewaehlt. falls dieses verfahren
-                    // nicht in der liste der unterstuetzten verfahren enthalten ist,
-                    // setzen wir das auf "null" zurueck, damit das zu verwendende
-                    // verfahren neu ermittelt wird
-
-                    boolean ok = false;
-                    for (String[] option : options) {
-                        if (currentTANMethod.equals((option)[0])) {
-                            ok = true;
-                            break;
-                        }
-                    }
-
-                    if (!ok) {
-                        log.debug("autosecfunc: currently selected pintan method (" + currentTANMethod + ") not in list of supported methods - resetting current selection");
-                        currentTANMethod = null;
-                    }
-                }
-
-                if (currentTANMethod == null || this.currentTANMethodWasAutoSelected) {
-                    // wenn noch kein verfahren ausgewaehlt ist, oder das bisherige
-                    // verfahren automatisch ausgewaehlt wurde, muessen wir uns
-                    // neu fuer eine method aus der liste entscheiden
-
-                    // TODO: damit das sinnvoll funktioniert, sollte die liste der
-                    // allowedTwostepMechs mit im passport gespeichert werden.
-                    if (allowedTwostepMechanisms.size() == 0 &&
-                        getPersistentData("_authed_dialog_executed") == null) {
-                        // wir wählen einen secmech automatisch aus, wenn wir
-                        // die liste der erlaubten secmechs nicht haben
-                        // (entweder weil wir sie noch nie abgefragt haben oder weil
-                        // diese daten einfach nicht geliefert werden). im fall
-                        // "schon abgefragt, aber nicht geliefert" dürfen wir aber
-                        // wiederum NICHT automatisch auswählen, so dass wir zusätzlich
-                        // fragen, ob schon mal ein dialog gelaufen ist, bei dem
-                        // diese daten hätten geliefert werden KÃNNEN (_authed_dialog_executed).
-                        // nur wenn wir die liste der gültigen secmechs noch gar
-                        // nicht haben KÃNNEN, wählen wir einen automatisch aus.
-
-                        String autoSelection = (options.get(0))[0];
-                        log.debug("autosecfunc: there are " + options.size() + " pintan methods supported, but we don't know which of them are allowed for the current user, so we automatically choose " + autoSelection);
-                        setCurrentTANMethod(autoSelection);
-
-                        // autosecmech: hier merken, dass dieses verfahren AUTOMATISCH
-                        // ausgewaehlt wurde, so dass wir spaeter immer mal wieder pruefen
-                        // muessen, ob inzwischen nicht mehr/andere unterstuetzte secmechs bekannt sind
-                        // (passiert z.b. wenn das anonyme abholen der bpd fehlschlaegt)
-                        this.currentTANMethodWasAutoSelected = true;
-
-                    } else {
-                        // wir wissen schon, welche secmechs erlaubt sind (entweder
-                        // durch einen vorhergehenden dialog oder aus den persistenten
-                        // passport-daten), oder wir wissen es nicht (size==0), haben aber schonmal
-                        // danach gefragt (ein authed_dialog ist schon gelaufen, bei dem
-                        // diese daten aber nicht geliefert wurden).
-                        // in jedem fall steht in "options" die liste der prinzipiell
-                        // verfügbaren secmechs drin, u.U. gekürzt auf die tatsächlich
-                        // erlaubten secmechs.
-                        // wir fragen also via callback nach, welcher dieser secmechs
-                        // denn nun verwendet werden soll
-
-                        log.debug("autosecfunc: we have to callback to ask for pintan method to be used");
-
-                        // auswahlliste als string zusammensetzen
-                        StringBuffer retData = new StringBuffer();
-                        for (String[] option : options) {
-                            if (retData.length() != 0) {
-                                retData.append("|");
-                            }
-                            retData.append(option[0]).append(":").append(option[1]);
-                        }
-
-                        // callback erzeugen
-                        callback.callback(
-                            HBCICallback.NEED_PT_SECMECH,
-                            "*** Select a pintan method from the list",
-                            HBCICallback.TYPE_TEXT,
-                            retData);
-
-                        // überprüfen, ob das gewählte verfahren einem aus der liste entspricht
-                        String selected = retData.toString();
-                        boolean ok = false;
-                        for (String[] option : options) {
-                            if (selected.equals((option)[0])) {
-                                ok = true;
-                                break;
-                            }
-                        }
-
-                        if (!ok) {
-                            throw new InvalidUserDataException("*** selected pintan method not supported!");
-                        }
-
-                        setCurrentTANMethod(selected);
-                        this.currentTANMethodWasAutoSelected = false;
-
-                        log.debug("autosecfunc: manually selected pintan method " + currentTANMethod);
-                    }
-                }
-
-            } else {
-                // es wird scheinbar GAR KEIN verfahren unterstuetzt. also nehmen
-                // wir automatisch 999
-                log.debug("autosecfunc: absolutely no information about allowed pintan methods available - automatically falling back to 999");
-                setCurrentTANMethod("999");
-                this.currentTANMethodWasAutoSelected = true;
-            }
-        }
-
-        return currentTANMethod;
-    }
 
     public HashMap<String, String> getCurrentSecMechInfo() {
-        return twostepMechanisms.get(getCurrentTANMethod(false));
+        return currentSecMechInfo;
+    }
+
+    public void setCurrentSecMechInfo(HashMap<String, String> currentSecMechInfo) {
+        this.currentSecMechInfo = currentSecMechInfo;
     }
 
     public HashMap<String, HashMap<String, String>> getTwostepMechanisms() {
@@ -605,11 +318,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
     }
 
     public String getProfileVersion() {
-        return getCurrentTANMethod(false).equals(Sig.SECFUNC_SIG_PT_1STEP) ? "1" : "2";
-    }
-
-    public boolean needUserKeys() {
-        return false;
+        return "2";
     }
 
     public boolean needUserSig() {
@@ -674,7 +383,10 @@ public class PinTanPassport extends AbstractHBCIPassport {
     }
 
     public String getSigFunction() {
-        return getCurrentTANMethod(false);
+        if (getCurrentSecMechInfo() == null) {
+            return SECFUNC_SIG_PT_1STEP;
+        }
+        return getCurrentSecMechInfo().get("secfunc");
     }
 
     public String getCryptFunction() {
@@ -820,19 +532,10 @@ public class PinTanPassport extends AbstractHBCIPassport {
         HashMap<String, String> bpd = getBPD();
         if (bpd != null) {
             for (String key : bpd.keySet()) {
-                HashMap<String, String> props = getCurrentSecMechInfo();
-                String segVersion = "";
-                try {
-                    int value = Integer.parseInt(props.get("segversion"));
-                    segVersion += value;
-                } catch (NumberFormatException nfe) {
-                    //Not an integer, hence ignored
-                }
 
-                // p.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.can1step")
                 if (key.startsWith("Params")) {
                     String subkey = key.substring(key.indexOf('.') + 1);
-                    if (subkey.startsWith("TAN2StepPar" + segVersion) &&
+                    if (subkey.startsWith("TAN2StepPar" + getCurrentSecMechInfo().get("segversion")) &&
                         subkey.endsWith(".orderhashmode")) {
                         ret = bpd.get(key);
                         break;
@@ -850,9 +553,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
      * @param hktan der Job, in den der Parameter eingesetzt werden soll.
      */
     public void applyTanMedia(GVTAN2Step hktan) {
-        if (hktan == null)
-            return;
-
         // Gibts erst ab hhd1.3, siehe
         // FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf, Kapitel B.4.3.1.1.1
         // Zitat: Ist in der BPD als Anzahl unterstützter aktiver TAN-Medien ein Wert > 1
@@ -860,7 +560,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         //        so muss der Kunde z. B. im Falle des mobileTAN-Verfahrens
         //        hier die Bezeichnung seines für diesen Auftrag zu verwendenden TAN-
         //        Mediums angeben.
-        // Ausserdem: "Nur bei TAN-Prozess=1, 3, 4". Das muess aber der Aufrufer pruefen. Ist mir
+        // Ausserdem: "Nur bei TAN-Prozess=1, 3, 4". Das muss aber der Aufrufer pruefen. Ist mir
         // hier zu kompliziert
 
         int hktan_version = Integer.parseInt(hktan.getSegVersion());
@@ -879,10 +579,11 @@ public class PinTanPassport extends AbstractHBCIPassport {
             if (needed.equals("2")) {
                 log.debug("we have to add the tan media");
 
-                String tanMediaNames = this.getUPD().get("tanmedia.names");
-                String tanMedia = callback.tanMediaCallback(tanMediaNames != null ? tanMediaNames : "");
+                String tanMedia = callback.selectTanMedia(tanMedias);
                 if (tanMedia != null) {
                     hktan.setParam("tanmedia", tanMedia);
+                } else {
+                    throw new MissingTanMediaException(tanMedias.toString());
                 }
             }
         }
