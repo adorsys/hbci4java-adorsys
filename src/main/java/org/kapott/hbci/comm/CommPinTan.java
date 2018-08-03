@@ -38,6 +38,7 @@ import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -105,52 +106,54 @@ public final class CommPinTan {
 
     public Message pingpong(Message message, String messageName, List<Rewrite> rewriters, HBCIMsgStatus msgStatus) {
         log.debug("---------------- request ----------------");
-        message.log();
+        String rawMsg = message.toString(0);
+        if (log.isTraceEnabled()) {
+            Arrays.stream(rawMsg.split("'")).forEach(s -> log.trace(s));
+        }
 
         // ausgehende nachricht versenden
         callback.status(HBCICallback.STATUS_MSG_SEND, null);
-        callback.status(HBCICallback.STATUS_MSG_RAW_SEND, message.toString(0));
+        callback.status(HBCICallback.STATUS_MSG_RAW_SEND, rawMsg);
         ping(message);
 
         // nachricht empfangen
         callback.status(HBCICallback.STATUS_MSG_RECV, null);
-        String st = pong().toString();
-        callback.status(HBCICallback.STATUS_MSG_RAW_RECV, st);
+        rawMsg = pong();
+        callback.status(HBCICallback.STATUS_MSG_RAW_RECV, rawMsg);
 
         log.debug("---------------- response ----------------");
-        String[] split = st.split("'");
-        for (String aSplit : split) {
-            log.debug(aSplit);
+        if (log.isTraceEnabled()) {
+            Arrays.stream(rawMsg.split("'")).forEach(s -> log.trace(s));
         }
 
         Message responseMessage;
-
         try {
             // alle rewriter für verschlüsselte nachricht durchlaufen
             for (Rewrite rewriter1 : rewriters) {
-                st = rewriter1.incomingCrypted(st, msgStatus, messageName);
+                rawMsg = rewriter1.incomingCrypted(rawMsg, msgStatus, messageName);
             }
             // versuche, nachricht als verschlüsselte nachricht zu parsen
             callback.status(HBCICallback.STATUS_MSG_PARSE, "CryptedRes");
             try {
                 log.debug("trying to parse message as crypted message");
-                responseMessage = new Message("CryptedRes", st, st.length(), message.getDocument(), Message.DONT_CHECK_SEQ, true);
+                responseMessage = new Message("CryptedRes", rawMsg, message.getDocument(), Message.DONT_CHECK_SEQ, true);
             } catch (ParseErrorException e) {
                 // wenn das schiefgeht...
                 log.debug("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res message");
 
-                // alle rewriter durchlaufen, um nachricht evtl. als unverschlüsselte msg zu parsen
+                // alle rewriter durchlaufen, um nachricht evtl. als unverschlüsselte rawMsg zu parsen
 //                message.set("_origSignedMsg", st);
                 for (Rewrite rewriter1 : rewriters) {
-                    st = rewriter1.incomingClearText(st);
+                    rawMsg = rewriter1.incomingClearText(rawMsg);
                 }
 
-                // versuch, nachricht als unverschlüsselte msg zu parsen
+                log.trace(rawMsg);
+                // versuch, nachricht als unverschlüsselte rawMsg zu parsen
                 callback.status(HBCICallback.STATUS_MSG_PARSE, message.getName() + "Res");
-                responseMessage = new Message(message.getName() + "Res", st, st.length(), message.getDocument(), Message.CHECK_SEQ, true);
+                responseMessage = new Message(message.getName() + "Res", rawMsg, message.getDocument(), Message.CHECK_SEQ, true);
             }
         } catch (Exception ex) {
-            throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), st, ex);
+            throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), rawMsg, ex);
         }
 
         return responseMessage;
@@ -160,7 +163,6 @@ public final class CommPinTan {
         try {
             byte[] b = Base64.encodeBase64(msg.toString(0).getBytes(ENCODING));
 
-            log.debug("connecting to server");
             conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(HTTP_CONNECT_TIMEOUT);
             conn.setReadTimeout(HTTP_READ_TIMEOUT);
@@ -171,12 +173,8 @@ public final class CommPinTan {
 
             conn.connect();
             OutputStream out = conn.getOutputStream();
-
-            log.debug("POST data to output stream");
             out.write(b);
             out.flush();
-
-            log.debug("closing output stream");
             out.close();
         } catch (Exception e) {
             HBCI_Exception he = new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SENDERR"), e);
@@ -185,37 +183,23 @@ public final class CommPinTan {
         }
     }
 
-    private StringBuffer pong() {
+    private String pong() {
         try {
             byte[] b = new byte[1024];
             StringBuilder ret = new StringBuilder();
 
-            log.debug(HBCIUtils.getLocMsg("STATUS_MSG_RECV"));
-
             int msgsize = conn.getContentLength();
             int num;
 
-            if (msgsize != -1) {
-                log.debug("found messagesize: " + msgsize);
-            } else {
-                log.debug("can not determine message size, trying to detect automatically");
-            }
             InputStream i = conn.getInputStream();
 
             while (msgsize != 0 && (num = i.read(b)) > 0) {
-                log.debug("received " + num + " bytes");
                 ret.append(new String(b, 0, num, ENCODING));
                 msgsize -= num;
-                if (msgsize >= 0) {
-                    log.debug("we still need " + msgsize + " bytes");
-                } else {
-                    log.debug("read " + num + " bytes, looking for more");
-                }
             }
 
-            log.debug("closing communication line");
             conn.disconnect();
-            return new StringBuffer(new String(Base64.decodeBase64(ret.toString()), ENCODING));
+            return new String(Base64.decodeBase64(ret.toString()), ENCODING);
         } catch (Exception e) {
             // Die hier marieren wir nicht als fatal - ich meine mich zu erinnern,
             // dass es Banken gibt, die einen anonymen BPD-Abruf mit einem HTTP-Fehlercode quittieren

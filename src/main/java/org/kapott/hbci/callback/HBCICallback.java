@@ -617,14 +617,9 @@ public interface HBCICallback {
      */
     void callback(int reason, String msg, int datatype, StringBuffer retData);
 
-    /**
-     * gibt tan medium zurück
-     */
-    String selectTanMedia(List<GVRTANMediaList.TANMediaInfo> tanMedias);
+    void tanChallengeCallback(String orderRef, String challenge);
 
-    void tanChallengeCallback(String challenge);
-
-    String needTankCallback();
+    String needTAN();
 
     /**
      * Wird vom HBCI-Kernel aufgerufen, um einen bestimmten Status der

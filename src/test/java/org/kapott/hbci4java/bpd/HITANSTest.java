@@ -14,6 +14,7 @@ package org.kapott.hbci4java.bpd;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.manager.HBCIKernel;
+import org.kapott.hbci.manager.HBCITwoStepMechanism;
 import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
@@ -42,7 +43,7 @@ public class HITANSTest extends AbstractTest {
     private HashMap<String, String> getBPD(String file, String version) throws Exception {
         String data = getFile(file);
 
-        Message msg = new Message("DialogInitAnonRes", data, data.length(), null, Message.CHECK_SEQ, true);
+        Message msg = new Message("DialogInitAnonRes", data, null, Message.CHECK_SEQ, true);
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
 
@@ -97,14 +98,14 @@ public class HITANSTest extends AbstractTest {
         PinTanPassport passport = new PinTanPassport(null, null, null);
         passport.setBPD(bpd);
 
-        HashMap<String, String> secmech = passport.getCurrentSecMechInfo();
+        HBCITwoStepMechanism secmech = passport.getCurrentSecMechInfo();
 
         // secmech darf nicht null sein
         Assert.assertNotNull(secmech);
 
         // Das TAN-Verfahren 942 gibts in den BPD drei mal. In HITANS 5, 4 und 2.
         // Der Code muss die Version aus der aktuellsten Segment-Version liefern.
-        Assert.assertEquals(secmech.get("segversion"), "5");
+        Assert.assertEquals(secmech.getSegversion(), "5");
     }
 }
 

@@ -49,7 +49,7 @@ public class AbstractHBCIJob {
     protected HBCIPassportInternal passport;
     private String name;              /* Job-Name mit Versionsnummer */
     private String jobName;           /* Job-Name ohne Versionsnummer */
-    private String segVersion;        /* Segment-Version */
+    private int segVersion;        /* Segment-Version */
     private HashMap<String, String> llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
     private int idx;                  /* idx gibt an, der wievielte task innerhalb der aktuellen message
                                          dieser GV ist */
@@ -65,7 +65,6 @@ public class AbstractHBCIJob {
                                          default-Wert an, falls für diesen Namen *kein* Wert angebeben wurde. Ist der default-
                                          Wert="", so kann das Syntaxelement weggelassen werden. Ist der default-Wert=null,
                                          so *muss* die Anwendung einen Wert spezifizieren */
-    private String externalId;
     private HashSet<String> indexedConstraints;
 
     public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
@@ -242,7 +241,7 @@ public class AbstractHBCIJob {
 
         // namen+versionsnummer speichern
         this.jobName = jobnameLL;
-        this.segVersion = Integer.toString(maxVersion);
+        this.segVersion = maxVersion;
         this.name = jobnameLL + this.segVersion;
     }
 
@@ -597,7 +596,7 @@ public class AbstractHBCIJob {
         return name;
     }
 
-    public String getSegVersion() {
+    public int getSegVersion() {
         return this.segVersion;
     }
 
@@ -613,15 +612,15 @@ public class AbstractHBCIJob {
      *
      * @param version die neue Versionsnummer.
      */
-    public void setSegVersion(String version) {
-        if (version == null || version.length() == 0) {
+    public void setSegVersion(int version) {
+        if (version < 1) {
             log.warn("tried to change segment version for task " + this.jobName + " explicit, but no version given");
             return;
         }
 
         // Wenn sich die Versionsnummer nicht geaendert hat, muessen wir die
         // Huehner ja nicht verrueckt machen ;)
-        if (version.equals(this.segVersion))
+        if (version == this.segVersion)
             return;
 
         log.info("changing segment version for task " + this.jobName + " explicit from " + this.segVersion + " to " + version);
@@ -975,14 +974,6 @@ public class AbstractHBCIJob {
         k.blz = this.getLowlevelParam(prefix + "KIK.blz");
         k.country = this.getLowlevelParam(prefix + "KIK.country");
         return k;
-    }
-
-    public String getExternalId() {
-        return this.externalId;
-    }
-
-    public void setExternalId(String id) {
-        this.externalId = id;
     }
 
     protected boolean twoDigitValueInList(String value, String list) {

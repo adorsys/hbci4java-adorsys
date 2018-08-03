@@ -47,7 +47,7 @@ public class GVKUmsAll extends AbstractHBCIJob {
             // Siehe auch GVKontoauszug/HKEKA. Die einzige Aenderung war die Umstellung
             // der Bankverbindungsart von ktv auf kti (wegen IBAN-Support).
             // Bei HKKAZ ist das ab Segment-Version 7 der Fall.
-            sepa = Integer.parseInt(this.getSegVersion()) >= 7;
+            sepa = this.getSegVersion() >= 7;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

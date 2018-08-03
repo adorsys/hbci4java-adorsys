@@ -146,8 +146,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     byte[] decrypt(byte[] cryptedkey, byte[] cryptedstring);
 
-    byte[] sign(byte[] hashresult);
-
     HashMap<String, String> getSupportedLowlevelJobs();
 
     HashMap<String, String> getLowlevelJobRestrictions(String gvname);
@@ -157,4 +155,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
     Node getSyntaxDef(String name);
 
     Object getPinTanInfo(String hbciCode);
+
+    String getPIN();
 }

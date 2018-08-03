@@ -37,8 +37,8 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         initData(delimiter);
     }
 
-    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(deref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
 
@@ -89,16 +89,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
 
     // -------------------------------------------------------------------------------------------------------
 
-    public void log() {
-        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
-            DE de = (DE) (i.next());
-            if (de != null)
-                log.trace(de.toString(0));
-
-        }
-    }
-
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         SyntaxElement ret;
 
         if (idx != 0 && valids != null) {
@@ -118,7 +109,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
             }
         }
 
-        addElement(ret = new DE(ref, getName(), path, predelim, idx, res, fullResLen, predefs, valids));
+        addElement(ret = new DE(ref, getName(), path, predelim, idx, res, predefs, valids));
         return ret;
     }
 
@@ -127,8 +118,8 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         this.valids = new ArrayList<>();
     }
 
-    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(deref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
 

@@ -42,7 +42,7 @@ public class AllowedGVTest extends AbstractTest {
             newmsgstring = rewriters[i].incomingClearText(newmsgstring, null, "Synch");
         }
 
-        Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
+        Message msg = new Message("SynchRes", newmsgstring, null, Message.CHECK_SEQ, true);
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
     }
@@ -75,7 +75,7 @@ public class AllowedGVTest extends AbstractTest {
             newmsgstring = rewriters[i].incomingClearText(newmsgstring, null, "Synch");
         }
 
-        Message msg = new Message("SynchRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
+        Message msg = new Message("SynchRes", newmsgstring, null, Message.CHECK_SEQ, true);
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
 

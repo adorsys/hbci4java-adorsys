@@ -178,9 +178,9 @@ public final class HBCIKernel {
         passport.getCallback().status(HBCICallback.STATUS_MSG_SIGN, null);
 
         // signatur erzeugen und an nachricht anhängen
-        Sig sig = new Sig(message);
+        Sig sig = new Sig();
 
-        if (!sig.signIt(passport)) {
+        if (!sig.signIt(message, passport)) {
             String errmsg = HBCIUtils.getLocMsg("EXCMSG_CANTSIGN");
             throw new HBCI_Exception(errmsg);
         }
@@ -236,9 +236,8 @@ public final class HBCIKernel {
         log.debug("looking for a signature");
         passport.getCallback().status(HBCICallback.STATUS_MSG_VERIFY, null);
 
-        if (!new Sig(message).verify(passport)) {
-            String errmsg = HBCIUtils.getLocMsg("EXCMSG_INVSIG");
-            throw new HBCI_Exception(errmsg);
+        if (!new Sig().verify(message, passport)) {
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_INVSIG"));
         }
     }
 
@@ -294,7 +293,7 @@ public final class HBCIKernel {
             try {
                 passport.getCallback().status(HBCICallback.STATUS_MSG_PARSE, response.getName() + "Res");
                 log.debug("message to pe parsed: " + response.toString(0));
-                response = new Message(responseMessageName, responseString, responseString.length(), passport.getSyntaxDocument(), Message.CHECK_SEQ, true);
+                response = new Message(responseMessageName, responseString, passport.getSyntaxDocument(), Message.CHECK_SEQ, true);
             } catch (Exception ex) {
                 throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), responseString, ex);
             }

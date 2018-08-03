@@ -36,8 +36,8 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         super(segref, path, document);
     }
 
-    public MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(segref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    public MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(segref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document) {
@@ -68,21 +68,13 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    public void log() {
-        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
-            SEG seg = (SEG) (i.next());
-            if (seg != null)
-                log.trace(seg.toString(0));
-        }
+    public void init(Node segref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(segref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
-    public void init(Node segref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(segref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
-    }
-
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         SyntaxElement ret = null;
-        addElement((ret = new SEG(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs, valids)));
+        addElement((ret = new SEG(getType(), getName(), path, predelim, idx, res, document, predefs, valids)));
         return ret;
     }
 

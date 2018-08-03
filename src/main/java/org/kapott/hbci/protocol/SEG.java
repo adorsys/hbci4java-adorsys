@@ -34,8 +34,8 @@ public final class SEG extends SyntaxElement {
         super(type, name, path, idx, document);
     }
 
-    public SEG(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    public SEG(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
     protected String getElementTypeName() {
@@ -88,13 +88,6 @@ public final class SEG extends SyntaxElement {
         return ret.toString();
     }
 
-    public void log() {
-        for (MultipleSyntaxElements dataList : getChildContainers()) {
-            if (dataList != null)
-                dataList.log();
-        }
-    }
-
     public void setSeq(int idx, boolean allowOverwrite) {
         String segcounterPath = "SegHead.seq";
         String targetPath = getPath() + "." + segcounterPath;
@@ -125,13 +118,13 @@ public final class SEG extends SyntaxElement {
         return code.toString();
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((dataref.getNodeName()).equals("DEG"))
-            ret = new MultipleDEGs(dataref, '+', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
+            ret = new MultipleDEGs(dataref, '+', getPath(), predelim0, predelim1, res, document, predefs, valids);
         else if ((dataref.getNodeName()).equals("DE"))
-            ret = new MultipleDEs(dataref, '+', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
+            ret = new MultipleDEs(dataref, '+', getPath(), predelim0, predelim1, res, document, predefs, valids);
 
         return ret;
     }
@@ -140,8 +133,8 @@ public final class SEG extends SyntaxElement {
         return '+';
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
     public int checkSegSeq(int value) {

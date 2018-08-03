@@ -276,24 +276,11 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     }
 
     @Override
-    public String selectTanMedia(List<GVRTANMediaList.TANMediaInfo> medialist) {
-        if (medialist.size() == 1) {
-            // Wenn wir eine Medienbezeichnung gekriegt haben und das
-            // genau eine einzige ist. Dann uebernehmen wir diese
-            // ohne Rueckfrage.
-            return medialist.get(0).mediaName;
-        } else {
-            // Ansonsten fragen wir den User
-            return null;
-        }
+    public void tanChallengeCallback(String orderRef, String challenge) {
     }
 
     @Override
-    public void tanChallengeCallback(String challenge) {
-    }
-
-    @Override
-    public String needTankCallback() {
+    public String needTAN() {
         return null;
     }
 

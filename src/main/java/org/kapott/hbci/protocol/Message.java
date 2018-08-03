@@ -44,12 +44,13 @@ public final class Message extends SyntaxElement {
         super(type, type, null, 0, document);
     }
 
-    public Message(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
-        super(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
+    public Message(String type, String res, Document document, boolean checkSeq, boolean checkValids) {
+        super(type, type, null, (char) 0, 0, new StringBuffer(res),
             document,
             new Hashtable<>(),
             checkValids ? new Hashtable<>() : null);
-        initData(checkSeq);
+        if (checkSeq)
+            checkSegSeq(1);
     }
 
     public void init(String type, Document document) {
@@ -140,36 +141,25 @@ public final class Message extends SyntaxElement {
 
     // -------------------------------------------------------------------------------------------
 
-    public void log() {
-        if (isValid())
-            for (MultipleSyntaxElements multipleSyntaxElements : getChildContainers()) {
-                multipleSyntaxElements.log();
-            }
-    }
-
-    private void initData(boolean checkSeq) {
-        if (checkSeq)
-            checkSegSeq(1);
-    }
-
-    public void init(String type, String res, int fullResLen, Document document, boolean checkSeq, boolean checkValids) {
-        super.init(type, type, null, (char) 0, 0, new StringBuffer(res), fullResLen,
+    public void init(String type, String res, Document document, boolean checkSeq, boolean checkValids) {
+        super.init(type, type, null, (char) 0, 0, new StringBuffer(res),
             document, new Hashtable<>(),
             checkValids ? new Hashtable<>() : null);
-        initData(checkSeq);
+        if (checkSeq)
+            checkSegSeq(1);
     }
 
     protected char getInDelim() {
         return '\'';
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG"))
-            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
+            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, document, predefs, valids);
         else if ((segref.getNodeName()).equals("SF"))
-            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
+            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, document, predefs, valids);
 
         return ret;
     }

@@ -33,7 +33,7 @@ public class TestBug1322 extends AbstractTest {
         try {
             String data = getFile("bpd/bugzilla-1322.txt");
 
-            Message msg = new Message("DialogInitAnonRes", data, data.length(), null, Message.CHECK_SEQ, true);
+            Message msg = new Message("DialogInitAnonRes", data, null, Message.CHECK_SEQ, true);
             HashMap<String, String> ht = new HashMap<>();
             msg.extractValues(ht);
 

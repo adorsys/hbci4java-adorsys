@@ -36,8 +36,8 @@ public final class MultipleSFs extends MultipleSyntaxElements {
         super(sfref, path, document);
     }
 
-    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(sfref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(sfref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document) {
@@ -64,21 +64,13 @@ public final class MultipleSFs extends MultipleSyntaxElements {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    public void log() {
-        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
-            SF sf = (SF) (i.next());
-            if (sf != null)
-                log.trace(sf.toString(0));
-        }
+    public void init(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(sfref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
-    public void init(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(sfref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
-    }
-
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         SyntaxElement ret = null;
-        addElement((ret = new SF(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs, valids)));
+        addElement((ret = new SF(getType(), getName(), path, predelim, idx, res, document, predefs, valids)));
         return ret;
     }
 

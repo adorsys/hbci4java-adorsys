@@ -66,18 +66,18 @@ public final class HBCIInstitute implements IHandlerData {
      */
     void updateBPD(HashMap<String, String> result) {
         log.debug("extracting BPD from results");
-        HashMap<String, String> p = new HashMap<>();
+        HashMap<String, String> newBPD = new HashMap<>();
 
         result.keySet().forEach(key -> {
             if (key.startsWith("BPD.")) {
-                p.put(key.substring(("BPD.").length()), result.get(key));
+                newBPD.put(key.substring(("BPD.").length()), result.get(key));
             }
         });
 
-        if (p.size() != 0) {
-            p.put(BPD_KEY_HBCIVERSION, passport.getHBCIVersion());
-            p.put(BPD_KEY_LASTUPDATE, String.valueOf(System.currentTimeMillis()));
-            passport.setBPD(p);
+        if (newBPD.size() != 0) {
+            newBPD.put(BPD_KEY_HBCIVERSION, passport.getHBCIVersion());
+            newBPD.put(BPD_KEY_LASTUPDATE, String.valueOf(System.currentTimeMillis()));
+            passport.setBPD(newBPD);
             log.info("installed new BPD with version " + passport.getBPDVersion());
             passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT_DONE, passport.getBPD());
         }

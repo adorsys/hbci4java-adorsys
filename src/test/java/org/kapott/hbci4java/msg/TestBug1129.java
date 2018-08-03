@@ -35,7 +35,7 @@ public class TestBug1129 extends AbstractTest {
      */
     private HashMap<String, String> parse() throws Exception {
         String data = getFile("msg/bugzilla-1129.txt");
-                Message msg = new Message("CustomMsgRes", data, data.length(), null, Message.CHECK_SEQ, true);
+                Message msg = new Message("CustomMsgRes", data, null, Message.CHECK_SEQ, true);
 
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);

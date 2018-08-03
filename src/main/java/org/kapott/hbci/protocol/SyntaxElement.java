@@ -144,8 +144,8 @@ public abstract class SyntaxElement {
      * enthalten, die fuer einige syntaxelemente den wert angeben, den diese
      * elemente zwingend haben muessen (z.b. ein bestimmter segmentcode o.ae.)
      */
-    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
     /**
@@ -178,7 +178,7 @@ public abstract class SyntaxElement {
      * die delimiter an, die direkt vor dem zu erzeugenden syntaxelement
      * auftauchen muessten
      */
-    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids);
+    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids);
 
     private void initData(String type, String name, String ppath, int idx, Document document) {
         if (getElementTypeName().equals("SEG"))
@@ -316,7 +316,7 @@ public abstract class SyntaxElement {
         return idx;
     }
 
-    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         this.type = type;
         this.name = name;
         this.parent = null;
@@ -329,6 +329,7 @@ public abstract class SyntaxElement {
          * gesamtlänge des ursprünglichen msg-strings minus der länge des
          * reststrings, der jetzt zu parsen ist, und der mit dem aktuellen
          * datenelement beginnt */
+        int fullResLen = res.length();
         this.posInMsg = fullResLen - res.length();
 
         StringBuilder temppath = new StringBuilder(128);
@@ -381,7 +382,7 @@ public abstract class SyntaxElement {
                     MultipleSyntaxElements child = parseAndAppendNewChildContainer(ref,
                         ((counter++) == 0) ? predelim : getInDelim(),
                         getInDelim(),
-                        res, fullResLen, document, predefs, valids);
+                        res, document, predefs, valids);
 
                     if (child != null) {
                         child.setParent(this);
@@ -411,12 +412,12 @@ public abstract class SyntaxElement {
         setValid(true);
     }
 
-    protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
+    protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        initData(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
-    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        MultipleSyntaxElements ret = parseNewChildContainer(ref, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        MultipleSyntaxElements ret = parseNewChildContainer(ref, predelim0, predelim1, res, document, predefs, valids);
         if (ret != null)
             addChildContainer(ret);
         return ret;

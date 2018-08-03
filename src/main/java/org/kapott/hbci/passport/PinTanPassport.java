@@ -21,13 +21,11 @@
 package org.kapott.hbci.passport;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.exceptions.MissingTanMediaException;
 import org.kapott.hbci.manager.HBCIKey;
-import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.HBCITwoStepMechanism;
 import org.kapott.hbci.security.Crypt;
 import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -46,8 +44,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     private boolean verifyTANMode;
 
-    private HashMap<String, HashMap<String, String>> twostepMechanisms = new HashMap<>();
-    private HashMap<String, String> currentSecMechInfo;
+    private HashMap<String, HBCITwoStepMechanism> twostepMechanisms = new HashMap<>();
+    private HBCITwoStepMechanism currentSecMechInfo;
     private List<String> allowedTwostepMechanisms = new ArrayList<>();
     private List<GVRTANMediaList.TANMediaInfo> tanMedias;
 
@@ -55,52 +53,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     public PinTanPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
         super(hbciversion, properties, callback);
-    }
-
-    @Override
-    public byte[] sign(byte[] bytes) {
-        try {
-            // TODO: wenn die eingegebene PIN falsch war, muss die irgendwie
-            // resettet werden, damit wieder danach gefragt wird
-            if (getPIN() == null) {
-                StringBuffer s = new StringBuffer();
-
-                callback.callback(
-                    HBCICallback.NEED_PT_PIN,
-                    HBCIUtils.getLocMsg("CALLB_NEED_PTPIN"),
-                    HBCICallback.TYPE_SECRET, s);
-                if (s.length() == 0) {
-                    throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_PINZERO"));
-                }
-                setPIN(s.toString());
-            }
-
-            String tan = "";
-
-            // tan darf nur beim einschrittverfahren oder bei
-            // PV=1 und passport.contains(challenge) und tan-pflichtiger auftrag
-            // oder bei
-            // PV=2 und passport.contains(challenge+reference) und HKTAN
-            // ermittelt werden
-
-            log.debug("twostep method - checking passport(challenge) to decide whether or not we need a TAN");
-            // gespeicherte challenge aus passport holen
-            String challenge = (String) getPersistentData("pintan_challenge");
-            setPersistentData("pintan_challenge", null);
-
-            if (challenge == null) {
-                // es gibt noch keine challenge
-                log.debug("will not sign with a TAN, because there is no challenge");
-            } else {
-                log.info("found challenge in passport, so we ask for a TAN");
-                // es gibt eine challenge, also damit tan ermitteln
-
-                tan = callback.needTankCallback();
-            }
-            return (getPIN() + "|" + tan).getBytes("ISO-8859-1");
-        } catch (Exception ex) {
-            throw new HBCI_Exception("*** signing failed", ex);
-        }
     }
 
     @Override
@@ -191,22 +143,21 @@ public class PinTanPassport extends AbstractHBCIPassport {
                             String secfunc = newBPD.get(key);
 
                             // willuhn 2011-05-13 Checken, ob wir das Verfahren schon aus einer aktuelleren Segment-Version haben
-                            HashMap<String, String> prev = twostepMechanisms.get(secfunc);
+                            HBCITwoStepMechanism prev = twostepMechanisms.get(secfunc);
                             if (prev != null) {
                                 // Wir haben es schonmal. Mal sehen, welche Versionsnummer es hat
-                                int prevVersion = Integer.parseInt(prev.get("segversion"));
-                                if (prevVersion > segVersion) {
-                                    log.debug("found another twostepmech " + secfunc + " in segversion " + segVersion + ", allready have one in segversion " + prevVersion + ", ignoring segversion " + segVersion);
+                                if (prev.getSegversion() > segVersion) {
+                                    log.debug("found another twostepmech " + secfunc + " in segversion " + segVersion + ", allready have one in segversion " + prev.getSegversion() + ", ignoring segversion " + segVersion);
                                     continue;
                                 }
                             }
 
-                            HashMap<String, String> entry = new HashMap<>();
+                            HBCITwoStepMechanism entry = new HBCITwoStepMechanism();
 
                             // willuhn 2011-05-13 Wir merken uns die Segment-Version in dem Zweischritt-Verfahren
                             // Daran koennen wir erkennen, ob wir ein mehrfach auftretendes
                             // Verfahren ueberschreiben koennen oder nicht.
-                            entry.put("segversion", Integer.toString(segVersion));
+                            entry.setSegversion(segVersion);
 
                             String paramHeader = key.substring(0, key.lastIndexOf('.'));
                             // Params_x.TAN2StepParY.ParTAN2StepZ.TAN2StepParamsX_z
@@ -218,10 +169,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
                                 if (key2.startsWith(paramHeader + ".")) {
                                     int dotPos = key2.lastIndexOf('.');
-
-                                    entry.put(
-                                        key2.substring(dotPos + 1),
-                                        newBPD.get(key2));
+                                    entry.setValue(key2.substring(dotPos + 1), newBPD.get(key2));
                                 }
                             }
 
@@ -296,20 +244,17 @@ public class PinTanPassport extends AbstractHBCIPassport {
         searchFor3920s(msgStatus.globStatus.getWarnings());
         searchFor3920s(msgStatus.segStatus.getWarnings());
         searchFor3072s(msgStatus.segStatus.getWarnings());
-
-        setPersistentData("_authed_dialog_executed", Boolean.TRUE);
     }
 
-
-    public HashMap<String, String> getCurrentSecMechInfo() {
+    public HBCITwoStepMechanism getCurrentSecMechInfo() {
         return currentSecMechInfo;
     }
 
-    public void setCurrentSecMechInfo(HashMap<String, String> currentSecMechInfo) {
+    public void setCurrentSecMechInfo(HBCITwoStepMechanism currentSecMechInfo) {
         this.currentSecMechInfo = currentSecMechInfo;
     }
 
-    public HashMap<String, HashMap<String, String>> getTwostepMechanisms() {
+    public HashMap<String, HBCITwoStepMechanism> getTwostepMechanisms() {
         return twostepMechanisms;
     }
 
@@ -386,7 +331,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         if (getCurrentSecMechInfo() == null) {
             return SECFUNC_SIG_PT_1STEP;
         }
-        return getCurrentSecMechInfo().get("secfunc");
+        return getCurrentSecMechInfo().getSecfunc();
     }
 
     public String getCryptFunction() {
@@ -429,35 +374,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     public void incSigId() {
         // for PinTan we always use the same sigid
-    }
-
-    protected String collectSegCodes(String msg) {
-        StringBuilder ret = new StringBuilder();
-        int len = msg.length();
-        int posi = 0;
-
-        while (true) {
-            int endPosi = msg.indexOf(':', posi);
-            if (endPosi == -1) {
-                break;
-            }
-
-            String segcode = msg.substring(posi, endPosi);
-            if (ret.length() != 0) {
-                ret.append("|");
-            }
-            ret.append(segcode);
-
-            while (posi < len && msg.charAt(posi) != '\'') {
-                posi = HBCIUtils.getPosiOfNextDelimiter(msg, posi + 1);
-            }
-            if (posi >= len) {
-                break;
-            }
-            posi++;
-        }
-
-        return ret.toString();
     }
 
     public String getPinTanInfo(String jobHbciCode) {
@@ -526,33 +442,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return proxyuser;
     }
 
-    public String getOrderHashMode() {
-        String ret = null;
-
-        HashMap<String, String> bpd = getBPD();
-        if (bpd != null) {
-            for (String key : bpd.keySet()) {
-
-                if (key.startsWith("Params")) {
-                    String subkey = key.substring(key.indexOf('.') + 1);
-                    if (subkey.startsWith("TAN2StepPar" + getCurrentSecMechInfo().get("segversion")) &&
-                        subkey.endsWith(".orderhashmode")) {
-                        ret = bpd.get(key);
-                        break;
-                    }
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    /**
-     * Uebernimmt das Rueckfragen und Einsetzen der TAN-Medien-Bezeichung bei Bedarf.
-     *
-     * @param hktan der Job, in den der Parameter eingesetzt werden soll.
-     */
-    public void applyTanMedia(GVTAN2Step hktan) {
+    public boolean tanMediaNeeded() {
         // Gibts erst ab hhd1.3, siehe
         // FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf, Kapitel B.4.3.1.1.1
         // Zitat: Ist in der BPD als Anzahl unterstützter aktiver TAN-Medien ein Wert > 1
@@ -563,30 +453,17 @@ public class PinTanPassport extends AbstractHBCIPassport {
         // Ausserdem: "Nur bei TAN-Prozess=1, 3, 4". Das muss aber der Aufrufer pruefen. Ist mir
         // hier zu kompliziert
 
-        int hktan_version = Integer.parseInt(hktan.getSegVersion());
-        log.debug("hktan_version: " + hktan_version);
-        if (hktan_version >= 3) {
-            HashMap<String, String> secmechInfo = getCurrentSecMechInfo();
+        HBCITwoStepMechanism secmec = getCurrentSecMechInfo();
 
-            // Anzahl aktiver TAN-Medien ermitteln
-            int num = Integer.parseInt(secmechInfo.get("nofactivetanmedia") != null ? secmechInfo.get("nofactivetanmedia") : "0");
-            String needed = secmechInfo.get("needtanmedia") != null ? secmechInfo.get("needtanmedia") : "";
-            log.debug("nofactivetanmedia: " + num + ", needtanmedia: " + needed);
+        // Anzahl aktiver TAN-Medien ermitteln
+        int nofactivetanmedia = secmec.getNofactivetanmedia();
+        String needtanmedia = secmec.getNeedtanmedia();
+        log.debug("nofactivetanmedia: " + nofactivetanmedia + ", needtanmedia: " + needtanmedia);
 
-            // Ich hab Mails von Usern erhalten, bei denen die Angabe des TAN-Mediums auch
-            // dann noetig war, wenn nur eine Handy-Nummer hinterlegt war. Daher logen wir
-            // "num" nur, bringen die Abfrage jedoch schon bei num<2 - insofern needed=2.
-            if (needed.equals("2")) {
-                log.debug("we have to add the tan media");
-
-                String tanMedia = callback.selectTanMedia(tanMedias);
-                if (tanMedia != null) {
-                    hktan.setParam("tanmedia", tanMedia);
-                } else {
-                    throw new MissingTanMediaException(tanMedias.toString());
-                }
-            }
-        }
+        // Ich hab Mails von Usern erhalten, bei denen die Angabe des TAN-Mediums auch
+        // dann noetig war, wenn nur eine Handy-Nummer hinterlegt war. Daher logen wir
+        // "nofactivetanmedia" nur, bringen die Abfrage jedoch schon bei nofactivetanmedia<2 - insofern needtanmedia=2.
+        return needtanmedia.equals("2");
     }
 
     public String getPIN() {
@@ -597,7 +474,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         this.pin = pin;
     }
 
-    public void clearPIN() {
+    private void clearPIN() {
         setPIN(null);
     }
 

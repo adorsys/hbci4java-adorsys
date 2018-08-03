@@ -42,8 +42,8 @@ public final class DE extends SyntaxElement {
         initData(dedef, name, path, idx, document);
     }
 
-    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, fullResLen, null, predefs, valids);
+    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, null, predefs, valids);
         initData(dedef, res, predefs, predelim, valids);
     }
 
@@ -169,7 +169,7 @@ public final class DE extends SyntaxElement {
     }
 
     @Override
-    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         return null;
     }
 
@@ -259,8 +259,8 @@ public final class DE extends SyntaxElement {
         }
     }
 
-    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, int fullResLen, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, fullResLen, null, predefs, valids);
+    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, null, predefs, valids);
         initData(dedef, res, predefs, predelim, valids);
     }
 

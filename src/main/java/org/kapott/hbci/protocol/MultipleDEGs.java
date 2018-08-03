@@ -39,8 +39,8 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         initData(delimiter);
     }
 
-    public MultipleDEGs(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super(degref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    public MultipleDEGs(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super(degref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
 
@@ -79,22 +79,14 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
 
     // --------------------------------------------------------------------------------------------------------------
 
-    public void log() {
-        for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
-            DEG deg = (DEG) (i.next());
-            if (deg != null)
-                log.trace(deg.toString(0));
-        }
-    }
-
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
         SyntaxElement ret;
-        addElement((ret = new DEG(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs, valids)));
+        addElement((ret = new DEG(getType(), getName(), path, predelim, idx, res, document, predefs, valids)));
         return ret;
     }
 
-    public void init(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        super.init(degref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
+    public void init(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+        super.init(degref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
 

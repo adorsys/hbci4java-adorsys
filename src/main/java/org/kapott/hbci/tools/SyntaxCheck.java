@@ -79,7 +79,7 @@ public final class SyntaxCheck {
         Document document = DocumentFactory.createDocument(version);
 
         if (msgName != null && msgName.length() != 0) {
-            Message msg = new Message(msgName, st.toString(), st.length(), document, checkSeq, checkValids);
+            Message msg = new Message(msgName, st.toString(), document, checkSeq, checkValids);
             String st2 = msg.toString(0);
 
             if (st2.equals(st.toString())) {
@@ -109,7 +109,7 @@ public final class SyntaxCheck {
                 msgName = ((Element) list.item(i)).getAttribute("id");
                 System.out.println("checking for '" + msgName + "'");
                 try {
-                    msg = new Message(msgName, st.toString(), st.length(), document, checkSeq, checkValids);
+                    msg = new Message(msgName, st.toString(), document, checkSeq, checkValids);
                 } catch (Exception e) {
                     msg = null;
                 }

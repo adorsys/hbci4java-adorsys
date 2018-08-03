@@ -27,7 +27,7 @@ public class TestMultipleDEGs extends AbstractTest {
 
 
         long start = System.currentTimeMillis();
-        Message msg = new Message("DialogInitRes", data, data.length(), null, Message.CHECK_SEQ, true);
+        Message msg = new Message("DialogInitRes", data, null, Message.CHECK_SEQ, true);
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
         long end = System.currentTimeMillis();

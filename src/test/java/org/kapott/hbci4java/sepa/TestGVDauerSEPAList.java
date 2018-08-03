@@ -11,7 +11,6 @@ import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.HBCIDialog;
 import org.kapott.hbci.manager.HBCIJobFactory;
-import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIExecStatus;

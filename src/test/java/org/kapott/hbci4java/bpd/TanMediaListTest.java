@@ -45,7 +45,7 @@ public class TanMediaListTest extends AbstractTest {
             newmsgstring = rewriters[i].incomingClearText(newmsgstring, null, "CustomMsg");
         }
 
-        Message msg = new Message("CustomMsgRes", newmsgstring, newmsgstring.length(), null, Message.CHECK_SEQ, true);
+        Message msg = new Message("CustomMsgRes", newmsgstring, null, Message.CHECK_SEQ, true);
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
     }
