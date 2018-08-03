@@ -251,8 +251,6 @@ public final class HBCIInstitute implements IHandlerData {
         } else {
             log.warn("can not check if requested parameters are supported");
         }
-
-        passport.setPersistentData("_registered_institute", Boolean.TRUE);
     }
 
     private HBCIMsgStatus anonymousDialogInit() {

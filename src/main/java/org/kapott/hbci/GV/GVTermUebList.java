@@ -99,7 +99,7 @@ public final class GVTermUebList extends AbstractHBCIJob {
                 }
             });
 
-            passport.setPersistentData("termueb_" + entry.orderid, p2);
+//TODO            passport.setPersistentData("termueb_" + entry.orderid, p2);
         }
     }
 

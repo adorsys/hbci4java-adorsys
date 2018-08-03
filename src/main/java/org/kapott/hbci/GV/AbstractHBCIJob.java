@@ -155,13 +155,6 @@ public class AbstractHBCIJob {
         // nationalen Kontoverbindung, verlangen sie anschliessend aber. Ein Fehler der
         // Bank. Siehe http://www.onlinebanking-forum.de/forum/topic.php?p=86444#real86444
 
-        Object o = passport.getPersistentData("cannationalacc");
-        if (o != null) {
-            String s = o.toString();
-            log.info("value of \"cannationalacc\" overwritten in passport, value: " + s);
-            return s.equalsIgnoreCase("J");
-        }
-
         log.debug("searching for value of \"cannationalacc\" in HISPAS");
 
         // Ansonsten suchen wir in HISPAS - aber nur, wenn wir die Daten schon haben

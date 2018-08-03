@@ -88,8 +88,8 @@ public class GVTermUebSEPAEdit extends AbstractSEPAGV {
             HashMap<String, String> p2 = new HashMap<>();
             getLowlevelParams().forEach((key, value) ->
                 p2.put(key.substring(key.indexOf(".") + 1), value));
-
-            passport.setPersistentData("termueb_" + orderid, p2);
+//TODO
+//            passport.setPersistentData("termueb_" + orderid, p2);
         }
     }
 

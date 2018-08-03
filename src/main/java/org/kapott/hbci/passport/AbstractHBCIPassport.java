@@ -65,7 +65,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private String sysid;
     private Long sigid;
     private Document syntaxDocument;
-    private HashMap<String, Object> persistentData = new HashMap<>();
 
     public AbstractHBCIPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
         this.hbciversion = hbciversion;
@@ -718,27 +717,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         }
     }
 
-    public void setPersistentData(String id, Object o) {
-        if (o != null)
-            persistentData.put(id, o);
-        else
-            persistentData.remove(id);
-    }
-
     public Document getSyntaxDocument() {
         return syntaxDocument;
-    }
-
-    public Object getPersistentData(String id) {
-        return persistentData.get(id);
-    }
-
-    public HashMap<String, Object> getPersistentData() {
-        return persistentData;
-    }
-
-    public void setPersistentData(HashMap<String, Object> persistentData) {
-        this.persistentData = persistentData;
     }
 
     public final HashMap<String, String> getBPD() {

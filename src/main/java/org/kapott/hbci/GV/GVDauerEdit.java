@@ -85,7 +85,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
             getLowlevelParams().forEach((key, value) ->
                 p2.put(key.substring(key.indexOf(".") + 1), value));
 
-            passport.setPersistentData("dauer_" + orderid, p2);
+            //TODO passport.setPersistentData("dauer_" + orderid, p2);
         }
     }
 
@@ -179,15 +179,16 @@ public final class GVDauerEdit extends AbstractHBCIJob {
                 throw new InvalidUserDataException(msg);
             }
         } else if (paramName.equals("orderid")) {
-            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("dauer_" + value);
-            if (p != null) {
-                p.forEach((key, s2) -> {
-                    String key2 = getName() + "." + key;
-                    if (!key.equals("date") && !key.startsWith("Aussetzung.") && getLowlevelParams().get(key2) == null) {
-                        setLowlevelParam(key2, value);
-                    }
-                });
-            }
+            //TODO
+//            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("dauer_" + value);
+//            if (p != null) {
+//                p.forEach((key, s2) -> {
+//                    String key2 = getName() + "." + key;
+//                    if (!key.equals("date") && !key.startsWith("Aussetzung.") && getLowlevelParams().get(key2) == null) {
+//                        setLowlevelParam(key2, value);
+//                    }
+//                });
+//            }
         }
 
         super.setParam(paramName, value);

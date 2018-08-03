@@ -79,7 +79,7 @@ public final class GVDauerNew extends AbstractHBCIJob {
             HashMap<String, String> p2 = new HashMap<>();
             getLowlevelParams().forEach((key, value) ->
                 p2.put(key.substring(key.indexOf(".") + 1), value));
-            passport.setPersistentData("dauer_" + orderid, p2);
+//TODO            passport.setPersistentData("dauer_" + orderid, p2);
         }
     }
 

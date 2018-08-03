@@ -47,16 +47,17 @@ public final class GVTermUebDel extends AbstractHBCIJob {
         super.setParam(paramName, value);
 
         if (paramName.equals("orderid")) {
-            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("termueb_" + value);
-            if (p == null) {
-                String msg = HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS", value);
-                throw new InvalidUserDataException(msg);
-            }
+            //TODO
+//            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("termueb_" + value);
+//            if (p == null) {
+//                String msg = HBCIUtils.getLocMsg("EXCMSG_NOSUCHSCHEDTRANS", value);
+//                throw new InvalidUserDataException(msg);
+//            }
+//
+//            p.forEach((key, obj) -> {
+//                setLowlevelParam(getName() + "." + key, obj);
+//            });
 
-            p.forEach((key, obj) -> {
-                setLowlevelParam(getName() + "." + key, obj);
-            });
-            
         }
     }
 }

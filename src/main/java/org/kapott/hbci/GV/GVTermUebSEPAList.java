@@ -148,7 +148,7 @@ public final class GVTermUebSEPAList extends AbstractSEPAGV {
                 }
             });
 
-            passport.setPersistentData("termueb_" + entry.orderid, p2);
+//TODO            passport.setPersistentData("termueb_" + entry.orderid, p2);
         }
     }
 

@@ -179,7 +179,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
                 }
             }
 
-            passport.setPersistentData("dauer_" + entry.orderid, p2);
+//TODO            passport.setPersistentData("dauer_" + entry.orderid, p2);
         }
     }
 

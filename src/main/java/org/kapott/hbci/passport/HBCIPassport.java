@@ -273,11 +273,7 @@ public interface HBCIPassport {
 
     HBCICallback getCallback();
 
-    void setPersistentData(String s, Object p2);
-
     HashMap<String, String> getJobRestrictions(String name);
-
-    Object getPersistentData(String s);
 
     String getProxy();
 

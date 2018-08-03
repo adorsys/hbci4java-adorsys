@@ -104,15 +104,16 @@ public class GVTAN2Step extends AbstractHBCIJob {
         } else {
             log.debug("this is a \"real\" HKTAN response - analyzing HITAN data");
 
+            String orderref = result.get(header + ".orderref");
+
             // willuhn 2011-05-27 Challenge HHDuc aus dem Reponse holen und im Passport zwischenspeichern
             String hhdUc = result.get(header + ".challenge_hhd_uc");
             if (hhdUc != null) {
                 log.debug("found Challenge HHDuc '" + hhdUc + "' in HITAN - saving it temporarily in passport");
-                passport.setPersistentData("pintan_challenge_hhd_uc", hhdUc);
+                passport.getCallback().tanChallengeCallback(orderref, hhdUc);
             }
 
             String challenge = result.get(header + ".challenge");
-            String orderref = result.get(header + ".orderref");
             passport.getCallback().tanChallengeCallback(orderref, challenge);
         }
     }

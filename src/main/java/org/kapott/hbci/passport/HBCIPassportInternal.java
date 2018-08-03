@@ -111,10 +111,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     HashMap<String, String> getJobRestrictions(String gvname, String version);
 
-    void setPersistentData(String id, Object o);
-
-    Object getPersistentData(String id);
-
     /* Diese Methode wird nach jeder Dialog-Initialisierung aufgerufen. Ein
      * Passport-Objekt kann den Status der Response mit Hilfe von msgStatusList
      * auswerten. Durch Zurückgeben von "true" wird angezeigt, dass eine

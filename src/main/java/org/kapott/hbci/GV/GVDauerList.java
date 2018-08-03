@@ -121,7 +121,7 @@ public final class GVDauerList extends AbstractHBCIJob {
                 }
             }
 
-            passport.setPersistentData("dauer_" + entry.orderid, p2);
+//TODO            passport.setPersistentData("dauer_" + entry.orderid, p2);
         }
     }
 

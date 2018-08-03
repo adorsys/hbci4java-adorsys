@@ -159,7 +159,8 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
             getLowlevelParams().forEach((key, value) ->
                 p2.put(key.substring(key.indexOf(".") + 1), value));
 
-            passport.setPersistentData("dauer_" + orderid, p2);
+            //TODO
+            // passport.setPersistentData("dauer_" + orderid, p2);
         }
     }
 

@@ -90,15 +90,15 @@ public final class GVDauerDel extends AbstractHBCIJob {
 
             // TODO: minpretime und maxpretime auswerten
         } else if (paramName.equals("orderid")) {
-            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("dauer_" + value);
-            if (p != null && p.size() != 0) {
-                p.keySet().forEach(key -> {
-                    if (!key.equals("date") &&
-                        !key.startsWith("Aussetzung.")) {
-                        setLowlevelParam(getName() + "." + key, p.get(key));
-                    }
-                });
-            }
+//TODO            HashMap<String, String> p = (HashMap<String, String>) passport.getPersistentData("dauer_" + value);
+//            if (p != null && p.size() != 0) {
+//                p.keySet().forEach(key -> {
+//                    if (!key.equals("date") &&
+//                        !key.startsWith("Aussetzung.")) {
+//                        setLowlevelParam(getName() + "." + key, p.get(key));
+//                    }
+//                });
+//            }
         }
 
         super.setParam(paramName, value);
