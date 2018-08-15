@@ -263,7 +263,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
     }
 
     public String getProfileVersion() {
-        return "2";
+        return currentSecMechInfo == null || currentSecMechInfo.getSecfunc().equals(Sig.SECFUNC_SIG_PT_1STEP) ? "1" : "2";
     }
 
     public boolean needUserSig() {

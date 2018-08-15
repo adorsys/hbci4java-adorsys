@@ -83,7 +83,6 @@ public final class HBCIUser implements IHandlerData {
             passport.setSigId(new Long("9999999999999999"));
 
             HBCIMsgStatus msgStatus = doDialogInit("Synch", "2");
-            passport.postInitResponseHook(msgStatus);
 
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
@@ -95,6 +94,8 @@ public final class HBCIUser implements IHandlerData {
             updateUPD(syncResult);
             passport.setSigId(new Long(syncResult.get("SyncRes.sigid") != null ? syncResult.get("SyncRes.sigid") : "1"));
             passport.incSigId();
+
+            passport.postInitResponseHook(msgStatus);
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus, passport.getSigId()});
             log.debug("signature id set to " + passport.getSigId());
@@ -133,7 +134,6 @@ public final class HBCIUser implements IHandlerData {
             log.info("fetching UPD (BPD-Version: " + passport.getBPDVersion() + ")");
 
             HBCIMsgStatus msgStatus = doDialogInit("DialogInit", null);
-            passport.postInitResponseHook(msgStatus);
 
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), msgStatus);
@@ -143,6 +143,7 @@ public final class HBCIUser implements IHandlerData {
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
             inst.updateBPD(result);
 
+            passport.postInitResponseHook(msgStatus);
             updateUPD(result);
 
             doDialogEnd(result.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
