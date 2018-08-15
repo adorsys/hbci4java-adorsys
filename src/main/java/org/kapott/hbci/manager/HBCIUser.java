@@ -55,8 +55,6 @@ public final class HBCIUser implements IHandlerData {
             passport.setSysId("0");
 
             HBCIMsgStatus syncStatus = doDialogInit("Synch", "0");
-            passport.postInitResponseHook(syncStatus);
-
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
@@ -66,6 +64,8 @@ public final class HBCIUser implements IHandlerData {
             inst.updateBPD(syncResult);
             updateUPD(syncResult);
             passport.setSysId(syncResult.get("SyncRes.sysid"));
+
+            passport.postInitResponseHook(syncStatus);
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus, passport.getSysId()});
             log.debug("new sys-id is " + passport.getSysId());

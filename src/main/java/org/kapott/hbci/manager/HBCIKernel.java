@@ -45,10 +45,6 @@ public final class HBCIKernel {
     public final static boolean DONT_SIGNIT = false;
     public final static boolean CRYPTIT = true;
     public final static boolean DONT_CRYPTIT = false;
-    public final static boolean NEED_SIG = true;
-    public final static boolean DONT_NEED_SIG = false;
-    public final static boolean NEED_CRYPT = true;
-    public final static boolean DONT_NEED_CRYPT = false;
 
     private HBCIPassportInternal passport;
     private CommPinTan commPinTan;
@@ -56,7 +52,7 @@ public final class HBCIKernel {
     public HBCIKernel(HBCIPassportInternal passport) {
         this.passport = passport;
 
-        this.commPinTan = new CommPinTan(passport.getProperties().get("kernel.rewriter"), passport.getHost(), passport.getCallback())
+        this.commPinTan = new CommPinTan(passport.getHost(), passport.getCallback())
             .withProxy(passport.getProxy(), passport.getProxyUser(),
                 passport.getProxyPass());
     }

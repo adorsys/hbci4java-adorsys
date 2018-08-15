@@ -31,8 +31,6 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
@@ -55,31 +53,16 @@ public final class CommPinTan {
      * Timeout fuer HTTP Read in Millisekunden.
      */
     private final static int HTTP_READ_TIMEOUT = 5 * HTTP_CONNECT_TIMEOUT;
-    private String rewriter;
     private HBCICallback callback;
     private URL url;
     private HttpURLConnection conn;
-    // die socket factory, die in jedem fall benutzt wird.
-    private SSLSocketFactory mySocketFactory;
-    // der hostname-verifier, der nur dann benutzt wird, wenn zertifikate
-    // nicht verifiziert werden sollen
-    private HostnameVerifier myHostnameVerifier;
 
-    //Needed for jackson
-    public CommPinTan() {
-    }
-
-    public CommPinTan(String rewriter, String host, HBCICallback callback) {
-        this.rewriter = rewriter;
+    public CommPinTan(String host, HBCICallback callback) {
         this.callback = callback;
 
         try {
             log.info("connect: " + host);
             this.url = new URL(host);
-
-            // creating instances of modified socket factories etc.
-            this.mySocketFactory = new PinTanSSLSocketFactory();
-            this.myHostnameVerifier = new PinTanSSLHostnameVerifier();
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CONNERR"), e);
         }
