@@ -67,6 +67,19 @@ public class SepaUtil {
     }
 
     /**
+     * Liefert ein Date-Objekt fuer den Kalender.
+     *
+     * @param cal der Kalender.
+     * @return das Date-Objekt.
+     */
+    public static Date toDate(XMLGregorianCalendar cal) {
+        if (cal == null)
+            return null;
+
+        return cal.toGregorianCalendar().getTime();
+    }
+
+    /**
      * Formatiert die Dezimalzahl als String.
      * Zur Zeit macht die Funktion lediglich ein "toString",
      *

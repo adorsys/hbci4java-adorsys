@@ -6,21 +6,22 @@ import org.kapott.hbci.sepa.jaxb.pain_008_001_02.*;
 import javax.xml.bind.JAXB;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Parser-Implementierung fuer Pain 008.001.02.
  */
-public class ParsePain00800102 extends AbstractSepaParser {
-
+public class ParsePain00800102 extends AbstractSepaParser<List<Properties>> {
     /**
-     * @see org.kapott.hbci.GV.parsers.ISEPAParser#parse(java.io.InputStream, java.util.List)
+     * @see org.kapott.hbci.GV.parsers.ISEPAParser#parse(InputStream, Object)
      */
-    public void parse(InputStream xml, List<HashMap<String, String>> sepaResults) {
-
+    public void parse(InputStream xml, List<Properties> sepaResults) {
         Document doc = JAXB.unmarshal(xml, Document.class);
         CustomerDirectDebitInitiationV02 pain = doc.getCstmrDrctDbtInitn();
+
+        if (pain == null)
+            return;
 
         List<PaymentInstructionInformationSDD> pmtInfs = pain.getPmtInf();
 
@@ -28,7 +29,7 @@ public class ParsePain00800102 extends AbstractSepaParser {
             List<DirectDebitTransactionInformationSDD> txList = pmtInf.getDrctDbtTxInf();
 
             for (DirectDebitTransactionInformationSDD tx : txList) {
-                HashMap<String, String> prop = new HashMap<>();
+                Properties prop = new Properties();
 
                 put(prop, Names.PMTINFID, pmtInf.getPmtInfId());
                 put(prop, Names.SRC_NAME, pain.getGrpHdr().getInitgPty().getNm());

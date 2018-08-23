@@ -68,7 +68,7 @@ public final class AnalyzeReportOfTransactions {
 
     private static void analyzeReportOfTransactions(HBCIPassportInternal hbciPassport, HBCIDialog hbciDialog) {
         // Use first available HBCI account
-        Konto myaccount = hbciPassport.getAccounts()[0];
+        Konto myaccount = hbciPassport.getAccounts().get(0);
 
         // Create HBCI job
         AbstractHBCIJob bankAccountStatementJob = HBCIJobFactory.newJob("KUmsAll", hbciPassport);

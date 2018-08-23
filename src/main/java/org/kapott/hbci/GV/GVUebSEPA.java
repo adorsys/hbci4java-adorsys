@@ -21,20 +21,20 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.PainVersion.Type;
+import org.kapott.hbci.sepa.SepaVersion;
 
 /**
  * Job-Implementierung fuer SEPA-Ueberweisungen.
  */
 public class GVUebSEPA extends AbstractSEPAGV {
-    private final static PainVersion DEFAULT = PainVersion.PAIN_001_001_02;
+
+    private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName());
+        this(passport, getLowlevelName(), null);
     }
 
-    public GVUebSEPA(HBCIPassportInternal passport, String name) {
+    public GVUebSEPA(HBCIPassportInternal passport, String name, String pain) {
         super(passport, name);
 
         addConstraint("src.bic", "My.bic", null);
@@ -49,7 +49,11 @@ public class GVUebSEPA extends AbstractSEPAGV {
         }
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
-        addConstraint("_sepapain", "sepapain", null);
+        if (pain == null) {
+            addConstraint("_sepapain", "sepapain", null);
+        } else {
+            setPainXml(pain);
+        }
 
         /* dummy constraints to allow an application to set these values. the
          * overriden setLowlevelParam() stores these values in a special structure
@@ -65,8 +69,8 @@ public class GVUebSEPA extends AbstractSEPAGV {
         addConstraint("usage", "sepa.usage", "", true);
 
         //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
-        addConstraint("sepaid", "sepa.sepaid", getSEPAMessageId());
-        addConstraint("pmtinfid", "sepa.pmtinfid", getSEPAMessageId());
+        addConstraint("sepaid", "sepa.sepaid", getPainMessageId());
+        addConstraint("pmtinfid", "sepa.pmtinfid", getPainMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, true);
         addConstraint("purposecode", "sepa.purposecode", "", true);
     }
@@ -84,7 +88,7 @@ public class GVUebSEPA extends AbstractSEPAGV {
      * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
      */
     @Override
-    protected PainVersion getDefaultPainVersion() {
+    protected SepaVersion getDefaultPainVersion() {
         return DEFAULT;
     }
 
@@ -92,7 +96,7 @@ public class GVUebSEPA extends AbstractSEPAGV {
      * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
      */
     @Override
-    protected Type getPainType() {
-        return Type.PAIN_001;
+    protected SepaVersion.Type getPainType() {
+        return SepaVersion.Type.PAIN_001;
     }
 }

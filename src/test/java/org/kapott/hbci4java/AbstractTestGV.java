@@ -1,65 +1,44 @@
 package org.kapott.hbci4java;
 
-import junit.framework.Assert;
-import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.HBCIJobResult;
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.callback.HBCICallbackConsole;
+import org.kapott.hbci.callback.HBCICallbackIOStreams;
+import org.kapott.hbci.manager.BankInfo;
 import org.kapott.hbci.manager.HBCIDialog;
-import org.kapott.hbci.manager.HBCIJobFactory;
+import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.status.HBCIExecStatus;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.kapott.hbci.manager.HBCIJobFactory.newJob;
 
-public class AbstractTestGV extends AbstractTest {
-    private final static int LOGLEVEL = 5;
-    protected final static Map<Integer, String> settings = new HashMap<Integer, String>() {{
-        put(HBCICallback.NEED_COUNTRY, "DE");
-        put(HBCICallback.NEED_PASSPHRASE_LOAD, "test");
-        put(HBCICallback.NEED_PASSPHRASE_SAVE, "test");
-        put(HBCICallback.NEED_PORT, "443");
-        put(HBCICallback.NEED_CONNECTION, ""); // ignorieren
-        put(HBCICallback.CLOSE_CONNECTION, ""); // ignorieren
-    }};
+/**
+ * Abstrakte Basis-Klasse fuer Unit-Tests, bei denen tatsaechlich Geschaeftsvorfaelle ausgefuehrt werden.
+ */
+public abstract class AbstractTestGV {
+    private final Map<Integer, String> callbackValues = new HashMap<Integer, String>();
+    private Properties params = null;
+    private PinTanPassport passport = null;
+    private PrintStream out = null;
 
-    protected static File dir = null;
-
-    protected PinTanPassport passport = null;
-    protected HBCIDialog dialog = null;
-    protected Properties params = new Properties();
-
-
-    @Test
-    public void test() {
-        System.out.println("---------Erstelle Job");
-
-        AbstractHBCIJob job = HBCIJobFactory.newJob(getJobname(), dialog.getPassport());
-
-        int source_acc_idx = Integer.parseInt(params.getProperty("source_account_idx"));
-        job.setParam("src", passport.getAccounts()[source_acc_idx]);
-
-        System.out.println("---------Für Job zur Queue");
-        dialog.addTask(job);
-
-
-        HBCIExecStatus ret = dialog.execute(true);
-        HBCIJobResult res = job.getJobResult();
-        System.out.println("----------Result: " + res.toString());
-
-        Assert.assertEquals("Job Result ist nicht OK!", true, res.isOK());
+    /**
+     * Deaktiviert den Test, wenn das System-Property nicht auf "true" steht.
+     *
+     * @throws Exception
+     */
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        Assume.assumeTrue(Boolean.getBoolean(AbstractTest.SYSPROP_ONLINE));
     }
 
     /**
@@ -69,91 +48,164 @@ public class AbstractTestGV extends AbstractTest {
      */
     @Before
     public void beforeTest() throws Exception {
-        // Testdatei im Arbeitsverzeichnis - sollte in der Run-Konfiguration auf ein eigenes Verzeichnis zeigen
-        String workDir = System.getProperty("user.dir");
-        InputStream in = new FileInputStream(workDir + "/" + getTestfilename());
-        params.load(in);
+        this.params = new Properties();
 
-        settings.put(HBCICallback.NEED_BLZ, params.getProperty("blz"));
-        settings.put(HBCICallback.NEED_CUSTOMERID, params.getProperty("customerid"));
-        settings.put(HBCICallback.NEED_HOST, params.getProperty("host"));
-        settings.put(HBCICallback.NEED_PT_PIN, params.getProperty("pin"));
-        settings.put(HBCICallback.NEED_USERID, params.getProperty("userid"));
+        ////////////////////////////////////////////////////////////////////////
+        // Checken, ob die Messages in einer Logdatei oder auf STDERR landen sollen
+        final String logfile = System.getProperty("log");
+        out = logfile != null ? new PrintStream(new BufferedOutputStream(new FileOutputStream(logfile))) : System.out;
+        ////////////////////////////////////////////////////////////////////////
 
-        Properties props = new Properties();
-        props.put("log.loglevel.default", Integer.toString(LOGLEVEL));
-        props.put("infoPoint.enabled", Boolean.FALSE.toString());
 
-        props.put("client.passport.PinTan.filename", dir.getAbsolutePath() + File.separator + System.currentTimeMillis() + ".pt");
+        String configfile = System.getProperty("config", System.getProperty("user.dir") + File.separator + this.getClass().getSimpleName() + ".properties");
+        File file = new File(configfile);
+
+        if (file.exists() && file.canRead()) {
+            InputStream is = null;
+            try {
+                System.out.println("loading " + file);
+                is = new BufferedInputStream(new FileInputStream(file));
+                this.params.load(is);
+            } finally {
+                if (is != null)
+                    is.close();
+            }
+        }
+
+        // Presets fuer den Callback
+        this.callbackValues.put(HBCICallback.NEED_COUNTRY, params.getProperty("country", System.getProperty("country", "DE")));
+        this.callbackValues.put(HBCICallback.NEED_CUSTOMERID, params.getProperty("customerid", System.getProperty("customerid")));
+        this.callbackValues.put(HBCICallback.NEED_USERID, params.getProperty("userid", System.getProperty("useris")));
+        this.callbackValues.put(HBCICallback.NEED_PT_PIN, params.getProperty("pin", System.getProperty("pin")));
+
+        final String blz = params.getProperty("blz", System.getProperty("blz"));
+        this.callbackValues.put(HBCICallback.NEED_BLZ, blz);
+        this.callbackValues.put(HBCICallback.NEED_PORT, params.getProperty("port", System.getProperty("port", "443")));
+        this.callbackValues.put(HBCICallback.NEED_CONNECTION, "");
+        this.callbackValues.put(HBCICallback.CLOSE_CONNECTION, "");
+
+
+        // Initialisierungsparameter fuer HBCI4Java selbst
+        HashMap props = new HashMap<>();
+        props.put("log.loglevel.default", this.params.getProperty("log.loglevel.default", System.getProperty("log.loglevel.default", "4")));
         props.put("client.passport.PinTan.init", "1");
-        props.put("client.passport.PinTan.checkcert", "0"); // Check der SSL-Zertifikate abschalten - brauchen wir nicht fuer den Test
+        props.put("client.passport.PinTan.checkcert", this.params.getProperty("client.passport.PinTan.checkcert", "1"));
+        props.put("client.passport.PinTan.proxy", this.params.getProperty("client.passport.PinTan.proxy", ""));
+        props.put("client.passport.PinTan.proxyuser", this.params.getProperty("client.passport.PinTan.proxyuser", ""));
+        props.put("client.passport.PinTan.proxypass", this.params.getProperty("client.passport.PinTan.proxypass", ""));
 
-        // falls noetig
-        props.put("client.passport.PinTan.proxy", ""); // host:port
-        props.put("client.passport.PinTan.proxyuser", "");
-        props.put("client.passport.PinTan.proxypass", "");
+        // Callback initialisieren.
+        // Wenn wir passende Antworten in den Presets haben, koennen wir sie direkt
+        // beantworten
+        final HBCICallback callback = new HBCICallbackIOStreams(out, new BufferedReader(new InputStreamReader(System.in))) {
 
-        HBCICallback callback = new HBCICallbackConsole() {
-            public void callback(HBCIPassport passport, int reason, String msg, int datatype, StringBuffer retData) {
+            @Override
+            public void callback(int reason, String msg, int datatype, StringBuffer retData) {
+
                 // haben wir einen vordefinierten Wert?
-                String value = settings.get(reason);
+                String value = callbackValues.get(reason);
                 if (value != null) {
                     retData.replace(0, retData.length(), value);
                     return;
                 }
 
-                // Ne, dann an Super-Klasse delegieren
-                super.callback(reason, msg, datatype, retData);
+                // Ne, dann an Super-Klasse delegieren.
+                // Wenn ein Logfile angegeben ist, muessen wir auf der Console trotzdem noch die Moeglichkeit
+                // zur Interaktion geben. Daher setzen wir in dem Fall den Ausgabestrom kurz auf System.out
+                try {
+                    if (logfile != null)
+                        setOutStream(System.out);
+
+                    super.callback(reason, msg, datatype, retData);
+                } finally {
+                    // Wieder zuruecksetzen
+                    if (logfile != null)
+                        setOutStream(out);
+                }
             }
         };
 
-//      HBCIUtils.init(props,callback);
-//      this.passport = (PinTanPassport) AbstractHBCIPassport.getInstance("PinTan");
-
-        // init handler
-        this.dialog = new HBCIDialog(passport);
-    }
-
-    /**
-     * Erzeugt das Passport-Verzeichnis.
-     *
-     * @throws Exception
-     */
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        String tmpDir = System.getProperty("java.io.tmpdir", "/tmp");
-        dir = new File(tmpDir, "hbci4java-junit-" + System.currentTimeMillis());
-        dir.mkdirs();
-    }
-
-    /**
-     * Loescht das Passport-Verzeichnis.
-     *
-     * @throws Exception
-     */
-    @AfterClass
-    public static void afterClass() throws Exception {
-        if (!dir.delete())
-            throw new Exception("unable to delete " + dir);
-    }
-
-    protected String getJobname() {
-        Assert.assertEquals("Jobname not defined", true, false);
-        return "";
-    }
-
-    protected String getTestfilename() {
-        return getJobname() + ".properties";
-    }
-
-    private void dump(String name, Properties props) {
-        System.out.println("--- BEGIN: " + name + " -----");
-        Iterator keys = props.keySet().iterator();
-        while (keys.hasNext()) {
-            Object key = keys.next();
-            System.out.println(key + ": " + props.get(key));
+        ////////////////////////////////////////////////////////////////////////
+        // Nach dem Initialisieren von HBCI4Java noch checken, ob wir den
+        // Host selbst ermitteln koennen
+        String host = params.getProperty("host");
+        String version = "";
+        if (blz != null && host == null) {
+            BankInfo bank = HBCIUtils.getBankInfo(blz);
+            if (bank != null)
+                host = bank.getPinTanAddress();
+            version = bank.getPinTanVersion().getId();
         }
-        System.out.println("--- END: " + name + " -----");
+        this.callbackValues.put(HBCICallback.NEED_HOST, host);
+        //
+        ////////////////////////////////////////////////////////////////////////
+
+        this.passport = new PinTanPassport(version, props, callback);
+    }
+
+    /**
+     * Fuehrt den Geschaeftsvorfall aus.
+     *
+     * @param e der Geschaeftsvorfall.
+     */
+    protected final void execute(Execution e) {
+        AbstractHBCIJob job = newJob(e.getJobname(), this.passport);
+        e.configure(job, this.passport, this.params);
+
+        HBCIDialog dialog = new HBCIDialog(passport);
+        dialog.addTask(job);
+
+        e.testStatus(dialog.execute(true));
+        e.testResult(job.getJobResult());
+    }
+
+    /**
+     * Kapselt die eigentliche Job-Ausfuehrung.
+     */
+    public abstract class Execution {
+        /**
+         * Liefert den Namen des auszufuehrenden Geschaeftsvorfalls.
+         * Die Basis-Implementierung liefert den Parameter "job" des Test.
+         *
+         * @return der Name des auszufuehrenden Geschaeftsvorfalls.
+         */
+        public String getJobname() {
+            return params.getProperty("job");
+        }
+
+        /**
+         * Konfiguriert den Job.
+         * Kann von abgeleiteten Klassen ueberschrieben werden, wenn der Job parametrisiert werden muss.
+         * Die Basis-Implementierung ist leer.
+         *
+         * @param job      der auszufuehrende Job.
+         * @param passport der Passport.
+         * @param params   die Parameter des Tests.
+         */
+        public void configure(AbstractHBCIJob job, HBCIPassport passport, Properties params) {
+        }
+
+        /**
+         * Kann von abgeleiteten Klassen implementiert werden, um Tests am Ausfuehrungsstatus durchzufuehren.
+         * Die Basis-Implementierung testet per {@link HBCIExecStatus#isOK()}.
+         *
+         * @param status der Ausfuehrungsstatus.
+         */
+        public void testStatus(HBCIExecStatus status) {
+            if (!status.isOK())
+                System.err.println(status.getErrorString());
+            Assert.assertTrue("Ausfuehrungsstatus nicht OK", status.isOK());
+        }
+
+        /**
+         * Kann von abgeleiteten Klassen implementiert werden, um Tests Job-Ergebnis durchzufuehren.
+         * Die Basis-Implementierung testet per {@link HBCIJobResult#isOK()}.
+         *
+         * @param result das Job-Ergebnis.
+         */
+        public void testResult(HBCIJobResult result) {
+            Assert.assertTrue("Job-Status nicht OK", result.isOK());
+        }
     }
 
 }

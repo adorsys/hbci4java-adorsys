@@ -53,18 +53,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     void setInstEncKey(HBCIKey key);
 
-    void setMyPublicSigKey(HBCIKey key);
-
-    void setMyPrivateSigKey(HBCIKey key);
-
-    void setMyPublicEncKey(HBCIKey key);
-
-    void setMyPrivateEncKey(HBCIKey key);
-
-    void setMyPublicDigKey(HBCIKey key);
-
-    void setMyPrivateDigKey(HBCIKey key);
-
     String getInstEncKeyName();
 
     String getInstEncKeyNum();
@@ -151,6 +139,8 @@ public interface HBCIPassportInternal extends HBCIPassport {
     Node getSyntaxDef(String name);
 
     Object getPinTanInfo(String hbciCode);
+
+    String getOrderHashMode(int segVersion);
 
     String getPIN();
 }

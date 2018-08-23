@@ -36,8 +36,8 @@ public class GVMultiLastCOR1SEPA extends GVLastCOR1SEPA {
     }
 
     @Override
-    protected void createSEPAFromParams() {
-        super.createSEPAFromParams();
-        setParam("Total", SepaUtil.sumBtgValueObject(sepaParams));
+    protected void createPainXml() {
+        super.createPainXml();
+        setParam("Total", SepaUtil.sumBtgValueObject(painParams));
     }
 }

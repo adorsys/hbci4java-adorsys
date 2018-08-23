@@ -3,8 +3,6 @@ package org.kapott.hbci4java.bpd;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.kapott.hbci.manager.HBCIKernel;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
 import org.kapott.hbci4java.AbstractTest;
@@ -28,7 +26,7 @@ public class AllowedGVTest extends AbstractTest {
             String rewriterName = tok.nextToken().trim();
             if (rewriterName.length() != 0) {
                 Class cl = this.getClass().getClassLoader().loadClass("org.kapott.hbci.rewrite.R" +
-                        rewriterName);
+                    rewriterName);
                 Constructor con = cl.getConstructor((Class[]) null);
                 Rewrite rewriter = (Rewrite) (con.newInstance((Object[]) null));
                 al.add(rewriter);
@@ -61,7 +59,7 @@ public class AllowedGVTest extends AbstractTest {
             String rewriterName = tok.nextToken().trim();
             if (rewriterName.length() != 0) {
                 Class cl = this.getClass().getClassLoader().loadClass("org.kapott.hbci.rewrite.R" +
-                        rewriterName);
+                    rewriterName);
                 Constructor con = cl.getConstructor((Class[]) null);
                 Rewrite rewriter = (Rewrite) (con.newInstance((Object[]) null));
                 al.add(rewriter);

@@ -13,17 +13,12 @@ package org.kapott.hbci4java.bpd;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCITwoStepMechanism;
-import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci4java.AbstractTest;
 
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Properties;
 
 /**
  * Testet das Parsen der HITANS-Segmente aus den BPD.
@@ -68,7 +63,6 @@ public class HITANSTest extends AbstractTest {
     @Test
     public void testHitans5() throws Exception {
         HashMap<String, String> bpd = getBPD("bpd/bpd2-formatted.txt", "300");
-
 
 
         bpd.forEach((name, value) -> {

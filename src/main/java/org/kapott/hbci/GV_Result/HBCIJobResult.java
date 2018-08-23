@@ -117,7 +117,7 @@ public interface HBCIJobResult {
      * Ergebnisdatenelementes an. Eine Liste aller möglichen Lowlevel-Namen kann
      * zur Laufzeit mit
      * {@link org.kapott.hbci.manager.HBCIHandler#getLowlevelJobResultNames(String)}
-     * oder mit {@link org.kapott.hbci.GV.HBCIJob#getJobResultNames()}
+     * oder mit {@link org.kapott.hbci.GV.AbstractHBCIJob#getJobResultNames()}
      * ermittelt werden.</p></li>
      * <li><p>mit Prefix <code>basic</code>:<br/>
      * Hier werden jobinterne Daten gespeichert:</p>

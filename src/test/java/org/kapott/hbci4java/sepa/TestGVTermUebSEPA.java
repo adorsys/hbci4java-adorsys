@@ -1,54 +1,53 @@
 package org.kapott.hbci4java.sepa;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.GV.AbstractHBCIJob;
-import org.kapott.hbci.GV_Result.HBCIJobResult;
-import org.kapott.hbci.manager.HBCIJobFactory;
-import org.kapott.hbci.status.HBCIExecStatus;
+import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 import org.kapott.hbci4java.AbstractTestGV;
 
+import java.util.Properties;
 
+
+/**
+ * Testet das Ausfuehren einer SEPA-Termin-Ueberweisung.
+ */
 public class TestGVTermUebSEPA extends AbstractTestGV {
 
+    /**
+     * Testet das Ausfuehren einer SEPA-Termin-Ueberweisung.
+     */
     @Test
     public void test() {
-        System.out.println("---------Erstelle Job");
-        AbstractHBCIJob job =  HBCIJobFactory.newJob("TermUebSEPA", dialog.getPassport());
+        this.execute(new Execution() {
+            @Override
+            public String getJobname() {
+                return "TermUebSEPA";
+            }
 
-        Konto acc = new Konto();
-        acc.blz = params.getProperty("target_blz");
-        acc.number = params.getProperty("target_number");
-        acc.name = "Kurt Mustermann";
-        acc.bic = params.getProperty("target_bic");
-        acc.iban = params.getProperty("target_iban");
+            /**
+             * @see org.kapott.hbci4java.AbstractTestGV.Execution#configure(org.kapott.hbci.GV.AbstractHBCIJob, org.kapott.hbci.passport.HBCIPassport, java.util.Properties)
+             */
+            @Override
+            public void configure(AbstractHBCIJob job, HBCIPassport passport, Properties params) {
 
-        int source_acc_idx = Integer.parseInt(params.getProperty("source_account_idx"));
-        job.setParam("src",passport.getAccounts()[source_acc_idx]);
-        job.setParam("dst",acc);
+                Konto acc = new Konto();
+                acc.blz = params.getProperty("blz");
+                acc.number = params.getProperty("konto");
+                acc.name = params.getProperty("name");
+                acc.bic = params.getProperty("bic");
+                acc.iban = params.getProperty("iban");
+                job.setParam("dst", acc);
 
-        String value = params.getProperty("value");
-        if(value == null) value = "100";
-        job.setParam("btg",new Value(Integer.parseInt(value),"EUR"));
-        job.setParam("usage",params.getProperty("usage"));
-        job.setParam("date", params.getProperty("date"));
+                int idx = Integer.parseInt(params.getProperty("passport_index", "0"));
+                job.setParam("src", passport.getAccounts().get(idx));
 
-        System.out.println("---------Für Job zur Queue");
-        dialog.addTask(job);
-
-
-        HBCIExecStatus ret = dialog.execute(true);
-        HBCIJobResult res = job.getJobResult();
-        System.out.println("----------Result: "+res.toString());
-
-        Assert.assertEquals("Job Result ist nicht OK!", true, res.isOK());
+                String value = params.getProperty("value", "1");
+                job.setParam("btg", new Value(Integer.parseInt(value), "EUR"));
+                job.setParam("usage", params.getProperty("usage"));
+                job.setParam("date", params.getProperty("date"));
+            }
+        });
     }
-
-    protected String getJobname()
-    {
-        return "TermUebSEPA";
-    }
-
 }

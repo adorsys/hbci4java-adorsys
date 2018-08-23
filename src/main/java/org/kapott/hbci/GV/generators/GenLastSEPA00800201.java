@@ -3,7 +3,7 @@ package org.kapott.hbci.GV.generators;
 import org.kapott.hbci.GV.AbstractSEPAGV;
 import org.kapott.hbci.GV.SepaUtil;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci.sepa.SepaVersion;
 import org.kapott.hbci.sepa.jaxb.pain_008_002_01.*;
 
 import java.io.OutputStream;
@@ -15,15 +15,18 @@ import java.util.HashMap;
 /**
  * SEPA-Geneator fuer pain.008.002.01.
  */
-public class GenLastSEPA00800201 extends AbstractSEPAGenerator {
+public class GenLastSEPA00800201 extends AbstractSEPAGenerator<HashMap<String, String>> {
     /**
-     * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getPainVersion()
+     * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getSepaVersion()
      */
     @Override
-    public PainVersion getPainVersion() {
-        return PainVersion.PAIN_008_002_01;
+    public SepaVersion getSepaVersion() {
+        return SepaVersion.PAIN_008_002_01;
     }
 
+    /**
+     * @see PainGeneratorIf#generate(Object, OutputStream, boolean)
+     */
     @Override
     public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) throws Exception {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);

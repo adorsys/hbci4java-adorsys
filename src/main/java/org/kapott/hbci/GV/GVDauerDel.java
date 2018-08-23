@@ -25,7 +25,6 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-import java.util.Enumeration;
 import java.util.HashMap;
 
 

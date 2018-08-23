@@ -28,6 +28,7 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.DocumentFactory;
 import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Limit;
 import org.kapott.hbci.structures.Value;
@@ -39,7 +40,10 @@ import org.w3c.dom.NodeList;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.security.MessageDigest;
 import java.util.*;
+
+import static org.kapott.hbci.comm.CommPinTan.ENCODING;
 
 /**
  * <p>Diese Klasse stellt die Basisklasse für alle "echten" Passport-Implementationen
@@ -148,7 +152,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         }
     }
 
-    public final Konto[] getAccounts() {
+    public final List<Konto> getAccounts() {
         ArrayList<Konto> ret = new ArrayList<>();
 
         if (upd != null) {
@@ -197,7 +201,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             }
         }
 
-        return ret.toArray(new Konto[0]);
+        return ret;
     }
 
     public final void fillAccountInfo(Konto account) {
@@ -206,9 +210,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         boolean haveNumber = (number != null && number.length() != 0);
         boolean haveIBAN = (iban != null && iban.length() != 0);
 
-        Konto[] accounts = getAccounts();
-
-        for (Konto account1 : accounts) {
+        for (Konto account1 :  getAccounts()) {
             String temp_number = HBCIUtils.stripLeadingZeroes(account1.number);
             String temp_iban = HBCIUtils.stripLeadingZeroes(account1.iban);
 
@@ -230,7 +232,14 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         }
     }
 
-    public final Konto getAccount(String number) {
+    public final Konto findAccountByIban(String iban) {
+        return getAccounts().stream()
+            .filter(konto -> konto.iban.equals(iban))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public final Konto findAccountByAccountNumber(String number) {
         Konto ret = new Konto();
         ret.number = number;
         fillAccountInfo(ret);
@@ -288,21 +297,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
     public final void setSysId(String sysid) {
         this.sysid = sysid;
-    }
-
-    public final void clearMySigKey() {
-        setMyPublicSigKey(null);
-        setMyPrivateSigKey(null);
-    }
-
-    public final void clearMyEncKey() {
-        setMyPublicEncKey(null);
-        setMyPrivateEncKey(null);
-    }
-
-    public final void clearMyDigKey() {
-        setMyPublicDigKey(null);
-        setMyPrivateDigKey(null);
     }
 
     public final String getBPDVersion() {
@@ -715,6 +709,24 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 }
             }
         }
+    }
+
+    public String getOrderHashMode(int segVersion) {
+        return getBPD().keySet().stream()
+            .filter(key -> {
+                // p.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.can1step")
+                if (key.startsWith("Params")) {
+                    String subkey = key.substring(key.indexOf('.') + 1);
+                    if (subkey.startsWith("TAN2StepPar" + segVersion) && subkey.endsWith(".orderhashmode")) {
+                        return true;
+                    }
+                }
+                return false;
+            })
+            .findFirst()
+            .map(s -> getBPD().get(s))
+            .orElse("");
+
     }
 
     public Document getSyntaxDocument() {

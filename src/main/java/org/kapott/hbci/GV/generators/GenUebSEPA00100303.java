@@ -3,7 +3,7 @@ package org.kapott.hbci.GV.generators;
 
 import org.kapott.hbci.GV.AbstractSEPAGV;
 import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci.sepa.SepaVersion;
 import org.kapott.hbci.sepa.jaxb.pain_001_003_03.*;
 
 import java.io.OutputStream;
@@ -11,19 +11,21 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 /**
  * SEPA-Generator fuer pain.001.003.03.
  */
-public class GenUebSEPA00100303 extends AbstractSEPAGenerator {
+public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, String>> {
     /**
-     * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getPainVersion()
+     * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getSepaVersion()
      */
     @Override
-    public PainVersion getPainVersion() {
-        return PainVersion.PAIN_001_003_03;
+    public SepaVersion getSepaVersion() {
+        return SepaVersion.PAIN_001_003_03;
     }
 
+    /**
+     * @see PainGeneratorIf#generate(Object, OutputStream, boolean)
+     */
     @Override
     public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) throws Exception {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
@@ -133,10 +135,13 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator {
         cdtTrxTxInf.getCdtrAcct().getId().setIBAN(sepaParams.get(SepaUtil.insertIndex("dst.iban", index)));
 
         //Payment Information - Credit Transfer Transaction Information - Creditor Agent
-        cdtTrxTxInf.setCdtrAgt(new BranchAndFinancialInstitutionIdentificationSEPA1());
-        cdtTrxTxInf.getCdtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSEPA1());
-        cdtTrxTxInf.getCdtrAgt().getFinInstnId().setBIC(sepaParams.get(SepaUtil.insertIndex("dst.bic", index)));
-
+        String dstBic = sepaParams.get(SepaUtil.insertIndex("dst.bic", index));
+        if (dstBic != null && dstBic.length() > 0) // BIC ist inzwischen optional
+        {
+            cdtTrxTxInf.setCdtrAgt(new BranchAndFinancialInstitutionIdentificationSEPA1());
+            cdtTrxTxInf.getCdtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSEPA1());
+            cdtTrxTxInf.getCdtrAgt().getFinInstnId().setBIC(dstBic);
+        }
 
         //Payment Information - Credit Transfer Transaction Information - Amount
         cdtTrxTxInf.setAmt(new AmountTypeSEPA());

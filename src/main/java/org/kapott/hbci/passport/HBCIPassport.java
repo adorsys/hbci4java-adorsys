@@ -133,7 +133,7 @@ public interface HBCIPassport {
      *
      * @return Array mit Kontoinformationen über verfügbare HBCI-Konten
      */
-    Konto[] getAccounts();
+    List<Konto> getAccounts();
 
     /**
      * Ausfüllen fehlender Kontoinformationen. In der Liste der verfügbaren Konten (siehe
@@ -148,21 +148,6 @@ public interface HBCIPassport {
      *                werden
      */
     void fillAccountInfo(Konto account);
-
-    /**
-     * Gibt ein Konto-Objekt zu einer bestimmten Kontonummer zurück. Dazu wird die Liste, die via
-     * {@link #getAccounts()} erzeugt wird, nach der Kontonummer durchsucht. Es wird in
-     * jedem Fall ein nicht-leeres Kontoobjekt zurückgegeben. Wird die Kontonummer jedoch nicht in
-     * der Liste gefunden, so wird das Konto-Objekt aus den "allgemeinen" Bank-Daten gebildet:
-     * Kontonummer=<code>number</code>; Länderkennung, BLZ und Kunden-ID aus dem Passport-Objekt;
-     * Währung des Kontos hart auf "EUR"; Name=Kunden-ID.
-     *
-     * @param number die Kontonummer, für die ein Konto-Objekt erzeugt werden soll
-     * @return ein Konto-Objekt, welches mindestens die Kontonummer enthält. Wenn
-     * verfügbar, so sind auch die restlichen Informationen über dieses Konto (BLZ,
-     * Inhaber, Währung usw.) ausgefüllt
-     */
-    Konto getAccount(String number);
 
     /**
      * Gibt den Hostnamen des HBCI-Servers für dieses Passport zurück. Handelt es sich bei

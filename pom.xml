@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.adorsys</groupId>
     <artifactId>hbci4j-adorsys</artifactId>
     <version>3.2.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <description>HBCI4j - Home Banking Computer Interface for Java - Clone from https://github.com/hbci4j/hbci4java</description>
+    <description>HBCI4j - Home Banking Computer Interface for Java - Clone from https://github.com/hbci4j/hbci4java
+    </description>
     <url>https://github.com/adorsys/hbci4java-adorsys</url>
     <prerequisites>
         <maven>3.3.9</maven>
@@ -78,6 +80,107 @@
                 <artifactId>maven-jaxb2-plugin</artifactId>
                 <version>${maven-jaxb2-plugin.version}</version>
                 <executions>
+
+                    <!--
+                      CAMT: Offizieller Download der Schema-Datei von https://www.iso20022.org/payments_messages.page
+                      Vorherige Versionen von https://www.iso20022.org/message_archive.page#sixth_b2c
+                    -->
+                    <execution>
+                        <id>camt.052.001.07</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.07.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_07</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_07/*.java</produces>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>camt.052.001.06</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.06.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_06</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_06/*.java</produces>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>camt.052.001.05</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.05.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_05</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_05/*.java</produces>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>camt.052.001.04</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.04.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_04</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_04/*.java</produces>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>camt.052.001.03</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.03.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_03</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_03/*.java</produces>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>camt.052.001.02</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.02.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_02</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_02/*.java</produces>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>camt.052.001.01</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.01.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_01</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_01/*.java</produces>
+                        </configuration>
+                    </execution>
+
+                    <!--
+                      PAIN: Offizieller Download der Schema-Dateien und vorherigen Versionen
+                      von http://www.ebics.de/spezifikation/dfue-abkommen-anlage-3-formatstandards/
+                    -->
                     <execution>
                         <id>pain.001.001.02</id>
                         <goals>
@@ -88,9 +191,7 @@
                                 <include>pain.001.001.02.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_001_001_02</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_001_001_02/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_001_001_02/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -103,9 +204,7 @@
                                 <include>pain.001.002.02.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_001_002_02</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_001_002_02/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_001_002_02/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -118,9 +217,7 @@
                                 <include>pain.001.002.03.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_001_002_03</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_001_002_03/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_001_002_03/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -133,9 +230,7 @@
                                 <include>pain.001.003.03.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_001_003_03</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_001_003_03/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_001_003_03/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -148,9 +243,7 @@
                                 <include>pain.001.001.03.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_001_001_03</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_001_001_03/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_001_001_03/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -163,9 +256,7 @@
                                 <include>pain.002.002.02.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_002_002_02</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_002_002_02/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_002_002_02/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -178,9 +269,7 @@
                                 <include>pain.002.003.03.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_002_003_03</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_002_003_03/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_002_003_03/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -193,9 +282,7 @@
                                 <include>pain.002.001.03.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_002_001_03</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_002_001_03/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_002_001_03/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -208,9 +295,7 @@
                                 <include>pain.008.001.01.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_008_001_01</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_008_001_01/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_008_001_01/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -223,9 +308,7 @@
                                 <include>pain.008.002.01.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_008_002_01</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_008_002_01/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_008_002_01/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -238,9 +321,7 @@
                                 <include>pain.008.002.02.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_008_002_02</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_008_002_02/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_008_002_02/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -253,9 +334,7 @@
                                 <include>pain.008.003.02.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_008_003_02</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_008_003_02/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_008_003_02/*.java</produces>
                         </configuration>
                     </execution>
                     <execution>
@@ -268,9 +347,7 @@
                                 <include>pain.008.001.02.xsd</include>
                             </schemaIncludes>
                             <generatePackage>org.kapott.hbci.sepa.jaxb.pain_008_001_02</generatePackage>
-                            <produces>
-                                <pattern>org/kapott/hbci/sepa/jaxb/pain_008_001_02/*.java</pattern>
-                            </produces>
+                            <produces>org/kapott/hbci/sepa/jaxb/pain_008_001_02/*.java</produces>
                         </configuration>
                     </execution>
                 </executions>

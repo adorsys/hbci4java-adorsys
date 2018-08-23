@@ -2,14 +2,11 @@ package org.kapott.hbci4java.msg;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernel;
-import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.MultipleSyntaxElements;
 import org.kapott.hbci4java.AbstractTest;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * Testet den Workaround zum Abkuerzen multipler optionaler DEGs.

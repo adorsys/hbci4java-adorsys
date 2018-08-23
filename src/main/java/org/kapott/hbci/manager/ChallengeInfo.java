@@ -48,12 +48,24 @@ public class ChallengeInfo {
     /**
      * Das Singleton.
      */
-    private Map<String, Job> data = null; // Die Parameter-Daten aus der XML-Datei.
+    private static ChallengeInfo singleton = null;
+    private Map<String, Job> data; // Die Parameter-Daten aus der XML-Datei.
+
+    /**
+     * Erzeugt ein neues Challenge-Info-Objekt.
+     *
+     * @return das Challenge-Info-Objekt.
+     */
+    public static synchronized ChallengeInfo getInstance() {
+        if (singleton == null)
+            singleton = new ChallengeInfo();
+        return singleton;
+    }
 
     /**
      * ct.
      */
-    public ChallengeInfo() {
+    private ChallengeInfo() {
         log.debug("initializing challenge info engine");
 
         ////////////////////////////////////////////////////////////////////////////
@@ -112,11 +124,11 @@ public class ChallengeInfo {
     /**
      * Uebernimmt die Challenge-Parameter in den HKTAN-Geschaeftsvorfall.
      *
-     * @param task    der Job, zu dem die Challenge-Parameter ermittelt werden sollen.
-     * @param hktan   der HKTAN-Geschaeftsvorfall, in dem die Parameter gesetzt werden sollen.
-     * @param secmech die BPD-Informationen zum TAN-Verfahren.
+     * @param task                 der Job, zu dem die Challenge-Parameter ermittelt werden sollen.
+     * @param hktan                der HKTAN-Geschaeftsvorfall, in dem die Parameter gesetzt werden sollen.
+     * @param hbciTwoStepMechanism die BPD-Informationen zum TAN-Verfahren.
      */
-    public void applyParams(AbstractHBCIJob task, AbstractHBCIJob hktan, HashMap<String, String> secmech) {
+    public void applyParams(AbstractHBCIJob task, AbstractHBCIJob hktan, HBCITwoStepMechanism hbciTwoStepMechanism) {
         String code = task.getHBCICode(); // Code des Geschaeftsvorfalls
 
         // Job-Parameter holen
@@ -129,7 +141,7 @@ public class ChallengeInfo {
             return;
         }
 
-        HHDVersion version = HHDVersion.find(secmech);
+        HHDVersion version = HHDVersion.find(hbciTwoStepMechanism);
         log.debug("using hhd version " + version);
 
         // Parameter fuer die passende HHD-Version holen
@@ -155,7 +167,7 @@ public class ChallengeInfo {
             Param param = params.get(i);
 
             // Checken, ob der Parameter angewendet werden soll.
-            if (!param.isComplied(secmech)) {
+            if (!param.isComplied(hbciTwoStepMechanism)) {
                 log.debug("skipping challenge parameter " + num + " (" + param.path + "), condition " + param.conditionName + "=" + param.conditionValue + " not complied");
                 continue;
             }
@@ -304,16 +316,16 @@ public class ChallengeInfo {
          * Liefert true, wenn entweder keine Bedingung angegeben ist oder
          * die Bedingung erfuellt ist und der Parameter verwendet werden kann.
          *
-         * @param secmech die BPD-Informationen zum TAN-Verfahren.
+         * @param hbciTwoStepMechanism die BPD-Informationen zum TAN-Verfahren.
          * @return true, wenn der Parameter verwendet werden kann.
          */
-        public boolean isComplied(HashMap<String, String> secmech) {
+        public boolean isComplied(HBCITwoStepMechanism hbciTwoStepMechanism) {
             if (this.conditionName == null || this.conditionName.length() == 0)
                 return true;
 
             // Wir haben eine Bedingung. Mal schauen, ob sie erfuellt ist.
-            String value = secmech.get(this.conditionName) != null ? secmech.get(this.conditionName) : "";
-            return value.equals(this.conditionValue);
+            String value = hbciTwoStepMechanism.getNeedchallengevalue();
+            return value != null && value.equals(this.conditionValue);
         }
 
         /**

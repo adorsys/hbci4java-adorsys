@@ -37,9 +37,12 @@ import org.kapott.hbci.status.HBCIRetVal;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.kapott.hbci.comm.CommPinTan.ENCODING;
 
 @Slf4j
 public class AbstractHBCIJob {
@@ -659,7 +662,7 @@ public class AbstractHBCIJob {
             return true;
         }
 
-        for (HBCIRetVal retval: jobResult.getJobStatus().getRetVals()) {
+        for (HBCIRetVal retval : jobResult.getJobStatus().getRetVals()) {
             if (retval.code.equals("3040") && retval.params.length != 0 && (--loop) == 0) {
                 return true;
             }
@@ -999,6 +1002,34 @@ public class AbstractHBCIJob {
             }
         }
         return key;
+    }
+
+    public String createOrderHash(int segVersion) {
+        SEG seg = createJobSegment(3);
+        seg.validate();
+        String segdata = seg.toString(0);
+        log.debug("calculating hash for jobsegment: " + segdata);
+
+        // zu verwendenden Hash-Algorithmus von dem Wert "orderhashmode" aus den BPD abhängig machen
+        String alg = null;
+        String provider = null;
+
+        String orderhashmode = passport.getOrderHashMode(segVersion);
+        if (orderhashmode.equals("1")) {
+            alg = "RIPEMD160";
+            provider = "CryptAlgs4Java";
+        } else if (orderhashmode.equals("2")) {
+            alg = "SHA-1";
+        }
+        log.debug("using " + alg + "/" + provider + " for generating order hash");
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance(alg, provider);
+            digest.update(segdata.getBytes(ENCODING));
+            return new String(digest.digest(), ENCODING);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean needTan() {

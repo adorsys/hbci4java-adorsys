@@ -8,13 +8,10 @@
 package org.kapott.hbci4java.bpd;
 
 import org.junit.Test;
-import org.kapott.hbci.manager.HBCIKernel;
-import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci4java.AbstractTest;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 
 /**

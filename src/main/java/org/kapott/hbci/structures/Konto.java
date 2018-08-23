@@ -76,7 +76,7 @@ public class Konto
      * Wert <code>null</code>. Falls eine Bank Informationen über alle
      * Konten bereitstellt, auf die ein Nutzer via HBCI Zugriff hat, so
      * kann dieses Feld beim Hinzufügen von Aufträgen via
-     * {@link org.kapott.hbci.GV.HBCIJob#addToQueue(String)}
+     * {@link org.kapott.hbci.GV.AbstractHBCIJob#addToQueue(String)}
      * ausgewertet werden.
      */
     public String customerid;

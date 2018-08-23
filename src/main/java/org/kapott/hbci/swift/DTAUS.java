@@ -485,7 +485,7 @@ public class DTAUS {
          * Feld mit '51' vorbelegt, bei Sammellastschriften mit '05'. Dieser
          * Wert kann überschrieben werden, gültige Werte finden sich in den
          * Job-Restrictions
-         * (siehe {@link org.kapott.hbci.GV.HBCIJob#getJobRestrictions()}).
+         * (siehe {@link org.kapott.hbci.GV.AbstractHBCIJob#getJobRestrictions()}).
          */
         public String key;
 

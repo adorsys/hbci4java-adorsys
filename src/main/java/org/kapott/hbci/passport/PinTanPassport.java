@@ -21,6 +21,7 @@
 package org.kapott.hbci.passport;
 
 import lombok.extern.slf4j.Slf4j;
+import org.kapott.cryptalgs.CryptAlgs4JavaProvider;
 import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -31,6 +32,7 @@ import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
 
+import java.security.Security;
 import java.util.*;
 
 import static org.kapott.hbci.security.Sig.SECFUNC_SIG_PT_1STEP;
@@ -44,12 +46,16 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     private boolean verifyTANMode;
 
-    private HashMap<String, HBCITwoStepMechanism> twostepMechanisms = new HashMap<>();
+    private HashMap<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
     private HBCITwoStepMechanism currentSecMechInfo;
-    private List<String> allowedTwostepMechanisms = new ArrayList<>();
+    private List<String> userTwostepMechanisms = new ArrayList<>();
     private List<GVRTANMediaList.TANMediaInfo> tanMedias;
 
     private String pin;
+
+    {
+        Security.addProvider(new CryptAlgs4JavaProvider());
+    }
 
     public PinTanPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
         super(hbciversion, properties, callback);
@@ -107,7 +113,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
             // hier die liste der verfügbaren sicherheitsverfahren aus den
             // bpd (HITANS) extrahieren
 
-            twostepMechanisms.clear();
+            bankTwostepMechanisms.clear();
 
             // willuhn 2011-06-06 Maximal zulaessige HITANS-Segment-Version ermitteln
             // Hintergrund: Es gibt User, die nur HHD 1.3-taugliche TAN-Generatoren haben,
@@ -143,7 +149,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                             String secfunc = newBPD.get(key);
 
                             // willuhn 2011-05-13 Checken, ob wir das Verfahren schon aus einer aktuelleren Segment-Version haben
-                            HBCITwoStepMechanism prev = twostepMechanisms.get(secfunc);
+                            HBCITwoStepMechanism prev = bankTwostepMechanisms.get(secfunc);
                             if (prev != null) {
                                 // Wir haben es schonmal. Mal sehen, welche Versionsnummer es hat
                                 if (prev.getSegversion() > segVersion) {
@@ -174,7 +180,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                             }
 
                             // diesen mechanismus abspeichern
-                            twostepMechanisms.put(secfunc, entry);
+                            bankTwostepMechanisms.put(secfunc, entry);
                         }
                     }
                 }
@@ -185,17 +191,17 @@ public class PinTanPassport extends AbstractHBCIPassport {
     private void searchFor3920s(List<HBCIRetVal> rets) {
         for (HBCIRetVal ret : rets) {
             if (ret.code.equals("3920")) {
-                this.allowedTwostepMechanisms.clear();
+                this.userTwostepMechanisms.clear();
 
                 int l2 = ret.params.length;
-                this.allowedTwostepMechanisms.addAll(Arrays.asList(ret.params).subList(0, l2));
+                this.userTwostepMechanisms.addAll(Arrays.asList(ret.params).subList(0, l2));
 
-                if (allowedTwostepMechanisms.size() > 0) {
-                    currentSecMechInfo = twostepMechanisms.get(allowedTwostepMechanisms.get(0));
-                    log.info("using secfunc: {}", allowedTwostepMechanisms.get(0));
+                if (userTwostepMechanisms.size() > 0 && currentSecMechInfo == null) {
+                    setCurrentSecMechInfo(bankTwostepMechanisms.get(userTwostepMechanisms.get(0)));
+                    log.info("using secfunc: {}", currentSecMechInfo);
                 }
             }
-            log.debug("autosecfunc: found 3920 in response - updated list of allowed twostepmechs with " + allowedTwostepMechanisms.size() + " entries");
+            log.debug("autosecfunc: found 3920 in response - updated list of allowed twostepmechs with " + userTwostepMechanisms.size() + " entries");
         }
     }
 
@@ -254,8 +260,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
         this.currentSecMechInfo = currentSecMechInfo;
     }
 
-    public HashMap<String, HBCITwoStepMechanism> getTwostepMechanisms() {
-        return twostepMechanisms;
+    public HashMap<String, HBCITwoStepMechanism> getBankTwostepMechanisms() {
+        return bankTwostepMechanisms;
     }
 
     public String getProfileMethod() {
@@ -306,12 +312,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return "0";
     }
 
-    public void setMyPublicEncKey(HBCIKey key) {
-    }
-
-    public void setMyPrivateEncKey(HBCIKey key) {
-    }
-
     public String getCryptMode() {
         // dummy-wert
         return Crypt.ENCMODE_CBC;
@@ -358,18 +358,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     public void setInstEncKey(HBCIKey key) {
         // TODO: implementieren für bankensignatur bei HITAN
-    }
-
-    public void setMyPublicDigKey(HBCIKey key) {
-    }
-
-    public void setMyPrivateDigKey(HBCIKey key) {
-    }
-
-    public void setMyPublicSigKey(HBCIKey key) {
-    }
-
-    public void setMyPrivateSigKey(HBCIKey key) {
     }
 
     public void incSigId() {
@@ -478,12 +466,12 @@ public class PinTanPassport extends AbstractHBCIPassport {
         setPIN(null);
     }
 
-    public List<String> getAllowedTwostepMechanisms() {
-        return this.allowedTwostepMechanisms;
+    public List<String> getUserTwostepMechanisms() {
+        return this.userTwostepMechanisms;
     }
 
-    public void setAllowedTwostepMechanisms(List<String> l) {
-        this.allowedTwostepMechanisms = l;
+    public void setUserTwostepMechanisms(List<String> l) {
+        this.userTwostepMechanisms = l;
     }
 
     public int getMaxGVSegsPerMsg() {

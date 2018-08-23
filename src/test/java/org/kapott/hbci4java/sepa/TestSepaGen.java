@@ -1,10 +1,6 @@
 /**********************************************************************
- * $Source: /cvsroot/hibiscus/hbci4java/test/hbci4java/ddv/PCSCTest.java,v $
- * $Revision: 1.1 $
- * $Date: 2011/11/24 21:59:37 $
- * $Author: willuhn $
  *
- * Copyright (c) by willuhn - software & services
+ * Copyright (c) by Olaf Willuhn
  * All rights reserved
  *
  **********************************************************************/
@@ -13,19 +9,18 @@ package org.kapott.hbci4java.sepa;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kapott.hbci.GV.generators.ISEPAGenerator;
-import org.kapott.hbci.GV.generators.SEPAGeneratorFactory;
-import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.PainVersion.Type;
+import org.kapott.hbci.GV.generators.PainGeneratorFactory;
+import org.kapott.hbci.GV.generators.PainGeneratorIf;
+import org.kapott.hbci.sepa.SepaVersion;
+import org.kapott.hbci.sepa.SepaVersion.Type;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
- * Testet das pure Generieren von Pain XML-Dateien - ohne HBCI-Context.
+ * Testet das pure Generieren von SEPA XML-Dateien - ohne HBCI-Context.
  */
-public class TestPainGen {
+public class TestSepaGen {
     /**
      * Testet das Erstellen von SEPA-Ueberweisungen.
      *
@@ -33,7 +28,7 @@ public class TestPainGen {
      */
     @Test
     public void test001() throws Exception {
-        HashMap<String, String> props = new HashMap<>();
+        HashMap<String, String> props = new HashMap();
         props.put("src.bic", "ABCDEFAA123");
         props.put("src.iban", "DE1234567890");
         props.put("src.name", "Max Mustermann");
@@ -46,9 +41,9 @@ public class TestPainGen {
         props.put("sepaid", "abcde");
         props.put("endtoendid", "fghij");
 
-        for (PainVersion version : PainVersion.getKnownVersions(Type.PAIN_001)) {
+        for (SepaVersion version : SepaVersion.getKnownVersions(Type.PAIN_001)) {
             // Der Test schlaegt automatisch fehl, wenn die Schema-Validierung nicht klappt
-            ISEPAGenerator gen = SEPAGeneratorFactory.get("UebSEPA", version);
+            PainGeneratorIf gen = PainGeneratorFactory.get("UebSEPA", version);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             gen.generate(props, bos, true);
         }
@@ -61,7 +56,7 @@ public class TestPainGen {
      */
     @Test
     public void test002() throws Exception {
-        HashMap<String, String> props = new HashMap<>();
+        HashMap<String, String> props = new HashMap();
         props.put("src.bic", "ABCDEFAA123");
         props.put("src.iban", "DE1234567890");
         props.put("src.name", "Max Mustermann");
@@ -81,9 +76,9 @@ public class TestPainGen {
         props.put("targetdate", "2013-11-30");
         props.put("type", "CORE");
 
-        for (PainVersion version : PainVersion.getKnownVersions(Type.PAIN_008)) {
+        for (SepaVersion version : SepaVersion.getKnownVersions(Type.PAIN_008)) {
             // Der Test schlaegt automatisch fehl, wenn die Schema-Validierung nicht klappt
-            ISEPAGenerator gen = SEPAGeneratorFactory.get("LastSEPA", version);
+            PainGeneratorIf gen = PainGeneratorFactory.get("LastSEPA", version);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             gen.generate(props, bos, true);
         }
@@ -96,7 +91,7 @@ public class TestPainGen {
      */
     @Test
     public void test003() throws Exception {
-        HashMap<String, String> props = new HashMap<>();
+        HashMap<String, String> props = new HashMap();
         props.put("src.bic", "ABCDEFAA123");
         props.put("src.iban", "DE1234567890");
         props.put("src.name", "Max Mustermann");
@@ -118,9 +113,9 @@ public class TestPainGen {
         props.put("usage[1]", "Verwendungszweck 2");
         props.put("endtoendid[1]", "fghij");
 
-        for (PainVersion version : PainVersion.getKnownVersions(Type.PAIN_001)) {
+        for (SepaVersion version : SepaVersion.getKnownVersions(Type.PAIN_001)) {
             // Der Test schlaegt automatisch fehl, wenn die Schema-Validierung nicht klappt
-            ISEPAGenerator gen = SEPAGeneratorFactory.get("UebSEPA", version);
+            PainGeneratorIf gen = PainGeneratorFactory.get("UebSEPA", version);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             gen.generate(props, bos, true);
         }
@@ -133,7 +128,7 @@ public class TestPainGen {
      */
     @Test
     public void test004() throws Exception {
-        HashMap<String, String> props = new HashMap<>();
+        HashMap<String, String> props = new HashMap();
         props.put("src.bic", "ABCDEFAA123");
         props.put("src.iban", "DE1234567890");
         props.put("src.name", "Max Mustermann");
@@ -166,9 +161,9 @@ public class TestPainGen {
         props.put("endtoendid[1]", "fghij");
         props.put("creditorid[1]", "DE1234567890");
 
-        for (PainVersion version : PainVersion.getKnownVersions(Type.PAIN_008)) {
+        for (SepaVersion version : SepaVersion.getKnownVersions(Type.PAIN_008)) {
             // Der Test schlaegt automatisch fehl, wenn die Schema-Validierung nicht klappt
-            ISEPAGenerator gen = SEPAGeneratorFactory.get("LastSEPA", version);
+            PainGeneratorIf gen = PainGeneratorFactory.get("LastSEPA", version);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             gen.generate(props, bos, true);
         }
@@ -182,7 +177,7 @@ public class TestPainGen {
      */
     @Test
     public void test005() throws Exception {
-        HashMap<String, String> props = new HashMap<>();
+        HashMap<String, String> props = new HashMap();
         props.put("src.bic", "ABCDEFAA123");
         props.put("src.iban", "DE1234567890");
         props.put("src.name", "Max Mustermann");
@@ -202,9 +197,9 @@ public class TestPainGen {
         props.put("targetdate", "2013-11-30");
         props.put("type", "B2B");
 
-        for (PainVersion version : PainVersion.getKnownVersions(Type.PAIN_008)) {
+        for (SepaVersion version : SepaVersion.getKnownVersions(Type.PAIN_008)) {
             // Der Test schlaegt automatisch fehl, wenn die Schema-Validierung nicht klappt
-            ISEPAGenerator gen = SEPAGeneratorFactory.get("LastSEPA", version);
+            PainGeneratorIf gen = PainGeneratorFactory.get("LastSEPA", version);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             gen.generate(props, bos, true);
         }
@@ -217,8 +212,8 @@ public class TestPainGen {
      */
     @Test
     public void test006() throws Exception {
-        String umlaute = "üüüüüü";
-        HashMap<String, String> props = new HashMap<>();
+        String umlaute = "üöäÜÖÄ";
+        HashMap<String, String> props = new HashMap();
         props.put("src.bic", "ABCDEFAA123");
         props.put("src.iban", "DE1234567890");
         props.put("src.name", umlaute);
@@ -231,11 +226,11 @@ public class TestPainGen {
         props.put("sepaid", "abcde");
         props.put("endtoendid", "fghij");
 
-        for (PainVersion version : PainVersion.getKnownVersions(Type.PAIN_001)) {
-            ISEPAGenerator gen = SEPAGeneratorFactory.get("UebSEPA", version);
+        for (SepaVersion version : SepaVersion.getKnownVersions(Type.PAIN_001)) {
+            PainGeneratorIf gen = PainGeneratorFactory.get("UebSEPA", version);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             gen.generate(props, bos, true);
-            String xml = bos.toString(ISEPAGenerator.ENCODING);
+            String xml = bos.toString(PainGeneratorIf.ENCODING);
             Assert.assertTrue(xml.contains(umlaute));
         }
     }

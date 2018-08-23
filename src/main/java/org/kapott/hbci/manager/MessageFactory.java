@@ -42,6 +42,9 @@ import org.w3c.dom.Document;
  *      mit "<msgName>." beginnen).*/
 public final class MessageFactory {
 
+    private final static String PRODUCT_ID = "36792786FA12F235F04647689";
+    private final static String VERSION = "3.2";
+
     public static Message createDialogInit(String msgName, String syncMode, HBCIPassportInternal passport) {
         Message message = createMessage(msgName, passport.getSyntaxDocument());
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
@@ -52,8 +55,8 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
         message.rawSet("ProcPrep.lang", passport.getDefaultLang());
-        message.rawSet("ProcPrep.prodName", "HBCI4Java");
-        message.rawSet("ProcPrep.prodVersion", "2.5");
+        message.rawSet("ProcPrep.prodName", PRODUCT_ID);
+        message.rawSet("ProcPrep.prodVersion", VERSION);
         if (syncMode != null) {
             message.rawSet("Sync.mode", syncMode);
         }

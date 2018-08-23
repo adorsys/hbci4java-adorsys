@@ -11,15 +11,22 @@ public class HBCITwoStepMechanism {
     private String id;
     private String secfunc;
     private int segversion;
+    private int process;
     private String name;
     private String inputinfo;
     private int nofactivetanmedia = 0;
     private String needtanmedia = "";
+    private String needchallengeklass;
+    private String needchallengevalue;
+    private String zkamethod_version;
 
     public void setValue(String key, String value) {
         switch (key) {
             case "segversion":
                 setSegversion(Integer.parseInt(value));
+                break;
+            case "process":
+                setProcess(Integer.parseInt(value));
                 break;
             case "nofactivetanmedia":
                 setNofactivetanmedia(Integer.parseInt(value));

@@ -2,7 +2,7 @@ package org.kapott.hbci.GV.parsers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.HBCI_Exception;
-import org.kapott.hbci.sepa.PainVersion;
+import org.kapott.hbci.sepa.SepaVersion;
 
 /**
  * Factory zum Erzeugen von Parsern fuer das Einlesen von SEPA-XML-Daten.
@@ -15,7 +15,7 @@ public class SEPAParserFactory {
      * @param version die PAIN-Version.
      * @return ISEPAParser
      */
-    public static ISEPAParser get(PainVersion version) {
+    public static ISEPAParser get(SepaVersion version) {
         ISEPAParser parser = null;
 
         String className = version.getParserClass();

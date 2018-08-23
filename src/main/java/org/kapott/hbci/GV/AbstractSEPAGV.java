@@ -1,20 +1,22 @@
 package org.kapott.hbci.GV;
 
 import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.GV.generators.ISEPAGenerator;
-import org.kapott.hbci.GV.generators.SEPAGeneratorFactory;
+import org.kapott.hbci.GV.generators.PainGeneratorFactory;
+import org.kapott.hbci.GV.generators.PainGeneratorIf;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.sepa.PainVersion;
-import org.kapott.hbci.sepa.PainVersion.Type;
+import org.kapott.hbci.sepa.SepaVersion;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Abstrakte Basis-Klasse fuer JAXB-basierte SEPA-Jobs.
@@ -29,9 +31,9 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      */
     public final static String ENDTOEND_ID_NOTPROVIDED = "NOTPROVIDED";
 
-    protected final HashMap<String, String> sepaParams = new HashMap<>();
-    private PainVersion pain = null;
-    private ISEPAGenerator generator = null;
+    protected final HashMap<String, String> painParams = new HashMap<>();
+    private SepaVersion pain;
+    private PainGeneratorIf generator = null;
 
     public AbstractSEPAGV(HBCIPassportInternal passport, String name) {
         super(passport, name, new HBCIJobResultImpl(passport));
@@ -49,14 +51,14 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return Default-Pain-Version.
      */
-    protected abstract PainVersion getDefaultPainVersion();
+    protected abstract SepaVersion getDefaultPainVersion();
 
     /**
      * Liefert den PAIN-Type.
      *
      * @return der PAIN-Type.
      */
-    protected abstract Type getPainType();
+    protected abstract SepaVersion.Type getPainType();
 
     /**
      * Diese Methode schaut in den BPD nach den unterstützen pain Versionen
@@ -69,17 +71,17 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *                 gesucht werden soll.
      * @return die ermittelte PAIN-Version.
      */
-    private PainVersion determinePainVersion(HBCIPassportInternal passport, String gvName) {
+    private SepaVersion determinePainVersion(HBCIPassportInternal passport, String gvName) {
         // Schritt 1: Wir holen uns die globale maximale PAIN-Version
-        PainVersion globalVersion = this.determinePainVersionInternal(passport, GVSEPAInfo.getLowlevelName());
+        SepaVersion globalVersion = this.determinePainVersionInternal(passport, GVSEPAInfo.getLowlevelName());
 
         // Schritt 2: Die des Geschaeftsvorfalls - fuer den Fall, dass die Bank
         // dort weitere Einschraenkungen hinterlegt hat
-        PainVersion jobVersion = this.determinePainVersionInternal(passport, gvName);
+        SepaVersion jobVersion = this.determinePainVersionInternal(passport, gvName);
 
         // Wir haben gar keine PAIN-Version gefunden
         if (globalVersion == null && jobVersion == null) {
-            PainVersion def = this.getDefaultPainVersion();
+            SepaVersion def = this.getDefaultPainVersion();
             log.warn("unable to determine matching pain version, using default: " + def);
             return def;
         }
@@ -106,7 +108,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *                 gesucht werden soll.
      * @return die ermittelte PAIN-Version oder NULL wenn keine ermittelt werden konnte.
      */
-    private PainVersion determinePainVersionInternal(HBCIPassportInternal passport, final String gvName) {
+    private SepaVersion determinePainVersionInternal(HBCIPassportInternal passport, final String gvName) {
         log.debug("searching for supported pain versions for GV " + gvName);
 
         if (!passport.jobSupported(gvName)) {
@@ -114,7 +116,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
             return null;
         }
 
-        List<PainVersion> found = new ArrayList<PainVersion>();
+        List<SepaVersion> found = new ArrayList<>();
 
         // GV-Restrictions laden und darüber iterieren
         HashMap<String, String> props = passport.getLowlevelJobRestrictions(gvName);
@@ -125,7 +127,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
 
             String urn = props.get(key);
             try {
-                PainVersion version = PainVersion.byURN(urn);
+                SepaVersion version = SepaVersion.byURN(urn);
                 if (version.getType() == this.getPainType()) {
                     if (!version.isSupported(this.getPainJobName())) {
                         log.debug("  unsupported " + version);
@@ -149,7 +151,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
             }
         }
 
-        return PainVersion.findGreatest(found);
+        return SepaVersion.findGreatest(found);
     }
 
     /**
@@ -163,7 +165,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
 
         if (key.startsWith(intern)) {
             String realKey = key.substring(intern.length());
-            this.sepaParams.put(realKey, value);
+            this.painParams.put(realKey, value);
             log.debug("setting SEPA param " + realKey + " = " + value);
         } else {
             super.setLowlevelParam(key, value);
@@ -186,7 +188,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         String intern = getName() + ".sepa.";
         if (key.startsWith(intern)) {
             String realKey = key.substring(intern.length());
-            result = getSEPAParam(realKey);
+            result = getPainParam(realKey);
         } else {
             result = super.getLowlevelParam(key);
         }
@@ -200,8 +202,8 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return SEPA Message ID
      */
-    public String getSEPAMessageId() {
-        String result = getSEPAParam("messageId");
+    public String getPainMessageId() {
+        String result = getPainParam("messageId");
         if (result == null) {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSSS");
             result = format.format(new Date());
@@ -216,10 +218,10 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return der SEPA-Generator.
      */
-    protected final ISEPAGenerator getSEPAGenerator() {
+    protected final PainGeneratorIf getPainGenerator() {
         if (this.generator == null) {
             try {
-                this.generator = SEPAGeneratorFactory.get(this, this.getPainVersion());
+                this.generator = PainGeneratorFactory.get(this, this.getPainVersion());
             } catch (Exception e) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_JOB_CREATE_ERR", this.getPainJobName());
                 throw new HBCI_Exception(msg, e);
@@ -234,7 +236,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return der zu verwendende PAIN-Version fuer die HBCI-Nachricht.
      */
-    protected PainVersion getPainVersion() {
+    protected SepaVersion getPainVersion() {
         return this.pain;
     }
 
@@ -242,16 +244,16 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * Erstellt die XML für diesen Job und schreibt diese in den _sepapain
      * Parameter des Jobs
      */
-    protected void createSEPAFromParams() {
+    protected void createPainXml() {
         // Hier wird die XML rein geschrieben
         ByteArrayOutputStream o = new ByteArrayOutputStream();
 
         // Passenden SEPA Generator zur verwendeten pain Version laden
-        ISEPAGenerator gen = this.getSEPAGenerator();
+        PainGeneratorIf gen = this.getPainGenerator();
 
         // Die XML in den baos schreiben, ggf fehler behandeln
         try {
-            gen.generate(this.sepaParams, o, false);
+            gen.generate(this.painParams, o, false);
         } catch (HBCI_Exception he) {
             throw he;
         } catch (Exception e) {
@@ -271,10 +273,18 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         }
     }
 
+    public String getPainXml() {
+        return getLowlevelParam(getName() + ".sepapain");
+    }
+
+    public void setPainXml(String painXml) {
+        setLowlevelParam(getName() + ".sepapain", painXml);
+    }
+
     /**
      * @see AbstractHBCIJob#addConstraint(java.lang.String, java.lang.String, java.lang.String)
-     * Ueberschrieben, um die Default-Werte der SEPA-Parameter vorher rauszufischen und in "this.sepaParams" zu
-     * speichern. Die brauchen wir "createSEPAFromParams" beim Erstellen des XML - sie wuerden dort sonst aber
+     * Ueberschrieben, um die Default-Werte der SEPA-Parameter vorher rauszufischen und in "this.painParams" zu
+     * speichern. Die brauchen wir "createPainXml" beim Erstellen des XML - sie wuerden dort sonst aber
      * fehlen, weil Default-Werte eigentlich erst in "verifyConstraints" uebernommen werden.
      */
     @Override
@@ -282,7 +292,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         super.addConstraint(frontendName, destinationName, defValue);
 
         if (destinationName.startsWith("sepa.") && defValue != null) {
-            this.sepaParams.put(frontendName, defValue);
+            this.painParams.put(frontendName, defValue);
         }
     }
 
@@ -294,7 +304,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     public void verifyConstraints() {
         // creating SEPA document and storing it in _sepapain
         if (this.acceptsParam("_sepapain")) {
-            createSEPAFromParams();
+            createPainXml();
         }
 
         super.verifyConstraints();
@@ -302,8 +312,8 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         // TODO: checkIBANCRC
     }
 
-    protected void setSEPAParam(String name, String value) {
-        this.sepaParams.put(name, value);
+    public void setSEPAParam(String name, String value) {
+        this.painParams.put(name, value);
     }
 
     /**
@@ -313,8 +323,8 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * @param name
      * @return Value
      */
-    public String getSEPAParam(String name) {
-        return this.sepaParams.get(name);
+    public String getPainParam(String name) {
+        return this.painParams.get(name);
     }
 
     /**

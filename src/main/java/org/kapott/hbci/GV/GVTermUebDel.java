@@ -22,12 +22,7 @@ package org.kapott.hbci.GV;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-
-import java.util.Enumeration;
-import java.util.HashMap;
 
 
 @Slf4j

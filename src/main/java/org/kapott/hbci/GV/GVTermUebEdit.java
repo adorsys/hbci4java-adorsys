@@ -21,12 +21,10 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRTermUebEdit;
-import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.util.Enumeration;
 import java.util.HashMap;
 
 

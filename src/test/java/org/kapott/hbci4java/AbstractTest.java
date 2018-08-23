@@ -1,22 +1,33 @@
 /**********************************************************************
- * $Source: /cvsroot/hibiscus/hbci4java/test/hbci4java/AbstractTest.java,v $
- * $Revision: 1.1 $
- * $Date: 2011/05/17 12:48:05 $
- * $Author: willuhn $
  *
- * Copyright (c) by willuhn - software & services
+ * Copyright (c) by Olaf Willuhn
  * All rights reserved
+ * LGPLv2
  *
  **********************************************************************/
 
 package org.kapott.hbci4java;
 
 import java.io.*;
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstrakte Basis-Klasse fuer HBCI4Java-Tests.
  */
 public abstract class AbstractTest {
+    /**
+     * System-Property, mit dem festgelegt werden kann, ob die Tests ausgefuehrt
+     * werden sollen, die eine Onlineverbindung (z.Bsp. zur Bank) erfordern.
+     */
+    public final static String SYSPROP_ONLINE = "test.online";
+    /**
+     * System-Property, mit dem festgelegt werden kann, ob die Tests ausgefuehrt
+     * werden sollen, die Kartenleser und Chipkarte erfordern.
+     */
+    public final static String SYSPROP_CHIPCARD = "test.chipcard";
+    private final static AtomicBoolean initialized = new AtomicBoolean(false);
+
     /**
      * Liefert den Inhalt der angegebenen Datei.
      *
@@ -47,7 +58,15 @@ public abstract class AbstractTest {
      * @throws Exception
      */
     public InputStream getStream(String name) throws Exception {
-        return new FileInputStream("test/hbci4java/" + name);
+        InputStream is = this.getClass().getResourceAsStream(name);
+        if (is != null)
+            return is;
+
+        URL url = this.getClass().getProtectionDomain().getCodeSource().getLocation();
+        String path = this.getClass().getPackage().getName().replace('.', File.separatorChar);
+        String msg = "Datei \"" + name + "\" nicht gefunden in: " + new File(url.getPath() + path + File.separator + name).getCanonicalPath();
+        System.err.println(msg);
+        throw new IOException(msg);
     }
 
     /**
@@ -74,12 +93,6 @@ public abstract class AbstractTest {
                 is.close();
         }
     }
+
+
 }
-
-
-/**********************************************************************
- * $Log: AbstractTest.java,v $
- * Revision 1.1  2011/05/17 12:48:05  willuhn
- * @N Unit-Tests
- *
- **********************************************************************/
