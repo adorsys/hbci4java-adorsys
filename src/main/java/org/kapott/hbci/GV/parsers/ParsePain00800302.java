@@ -6,17 +6,17 @@ import org.kapott.hbci.sepa.jaxb.pain_008_003_02.*;
 import javax.xml.bind.JAXB;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Parser-Implementierung fuer Pain 008.003.02.
  */
-public class ParsePain00800302 extends AbstractSepaParser<List<Properties>> {
+public class ParsePain00800302 extends AbstractSepaParser<List<HashMap<String, String>>> {
     /**
      * @see org.kapott.hbci.GV.parsers.ISEPAParser#parse(InputStream, Object)
      */
-    public void parse(InputStream xml, List<Properties> sepaResults) {
+    public void parse(InputStream xml, List<HashMap<String, String>> sepaResults) {
         Document doc = JAXB.unmarshal(xml, Document.class);
         CustomerDirectDebitInitiationV02 pain = doc.getCstmrDrctDbtInitn();
 
@@ -29,7 +29,7 @@ public class ParsePain00800302 extends AbstractSepaParser<List<Properties>> {
             List<DirectDebitTransactionInformationSDD> txList = pmtInf.getDrctDbtTxInf();
 
             for (DirectDebitTransactionInformationSDD tx : txList) {
-                Properties prop = new Properties();
+                HashMap<String, String> prop = new HashMap();
 
                 put(prop, Names.PMTINFID, pmtInf.getPmtInfId());
                 put(prop, Names.SRC_NAME, pain.getGrpHdr().getInitgPty().getNm());

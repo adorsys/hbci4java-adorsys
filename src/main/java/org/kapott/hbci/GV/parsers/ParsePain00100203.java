@@ -6,18 +6,18 @@ import org.kapott.hbci.sepa.jaxb.pain_001_002_03.*;
 import javax.xml.bind.JAXB;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 
 /**
  * Parser-Implementierung fuer Pain 001.002.03.
  */
-public class ParsePain00100203 extends AbstractSepaParser<List<Properties>> {
+public class ParsePain00100203 extends AbstractSepaParser<List<HashMap<String, String>>> {
     /**
      * @see org.kapott.hbci.GV.parsers.ISEPAParser#parse(InputStream, Object)
      */
-    public void parse(InputStream xml, List<Properties> sepaResults) {
+    public void parse(InputStream xml, List<HashMap<String, String>> sepaResults) {
         Document doc = JAXB.unmarshal(xml, Document.class);
         CustomerCreditTransferInitiationV03 pain = doc.getCstmrCdtTrfInitn();
 
@@ -33,7 +33,7 @@ public class ParsePain00100203 extends AbstractSepaParser<List<Properties>> {
             List<CreditTransferTransactionInformationSCT> txList = pmtInf.getCdtTrfTxInf();
 
             for (CreditTransferTransactionInformationSCT tx : txList) {
-                Properties prop = new Properties();
+                HashMap<String, String> prop = new HashMap();
 
                 put(prop, Names.PMTINFID, pmtInf.getPmtInfId());
                 put(prop, Names.SRC_NAME, pain.getGrpHdr().getInitgPty().getNm());
