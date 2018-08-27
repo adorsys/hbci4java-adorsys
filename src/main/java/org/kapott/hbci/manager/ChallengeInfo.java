@@ -193,7 +193,7 @@ public class ChallengeInfo {
         /**
          * Die Parameter fuer die jeweilige HHD-Version.
          */
-        private Map<String, HhdVersion> versions = new HashMap<String, HhdVersion>();
+        private Map<String, HhdVersion> versions = new HashMap<>();
 
         /**
          * ct.

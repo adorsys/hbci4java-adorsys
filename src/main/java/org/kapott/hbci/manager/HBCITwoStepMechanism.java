@@ -18,6 +18,7 @@ public class HBCITwoStepMechanism {
     private String needtanmedia = "";
     private String needchallengeklass;
     private String needchallengevalue;
+    private String zkamethod_name;
     private String zkamethod_version;
 
     public void setValue(String key, String value) {
