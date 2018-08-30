@@ -14,13 +14,13 @@ public interface ISEPAParser<T> {
      * @param xml    der Stream mit den XML-Daten.
      * @param target das Zielobjekt, in das die Daten gelesen werden.
      */
-    public void parse(InputStream xml, T target);
+    void parse(InputStream xml, T target);
 
     /**
      * Enums fuer die verwendeten Schluessel-Namen in den Properties.
      */
     @SuppressWarnings("javadoc")
-    public static enum Names {
+    enum Names {
         SRC_NAME("src.name"),
         SRC_IBAN("src.iban"),
         SRC_BIC("src.bic"),
@@ -52,7 +52,7 @@ public interface ISEPAParser<T> {
          *
          * @param value der Schluessel-Name.
          */
-        private Names(String value) {
+        Names(String value) {
             this.value = value;
         }
 

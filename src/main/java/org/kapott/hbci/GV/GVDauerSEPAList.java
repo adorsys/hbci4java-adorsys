@@ -109,7 +109,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         final SepaVersion version = SepaVersion.choose(sepadescr, pain);
 
         ISEPAParser parser = SEPAParserFactory.get(version);
-        ArrayList<Properties> sepaResults = new ArrayList<>();
+        ArrayList<HashMap<String, String>> sepaResults = new ArrayList<>();
         try {
             // Encoding siehe GVTermUebSEPAList
             log.debug("  parsing sepa data: " + pain);
@@ -124,17 +124,17 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
             log.warn("  found no sepa data");
             return;
         }
-        Properties separesult = sepaResults.get(0);
-        entry.other.iban = (String) separesult.get("dst.iban");
-        entry.other.bic = (String) separesult.get("dst.bic");
-        entry.other.name = (String) separesult.get("dst.name");
-        entry.pmtinfid = (String) separesult.get("pmtinfid");
-        entry.purposecode = (String) separesult.get("purposecode");
+        HashMap<String, String> separesult = sepaResults.get(0);
+        entry.other.iban = separesult.get("dst.iban");
+        entry.other.bic = separesult.get("dst.bic");
+        entry.other.name = separesult.get("dst.name");
+        entry.pmtinfid = separesult.get("pmtinfid");
+        entry.purposecode = separesult.get("purposecode");
 
         entry.value = new Value(
-            (String) separesult.get("value"),
-            (String) separesult.get("curr"));
-        entry.addUsage((String) separesult.get("usage"));
+            separesult.get("value"),
+            separesult.get("curr"));
+        entry.addUsage(separesult.get("usage"));
 
         String st;
         entry.orderid = result.get(header + ".orderid");
