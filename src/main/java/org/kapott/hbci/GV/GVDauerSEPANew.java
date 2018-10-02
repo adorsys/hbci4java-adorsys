@@ -41,7 +41,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
         addConstraint("src.bic", "sepa.src.bic", null);
         addConstraint("src.iban", "sepa.src.iban", null);
         addConstraint("src.name", "sepa.src.name", null);
-        addConstraint("dst.bic", "sepa.dst.bic", null);
+        addConstraint("dst.bic", "sepa.dst.bic", "", true); // Kann eventuell entfallen, da BIC optional
         addConstraint("dst.iban", "sepa.dst.iban", null);
         addConstraint("dst.name", "sepa.dst.name", null);
         addConstraint("btg.value", "sepa.btg.value", null);
