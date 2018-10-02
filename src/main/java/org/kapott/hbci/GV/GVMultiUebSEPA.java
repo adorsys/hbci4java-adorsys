@@ -57,9 +57,10 @@ public class GVMultiUebSEPA extends GVUebSEPA {
     }
 
     @Override
-    protected void createPainXml() {
-        super.createPainXml();
+    public void verifyConstraints() {
         setParam("Total", SepaUtil.sumBtgValueObject(painParams));
+
+        super.verifyConstraints();
     }
 
     @Override
