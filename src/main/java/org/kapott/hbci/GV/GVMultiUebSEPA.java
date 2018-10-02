@@ -61,4 +61,15 @@ public class GVMultiUebSEPA extends GVUebSEPA {
         super.createPainXml();
         setParam("Total", SepaUtil.sumBtgValueObject(painParams));
     }
+
+    @Override
+    public String getChallengeParam(String path) {
+        if (path.equals("sepa.btg.value")) {
+            return getLowlevelParam(getName()+".Total.value");
+        }
+        else if (path.equals("sepa.btg.curr")) {
+            return getLowlevelParam(getName()+".Total.curr");
+        }
+        return null;
+    }
 }
