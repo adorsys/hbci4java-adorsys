@@ -35,7 +35,11 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
     private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVTermUebSEPA(HBCIPassportInternal passport) {
-        super(passport, getLowlevelName(), new GVRTermUeb(passport));
+        this(passport, getLowlevelName(), null);
+    }
+
+    public GVTermUebSEPA(HBCIPassportInternal passport, String name, String pain) {
+        super(passport, name);
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -49,7 +53,11 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         }
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
-        addConstraint("_sepapain", "sepapain", null);
+        if (pain == null) {
+            addConstraint("_sepapain", "sepapain", null);
+        } else {
+            setPainXml(pain);
+        }
 
         /* dummy constraints to allow an application to set these values. the
          * overriden setLowlevelParam() stores these values in a special structure
@@ -106,8 +114,6 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
             HashMap<String, String> p2 = new HashMap<>();
             getLowlevelParams().forEach((key, value) ->
                 p2.put(key.substring(key.indexOf(".") + 1), value));
-
-//TODO            passport.setPersistentData("termueb_" + orderid, p2);
         }
     }
 
