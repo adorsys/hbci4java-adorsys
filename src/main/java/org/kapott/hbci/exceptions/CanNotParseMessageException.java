@@ -21,13 +21,12 @@
 package org.kapott.hbci.exceptions;
 
 
-public final class CanNotParseMessageException
-    extends HBCI_Exception {
+public final class CanNotParseMessageException extends HBCI_Exception {
     private String message;
 
     public CanNotParseMessageException(String txt, String message, Exception e) {
         super(txt, e);
-        this.message = applyLogFilter(message);
+        this.message = message;
     }
 
     public String getMessage() {

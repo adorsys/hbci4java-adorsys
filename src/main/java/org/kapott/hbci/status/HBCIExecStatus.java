@@ -39,7 +39,7 @@ import java.util.List;
 @Slf4j
 public class HBCIExecStatus {
 
-    private HBCIDialogStatus statusData;
+    private HBCIDialogStatus dialogStatus;
     private ArrayList<Exception> exceptions;
 
     public HBCIExecStatus() {
@@ -50,7 +50,7 @@ public class HBCIExecStatus {
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
     public void setDialogStatus(HBCIDialogStatus status) {
-        this.statusData = status;
+        this.dialogStatus = status;
     }
 
     /**
@@ -76,7 +76,7 @@ public class HBCIExecStatus {
      * @deprecated sinnlos
      */
     public HBCIDialogStatus getDialogStatusList() {
-        return statusData;
+        return dialogStatus;
     }
 
     /**
@@ -85,7 +85,7 @@ public class HBCIExecStatus {
      * @return Status-Objekt für den ausgewählten Dialog
      */
     public HBCIDialogStatus getDialogStatus() {
-        return statusData;
+        return dialogStatus;
     }
 
     /**
