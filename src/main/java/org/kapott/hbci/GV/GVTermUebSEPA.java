@@ -105,18 +105,6 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         return SepaVersion.Type.PAIN_001;
     }
 
-    protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        HashMap<String, String> result = msgstatus.getData();
-        String orderid = result.get(header + ".orderid");
-        ((GVRTermUeb) (jobResult)).setOrderId(orderid);
-
-        if (orderid != null && orderid.length() != 0) {
-            HashMap<String, String> p2 = new HashMap<>();
-            getLowlevelParams().forEach((key, value) ->
-                p2.put(key.substring(key.indexOf(".") + 1), value));
-        }
-    }
-
     public String getPainJobName() {
         return "UebSEPA";
     }
