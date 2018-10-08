@@ -276,7 +276,7 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     }
 
     @Override
-    public void tanChallengeCallback(String orderRef, String challenge) {
+    public void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc) {
     }
 
     @Override

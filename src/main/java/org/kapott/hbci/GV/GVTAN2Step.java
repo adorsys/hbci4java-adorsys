@@ -108,13 +108,8 @@ public class GVTAN2Step extends AbstractHBCIJob {
 
             // willuhn 2011-05-27 Challenge HHDuc aus dem Reponse holen und im Passport zwischenspeichern
             String hhdUc = result.get(header + ".challenge_hhd_uc");
-            if (hhdUc != null) {
-                log.debug("found Challenge HHDuc '" + hhdUc + "' in HITAN - saving it temporarily in passport");
-                passport.getCallback().tanChallengeCallback(orderref, hhdUc);
-            }
-
             String challenge = result.get(header + ".challenge");
-            passport.getCallback().tanChallengeCallback(orderref, challenge);
+            passport.getCallback().tanChallengeCallback(orderref, challenge, hhdUc);
         }
     }
 }
