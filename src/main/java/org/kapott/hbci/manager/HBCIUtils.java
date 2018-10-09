@@ -38,7 +38,6 @@ import java.util.Map.Entry;
 public final class HBCIUtils {
 
     private static final String VERSION = "HBCI4Java-2.5.12";
-    public static Properties blzs = new Properties();
     public static Map<String, BankInfo> banks = new HashMap<>();
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("hbci4java-messages", Locale.getDefault());
 
@@ -687,7 +686,8 @@ public final class HBCIUtils {
     public static void refreshBLZList(InputStream in)
         throws IOException {
         LoggerFactory.getLogger(HBCIUtils.class).debug("trying to load BLZ data");
-        blzs.clear();
+
+        Properties blzs = new Properties();
         blzs.load(in);
 
         banks.clear();
@@ -699,6 +699,11 @@ public final class HBCIUtils {
             info.setBlz(blz);
             banks.put(blz, info);
         }
+    }
+
+
+    public static void addBankInfo(BankInfo bankInfo) {
+        banks.put(bankInfo.getBlz(), bankInfo);
     }
 
     /**
@@ -836,4 +841,5 @@ public final class HBCIUtils {
     public static Locale getLocale() {
         return Locale.getDefault();
     }
+
 }

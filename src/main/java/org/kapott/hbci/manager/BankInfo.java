@@ -22,12 +22,6 @@ public class BankInfo {
     private HBCIVersion rdhVersion;
 
     /**
-     * ct.
-     */
-    private BankInfo() {
-    }
-
-    /**
      * Parst die BankInfo-Daten aus einer Zeile der blz.properties.
      *
      * @param text der Text (Value) aus der blz.properties.
