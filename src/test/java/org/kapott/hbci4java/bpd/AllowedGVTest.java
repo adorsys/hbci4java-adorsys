@@ -1,6 +1,6 @@
 package org.kapott.hbci4java.bpd;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.protocol.Message;
