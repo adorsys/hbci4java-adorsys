@@ -136,6 +136,28 @@
         </challengeinfo>
     </job>
 
+    <!-- SEPA-Terminueberweisung loeschen -->
+    <job code="HKCSL">
+        <challengeinfo spec="hhd12">
+            <klass>22</klass>
+            <param>sepa.dst.iban</param>
+            <param condition-name="needchallengevalue" condition-value="J" type="Wrt">sepa.btg.value</param>
+            <param condition-name="needchallengevalue" condition-value="J">sepa.btg.curr</param>
+        </challengeinfo>
+        <challengeinfo spec="hhd13">
+            <klass>22</klass>
+            <param>SegHead.code</param>
+            <param>sepa.dst.iban</param>
+            <param condition-name="needchallengevalue" condition-value="J" type="Wrt">sepa.btg.value</param>
+            <param condition-name="needchallengevalue" condition-value="J">sepa.btg.curr</param>
+        </challengeinfo>
+        <challengeinfo spec="hhd14">
+            <klass>09</klass>
+            <param type="Wrt">sepa.btg.value</param>
+            <param>sepa.dst.iban</param>
+        </challengeinfo>
+    </job>
+
     <!-- SEPA-Sammelueberweisung -->
     <job code="HKCCM">
         <challengeinfo spec="hhd12">
@@ -190,6 +212,28 @@
 
     <!-- Dauerauftrag -->
     <job code="HKCDE">
+        <challengeinfo spec="hhd12">
+            <klass>34</klass>
+            <param>sepa.dst.iban</param>
+            <param condition-name="needchallengevalue" condition-value="J" type="Wrt">sepa.btg.value</param>
+            <param condition-name="needchallengevalue" condition-value="J">sepa.btg.curr</param>
+        </challengeinfo>
+        <challengeinfo spec="hhd13">
+            <klass>34</klass>
+            <param>SegHead.code</param>
+            <param>sepa.dst.iban</param>
+            <param condition-name="needchallengevalue" condition-value="J" type="Wrt">sepa.btg.value</param>
+            <param condition-name="needchallengevalue" condition-value="J">sepa.btg.curr</param>
+        </challengeinfo>
+        <challengeinfo spec="hhd14">
+            <klass>34</klass>
+            <param type="Wrt">sepa.btg.value</param>
+            <param>sepa.dst.iban</param>
+        </challengeinfo>
+    </job>
+
+    <!-- Dauerauftrag loeschen -->
+    <job code="HKCDL">
         <challengeinfo spec="hhd12">
             <klass>34</klass>
             <param>sepa.dst.iban</param>

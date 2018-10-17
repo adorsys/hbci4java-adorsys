@@ -39,7 +39,7 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
     }
 
     public GVTermUebSEPA(HBCIPassportInternal passport, String name, String pain) {
-        super(passport, name);
+        super(passport, name, new GVRTermUeb(passport));
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -107,6 +107,21 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
 
     public String getPainJobName() {
         return "UebSEPA";
+    }
+
+    protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
+
+        ((GVRTermUeb) (jobResult)).setOrderId(orderid);
+
+        if (orderid != null && orderid.length() != 0) {
+            HashMap<String, String> p2 = new HashMap<>();
+            getLowlevelParams().forEach((key, value) ->
+                p2.put(key.substring(key.indexOf(".") + 1), value));
+//TODO
+//            passport.setPersistentData("termueb_" + orderid, p2);
+        }
     }
 
 }
