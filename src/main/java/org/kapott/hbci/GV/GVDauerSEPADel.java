@@ -17,7 +17,7 @@ public class GVDauerSEPADel extends AbstractSEPAGV {
     public GVDauerSEPADel(HBCIPassportInternal passport, String pain) {
         super(passport, getLowlevelName(), new GVRDauerEdit(passport));
 
-        addConstraint("src.bic", "My.bic", null);
+        addConstraint("src.bic", "My.bic", "", true);
         addConstraint("src.iban", "My.iban", null);
 
         if (this.canNationalAcc(passport)) // nationale Bankverbindung mitschicken, wenn erlaubt
@@ -39,7 +39,7 @@ public class GVDauerSEPADel extends AbstractSEPAGV {
         /* dummy constraints to allow an application to set these values. the
          * overriden setLowlevelParam() stores these values in a special structure
          * which is later used to create the SEPA pain document. */
-        addConstraint("src.bic", "sepa.src.bic", null);
+        addConstraint("src.bic", "sepa.src.bic", "", true);
         addConstraint("src.iban", "sepa.src.iban", null);
         addConstraint("src.name", "sepa.src.name", null);
         addConstraint("dst.bic", "sepa.dst.bic", "", true); // Kann eventuell entfallen, da BIC optional
