@@ -27,6 +27,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public final class GVTermUeb
     extends AbstractHBCIJob {
@@ -49,7 +50,7 @@ public final class GVTermUeb
         addConstraint("name2", "name2", "");
         addConstraint("key", "key", "51");
 
-        HashMap<String, String> parameters = getJobRestrictions();
+        Map<String, String> parameters = getJobRestrictions();
         int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {
@@ -77,7 +78,7 @@ public final class GVTermUeb
     }
 
     public void setParam(String paramName, String value) {
-        HashMap<String, String> res = getJobRestrictions();
+        Map<String, String> res = getJobRestrictions();
 
         if (paramName.equals("key")) {
             boolean atLeastOne = false;

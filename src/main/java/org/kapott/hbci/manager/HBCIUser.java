@@ -29,6 +29,7 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /* @brief Instances of this class represent a certain user in combination with
     a certain institute. */
@@ -192,8 +193,8 @@ public final class HBCIUser implements IHandlerData {
                 fetchSigId();
         }
 
-        HashMap<String, String> upd = passport.getUPD();
-        HashMap<String, String> bpd = passport.getBPD();
+        Map<String, String> upd = passport.getUPD();
+        Map<String, String> bpd = passport.getBPD();
         String hbciVersionOfUPD = upd != null ? upd.get("_hbciversion") : null;
 
         // Wir haben noch keine BPD. Offensichtlich unterstuetzt die Bank

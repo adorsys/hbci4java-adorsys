@@ -23,7 +23,7 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public class GVUebGar extends GVUeb {
 
@@ -47,7 +47,7 @@ public class GVUebGar extends GVUeb {
         // TODO: richtige zu verwendende textschluesselergaenzung abklaeren
         addConstraint("addkey", "addkey", "100");
 
-        HashMap<String, String> parameters = getJobRestrictions();
+        Map<String, String> parameters = getJobRestrictions();
         int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {

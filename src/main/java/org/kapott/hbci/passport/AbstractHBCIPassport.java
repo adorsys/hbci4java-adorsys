@@ -28,7 +28,6 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.DocumentFactory;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Limit;
 import org.kapott.hbci.structures.Value;
@@ -40,10 +39,7 @@ import org.w3c.dom.NodeList;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.security.MessageDigest;
 import java.util.*;
-
-import static org.kapott.hbci.comm.CommPinTan.ENCODING;
 
 /**
  * <p>Diese Klasse stellt die Basisklasse für alle "echten" Passport-Implementationen
@@ -56,9 +52,9 @@ import static org.kapott.hbci.comm.CommPinTan.ENCODING;
 public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Serializable {
 
     protected HBCICallback callback;
-    protected HashMap<String, String> properties;
-    private HashMap<String, String> bpd;
-    private HashMap<String, String> upd;
+    protected Map<String, String> properties;
+    private Map<String, String> bpd;
+    private Map<String, String> upd;
     private String hbciversion;
     private String country;
     private String blz;
@@ -70,7 +66,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private Long sigid;
     private Document syntaxDocument;
 
-    public AbstractHBCIPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
+    public AbstractHBCIPassport(String hbciversion, Map<String, String> properties, HBCICallback callback) {
         this.hbciversion = hbciversion;
         this.callback = callback;
         this.properties = properties;
@@ -78,7 +74,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         init();
     }
 
-    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties, String name, Object init) {
+    public static HBCIPassport getInstance(HBCICallback callback, Map<String, String> properties, String name, Object init) {
         if (name == null) {
             throw new NullPointerException("name of passport implementation must not be null");
         }
@@ -116,7 +112,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      *
      * @return Instanz eines HBCI-Passports
      */
-    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties, Object init) {
+    public static HBCIPassport getInstance(HBCICallback callback, Map<String, String> properties, Object init) {
         String passportName = properties.get("client.passport.default");
         if (passportName == null)
             throw new InvalidUserDataException(HBCIUtils.getLocMsg("EXCMSG_NODEFPASS"));
@@ -124,11 +120,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return getInstance(callback, properties, passportName, init);
     }
 
-    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties, String name) {
+    public static HBCIPassport getInstance(HBCICallback callback, Map<String, String> properties, String name) {
         return getInstance(callback, properties, name, null);
     }
 
-    public static HBCIPassport getInstance(HBCICallback callback, HashMap<String, String> properties) {
+    public static HBCIPassport getInstance(HBCICallback callback, Map<String, String> properties) {
         return getInstance(callback, properties, (Object) null);
     }
 
@@ -368,8 +364,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         setSigId(getSigId() + 1);
     }
 
-    public HashMap<String, String> getParamSegmentNames() {
-        HashMap<String, String> ret = new HashMap<>();
+    public Map<String, String> getParamSegmentNames() {
+        Map<String, String> ret = new HashMap<>();
 
         bpd.keySet().forEach(key -> {
             if (key.startsWith("Params") && key.endsWith(".SegHead.code")) {
@@ -405,7 +401,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return ret;
     }
 
-    public HashMap<String, String> getJobRestrictions(String specname) {
+    public Map<String, String> getJobRestrictions(String specname) {
         int versionPos = specname.length() - 1;
         char ch;
 
@@ -418,8 +414,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             specname.substring(versionPos + 1));
     }
 
-    public HashMap<String, String> getJobRestrictions(String gvname, String version) {
-        HashMap<String, String> result = new HashMap<>();
+    public Map<String, String> getJobRestrictions(String gvname, String version) {
+        Map<String, String> result = new HashMap<>();
 
         String searchstring = gvname + "Par" + version;
         bpd.keySet().forEach(key -> {
@@ -493,9 +489,9 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      * Geschäftsvorfallnamen (Lowlevel) mit der jeweils von <em>HBCI4Java</em>
      * verwendeten GV-Versionsnummer.
      */
-    public HashMap<String, String> getSupportedLowlevelJobs() {
-        HashMap<String, String> paramSegments = getParamSegmentNames();
-        HashMap<String, String> result = new HashMap<>();
+    public Map<String, String> getSupportedLowlevelJobs() {
+        Map<String, String> paramSegments = getParamSegmentNames();
+        Map<String, String> result = new HashMap<>();
 
         paramSegments.keySet().forEach(segName -> {
             // überprüfen, ob parameter-segment tatsächlich zu einem GV gehört
@@ -545,7 +541,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
      *               ermittelt werden sollen
      * @return Properties-Objekt mit den einzelnen Restriktionen
      */
-    public HashMap<String, String> getLowlevelJobRestrictions(String gvname) {
+    public Map<String, String> getLowlevelJobRestrictions(String gvname) {
         if (gvname == null || gvname.length() == 0)
             throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
 
@@ -733,11 +729,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return syntaxDocument;
     }
 
-    public final HashMap<String, String> getBPD() {
+    public final Map<String, String> getBPD() {
         return bpd;
     }
 
-    public void setBPD(HashMap<String, String> bpd) {
+    public void setBPD(Map<String, String> bpd) {
         this.bpd = bpd;
     }
 
@@ -745,11 +741,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return (hbciversion != null) ? hbciversion : "";
     }
 
-    public final HashMap<String, String> getUPD() {
+    public final Map<String, String> getUPD() {
         return upd;
     }
 
-    public final void setUPD(HashMap<String, String> upd) {
+    public final void setUPD(Map<String, String> upd) {
         this.upd = upd;
     }
 
@@ -773,7 +769,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return 0;
     }
 
-    public HashMap<String, String> getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 

@@ -167,7 +167,7 @@ public class AbstractHBCIJob {
         }
 
         // SEPAInfo laden und darüber iterieren
-        HashMap<String, String> props = passport.getLowlevelJobRestrictions("SEPAInfo");
+        Map<String, String> props = passport.getLowlevelJobRestrictions("SEPAInfo");
         String value = props.get("cannationalacc");
         log.debug("cannationalacc=" + value);
         return value != null && value.equalsIgnoreCase("J");
@@ -181,7 +181,7 @@ public class AbstractHBCIJob {
         StringBuilder key = new StringBuilder();
 
         // alle param-segmente durchlaufen
-        HashMap<String, String> bpd = passport.getBPD();
+        Map<String, String> bpd = passport.getBPD();
         for (String path : bpd.keySet()) {
             key.setLength(0);
             key.append(path);
@@ -386,7 +386,7 @@ public class AbstractHBCIJob {
      *
      * @return Properties-Objekt mit den einzelnen Restriktionen
      */
-    public HashMap<String, String> getJobRestrictions() {
+    public Map<String, String> getJobRestrictions() {
         return passport.getJobRestrictions(name);
     }
 
