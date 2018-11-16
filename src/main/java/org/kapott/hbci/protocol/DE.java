@@ -42,7 +42,7 @@ public final class DE extends SyntaxElement {
         initData(dedef, name, path, idx, document);
     }
 
-    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, null, predefs, valids);
         initData(dedef, res, predefs, predelim, valids);
     }
@@ -169,7 +169,7 @@ public final class DE extends SyntaxElement {
     }
 
     @Override
-    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         return null;
     }
 
@@ -182,11 +182,10 @@ public final class DE extends SyntaxElement {
      * anlegen eines de beim parsen funktioniert analog zum
      * anlegen eines de bei der message-synthese
      */
-    private void parseValue(StringBuffer res, Hashtable<String, String> predefs, char preDelim, Hashtable<String, String> valids) {
-        String temp = res.toString();
-        int len = temp.length();
+    private void parseValue(StringBuffer res, HashMap<String, String> predefs, char preDelim, HashMap<String, String> valids) {
+        int len = res.length();
 
-        if (preDelim != (char) 0 && temp.charAt(0) != preDelim) {
+        if (preDelim != (char) 0 && res.charAt(0) != preDelim) {
             if (len == 0) {
                 throw new ParseErrorException(HBCIUtils.getLocMsg("EXCMSG_ENDOFSTRG", getPath()));
             }
@@ -194,7 +193,7 @@ public final class DE extends SyntaxElement {
             // log.("error string: "+res.toString(),log._ERR);
             // log.("current: "+getPath()+":"+type+"("+minsize+","+maxsize+")="+value,log._ERR);
             // log.("predelimiter mismatch (required:"+getPreDelim()+" found:"+temp.charAt(0)+")",log._ERR);
-            throw new PredelimErrorException(getPath(), Character.toString(preDelim), Character.toString(temp.charAt(0)));
+            throw new PredelimErrorException(getPath(), Character.toString(preDelim), Character.toString(res.charAt(0)));
         }
 
         this.value = SyntaxDEFactory.createSyntaxDE(getType(), getPath(), res, minsize, maxsize);
@@ -212,9 +211,7 @@ public final class DE extends SyntaxElement {
         boolean ok = false;
         if (valids != null) {
             String header = getPath() + ".value";
-            for (Enumeration<String> e = valids.keys(); e.hasMoreElements(); ) {
-                String key = e.nextElement();
-
+            for (String key: valids.keySet()) {
                 if (key.startsWith(header) &&
                     key.indexOf(".", header.length()) == -1) {
 
@@ -233,7 +230,7 @@ public final class DE extends SyntaxElement {
         }
     }
 
-    private void initData(Node dedef, StringBuffer res, Hashtable<String, String> predefs, char preDelim, Hashtable<String, String> valids) {
+    private void initData(Node dedef, StringBuffer res, HashMap<String, String> predefs, char preDelim, HashMap<String, String> valids) {
         setValid(false);
 
         value = null;
@@ -259,7 +256,7 @@ public final class DE extends SyntaxElement {
         }
     }
 
-    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super.init(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, null, predefs, valids);
         initData(dedef, res, predefs, predelim, valids);
     }

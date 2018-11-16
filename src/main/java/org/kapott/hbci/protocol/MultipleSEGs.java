@@ -36,7 +36,7 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         super(segref, path, document);
     }
 
-    public MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(segref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
@@ -68,11 +68,11 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    public void init(Node segref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public void init(Node segref, String path, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super.init(segref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         SyntaxElement ret = null;
         addElement((ret = new SEG(getType(), getName(), path, predelim, idx, res, document, predefs, valids)));
         return ret;

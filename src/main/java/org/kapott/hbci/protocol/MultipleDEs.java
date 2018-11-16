@@ -37,7 +37,8 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         initData(delimiter);
     }
 
-    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res,
+                       Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(deref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
@@ -89,25 +90,24 @@ public final class MultipleDEs extends MultipleSyntaxElements {
 
     // -------------------------------------------------------------------------------------------------------
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res,
+                                                     Document document, HashMap<String, String> predefs,
+                                                     HashMap<String, String> valids) {
         SyntaxElement ret;
 
+        Map<String, String> newValids= new HashMap<>();
         if (idx != 0 && valids != null) {
             String header = getPath() + ".value";
-            for (Enumeration<String> e = valids.keys(); e.hasMoreElements(); ) {
-                String key = (e.nextElement());
 
-                if (key.startsWith(header) &&
-                    key.indexOf(".", header.length()) == -1) {
-
+            valids.forEach((key, value) -> {
+                if (key.startsWith(header) && key.indexOf(".", header.length()) == -1) {
                     int dotPos = key.lastIndexOf('.');
-                    String newkey = key.substring(0, dotPos) +
-                        HBCIUtils.withCounter("", idx) +
-                        key.substring(dotPos);
-                    valids.put(newkey, valids.get(key));
+                    String newKey = key.substring(0, dotPos) + HBCIUtils.withCounter("", idx) + key.substring(dotPos);
+                    newValids.put(newKey, value);
                 }
-            }
+            });
         }
+        valids.putAll(newValids);
 
         addElement(ret = new DE(ref, getName(), path, predelim, idx, res, predefs, valids));
         return ret;
@@ -118,7 +118,8 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         this.valids = new ArrayList<>();
     }
 
-    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res,
+                     Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super.init(deref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
