@@ -25,6 +25,9 @@ import java.util.regex.Pattern;
 
 
 public class Swift {
+
+    private static final Pattern PATTERN_NL_TAG = Pattern.compile("\\r\\n(-|-\\r\\n)?:\\d{2}[A-Z]?:"); // Zu dem "(-)?" siehe TestBrokenMT940.java
+
     /* With this, a block always ends with \r\n- */
     public static String getOneBlock(StringBuffer stream) {
         String ret = null;
@@ -41,8 +44,7 @@ public class Swift {
     }
 
     public static String getTagValue(String st, String tag, int counter) {
-        String ret = null;
-        Pattern patternNLTag = Pattern.compile("\\r\\n(-|-\\r\\n)?:\\d{2}[A-Z]?:"); // Zu dem "(-)?" siehe TestBrokenMT940.java
+        String ret;
 
         int endpos = 0;
         while (true) {
@@ -50,12 +52,19 @@ public class Swift {
 
             // find start-posi of the requested tag
             int startpos = st.indexOf("\r\n:" + tag + ":", endpos);
+            int skipLength = 3;
+
+            if (startpos == -1) {
+                startpos = st.indexOf("\r\n-:" + tag + ":", endpos);
+                skipLength = 4;
+            }
+
             if (startpos != -1) {
                 // skip \r\n:XY: of start tag
-                startpos += 3 + tag.length() + 1;
+                startpos += skipLength + tag.length() + 1;
 
                 // tag found - find start of next tag
-                Matcher matcher = patternNLTag.matcher(st);
+                Matcher matcher = PATTERN_NL_TAG.matcher(st);
                 if (matcher.find(startpos)) {
                     endpos = matcher.start();
                     ret = st.substring(startpos, endpos);
@@ -75,7 +84,6 @@ public class Swift {
 
         return ret;
     }
-
 
     /* Removes the \r\n sequences which have no meaning */
     public static String packMulti(String st) {
