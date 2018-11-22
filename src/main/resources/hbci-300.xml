@@ -5225,6 +5225,33 @@
         </SEGdef>
         <!--  willuhn 2011-05-16 END HKTAN/HITAN/HITANS Version 5 -->
 
+        <!--  age 2018-11-16 BEGIN HKTAN Version 6 -->
+        <SEGdef id="TAN2Step6" needsRequestTag="1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DE name="process" type="Code" maxsize="1"/>
+            <DE name="ordersegcode" type="AN" maxsize="6" minnum="0"/>
+            <DEG name="OrderAccount" type="KTVInt" minnum="0" />
+            <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
+            <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
+            <DE name="notlasttan" type="JN" minnum="0"/>
+            <DE name="storno" type="JN" minnum="0"/>
+            <DEG name="SMSAccount" type="KTV3" minnum="0" />
+            <DE name="challengeklass" type="Num" maxsize="2" minnum="0"/>
+            <DEG name="ChallengeKlassParams" type="ChallengeKlassParams" minnum="0" />
+            <DE name="tanmedia" type="AN" maxsize="32" minnum="0"/>
+            <DE name="challenge_hhd_uc" type="Bin" maxsize="0" minnum="0" />
+
+            <valids path="process">
+                <validvalue>1</validvalue>
+                <validvalue>2</validvalue>
+                <validvalue>3</validvalue>
+                <validvalue>4</validvalue>
+            </valids>
+
+            <value path="SegHead.code">HKTAN</value>
+            <value path="SegHead.version">6</value>
+        </SEGdef>
+        <!--  age 2018-11-16 END HKTAN Version 6 -->
 
         <!--  macemmi 2012-02-20 BEGIN HKTAB -->
         <!--  Version 1 -->

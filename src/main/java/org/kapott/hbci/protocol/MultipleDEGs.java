@@ -25,9 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.ListIterator;
 
 @Slf4j
 public final class MultipleDEGs extends MultipleSyntaxElements {
@@ -39,7 +37,8 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
         initData(delimiter);
     }
 
-    public MultipleDEGs(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public MultipleDEGs(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res,
+                        Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(degref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
@@ -73,19 +72,21 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
                 ret.append(((DEG) syntaxElement).toString(0));
         }
 
-
         return ret.toString();
     }
 
     // --------------------------------------------------------------------------------------------------------------
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res,
+                                                     Document document, HashMap<String, String> predefs,
+                                                     HashMap<String, String> valids) {
         SyntaxElement ret;
         addElement((ret = new DEG(getType(), getName(), path, predelim, idx, res, document, predefs, valids)));
         return ret;
     }
 
-    public void init(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public void init(Node degref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res,
+                     Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super.init(degref, path, predelim0, predelim1, res, document, predefs, valids);
         initData(delimiter);
     }
@@ -100,16 +101,10 @@ public final class MultipleDEGs extends MultipleSyntaxElements {
             }
         } else {
             if (deref == null) {
-                p.put(Integer.toString(segref[0]) +
-                    ":" + Integer.toString(degref[0]), getPath());
+                p.put(segref[0] + ":" + degref[0], getPath());
                 degref[0]++;
             } else {
-                p.put(Integer.toString(segref[0]) +
-                        ":" +
-                        Integer.toString(degref[0]) +
-                        "," +
-                        Integer.toString(deref[0]),
-                    getPath());
+                p.put(segref[0] + ":" + degref[0] + "," + degref[0], getPath());
                 deref[0]++;
             }
         }

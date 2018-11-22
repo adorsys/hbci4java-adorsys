@@ -95,7 +95,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
                                                      HashMap<String, String> valids) {
         SyntaxElement ret;
 
-        Map<String, String> newValids= new HashMap<>();
+        Map<String, String> newValids = new HashMap<>();
         if (idx != 0 && valids != null) {
             String header = getPath() + ".value";
 

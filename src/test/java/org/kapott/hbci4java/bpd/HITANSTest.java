@@ -13,6 +13,7 @@ package org.kapott.hbci4java.bpd;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.kapott.hbci.manager.DocumentFactory;
 import org.kapott.hbci.manager.HBCITwoStepMechanism;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
@@ -38,7 +39,8 @@ public class HITANSTest extends AbstractTest {
     private HashMap<String, String> getBPD(String file, String version) throws Exception {
         String data = getFile(file);
 
-        Message msg = new Message("DialogInitAnonRes", data, null, Message.CHECK_SEQ, true);
+        Message msg = new Message("DialogInitAnonRes", data, DocumentFactory.createDocument(version),
+            Message.CHECK_SEQ, true);
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
 
@@ -62,20 +64,17 @@ public class HITANSTest extends AbstractTest {
      */
     @Test
     public void testHitans5() throws Exception {
-        HashMap<String, String> bpd = getBPD("bpd/bpd2-formatted.txt", "300");
-
+        HashMap<String, String> bpd = getBPD("bpd2-formatted.txt", "300");
 
         bpd.forEach((name, value) -> {
-
-            // Das darf kein Template-Parameter sein
-            if (value.equals("HITANS"))
-                Assert.assertFalse(name.contains("Template"));
-
             // Hoechste Versionsnummer holen. Die muss 5 sein
-            if (name.contains("TAN2StepPar") && name.endsWith("SegHead.version")) {
-                int newVersion = Integer.parseInt(value);
-                if (newVersion > version)
-                    version = newVersion;
+            if (name.contains("TAN2StepPar")) {
+                System.out.println(name + " " + value);
+                if (name.endsWith("SegHead.version")) {
+                    int newVersion = Integer.parseInt(value);
+                    if (newVersion > version)
+                        version = newVersion;
+                }
             }
         });
         Assert.assertEquals(version, 5);
@@ -102,7 +101,6 @@ public class HITANSTest extends AbstractTest {
         Assert.assertEquals(secmech.getSegversion(), "5");
     }
 }
-
 
 /**********************************************************************
  * $Log: HITANSTest.java,v $
