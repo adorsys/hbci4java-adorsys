@@ -26,7 +26,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Interface, welches alle Passport-Varianten implementieren müssen.
@@ -87,17 +87,17 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     String getHashAlg();
 
-    void setBPD(HashMap<String, String> bpd);
+    void setBPD(Map<String, String> bpd);
 
-    void setUPD(HashMap<String, String> upd);
+    void setUPD(Map<String, String> upd);
 
     void incSigId();
 
-    HashMap<String, String> getParamSegmentNames();
+    Map<String, String> getParamSegmentNames();
 
-    HashMap<String, String> getJobRestrictions(String specname);
+    Map<String, String> getJobRestrictions(String specname);
 
-    HashMap<String, String> getJobRestrictions(String gvname, String version);
+    Map<String, String> getJobRestrictions(String gvname, String version);
 
     /* Diese Methode wird nach jeder Dialog-Initialisierung aufgerufen. Ein
      * Passport-Objekt kann den Status der Response mit Hilfe von msgStatusList
@@ -120,7 +120,7 @@ public interface HBCIPassportInternal extends HBCIPassport {
      */
     int getMaxGVSegsPerMsg();
 
-    HashMap<String, String> getProperties();
+    Map<String, String> getProperties();
 
     HBCICallback getCallback();
 
@@ -130,9 +130,9 @@ public interface HBCIPassportInternal extends HBCIPassport {
 
     byte[] decrypt(byte[] cryptedkey, byte[] cryptedstring);
 
-    HashMap<String, String> getSupportedLowlevelJobs();
+    Map<String, String> getSupportedLowlevelJobs();
 
-    HashMap<String, String> getLowlevelJobRestrictions(String gvname);
+    Map<String, String> getLowlevelJobRestrictions(String gvname);
 
     Document getSyntaxDocument();
 

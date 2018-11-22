@@ -29,6 +29,7 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /* @brief Instances of this class represent a certain user in combination with
     a certain institute. */
@@ -47,6 +48,7 @@ public final class HBCIUser implements IHandlerData {
     }
 
     public void fetchSysId() {
+        HBCIMsgStatus syncStatus = null;
         try {
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID, null);
             log.info("fetching new sys-id from institute");
@@ -54,7 +56,7 @@ public final class HBCIUser implements IHandlerData {
             passport.setSigId(new Long(1));
             passport.setSysId("0");
 
-            HBCIMsgStatus syncStatus = doDialogInit("Synch", "0");
+            syncStatus = doDialogInit("Synch", "0");
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
@@ -63,27 +65,30 @@ public final class HBCIUser implements IHandlerData {
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
             inst.updateBPD(syncResult);
             updateUPD(syncResult);
+
             passport.setSysId(syncResult.get("SyncRes.sysid"));
-
-            passport.postInitResponseHook(syncStatus);
-
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus, passport.getSysId()});
             log.debug("new sys-id is " + passport.getSysId());
+
             doDialogEnd(syncResult.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
+        } finally {
+            if (syncStatus != null) {
+                passport.postInitResponseHook(syncStatus);
+            }
         }
     }
 
     public void fetchSigId() {
+        HBCIMsgStatus msgStatus = null;
         try {
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID, null);
             log.info("syncing signature id");
 
             passport.setSigId(new Long("9999999999999999"));
 
-            HBCIMsgStatus msgStatus = doDialogInit("Synch", "2");
-
+            msgStatus = doDialogInit("Synch", "2");
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
 
@@ -95,14 +100,16 @@ public final class HBCIUser implements IHandlerData {
             passport.setSigId(new Long(syncResult.get("SyncRes.sigid") != null ? syncResult.get("SyncRes.sigid") : "1"));
             passport.incSigId();
 
-            passport.postInitResponseHook(msgStatus);
-
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus, passport.getSigId()});
             log.debug("signature id set to " + passport.getSigId());
 
             doDialogEnd(syncResult.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), e);
+        } finally {
+            if (msgStatus != null) {
+                passport.postInitResponseHook(msgStatus);
+            }
         }
     }
 
@@ -186,8 +193,8 @@ public final class HBCIUser implements IHandlerData {
                 fetchSigId();
         }
 
-        HashMap<String, String> upd = passport.getUPD();
-        HashMap<String, String> bpd = passport.getBPD();
+        Map<String, String> upd = passport.getUPD();
+        Map<String, String> bpd = passport.getBPD();
         String hbciVersionOfUPD = upd != null ? upd.get("_hbciversion") : null;
 
         // Wir haben noch keine BPD. Offensichtlich unterstuetzt die Bank

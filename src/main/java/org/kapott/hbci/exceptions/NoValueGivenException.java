@@ -28,7 +28,7 @@ public final class NoValueGivenException extends HBCI_Exception {
 
     public NoValueGivenException(String path) {
         super(HBCIUtils.getLocMsg("EXCMSG_NOVALUE", path));
-        this.path = applyLogFilter(path);
+        this.path = path;
     }
 
     public NoValueGivenException(NoValueGivenException e) {

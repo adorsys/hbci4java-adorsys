@@ -617,7 +617,7 @@ public interface HBCICallback {
      */
     void callback(int reason, String msg, int datatype, StringBuffer retData);
 
-    void tanChallengeCallback(String orderRef, String challenge);
+    void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc);
 
     String needTAN();
 

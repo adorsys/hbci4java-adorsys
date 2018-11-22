@@ -332,21 +332,6 @@ public final class HBCIDialog {
         }
 
         if (dialogid != null || dialogStatus.initStatus.isOK()) {
-//            boolean uebSEPA = this.messages.stream()
-//                .filter(abstractHBCIJobs -> {
-//                    return abstractHBCIJobs.stream()
-//                        .filter(abstractHBCIJob -> {
-//                            return abstractHBCIJob.getHBCICode().equals("HKCCS");
-//                        })
-//                        .findFirst()
-//                        .isPresent();
-//                })
-//                .findFirst()
-//                .isPresent();
-//
-//            if (!uebSEPA) {
-//                dialogStatus.setMsgStatusList(doJobs());
-//            }
             dialogStatus.setMsgStatusList(doJobs());
 
             if (closeDialog) {

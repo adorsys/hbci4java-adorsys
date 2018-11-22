@@ -38,6 +38,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /* @brief Class representing an HBCI institute.
 
@@ -140,7 +141,7 @@ public final class HBCIInstitute implements IHandlerData {
      * @return true, wenn die BPD abgelaufen sind.
      */
     private boolean isBPDExpired() {
-        HashMap<String, String> bpd = passport.getBPD();
+        Map<String, String> bpd = passport.getBPD();
         log.info("[BPD] max age: " + maxAge + " days");
 
         long maxMillis = -1L;
@@ -184,7 +185,7 @@ public final class HBCIInstitute implements IHandlerData {
      */
     public void fetchBPDAnonymous() {
         // BPD abholen, wenn nicht vorhanden oder HBCI-Version geaendert
-        HashMap<String, String> bpd = passport.getBPD();
+        Map<String, String> bpd = passport.getBPD();
         String hbciVersionOfBPD = (bpd != null) ? bpd.get(BPD_KEY_HBCIVERSION) : null;
 
         final String version = passport.getBPDVersion();

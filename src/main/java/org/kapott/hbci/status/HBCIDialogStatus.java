@@ -167,10 +167,6 @@ public final class HBCIDialogStatus {
             msgStatusList.forEach(msgStatus -> {
                 String s = msgStatus.getErrorString();
                 if (s.length() != 0) {
-                    // ret.append(HBCIUtils.getLocMsg("STAT_MSG")).append(" ");
-                    // ret.append(Integer.toString(i+1));
-                    // ret.append(":");
-                    // ret.append(System.getProperty("line.separator"));
                     ret.append(s);
                     ret.append(System.getProperty("line.separator"));
                 }

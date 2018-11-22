@@ -320,8 +320,8 @@ public class GVRKUms extends HBCIJobResultImpl {
         bufferMT940 = new StringBuffer();
         bufferMT942 = new StringBuffer();
 
-        tageMT940 = new ArrayList<BTag>();
-        tageMT942 = new ArrayList<BTag>();
+        tageMT940 = new ArrayList<>();
+        tageMT942 = new ArrayList<>();
 
         restMT940 = new StringBuffer();
         restMT942 = new StringBuffer();
@@ -832,5 +832,15 @@ public class GVRKUms extends HBCIJobResultImpl {
             rest.setLength(0);
             rest.append(buffer.toString());
         }
+    }
+
+    public String getRaw() {
+        if (bufferMT940.length() > 0) {
+            return bufferMT940.toString();
+        }
+        if (bufferMT942.length() > 0) {
+            return bufferMT942.toString();
+        }
+        return null;
     }
 }

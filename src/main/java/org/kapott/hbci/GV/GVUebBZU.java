@@ -24,7 +24,7 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public final class GVUebBZU extends GVUeb {
 
@@ -47,7 +47,7 @@ public final class GVUebBZU extends GVUeb {
         addConstraint("name2", "name2", "");
         addConstraint("key", "key", "67");
 
-        HashMap<String, String> parameters = getJobRestrictions();
+        Map<String, String> parameters = getJobRestrictions();
         int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 1; i < maxusage; i++) {

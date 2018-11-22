@@ -21,11 +21,11 @@
 package org.kapott.hbci.tools;
 
 import org.kapott.hbci.GV.AbstractHBCIJob;
+import org.kapott.hbci.GV.GVKUmsAll;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.callback.HBCICallbackConsole;
 import org.kapott.hbci.manager.HBCIDialog;
-import org.kapott.hbci.manager.HBCIJobFactory;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.PinTanPassport;
@@ -71,7 +71,7 @@ public final class AnalyzeReportOfTransactions {
         Konto myaccount = hbciPassport.getAccounts().get(0);
 
         // Create HBCI job
-        AbstractHBCIJob bankAccountStatementJob = HBCIJobFactory.newJob("KUmsAll", hbciPassport);
+        AbstractHBCIJob bankAccountStatementJob = new GVKUmsAll(hbciPassport);
         bankAccountStatementJob.setParam("my", myaccount);
 
         // Set bank account statement retrieval date

@@ -24,7 +24,7 @@ import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public class GVLast extends AbstractHBCIJob {
 
@@ -45,7 +45,7 @@ public class GVLast extends AbstractHBCIJob {
         addConstraint("name2", "name2", "");
         addConstraint("type", "key", "05");
 
-        HashMap<String, String> parameters = getJobRestrictions();
+        Map<String, String> parameters = getJobRestrictions();
         int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {

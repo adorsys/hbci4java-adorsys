@@ -36,7 +36,7 @@ public final class MultipleSFs extends MultipleSyntaxElements {
         super(sfref, path, document);
     }
 
-    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(sfref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
@@ -64,12 +64,12 @@ public final class MultipleSFs extends MultipleSyntaxElements {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    public void init(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    public void init(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super.init(sfref, path, predelim0, predelim1, res, document, predefs, valids);
     }
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
-        SyntaxElement ret = null;
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+        SyntaxElement ret;
         addElement((ret = new SF(getType(), getName(), path, predelim, idx, res, document, predefs, valids)));
         return ret;
     }

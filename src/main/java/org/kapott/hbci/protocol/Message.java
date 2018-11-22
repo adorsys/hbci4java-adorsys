@@ -47,8 +47,8 @@ public final class Message extends SyntaxElement {
     public Message(String type, String res, Document document, boolean checkSeq, boolean checkValids) {
         super(type, type, null, (char) 0, 0, new StringBuffer(res),
             document,
-            new Hashtable<>(),
-            checkValids ? new Hashtable<>() : null);
+            new HashMap<>(),
+            checkValids ? new HashMap<>() : null);
         if (checkSeq)
             checkSegSeq(1);
     }
@@ -143,8 +143,8 @@ public final class Message extends SyntaxElement {
 
     public void init(String type, String res, Document document, boolean checkSeq, boolean checkValids) {
         super.init(type, type, null, (char) 0, 0, new StringBuffer(res),
-            document, new Hashtable<>(),
-            checkValids ? new Hashtable<>() : null);
+            document, new HashMap<>(),
+            checkValids ? new HashMap<>() : null);
         if (checkSeq)
             checkSegSeq(1);
     }
@@ -153,7 +153,7 @@ public final class Message extends SyntaxElement {
         return '\'';
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, Document document, Hashtable<String, String> predefs, Hashtable<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG"))

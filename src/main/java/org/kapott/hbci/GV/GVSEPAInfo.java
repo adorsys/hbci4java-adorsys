@@ -26,7 +26,7 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public class GVSEPAInfo extends AbstractHBCIJob {
@@ -40,8 +40,8 @@ public class GVSEPAInfo extends AbstractHBCIJob {
     }
 
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        HashMap<String, String> result = msgstatus.getData();
-        HashMap<String, String> upd = passport.getUPD();
+        Map<String, String> result = msgstatus.getData();
+        Map<String, String> upd = passport.getUPD();
 
         for (int i = 0; ; i++) {
             String subheader = HBCIUtils.withCounter(header + ".Acc", i);

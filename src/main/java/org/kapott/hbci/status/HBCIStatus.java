@@ -267,7 +267,6 @@ public final class HBCIStatus {
         }
 
         if (hasErrors()) {
-            List<HBCIRetVal> errList = getErrors();
             for (HBCIRetVal hbciRetVal : getErrors()) {
                 ret.append(hbciRetVal.toString());
                 ret.append(System.getProperty("line.separator"));

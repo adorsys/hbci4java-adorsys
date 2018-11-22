@@ -25,8 +25,7 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-import java.util.HashMap;
-
+import java.util.Map;
 
 public final class GVDauerDel extends AbstractHBCIJob {
 
@@ -79,7 +78,7 @@ public final class GVDauerDel extends AbstractHBCIJob {
 
     public void setParam(String paramName, String value) {
         if (paramName.equals("date")) {
-            HashMap<String, String> res = getJobRestrictions();
+            Map<String, String> res = getJobRestrictions();
             String st_cantermdel = res.get("cantermdel");
 
             if (st_cantermdel != null && st_cantermdel.equals("N")) {

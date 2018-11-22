@@ -9,6 +9,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.Map;
 
 public class GVDauerSEPANew extends AbstractSEPAGV {
 
@@ -88,7 +89,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
     }
 
     public void setParam(String paramName, String value) {
-        HashMap<String, String> res = getJobRestrictions();
+        Map<String, String> res = getJobRestrictions();
 
         if (paramName.equals("timeunit")) {
             if (!(value.equals("W") || value.equals("M"))) {

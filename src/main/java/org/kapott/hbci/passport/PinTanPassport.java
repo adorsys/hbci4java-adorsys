@@ -46,7 +46,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     private boolean verifyTANMode;
 
-    private HashMap<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
+    private Map<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
     private HBCITwoStepMechanism currentSecMechInfo;
     private List<String> userTwostepMechanisms = new ArrayList<>();
     private List<GVRTANMediaList.TANMediaInfo> tanMedias;
@@ -57,7 +57,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         Security.addProvider(new CryptAlgs4JavaProvider());
     }
 
-    public PinTanPassport(String hbciversion, HashMap<String, String> properties, HBCICallback callback) {
+    public PinTanPassport(String hbciversion, Map<String, String> properties, HBCICallback callback) {
         super(hbciversion, properties, callback);
     }
 
@@ -106,7 +106,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         this.tanMedias = tanMedias;
     }
 
-    public void setBPD(HashMap<String, String> newBPD) {
+    public void setBPD(Map<String, String> newBPD) {
         super.setBPD(newBPD);
 
         if (newBPD != null && newBPD.size() != 0) {
@@ -260,7 +260,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         this.currentSecMechInfo = currentSecMechInfo;
     }
 
-    public HashMap<String, HBCITwoStepMechanism> getBankTwostepMechanisms() {
+    public Map<String, HBCITwoStepMechanism> getBankTwostepMechanisms() {
         return bankTwostepMechanisms;
     }
 
@@ -366,7 +366,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     public String getPinTanInfo(String jobHbciCode) {
         String ret = "";
-        HashMap<String, String> bpd = getBPD();
+        Map<String, String> bpd = getBPD();
 
         if (bpd != null) {
             boolean isGV = false;

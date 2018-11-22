@@ -24,8 +24,8 @@ import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.structures.Konto;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Public Interface für HBCI-Passports. Ein HBCI-Passport ist eine Art "Ausweis",
@@ -70,7 +70,7 @@ public interface HBCIPassport {
      * @return die Bankparamterdaten oder <code>null</code>, falls diese nicht im
      * Passport vorhanden sind
      */
-    HashMap<String, String> getBPD();
+    Map<String, String> getBPD();
 
     /**
      * Gibt die HBCI-Version zurück, die zuletzt verwendet wurde. Der hier zurückgegebene
@@ -94,7 +94,7 @@ public interface HBCIPassport {
      * @return die Userparameterdaten oder <code>null</code>, falls diese nicht im
      * Passport vorhanden sind
      */
-    HashMap<String, String> getUPD();
+    Map<String, String> getUPD();
 
     /**
      * <p>Gibt die Bankleitzahl des Kreditinstitutes zurück. Bei Verwendung dieser Methode
@@ -254,11 +254,11 @@ public interface HBCIPassport {
 
     String getDefaultLang();
 
-    HashMap<String, String> getProperties();
+    Map<String, String> getProperties();
 
     HBCICallback getCallback();
 
-    HashMap<String, String> getJobRestrictions(String name);
+    Map<String, String> getJobRestrictions(String name);
 
     String getProxy();
 

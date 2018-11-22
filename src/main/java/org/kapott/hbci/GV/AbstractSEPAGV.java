@@ -13,10 +13,7 @@ import org.kapott.hbci.sepa.SepaVersion;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Abstrakte Basis-Klasse fuer JAXB-basierte SEPA-Jobs.
@@ -119,7 +116,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         List<SepaVersion> found = new ArrayList<>();
 
         // GV-Restrictions laden und darüber iterieren
-        HashMap<String, String> props = passport.getLowlevelJobRestrictions(gvName);
+        Map<String, String> props = passport.getLowlevelJobRestrictions(gvName);
         for (String key : props.keySet()) {
             // Die Keys, welche die Schema-Versionen enthalten, heissen alle "suppformats*"
             if (!key.startsWith("suppformats"))

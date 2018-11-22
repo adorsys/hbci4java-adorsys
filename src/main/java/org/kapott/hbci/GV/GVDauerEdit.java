@@ -28,7 +28,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
-
+import java.util.Map;
 
 public final class GVDauerEdit extends AbstractHBCIJob {
 
@@ -60,7 +60,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
         // TODO: aussetzung fehlt
         // TODO: addkey fehlt
 
-        HashMap<String, String> parameters = getJobRestrictions();
+        Map<String, String> parameters = getJobRestrictions();
         int maxusage = Integer.parseInt(parameters.get("maxusage"));
 
         for (int i = 0; i < maxusage; i++) {
@@ -74,7 +74,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        HashMap<String, String> result = msgstatus.getData();
+        Map<String, String> result = msgstatus.getData();
         String orderid = result.get(header + ".orderid");
 
         ((GVRDauerEdit) (jobResult)).setOrderId(orderid);
@@ -90,7 +90,7 @@ public final class GVDauerEdit extends AbstractHBCIJob {
     }
 
     public void setParam(String paramName, String value) {
-        HashMap<String, String> res = getJobRestrictions();
+        Map<String, String> res = getJobRestrictions();
 
         if (paramName.equals("date")) {
             String st = res.get("numtermchanges");
