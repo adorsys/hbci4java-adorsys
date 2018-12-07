@@ -24,6 +24,8 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
 import org.w3c.dom.Document;
 
+import java.util.Optional;
+
 /* Message-Generator-Klasse. Diese Klasse verwaltet die Syntax-Spezifikation
  * für die zu verwendende HBCI-Version. Hiermit wird das Erzeugen von
  * HBCI-Nachrichten gekapselt.
@@ -42,10 +44,10 @@ import org.w3c.dom.Document;
  *      mit "<msgName>." beginnen).*/
 public final class MessageFactory {
 
-    private final static String PRODUCT_ID = "36792786FA12F235F04647689";
-    private final static String VERSION = "3.2";
+    private static final HBCIProduct HBCI_PRODUCT = new HBCIProduct("36792786FA12F235F04647689", "3.2");
 
     public static Message createDialogInit(String msgName, String syncMode, HBCIPassportInternal passport) {
+
         Message message = createMessage(msgName, passport.getSyntaxDocument());
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
         message.rawSet("Idn.KIK.country", passport.getCountry());
@@ -55,8 +57,12 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
         message.rawSet("ProcPrep.lang", passport.getDefaultLang());
-        message.rawSet("ProcPrep.prodName", PRODUCT_ID);
-        message.rawSet("ProcPrep.prodVersion", VERSION);
+
+        HBCIProduct hbciProduct = Optional.ofNullable(passport.getHbciProduct())
+            .orElse(HBCI_PRODUCT);
+        message.rawSet("ProcPrep.prodName", hbciProduct.getProduct());
+        message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
+
         if (syncMode != null) {
             message.rawSet("Sync.mode", syncMode);
         }
@@ -70,8 +76,12 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.BPD", "0");
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
         message.rawSet("ProcPrep.lang", "0");
-        message.rawSet("ProcPrep.prodName", "HBCI4Java");
-        message.rawSet("ProcPrep.prodVersion", "2.5");
+
+        HBCIProduct hbciProduct = Optional.ofNullable(passport.getHbciProduct())
+            .orElse(HBCI_PRODUCT);
+        message.rawSet("ProcPrep.prodName", hbciProduct.getProduct());
+        message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
+
 
         return message;
     }
@@ -100,6 +110,5 @@ public final class MessageFactory {
     public static Message createMessage(String msgName, Document document) {
         return new Message(msgName, document);
     }
-
 
 }

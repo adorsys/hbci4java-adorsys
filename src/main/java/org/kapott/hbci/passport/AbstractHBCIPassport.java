@@ -27,6 +27,7 @@ import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.DocumentFactory;
+import org.kapott.hbci.manager.HBCIProduct;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Limit;
@@ -65,11 +66,13 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private String sysid;
     private Long sigid;
     private Document syntaxDocument;
+    private HBCIProduct hbciProduct;
 
-    public AbstractHBCIPassport(String hbciversion, Map<String, String> properties, HBCICallback callback) {
+    public AbstractHBCIPassport(String hbciversion, Map<String, String> properties, HBCICallback callback, HBCIProduct product) {
         this.hbciversion = hbciversion;
         this.callback = callback;
         this.properties = properties;
+        this.hbciProduct = product;
 
         init();
     }
@@ -723,6 +726,10 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             .map(s -> getBPD().get(s))
             .orElse("");
 
+    }
+
+    public HBCIProduct getHbciProduct() {
+        return hbciProduct;
     }
 
     public Document getSyntaxDocument() {

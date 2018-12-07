@@ -140,7 +140,7 @@ public abstract class AbstractTestGV {
         //
         ////////////////////////////////////////////////////////////////////////
 
-        this.passport = new PinTanPassport(version, props, callback);
+        this.passport = new PinTanPassport(version, props, callback, null);
     }
 
     /**

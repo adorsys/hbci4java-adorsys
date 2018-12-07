@@ -26,6 +26,7 @@ import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIKey;
+import org.kapott.hbci.manager.HBCIProduct;
 import org.kapott.hbci.manager.HBCITwoStepMechanism;
 import org.kapott.hbci.security.Crypt;
 import org.kapott.hbci.security.Sig;
@@ -53,12 +54,12 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
     private String pin;
 
-    {
+    static {
         Security.addProvider(new CryptAlgs4JavaProvider());
     }
 
-    public PinTanPassport(String hbciversion, Map<String, String> properties, HBCICallback callback) {
-        super(hbciversion, properties, callback);
+    public PinTanPassport(String hbciversion, Map<String, String> properties, HBCICallback callback, HBCIProduct product) {
+        super(hbciversion, properties, callback, product);
     }
 
     @Override
