@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Optional;
 
 public final class SEG extends SyntaxElement {
 
@@ -114,8 +115,9 @@ public final class SEG extends SyntaxElement {
     // analoges in Sig.hasSig()
     public String getCode() {
         String codePath = "SegHead.code";
-        SyntaxElement code = getElement(getPath() + "." + codePath);
-        return code.toString();
+        return Optional.ofNullable(getElement(getPath() + "." + codePath))
+            .map(Object::toString)
+            .orElse(null);
     }
 
     protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {

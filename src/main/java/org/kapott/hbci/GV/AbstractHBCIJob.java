@@ -696,17 +696,15 @@ public class AbstractHBCIJob {
     public void fillJobResult(HBCIMsgStatus status, int offset) {
         try {
             executed = true;
-            HashMap<String, String> result = status.getData();
-
             // nachsehen, welche antwortsegmente ueberhaupt
             // zu diesem task gehoeren
 
             // res-num --> segmentheader (wird für sortierung der
             // antwort-segmente benötigt)
-            Hashtable<Integer, String> keyHeaders = new Hashtable<>();
-            result.keySet().forEach(key -> {
+            HashMap<Integer, String> keyHeaders = new HashMap<>();
+            status.getData().keySet().forEach(key -> {
                 if (key.startsWith("GVRes") && key.endsWith(".SegHead.ref")) {
-                    String segref = result.get(key);
+                    String segref = status.getData().get(key);
                     if ((Integer.parseInt(segref)) - offset == idx) {
                         // nummer des antwortsegments ermitteln
                         int resnum = 0;
@@ -721,7 +719,7 @@ public class AbstractHBCIJob {
                 }
             });
 
-            saveBasicValues(result, idx + offset);
+            saveBasicValues(status.getData(), idx + offset);
             saveReturnValues(status, idx + offset);
 
             // segment-header-namen der antwortsegmente in der reihenfolge des
