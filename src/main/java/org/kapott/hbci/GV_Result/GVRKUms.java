@@ -164,6 +164,11 @@ public class GVRKUms extends HBCIJobResultImpl {
         public String id;
 
         /**
+         * NUR BEI CAMT: Ende-zu-Ende-Referenz (EREF)
+         */
+        public String endToEndId;
+
+        /**
          * NUR BEI CAMT: Der Purpose-Code der Buchung.
          */
         public String purposecode;
@@ -291,12 +296,12 @@ public class GVRKUms extends HBCIJobResultImpl {
     /**
      * Die originale empfangene CAMT-Datei mit den gebuchten Umsaetzen.
      */
-    public String camtBooked;
+    public List<String> camtBooked = new ArrayList<String>();
 
     /**
-     * Die originale empfangene CAMT-Datei mit den Vormerkbuchungen.
+     * Die originale empfangenen CAMT-Dateien mit den Vormerkbuchungen.
      */
-    public String camtNotBooked;
+    public List<String> camtNotBooked = new ArrayList<String>();
 
     private boolean parsed;
 

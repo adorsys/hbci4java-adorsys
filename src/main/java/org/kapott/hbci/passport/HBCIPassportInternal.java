@@ -23,6 +23,7 @@ package org.kapott.hbci.passport;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.manager.HBCIKey;
 import org.kapott.hbci.manager.HBCIProduct;
+import org.kapott.hbci.manager.HBCITwoStepMechanism;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -146,4 +147,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
     String getPIN();
 
     HBCIProduct getHbciProduct();
+
+    HBCITwoStepMechanism getCurrentSecMechInfo();
 }

@@ -22,19 +22,15 @@ package org.kapott.hbci.callback;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.AbstractHBCIJob;
-import org.kapott.hbci.GV.GVTAN2Step;
-import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.passport.HBCIPassport;
-import org.kapott.hbci.passport.PinTanPassport;
+import org.kapott.hbci.manager.HHDVersion;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.io.BufferedReader;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -276,7 +272,7 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     }
 
     @Override
-    public void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc) {
+    public void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc, HHDVersion.Type type) {
     }
 
     @Override

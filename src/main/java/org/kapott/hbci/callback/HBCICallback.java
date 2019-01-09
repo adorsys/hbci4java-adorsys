@@ -20,11 +20,7 @@
 
 package org.kapott.hbci.callback;
 
-import org.kapott.hbci.GV_Result.GVRTANMediaList;
-import org.kapott.hbci.passport.PinTanPassport;
-
-import java.util.List;
-
+import org.kapott.hbci.manager.HHDVersion;
 
 /**
  * <p>Schnittstelle, die eine Callback-Klasse implementieren muss. Beim Initialisieren von <em>HBCI4Java</em>
@@ -617,7 +613,7 @@ public interface HBCICallback {
      */
     void callback(int reason, String msg, int datatype, StringBuffer retData);
 
-    void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc);
+    void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc, HHDVersion.Type type);
 
     String needTAN();
 

@@ -1,24 +1,24 @@
 
 # In dieser Datei werden die auszuführenden Jobs definiert. Eine Job-Definition
 # hat dabei folgendes Format:
-#
+# 
 #   JOBNAME:JOBID:(props|toString)[:CUSTOMERID]
 #   PARAM1=VALUE1
 #   PARAM2=<FILENAME
 #   ...
-#
+# 
 # Mehrere Job-Definitionen sind durch Leerzeilen voneinander zu trennen.
 #
 # JOBNAME legt fest, welcher GV ausgeführt werden soll. Die Liste aller
 # möglichen Werte für JOBNAME ist in der API-Dok. zum Package org.kapott.hbci.GV
-# zu finden ("Highlevel-Name"). Für eine Salden-Abfrage wäre hier also
+# zu finden ("Highlevel-Name"). Für eine Salden-Abfrage wäre hier also 
 # "SaldoReq", für eine Einzelüberweisung "Ueb" und für das Abholen von Konto-
 # auszügen "KUmsAll" zu verwenden.
 #
-# JOBID legt einen selbst definierten Bezeichner fest, um diesen Job eindeutig
+# JOBID legt einen selbst definierten Bezeichner fest, um diesen Job eindeutig 
 # zu identifizieren. Diese JOBID dient dazu, die Job-Ergebnisdaten den richtigen
-# Aufträgen zuordnen zu können (wenn z.B. Saldenabfragen für mehrere Konten
-# gemacht werden sollen, müssen die Ergebnisdaten natürlich den richtigen
+# Aufträgen zuordnen zu können (wenn z.B. Saldenabfragen für mehrere Konten 
+# gemacht werden sollen, müssen die Ergebnisdaten natürlich den richtigen 
 # Aufträgen zugeordnet werden können - das geschieht auf Basis der JOBID).
 # Siehe dazu auch die Beschreibung des Formats der Ausgabedatei.
 #
@@ -32,10 +32,10 @@
 # arbeitet werden sollen).
 #
 # Beispiel Ausgabedaten für SaldoReq mit "toString" (gekürzt):
-#
+# 
 #   Konto: Testkonto Stefan Palme 1234567899 BLZ 80007777(Stefan Palme Testinstitut (HBCI4Java)) (BIC ) [DE] EUR
 #     Gebucht: 14.06.06 08:06 48.64 EUR
-#
+# 
 # Beispiel Ausgabedaten für SaldoReq mit "props" (gekürzt):
 #
 #   content.KTV.KIK.blz=80007777
@@ -62,20 +62,20 @@
 # API-Dok. zu org.kapott.hbci.manager.HBCIHandler.addJob(...)
 #
 # Anschließend folgen Zeilen Job-Parameter-Daten (jeweils ein Parameter pro
-# Zeile). Beendet wird eine Job-Definition durch eine Leerzeile bzw. das
+# Zeile). Beendet wird eine Job-Definition durch eine Leerzeile bzw. das 
 # Datei-Ende.
 # Die möglichen Parameter für jeden GV sind der API-Dokumentation zum Package
-# org.kapott.hbci.GV zu finden (und org.kapott.hbci.GV.AbstractHBCIJob.setParam(...)).
-#
-# Alle hier angegebenen Parameter werden intern in einen Aufruf von
+# org.kapott.hbci.GV zu finden (und org.kapott.hbci.GV.HBCIJob.setParam(...)).
+# 
+# Alle hier angegebenen Parameter werden intern in einen Aufruf von 
 # HBCIJob.setParam(String,String) umgewandelt. Deshalb funktionieren hier die
-# "komplexen" Varianten von setParam() nicht. Um zum Beispiel eine
+# "komplexen" Varianten von setParam() nicht. Um zum Beispiel eine 
 # Kontoverbindung zu setzen (z.B. für BLZ und Kontonummer eines Empfänger-Kontos
 # für eine Überweisung), könnte man einer Applikation
 #
 #   transfer.setParam("dst", new Konto("80007777", "1234567890"))
 #
-# schreiben. In dieser Job-Definitions-Datei muss der entsprechende Parameter
+# schreiben. In dieser Job-Definitions-Datei muss der entsprechende Parameter 
 # jedoch so gesetzt werden:
 #
 #   dst.country=DE
@@ -92,7 +92,7 @@
 # aufträgen erwartet. Eine externe Anwendung könnte diese DTAUS-Daten in einer
 # separaten Datei erzeugen, die dann in der Job-Definitions-Datei einfach
 # referenziert wird, so dass deren Inhalt als Wert für den "data"-Parameter
-# verwendet wird. Prinzipiell kann man dieses Feature für jeden beliebigen
+# verwendet wird. Prinzipiell kann man dieses Feature für jeden beliebigen 
 # Job-Parameter verwenden.
 
 

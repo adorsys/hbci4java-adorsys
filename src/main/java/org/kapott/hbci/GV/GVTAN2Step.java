@@ -20,9 +20,10 @@
 
 package org.kapott.hbci.GV;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
+import org.kapott.hbci.callback.HBCICallback;
+import org.kapott.hbci.manager.HHDVersion;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
@@ -109,7 +110,9 @@ public class GVTAN2Step extends AbstractHBCIJob {
             // willuhn 2011-05-27 Challenge HHDuc aus dem Reponse holen und im Passport zwischenspeichern
             String hhdUc = result.get(header + ".challenge_hhd_uc");
             String challenge = result.get(header + ".challenge");
-            passport.getCallback().tanChallengeCallback(orderref, challenge, hhdUc);
+
+            HHDVersion hhd = HHDVersion.find(passport.getCurrentSecMechInfo());
+            passport.getCallback().tanChallengeCallback(orderref, challenge, hhdUc, hhd.getType());
         }
     }
 }

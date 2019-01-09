@@ -22,19 +22,22 @@ package org.kapott.hbci.GV;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRKontoauszug;
+import org.kapott.hbci.GV_Result.GVRKontoauszug.Format;
+import org.kapott.hbci.GV_Result.GVRKontoauszug.GVRKontoauszugEntry;
+import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.swift.Swift;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
+/**
+ * Implementierung des Geschaeftsvorfalls fuer den elektronischen Kontoauszug (HKEKA)
+ */
 @Slf4j
 public class GVKontoauszug extends AbstractHBCIJob {
-
-    public final static String FORMAT_MT940 = "1";
-    public final static String FORMAT_ISO8583 = "2";
-    public final static String FORMAT_PDF = "3";
 
     public GVKontoauszug(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRKontoauszug(passport));
@@ -43,54 +46,111 @@ public class GVKontoauszug extends AbstractHBCIJob {
     public GVKontoauszug(HBCIPassportInternal passport) {
         this(passport, getLowlevelName());
 
-        addConstraint("my.country", "My.KIK.country", "DE");
-        addConstraint("my.blz", "My.KIK.blz", null);
-        addConstraint("my.number", "My.number", null);
-        addConstraint("my.subnumber", "My.subnumber", "");
+        boolean sepa = false;
+        try {
+            sepa = this.getSegVersion() >= 4;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        boolean nat = this.canNationalAcc(passport);
+
+        if (sepa) {
+            addConstraint("my.bic", "My.bic", null);
+            addConstraint("my.iban", "My.iban", null);
+        }
+
+        if (nat || !sepa) {
+            addConstraint("my.country", "My.KIK.country", "DE");
+            addConstraint("my.blz", "My.KIK.blz", "");
+            addConstraint("my.number", "My.number", "");
+            addConstraint("my.subnumber", "My.subnumber", "");
+        }
+
         addConstraint("format", "format", "");
         addConstraint("idx", "idx", "");
         addConstraint("year", "year", "");
         addConstraint("maxentries", "maxentries", "");
+        addConstraint("offset", "offset", "");
     }
 
+    /**
+     * Liefert den Lowlevel-Namen.
+     *
+     * @return der Lowlevel-Name.
+     */
     public static String getLowlevelName() {
         return "Kontoauszug";
     }
 
+    /**
+     * @see org.kapott.hbci.GV.HBCIJobImpl#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
+     */
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
-        GVRKontoauszug umsResult = (GVRKontoauszug) jobResult;
+        GVRKontoauszug list = (GVRKontoauszug) jobResult;
 
-        String format = result.get(header + ".format");
-        String rawData = result.get(header + ".booked");
+        GVRKontoauszugEntry auszug = new GVRKontoauszugEntry();
+        list.getEntries().add(auszug);
 
-        if (rawData != null) {
-            if (format.equals("1")) {
-                umsResult.appendMT940Data(Swift.decodeUmlauts(rawData));
-            } else if (format.equals("2")) {
-                umsResult.appendISOData(rawData);
-            } else if (format.equals("3")) {
-                umsResult.appendPDFData(rawData);
-            } else {
-                log.error(
-                    "unknown format in result for GV Kontoauszug: " + format);
+        Format format = Format.find(result.get(header + ".format"));
+        auszug.setFormat(format);
+
+        String data = result.get(header + ".booked");
+
+        if (data != null && data.length() > 0) {
+            if (format != null && format == Format.MT940)
+                data = Swift.decodeUmlauts(data);
+
+            try {
+                auszug.setData(data.getBytes(CommPinTan.ENCODING));
+            } catch (UnsupportedEncodingException e) {
+                log.error(e.getMessage(), e);
+
+                // Wir versuchen es als Fallback ohne explizites Encoding
+                auszug.setData(data.getBytes());
             }
         }
 
-        umsResult.setFormat(format);
-        umsResult.setStartDate(HBCIUtils.string2DateISO(result.get(header + ".TimeRange.startdate")));
-        umsResult.setEndDate(HBCIUtils.string2DateISO(result.get(header + ".TimeRange.enddate")));
-        umsResult.setAbschlussInfo(result.get(header + ".abschlussinfo"));
-        umsResult.setKundenInfo(result.get(header + ".kondinfo"));
-        umsResult.setWerbetext(result.get(header + ".ads"));
-        umsResult.setIBAN(result.get(header + ".iban"));
-        umsResult.setBIC(result.get(header + ".bic"));
-        umsResult.setName(result.get(header + ".name"));
-        umsResult.setName2(result.get(header + ".name2"));
-        umsResult.setName3(result.get(header + ".name3"));
-        umsResult.setReceipt(result.get(header + ".receipt"));
+        String date = result.get(header + ".date");
+        if (date != null && date.length() > 0)
+            auszug.setDate(HBCIUtils.string2DateISO(date));
+
+        String year = result.get(header + ".year");
+        String number = result.get(header + ".number");
+        if (year != null && year.length() > 0)
+            auszug.setYear(Integer.parseInt(year));
+        if (number != null && number.length() > 0)
+            auszug.setNumber(Integer.parseInt(number));
+
+        auszug.setStartDate(HBCIUtils.string2DateISO(result.get(header + ".TimeRange.startdate")));
+        auszug.setEndDate(HBCIUtils.string2DateISO(result.get(header + ".TimeRange.enddate")));
+        auszug.setAbschlussInfo(result.get(header + ".abschlussinfo"));
+        auszug.setKundenInfo(result.get(header + ".kondinfo"));
+        auszug.setWerbetext(result.get(header + ".ads"));
+        auszug.setIBAN(result.get(header + ".iban"));
+        auszug.setBIC(result.get(header + ".bic"));
+        auszug.setName(result.get(header + ".name"));
+        auszug.setName2(result.get(header + ".name2"));
+        auszug.setName3(result.get(header + ".name3"));
+
+        String receipt = result.get(header + ".receipt");
+        if (receipt != null) {
+            try {
+                auszug.setReceipt(receipt.getBytes(CommPinTan.ENCODING));
+            } catch (UnsupportedEncodingException e) {
+                log.error(e.getMessage(), e);
+
+                // Wir versuchen es als Fallback ohne explizites Encoding
+                auszug.setReceipt(receipt.getBytes());
+            }
+        }
+
     }
 
+    /**
+     * @see org.kapott.hbci.GV.HBCIJobImpl#verifyConstraints()
+     */
     public void verifyConstraints() {
         super.verifyConstraints();
         checkAccountCRC("my");
