@@ -15,6 +15,10 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
 
     private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
+    public GVDauerSEPANew(HBCIPassportInternal passport) {
+        this(passport, null);
+    }
+
     public GVDauerSEPANew(HBCIPassportInternal passport, String pain) {
         super(passport, getLowlevelName(), new GVRDauerNew(passport));
 
