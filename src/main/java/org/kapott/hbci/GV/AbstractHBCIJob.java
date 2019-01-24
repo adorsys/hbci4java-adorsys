@@ -229,7 +229,7 @@ public class AbstractHBCIJob {
             }
         }
 
-        if (maxVersion == 0) {
+        if (maxVersion == 0 && !jobnameLL.equals(GVRawSEPA.getLowlevelName())) {
             maxVersion = 1;
             log.warn("Using segment version " + maxVersion + " for job " + jobnameLL + ", although not found in BPD. This may fail");
             throw new JobNotSupportedException(jobnameLL);
