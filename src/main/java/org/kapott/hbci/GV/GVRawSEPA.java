@@ -33,9 +33,20 @@ public class GVRawSEPA extends AbstractSEPAGV {
     public GVRawSEPA(HBCIPassportInternal passport, String name, String pain) {
         super(passport, name);
 
+        addConstraint("src.bic", "My.bic", null);
+        addConstraint("src.iban", "My.iban", null);
+
+        if (this.canNationalAcc(passport)) // nationale Bankverbindung mitschicken, wenn erlaubt
+        {
+            addConstraint("src.country", "My.KIK.country", "");
+            addConstraint("src.blz", "My.KIK.blz", "");
+            addConstraint("src.number", "My.number", "");
+            addConstraint("src.subnumber", "My.subnumber", "");
+        }
+
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
 
-        setPainXml("B+"+pain);
+        setPainXml("B"+pain);
     }
 
     /**
