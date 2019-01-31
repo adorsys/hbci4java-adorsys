@@ -164,6 +164,10 @@ public class ParseCamt05200105 extends AbstractCamtParser
 
             PartyIdentification43 name = haben ? other.getDbtr() : other.getCdtr();
             line.other.name = trim(name != null ? name.getNm() : null);
+            
+            // Abweichender Name, falls vorhanden
+            name = haben ? other.getUltmtDbtr() : other.getUltmtCdtr();
+            line.other.name2 = trim(name != null ? name.getNm() : null);
         }
         //
         ////////////////////////////////////////////////////////////////////////
