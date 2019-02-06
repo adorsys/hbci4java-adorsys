@@ -46,7 +46,11 @@ public class GVRawSEPA extends AbstractSEPAGV {
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
 
-        setPainXml("B"+pain);
+        if (pain == null) {
+            addConstraint("_sepapain", "sepapain", null);
+        } else {
+            setPainXml(pain);
+        }
     }
 
     /**

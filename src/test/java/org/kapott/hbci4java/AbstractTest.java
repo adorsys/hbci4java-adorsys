@@ -35,14 +35,14 @@ public abstract class AbstractTest {
      * @return der Inhalt der Datei.
      * @throws Exception
      */
-    public String getFile(String name) throws Exception {
+    public static String getFile(String name) throws Exception {
         BufferedReader reader = null;
         try {
             StringBuffer sb = new StringBuffer();
-            reader = new BufferedReader(new InputStreamReader(this.getStream(name)));
-            String line = null;
+            reader = new BufferedReader(new InputStreamReader(getStream(name)));
+            String line;
             while ((line = reader.readLine()) != null)
-                sb.append(line.trim());
+                sb.append(line.trim()+"'");
             return sb.toString();
         } finally {
             if (reader != null)
@@ -57,13 +57,13 @@ public abstract class AbstractTest {
      * @return der Stream.
      * @throws Exception
      */
-    public InputStream getStream(String name) throws Exception {
-        InputStream is = this.getClass().getResourceAsStream(name);
+    public static InputStream getStream(String name) throws Exception {
+        InputStream is = AbstractTest.class.getResourceAsStream(name);
         if (is != null)
             return is;
 
-        URL url = this.getClass().getProtectionDomain().getCodeSource().getLocation();
-        String path = this.getClass().getPackage().getName().replace('.', File.separatorChar);
+        URL url = AbstractTest.class.getProtectionDomain().getCodeSource().getLocation();
+        String path = AbstractTest.class.getPackage().getName().replace('.', File.separatorChar);
         String msg = "Datei \"" + name + "\" nicht gefunden in: " + new File(url.getPath() + path + File.separator + name).getCanonicalPath();
         System.err.println(msg);
         throw new IOException(msg);

@@ -6058,6 +6058,22 @@
             <value path="SegHead.version">2</value>
         </SEGdef>
 
+        <SEGdef id="DTAZV6">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTV2" name="My"/>
+            <DE name="datensatz" type="Bin" maxsize="0"/>
+
+            <value path="SegHead.code">HKAUB</value>
+            <value path="SegHead.version">6</value>
+        </SEGdef>
+        <SEGdef id="DTAZVPar6">
+            &GVP2;
+            <DE name="maxTRecords" type="Num" maxsize="1"/>
+
+            <value path="SegHead.code">HIAUBS</value>
+            <value path="SegHead.version">6</value>
+        </SEGdef>
+
         <SEGdef id="UebGar1"> <!-- 3-0 -->
             &SingleInlandUser4;
 
@@ -7402,6 +7418,7 @@
             <SEG type="DauerNew4" minnum="0"/>
             <SEG type="DauerNew5" minnum="0"/>
             <SEG type="DauerSEPANew1" minnum="0"/>
+            <SEG type="DTAZV6" minnum="0"/>
             <SEG type="FestCondList1" minnum="0"/>
             <SEG type="FestCondList2" minnum="0"/>
             <SEG type="FestCondList3" minnum="0"/>
@@ -7662,6 +7679,7 @@
         </SFdef>
 
         <SFdef id="Params">
+            <SEG type="DTAZVPar6" minnum="0"/>
             <SEG type="AccInfoPar1" minnum="0"/>
             <SEG type="AccInfoPar2" minnum="0"/>
             <SEG type="CardListPar1" minnum="0"/>

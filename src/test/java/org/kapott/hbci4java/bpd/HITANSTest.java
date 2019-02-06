@@ -18,6 +18,7 @@ import org.kapott.hbci.manager.HBCITwoStepMechanism;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci4java.AbstractTest;
+import org.w3c.dom.Document;
 
 import java.util.HashMap;
 
@@ -36,11 +37,11 @@ public class HITANSTest extends AbstractTest {
      * @return die Pseudo-BPD.
      * @throws Exception
      */
-    private HashMap<String, String> getBPD(String file, String version) throws Exception {
+    public static HashMap<String, String> getBPD(String file, String version) throws Exception {
         String data = getFile(file);
+        Document document = DocumentFactory.createDocument(version);
 
-        Message msg = new Message("DialogInitAnonRes", data, DocumentFactory.createDocument(version),
-            Message.CHECK_SEQ, true);
+        Message msg = new Message("DialogInitAnonRes", data, document, Message.CHECK_SEQ, true);
         HashMap<String, String> ht = new HashMap<>();
         msg.extractValues(ht);
 
@@ -64,7 +65,7 @@ public class HITANSTest extends AbstractTest {
      */
     @Test
     public void testHitans5() throws Exception {
-        HashMap<String, String> bpd = getBPD("bpd2-formatted.txt", "300");
+        HashMap<String, String> bpd = getBPD("bpd/bpd2-formatted.txt", "300");
 
         bpd.forEach((name, value) -> {
             // Hoechste Versionsnummer holen. Die muss 5 sein
@@ -88,7 +89,8 @@ public class HITANSTest extends AbstractTest {
     @Test
     public void testCurrentSecMechInfo() throws Exception {
         HashMap<String, String> bpd = getBPD("bpd/bpd2-formatted.txt", "300");
-        PinTanPassport passport = new PinTanPassport(null, null, null, null);
+        PinTanPassport passport = new PinTanPassport("300", new HashMap<>(), null, null);
+        passport.setHost("https://foo.bar");
         passport.setBPD(bpd);
 
         HBCITwoStepMechanism secmech = passport.getCurrentSecMechInfo();

@@ -31,6 +31,7 @@ import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
@@ -39,7 +40,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
 
 @Slf4j
 public final class CommPinTan {
@@ -119,10 +119,12 @@ public final class CommPinTan {
             callback.status(HBCICallback.STATUS_MSG_PARSE, "CryptedRes");
             try {
                 log.debug("trying to parse message as crypted message");
-                responseMessage = new Message("CryptedRes", rawMsg, message.getDocument(), Message.DONT_CHECK_SEQ, true);
+                responseMessage = new Message("CryptedRes", rawMsg, message.getDocument(), Message.DONT_CHECK_SEQ,
+                    true);
             } catch (ParseErrorException e) {
                 // wenn das schiefgeht...
-                log.debug("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res message");
+                log.debug("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res " +
+                    "message");
 
                 // alle rewriter durchlaufen, um nachricht evtl. als unverschlüsselte rawMsg zu parsen
 //                message.set("_origSignedMsg", st);
@@ -133,7 +135,8 @@ public final class CommPinTan {
                 log.trace(rawMsg);
                 // versuch, nachricht als unverschlüsselte rawMsg zu parsen
                 callback.status(HBCICallback.STATUS_MSG_PARSE, message.getName() + "Res");
-                responseMessage = new Message(message.getName() + "Res", rawMsg, message.getDocument(), Message.CHECK_SEQ, true);
+                responseMessage = new Message(message.getName() + "Res", rawMsg, message.getDocument(),
+                    Message.CHECK_SEQ, true);
             }
         } catch (Exception ex) {
             throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), rawMsg, ex);
@@ -169,20 +172,18 @@ public final class CommPinTan {
     private String pong() {
         try {
             byte[] b = new byte[1024];
-            StringBuilder ret = new StringBuilder();
 
-            int msgsize = conn.getContentLength();
-            int num;
+            InputStream input = conn.getInputStream();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            InputStream i = conn.getInputStream();
-
-            while (msgsize != 0 && (num = i.read(b)) > 0) {
-                ret.append(new String(b, 0, num, ENCODING));
-                msgsize -= num;
+            int n;
+            while (-1 != (n = input.read(b))) {
+                output.write(b, 0, n);
             }
 
             conn.disconnect();
-            return new String(Base64.decodeBase64(ret.toString()), ENCODING);
+
+            return new String(Base64.decodeBase64(output.toByteArray()), ENCODING);
         } catch (Exception e) {
             // Die hier marieren wir nicht als fatal - ich meine mich zu erinnern,
             // dass es Banken gibt, die einen anonymen BPD-Abruf mit einem HTTP-Fehlercode quittieren

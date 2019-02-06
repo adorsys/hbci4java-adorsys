@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 import static org.kapott.hbci.comm.CommPinTan.ENCODING;
 
 @Slf4j
-public class AbstractHBCIJob {
+public abstract class AbstractHBCIJob {
 
     private static final Pattern INDEX_PATTERN = Pattern.compile("(\\w+\\.\\w+\\.\\w+)(\\.\\w+)?");
     protected HBCIJobResultImpl jobResult;         /* Objekt mit Rückgabedaten für diesen GV */
@@ -59,14 +59,21 @@ public class AbstractHBCIJob {
     private boolean executed;
     private int contentCounter;       /* Zähler, wie viele Rückgabedaten bereits in outStore eingetragen wurden
                                            (entspricht der anzahl der antwort-segmente!)*/
-    private HashMap<String, String[][]> constraints;    /* Festlegungen, welche Parameter eine Anwendung setzen muss, wie diese im
+    private HashMap<String, String[][]> constraints;    /* Festlegungen, welche Parameter eine Anwendung setzen muss,
+     wie diese im
                                          HBCI-Kernel umgesetzt werden und welche default-Werte vorgesehen sind;
-                                         die Hashtable hat als Schlüssel einen String, der angibt, wie ein Wert aus einer
-                                         Anwendung heraus zu setzen ist. Der dazugehörige Value ist ein Array. Jedes Element
-                                         dieses Arrays ist ein String[2], wobei das erste Element angibt, wie der Pfadname heisst,
-                                         unter dem der anwendungs-definierte Wert abzulegen ist, das zweite Element gibt den
-                                         default-Wert an, falls für diesen Namen *kein* Wert angebeben wurde. Ist der default-
-                                         Wert="", so kann das Syntaxelement weggelassen werden. Ist der default-Wert=null,
+                                         die Hashtable hat als Schlüssel einen String, der angibt, wie ein Wert aus
+                                         einer
+                                         Anwendung heraus zu setzen ist. Der dazugehörige Value ist ein Array. Jedes
+                                         Element
+                                         dieses Arrays ist ein String[2], wobei das erste Element angibt, wie der
+                                         Pfadname heisst,
+                                         unter dem der anwendungs-definierte Wert abzulegen ist, das zweite Element
+                                         gibt den
+                                         default-Wert an, falls für diesen Namen *kein* Wert angebeben wurde. Ist der
+                                          default-
+                                         Wert="", so kann das Syntaxelement weggelassen werden. Ist der
+                                         default-Wert=null,
                                          so *muss* die Anwendung einen Wert spezifizieren */
     private HashSet<String> indexedConstraints;
 
@@ -186,21 +193,17 @@ public class AbstractHBCIJob {
             key.setLength(0);
             key.append(path);
 
+            if (key.toString().endsWith(".SegHead.code")) {
+                System.out.println(key+" "+bpd.get(path));
+            }
+
             if (key.indexOf("Params") == 0) {
+//                System.out.println(key);
                 key.delete(0, key.indexOf(".") + 1);
                 // wenn segment mit namen des aktuellen jobs gefunden wurde
 
                 if (key.indexOf(jobnameLL + "Par") == 0 &&
                     key.toString().endsWith(".SegHead.code")) {
-                    // willuhn 2011-06-06 Maximal zulaessige Segment-Version ermitteln
-                    // Hintergrund: Es gibt Szenarien, in denen nicht die hoechste verfuegbare
-                    // Versionsnummer verwendet werden kann, weil die Voraussetzungen impliziert,
-                    // die beim User nicht gegeben sind. Mit diesem Parameter kann die maximale
-                    // Version nach oben begrenzt werden. In AbstractPinTanPassport#setBPD() ist
-                    // ein konkretes Beispiel enthalten (Bank macht HITANS5 und damit HHD 1.4, der
-                    // User hat aber nur ein HHD-1.3-tauglichen TAN-Generator)
-                    int maxAllowedVersion = 0;
-
                     key.delete(0, jobnameLL.length() + ("Par").length());
 
                     // extrahieren der versionsnummer aus dem spez-namen
@@ -210,14 +213,10 @@ public class AbstractHBCIJob {
                     try {
                         version = Integer.parseInt(st);
                     } catch (Exception e) {
-                        log.warn("found invalid job version: key=" + key + ", jobnameLL=" + jobnameLL + " (this is a known, but harmless bug)");
+                        log.warn("found invalid job version: key=" + key + ", jobnameLL=" + jobnameLL + " (this is a " +
+                            "known, but harmless bug)");
                     }
 
-                    // willuhn 2011-06-06 Segment-Versionen ueberspringen, die groesser als die max. zulaessige sind
-                    if (maxAllowedVersion > 0 && version > maxAllowedVersion) {
-                        log.info("skipping segment version " + version + " for task " + jobnameLL + ", larger than allowed version " + maxAllowedVersion);
-                        continue;
-                    }
                     // merken der größten jemals aufgetretenen versionsnummer
                     if (version != 0) {
                         log.debug("task " + jobnameLL + " is supported with segment version " + st);
@@ -231,7 +230,8 @@ public class AbstractHBCIJob {
 
         if (maxVersion == 0 && !jobnameLL.equals(GVRawSEPA.getLowlevelName())) {
             maxVersion = 1;
-            log.warn("Using segment version " + maxVersion + " for job " + jobnameLL + ", although not found in BPD. This may fail");
+            log.warn("Using segment version " + maxVersion + " for job " + jobnameLL + ", although not found in BPD. " +
+                "This may fail");
             throw new JobNotSupportedException(jobnameLL);
         }
 
@@ -1032,5 +1032,9 @@ public class AbstractHBCIJob {
 
     public boolean needTan() {
         return passport.getPinTanInfo(getHBCICode()).equals("J");
+    }
+
+    public String getRawData() {
+        return null;
     }
 }

@@ -20,14 +20,12 @@
 
 package org.kapott.hbci.tools;
 
+import org.kapott.hbci.manager.DocumentFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.util.*;
 
 /**
@@ -76,17 +74,8 @@ public class ShowCumulatedLowlevelParams {
         }
     }
 
-    public static void main(String[] args)
-        throws Exception {
-        DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
-        fac.setIgnoringComments(true);
-        fac.setIgnoringElementContentWhitespace(true);
-        fac.setNamespaceAware(false);
-        fac.setValidating(false);
-
-        DocumentBuilder builder = fac.newDocumentBuilder();
-        File f = new File(args[0]);
-        Document doc = builder.parse(f);
+    public static void main(String[] args) {
+        Document doc = DocumentFactory.createDocument("300");
 
         Element root = doc.getDocumentElement();
         NodeList segdefs = root.getElementsByTagName("SEGdef");

@@ -270,7 +270,8 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         }
     }
 
-    public String getPainXml() {
+    @Override
+    public String getRawData() {
         return getLowlevelParam(getName() + ".sepapain");
     }
 

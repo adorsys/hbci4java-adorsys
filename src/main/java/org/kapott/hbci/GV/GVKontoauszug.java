@@ -83,9 +83,7 @@ public class GVKontoauszug extends AbstractHBCIJob {
         return "Kontoauszug";
     }
 
-    /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
-     */
+    @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         GVRKontoauszug list = (GVRKontoauszug) jobResult;
@@ -148,9 +146,7 @@ public class GVKontoauszug extends AbstractHBCIJob {
 
     }
 
-    /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#verifyConstraints()
-     */
+    @Override
     public void verifyConstraints() {
         super.verifyConstraints();
         checkAccountCRC("my");
