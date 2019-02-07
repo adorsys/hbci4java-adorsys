@@ -11,6 +11,8 @@
 
 package org.kapott.hbci.manager;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import java.util.List;
  * <p>
  * Die Javascript-Implementierung war jedoch nicht mehr aktuell (basiert auf HHD 1.3).
  */
+@Slf4j
 public class FlickerCode {
     /**
      * Die Anzahl der Bytes, in der die Laenge des Challenge bei HHD 1.4 steht.
@@ -38,6 +41,14 @@ public class FlickerCode {
      * Die Anzahl der Bytes, in der die Laenge des Challenge bei HHD 1.3 steht.
      */
     private final static int LC_LENGTH_HHD13 = 2;
+    /**
+     * Default-Laenge der LDE-Laengen-Angabe.
+     */
+    private final static int LDE_LENGTH_DEFAULT = 2;
+    /**
+     * Fallback-Laenge der LDE-Laengen-Angabe bei der Sparda.
+     */
+    private final static int LDE_LENGTH_SPARDA = 3;
     /**
      * Die Position des Bits, welches das Encoding enthaelt.
      */
@@ -91,11 +102,62 @@ public class FlickerCode {
     public FlickerCode(String code) {
         // Wir versuchen es erstmal als HHD 1.4
         try {
-            parse(code, HHDVersion.HHD14);
+            try {
+                parse(code, HHDVersion.HHD14);
+            } catch (Exception e) {
+                // Wir versuchen den Sparda-Workaround mit 3 Zeichen langem LDE
+                parse(code, HHDVersion.HHD14, LDE_LENGTH_SPARDA);
+            }
         } catch (Exception e) {
             // OK, dann HHD 1.3
             parse(code, HHDVersion.HHD13);
         }
+    }
+
+    /**
+     * Versucht, aus Challenge und Challenge HHDuc den Flicker-Code zu extrahieren
+     * und ihn in einen flickerfaehigen Code umzuwandeln.
+     * Nur wenn tatsaechlich ein gueltiger Code enthalten ist, der als
+     * HHDuc-Code geparst und in einen Flicker-Code umgewandelt werden konnte,
+     * liefert die Funktion den Code. Sonst immer NULL.
+     *
+     * @param challenge der Challenge-Text. Das DE "Challenge HHDuc" gibt es
+     *                  erst seit HITAN4. Einige Banken haben aber schon vorher optisches chipTAN
+     *                  gemacht. Die haben das HHDuc dann direkt im Freitext des Challenge
+     *                  mitgeschickt (mit String-Tokens zum Extrahieren markiert). Die werden vom
+     *                  FlickerCode-Parser auch unterstuetzt.
+     * @param hhduc     das echte Challenge HHDuc.
+     * @return der geparste Flickercode oder NULL.
+     */
+    public static FlickerCode tryParse(String challenge, String hhduc) {
+        // 1. Prioritaet hat hhduc. Gibts aber erst seit HITAN4
+        if (hhduc != null && hhduc.trim().length() > 0) {
+            try {
+                FlickerCode code = new FlickerCode(hhduc);
+                code.render(); // testweise rendern
+                return code;
+            } catch (Exception e) {
+                log.debug("unable to parse Challenge HHDuc " + hhduc + ":" + HBCIUtils.exception2String(e));
+            }
+        }
+
+        // 2. Checken, ob im Freitext-Challenge was parse-faehiges steht.
+        // Kann seit HITAN1 auftreten
+        if (challenge != null && challenge.trim().length() > 0) {
+            try {
+                FlickerCode code = new FlickerCode(challenge);
+                code.render(); // testweise rendern
+                return code;
+            } catch (Exception e) {
+                // Das darf durchaus vorkommen, weil das Challenge auch bei manuellem
+                // chipTAN- und smsTAN Verfahren verwendet wird, wo gar kein Flicker-Code enthalten ist.
+                // Wir loggen es aber trotzdem - fuer den Fall, dass tatsaechlich ein Flicker-Code
+                // enthalten ist. Sonst koennen wir das nicht debuggen.
+                log.debug("challenge contains no HHDuc (no problem in most cases):" + HBCIUtils.exception2String(e));
+            }
+        }
+        // Ne, definitiv kein Flicker-Code.
+        return null;
     }
 
     /**
@@ -184,6 +246,17 @@ public class FlickerCode {
      * @param version die HHD-Version.
      */
     private void parse(String code, HHDVersion version) {
+        this.parse(code, version, LDE_LENGTH_DEFAULT);
+    }
+
+    /**
+     * Parst den Code mit der angegebenen HHD-Version.
+     *
+     * @param code    der zu parsende Code.
+     * @param version die HHD-Version.
+     * @param ldeLen  explizite Angabe der Laenge des LDE.
+     */
+    private void parse(String code, HHDVersion version, int ldeLen) {
         reset();
         code = clean(code);
 
@@ -198,9 +271,9 @@ public class FlickerCode {
         code = this.startCode.parse(code);
 
         // 3. LDE/DE 1-3
-        code = this.de1.parse(code);
-        code = this.de2.parse(code);
-        code = this.de3.parse(code);
+        code = this.de1.parse(code, ldeLen);
+        code = this.de2.parse(code, ldeLen);
+        code = this.de3.parse(code, ldeLen);
 
         // 4. Den Rest speichern wir hier.
         this.rest = code.length() > 0 ? code : null;
@@ -299,7 +372,7 @@ public class FlickerCode {
     /**
      * Berechnet die XOR-Checksumme fuer den Code neu.
      *
-     * @param der Payload.
+     * @param payload
      * @return die XOR-Checksumme im Hex-Format.
      */
     private String createXORChecksum(String payload) {
@@ -397,7 +470,6 @@ public class FlickerCode {
         this.rest = null;
     }
 
-
     //////////////////////////////////////////////////////////////////////////////
     // Hilfsfunktionen fuer die Berechnungen
 
@@ -469,6 +541,11 @@ public class FlickerCode {
         public int lde = 0;
 
         /**
+         * Die Laenge des LDE.
+         */
+        public int ldeLen = 0;
+
+        /**
          * Das Encoding der Nutzdaten.
          * Per Definition ist im Challenge HHDuc dieses Bit noch NICHT gesetzt.
          * Das Encoding passiert erst beim Rendering.
@@ -487,13 +564,26 @@ public class FlickerCode {
          * @return der Reststring.
          */
         String parse(String s) {
+            return this.parse(s, LDE_LENGTH_DEFAULT);
+        }
+
+        /**
+         * Parst das DE am Beginn des uebergebenen Strings.
+         *
+         * @param s      der String, dessen Anfang das DE enthaelt.
+         * @param ldeLen explizite Angabe der Laenge des LDE.
+         * @return der Reststring.
+         */
+        String parse(String s, int ldeLen) {
             // Nichts mehr zum Parsen da
             if (s == null || s.length() == 0)
                 return s;
 
             // LDE ermitteln (dezimal)
-            this.lde = Integer.parseInt(s.substring(0, 2));
-            s = s.substring(2); // und abschneiden
+            this.lde = Integer.parseInt(s.substring(0, ldeLen));
+            s = s.substring(ldeLen); // und abschneiden
+
+            this.ldeLen = ldeLen;
 
             // Control-Bits abschneiden. Die Laengen-Angabe steht nur in den Bits 0-5.
             // In den Bits 6 und 7 stehen Steuer-Informationen
@@ -602,6 +692,8 @@ public class FlickerCode {
             StringBuffer sb = new StringBuffer();
             sb.append("  Length  : " + this.length + "\n");
             sb.append("  LDE     : " + this.lde + "\n");
+            if (this.length > 0)
+                sb.append("  LDE len : " + this.ldeLen + "\n");
             sb.append("  Data    : " + this.data + "\n");
             sb.append("  Encoding: " + this.encoding + "\n");
             return sb.toString();
@@ -636,7 +728,9 @@ public class FlickerCode {
          *
          * @param s der String, dessen Anfang das DE enthaelt.
          * @return der Reststring.
+         * @see org.kapott.hbci.manager.FlickerCode.DE#parse(java.lang.String)
          */
+        @Override
         String parse(String s) {
             // 1. LDE ermitteln (hex)
             this.lde = Integer.parseInt(s.substring(0, 2), 16);
@@ -676,7 +770,6 @@ public class FlickerCode {
             return s;
         }
 
-
         /**
          * @see org.kapott.hbci.manager.FlickerCode.DE#renderLength()
          * Ueberschrieben, weil wir hier noch reincodieren muessen, ob ein Controlbyte folgt.
@@ -701,7 +794,6 @@ public class FlickerCode {
             return toHex(len, 2);
         }
 
-
         /**
          * @see org.kapott.hbci.manager.FlickerCode.DE#toString()
          */
@@ -722,32 +814,3 @@ public class FlickerCode {
     }
     //////////////////////////////////////////////////////////////////////////////
 }
-
-
-/**********************************************************************
- * $Log: FlickerCode.java,v $
- * Revision 1.9  2011/06/24 16:53:23  willuhn
- * @N 30-hbci4java-chiptan-reset.patch
- *
- * Revision 1.8  2011-06-09 08:06:49  willuhn
- * @N 29-hbci4java-chiptan-opt-hhd13.patch
- *
- * Revision 1.7  2011-06-07 13:45:50  willuhn
- * @N 27-hbci4java-flickercode-luhnsum.patch
- *
- * Revision 1.6  2011-05-27 15:46:13  willuhn
- * @N 23-hbci4java-chiptan-opt2.patch - Kleinere Nacharbeiten
- *
- * Revision 1.4  2011-05-27 11:21:38  willuhn
- * *** empty log message ***
- *
- * Revision 1.3  2011-05-27 11:20:36  willuhn
- * *** empty log message ***
- *
- * Revision 1.2  2011-05-27 11:19:44  willuhn
- * *** empty log message ***
- *
- * Revision 1.1  2011-05-27 10:28:38  willuhn
- * @N 22-hbci4java-chiptan-opt.patch
- *
- **********************************************************************/
