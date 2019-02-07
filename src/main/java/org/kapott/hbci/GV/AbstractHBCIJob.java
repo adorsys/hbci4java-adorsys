@@ -193,12 +193,7 @@ public abstract class AbstractHBCIJob {
             key.setLength(0);
             key.append(path);
 
-            if (key.toString().endsWith(".SegHead.code")) {
-                System.out.println(key+" "+bpd.get(path));
-            }
-
             if (key.indexOf("Params") == 0) {
-//                System.out.println(key);
                 key.delete(0, key.indexOf(".") + 1);
                 // wenn segment mit namen des aktuellen jobs gefunden wurde
 
