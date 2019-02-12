@@ -172,6 +172,11 @@ public class GVRKUms extends HBCIJobResultImpl {
          * NUR BEI CAMT: Der Purpose-Code der Buchung.
          */
         public String purposecode;
+        
+        /**
+         * NUR BEI CAMT: Mandats-Referenz (MREF)
+         */
+        public String mandateId;
 
         public UmsLine() {
             usage = new ArrayList<String>();
