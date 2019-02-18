@@ -28,6 +28,8 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author stefan.palme
@@ -97,7 +99,13 @@ public class GVTAN2Step extends AbstractHBCIJob {
         String segcode = result.get(header + ".SegHead.code");
         log.debug("found HKTAN response with segcode " + segcode);
 
-        if (originJob != null && new StringBuffer(originJob.getHBCICode()).replace(1, 2, "I").toString().equals(segcode)) {
+        Optional<String> resultHbciCode = Optional.ofNullable(originJob)
+            .map(abstractHBCIJob -> abstractHBCIJob.getHBCICode())
+            .filter(u -> !Objects.isNull(u))
+            .map(hbciCode -> new StringBuffer(hbciCode).replace(1, 2, "I").toString())
+            .filter(hbciCode -> hbciCode.equals(segcode));
+
+        if (resultHbciCode.isPresent()) {
             // das ist für PV#2, wenn nach dem nachträglichen versenden der TAN das
             // antwortsegment des jobs aus der vorherigen Nachricht zurückommt
             log.debug("this is a response segment for the original task - storing results in the original job");
