@@ -1352,6 +1352,14 @@
             <DE name="cansingletransfer" type="JN" />
         </DEGdef>
 
+        <DEGdef id="ParTermSammelUebSEPA">
+            <DE name="minVorlZeit" type="Num" maxsize="4"/>
+            <DE name="maxVorlZeit" type="Num" maxsize="4"/>
+            <DE name="maxnum" type="Num" maxsize="7" />
+            <DE name="needtotal" type="JN" />
+            <DE name="cansingletransfer" type="JN" />
+        </DEGdef>
+
         <DEGdef id="ParSEPAInfo">
             <DE name="cansingleaccquery" type="JN"/>
             <DE name="cannationalacc" type="JN"/>
@@ -1567,6 +1575,10 @@
 
         <DEGdef id="ParTermUebSEPADel">
             <DE name="orderdata_required" type="JN"/>
+        </DEGdef>
+
+        <DEGdef id="ParTermSammelUebSEPADel">
+            <DE name="maxnum" type="Num" maxsize="3" />
         </DEGdef>
 
         <DEGdef id="ParTermUebSEPAEdit">
@@ -4811,6 +4823,51 @@
             <value path="SegHead.version">1</value>
         </SEGdef>
 
+        <SEGdef id="TermSammelUebSEPA1"> <!-- 3.0 -->
+            <DEG type="SegHeadUser" name="SegHead" />
+            <DEG type="KTVInt" name="My" />
+            <DEG type="BTG" name="Total" minnum="0" />
+            <DE type="JN" name="singletransfers" minnum="0" />
+            <DE type="AN" name="sepadescr" maxsize="256" />
+            <DE type="Bin" name="sepapain" maxsize="0" />
+
+            <value path="SegHead.code">HKCME</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="TermSammelUebSEPAPar1">
+            &GVP2;
+            <DEG type="ParTermSammelUebSEPA"/>
+
+            &SecClassValids;
+
+            <value path="SegHead.code">HICMES</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+
+        <!-- Sammel-Terminueberweisung loeschen -->
+        <SEGdef id="TermSammelUebSEPADel1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
+            <DEG type="KTVInt" name="My"/>
+            <DE name="submissionDate" type="Date"/>
+            <DE name="executionDate" type="Date"/>
+            <DE name="count" type="Num" maxsize="1"/>
+            <DEG type="BTG" name="Total" />
+
+            <value path="SegHead.code">HKCML</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <!-- BPD -->
+        <SEGdef id="TermSammelUebSEPADelPar1">
+            &GVP2;
+            <DEG type="ParTermSammelUebSEPADel"/>
+
+            &SecClassValids;
+
+            <value path="SegHead.code">HICMLS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+
         <SEGdef id="SammelLastSEPA1"> <!-- 3.0 -->
             <DEG type="SegHeadUser" name="SegHead" />
             <DEG type="KTVInt" name="My" />
@@ -7477,6 +7534,8 @@
             <SEG type="SammelUeb6" minnum="0"/>
             <SEG type="SammelUebEil1" minnum="0"/>
             <SEG type="SammelUebSEPA1" minnum="0"/>
+            <SEG type="TermSammelUebSEPA1" minnum="0"/>
+            <SEG type="TermSammelUebSEPADel1" minnum="0"/>
             <SEG type="SammelLastSEPA1" minnum="0"/>
             <SEG type="SammelLastCOR1SEPA1" minnum="0"/>
             <SEG type="SammelLastB2BSEPA1" minnum="0"/>
@@ -7774,6 +7833,8 @@
             <SEG type="SammelUebPar6" minnum="0"/>
             <SEG type="SammelUebEilPar1" minnum="0"/>
             <SEG type="SammelUebSEPAPar1" minnum="0"/>
+            <SEG type="TermSammelUebSEPAPar1" minnum="0"/>
+            <SEG type="TermSammelUebSEPADelPar1" minnum="0"/>
             <SEG type="SammelLastSEPAPar1" minnum="0"/>
             <SEG type="SammelLastCOR1SEPAPar1" minnum="0"/>
             <SEG type="SammelLastB2BSEPAPar1" minnum="0"/>

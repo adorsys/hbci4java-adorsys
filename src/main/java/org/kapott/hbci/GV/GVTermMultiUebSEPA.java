@@ -20,23 +20,31 @@
 
 package org.kapott.hbci.GV;
 
+import org.kapott.hbci.GV_Result.GVRTermUeb;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.sepa.SepaVersion;
+import org.kapott.hbci.status.HBCIMsgStatus;
+
+import java.util.HashMap;
 
 /**
  * Job-Implementierung fuer SEPA-Multi-Ueberweisungen.
  */
-public class GVMultiUebSEPA extends GVUebSEPA {
+public class GVTermMultiUebSEPA extends GVUebSEPA {
 
-    public GVMultiUebSEPA(HBCIPassportInternal passport) {
+    private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
+
+    public GVTermMultiUebSEPA(HBCIPassportInternal passport) {
         this(passport, getLowlevelName(), null);
     }
 
-    public GVMultiUebSEPA(HBCIPassportInternal passport, String name, String pain) {
-        super(passport, name, pain);
+    public GVTermMultiUebSEPA(HBCIPassportInternal passport, String name, String pain) {
+        super(passport, name, pain, new GVRTermUeb(passport));
 
         addConstraint("batchbook", "sepa.batchbook", "");
         addConstraint("Total.value", "Total.value", null);
         addConstraint("Total.curr", "Total.curr", null);
+        addConstraint("date", "sepa.date", null);
     }
 
     /**
@@ -45,11 +53,11 @@ public class GVMultiUebSEPA extends GVUebSEPA {
      * @return der Lowlevel-Namen des Jobs.
      */
     public static String getLowlevelName() {
-        return "SammelUebSEPA";
+        return "TermSammelUebSEPA";
     }
 
     /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainJobName()
+     * @see AbstractSEPAGV#getPainJobName()
      */
     @Override
     public String getPainJobName() {
@@ -71,5 +79,23 @@ public class GVMultiUebSEPA extends GVUebSEPA {
             return getLowlevelParam(getName() + ".Total.curr");
         }
         return null;
+    }
+
+    @Override
+    protected SepaVersion getDefaultPainVersion() {
+        return DEFAULT;
+    }
+
+    @Override
+    protected SepaVersion.Type getPainType() {
+        return SepaVersion.Type.PAIN_001;
+    }
+
+    @Override
+    protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
+
+        ((GVRTermUeb) (jobResult)).setOrderId(orderid);
     }
 }

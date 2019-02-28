@@ -81,9 +81,10 @@ public abstract class AbstractHBCIJob {
         this.passport = passport;
 
         findSpecNameForGV(jobnameLL);
-        this.llParams = new HashMap();
+        this.llParams = new HashMap<>();
 
-        this.jobResult = jobResult;
+        this.jobResult = Optional.ofNullable(jobResult)
+            .orElseGet(() -> new HBCIJobResultImpl(passport));
 
         this.contentCounter = 0;
         this.constraints = new HashMap<>();
@@ -195,8 +196,8 @@ public abstract class AbstractHBCIJob {
 
             if (key.indexOf("Params") == 0) {
                 key.delete(0, key.indexOf(".") + 1);
-                // wenn segment mit namen des aktuellen jobs gefunden wurde
 
+                // wenn segment mit namen des aktuellen jobs gefunden wurde
                 if (key.indexOf(jobnameLL + "Par") == 0 &&
                     key.toString().endsWith(".SegHead.code")) {
                     key.delete(0, jobnameLL.length() + ("Par").length());
@@ -653,17 +654,23 @@ public abstract class AbstractHBCIJob {
        Das ist in zwei Fällen der Fall: der Task wurde noch nie ausgeführt; oder der Task
        wurde bereits ausgeführt, hat aber eine "offset"-Meldung zurückgegeben */
     public boolean needsContinue(int loop) {
-        if (!executed) {
-            return true;
-        }
+        boolean needs = false;
 
-        for (HBCIRetVal retval : jobResult.getJobStatus().getRetVals()) {
-            if (retval.code.equals("3040") && retval.params.length != 0 && (--loop) == 0) {
-                return true;
+        if (executed) {
+            HBCIRetVal retval = null;
+            int num = jobResult.getJobStatus().getRetVals().size();
+
+            for (int i = 0; i < num; i++) {
+                retval = jobResult.getRetVal(i);
+
+                if (retval.code.equals("3040") && retval.params.length != 0 && (--loop) == 0) {
+                    needs = true;
+                    break;
+                }
             }
-        }
+        } else needs = true;
 
-        return false;
+        return needs;
     }
 
     /* gibt (sofern vorhanden) den offset-Wert des letzten HBCI-Rückgabecodes

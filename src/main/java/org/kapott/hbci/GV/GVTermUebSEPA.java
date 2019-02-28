@@ -32,7 +32,7 @@ import java.util.HashMap;
  */
 public class GVTermUebSEPA extends AbstractSEPAGV {
 
-    private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
+    private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVTermUebSEPA(HBCIPassportInternal passport) {
         this(passport, getLowlevelName(), null);
@@ -73,7 +73,8 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         addConstraint("usage", "sepa.usage", "");
         addConstraint("date", "sepa.date", null);
 
-        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
+        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu
+        // identifizieren)
         addConstraint("sepaid", "sepa.sepaid", getPainMessageId());
         addConstraint("pmtinfid", "sepa.pmtinfid", getPainMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED);
@@ -89,17 +90,11 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         return "TermUebSEPA";
     }
 
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getDefaultPainVersion()
-     */
     @Override
     protected SepaVersion getDefaultPainVersion() {
         return DEFAULT;
     }
 
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainType()
-     */
     @Override
     protected SepaVersion.Type getPainType() {
         return SepaVersion.Type.PAIN_001;
@@ -114,14 +109,6 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         String orderid = result.get(header + ".orderid");
 
         ((GVRTermUeb) (jobResult)).setOrderId(orderid);
-
-        if (orderid != null && orderid.length() != 0) {
-            HashMap<String, String> p2 = new HashMap<>();
-            getLowlevelParams().forEach((key, value) ->
-                p2.put(key.substring(key.indexOf(".") + 1), value));
-//TODO
-//            passport.setPersistentData("termueb_" + orderid, p2);
-        }
     }
 
 }

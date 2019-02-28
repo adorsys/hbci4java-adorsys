@@ -20,6 +20,7 @@
 
 package org.kapott.hbci.GV;
 
+import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.SepaVersion;
 
@@ -28,14 +29,18 @@ import org.kapott.hbci.sepa.SepaVersion;
  */
 public class GVUebSEPA extends AbstractSEPAGV {
 
-    private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
+    private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName(), null);
+        this(passport, getLowlevelName(), null, null);
     }
 
     public GVUebSEPA(HBCIPassportInternal passport, String name, String pain) {
-        super(passport, name);
+        this(passport, getLowlevelName(), pain, null);
+    }
+
+    public GVUebSEPA(HBCIPassportInternal passport, String name, String pain, HBCIJobResultImpl jobResult) {
+        super(passport, name, jobResult);
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
