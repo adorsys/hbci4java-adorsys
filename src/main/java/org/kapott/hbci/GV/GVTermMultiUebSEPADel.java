@@ -27,6 +27,11 @@ public class GVTermMultiUebSEPADel extends AbstractHBCIJob {
         }
 
         addConstraint("orderid", "orderid", null);
+        addConstraint("submissionDate", "sepa.batchbook", "");
+        addConstraint("executionDate", "sepa.batchbook", "");
+        addConstraint("count", "sepa.batchbook", "");
+        addConstraint("btg.value", "BTG.value", "");
+        addConstraint("btg.curr", "BTG.curr", "");
     }
 
     public static String getLowlevelName() {

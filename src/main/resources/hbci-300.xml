@@ -1577,10 +1577,6 @@
             <DE name="orderdata_required" type="JN"/>
         </DEGdef>
 
-        <DEGdef id="ParTermSammelUebSEPADel">
-            <DE name="maxnum" type="Num" maxsize="3" />
-        </DEGdef>
-
         <DEGdef id="ParTermUebSEPAEdit">
             <DE name="minpretime" type="Num" maxsize="4"/>
             <DE name="maxpretime" type="Num" maxsize="4"/>
@@ -4849,10 +4845,10 @@
             <DEG type="SegHeadUser" name="SegHead"/>
             <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
             <DEG type="KTVInt" name="My"/>
-            <DE name="submissionDate" type="Date"/>
-            <DE name="executionDate" type="Date"/>
-            <DE name="count" type="Num" maxsize="1"/>
-            <DEG type="BTG" name="Total" />
+            <DE name="submissionDate" type="Date" minnum="0"/>
+            <DE name="executionDate" type="Date" minnum="0"/>
+            <DE name="count" type="Num" maxsize="1" minnum="0"/>
+            <DEG type="BTG" name="Total" minnum="0"/>
 
             <value path="SegHead.code">HKCML</value>
             <value path="SegHead.version">1</value>
@@ -4860,8 +4856,6 @@
         <!-- BPD -->
         <SEGdef id="TermSammelUebSEPADelPar1">
             &GVP2;
-            <DEG type="ParTermSammelUebSEPADel"/>
-
             &SecClassValids;
 
             <value path="SegHead.code">HICMLS</value>
