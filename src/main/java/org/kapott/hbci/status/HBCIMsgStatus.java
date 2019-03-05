@@ -22,7 +22,9 @@ package org.kapott.hbci.status;
 
 import org.kapott.hbci.manager.HBCIUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * <p>Enthält alle Status-Informationen zu genau einem Nachrichtenaustausch.
@@ -36,6 +38,7 @@ import java.util.HashMap;
  * sowie die eigentlichen Fehler-Informationen zurückgeben. </p>
  */
 public final class HBCIMsgStatus {
+    private static final List<String> invalidPinCodes = Arrays.asList("9931", "9942", "9340");
     /**
      * Globale Status-Informationen. Das sind Informationen, die die
      * Nachricht als ganzes betreffen (z.B. wenn die Nachricht nicht signiert
@@ -48,7 +51,6 @@ public final class HBCIMsgStatus {
      * einzelne Segmente der gesendeten Nachricht beziehen.
      */
     public HBCIStatus segStatus;
-
     private HashMap<String, String> data;
 
     public HBCIMsgStatus() {
@@ -214,26 +216,22 @@ public final class HBCIMsgStatus {
     /**
      * Gibt zurück, ob der Fehler "PIN ungültig" zurückgemeldet wurde
      *
-     * @return <code>true</code> oder <code>false</code>
+     * @return invalid pin code
      */
-    public boolean isInvalidPIN() {
+    public String getInvalidPinCode() {
         for (HBCIRetVal hbciRetVal : globStatus.getErrors()) {
-            if (hbciRetVal.code.equals("9931") || hbciRetVal.code.equals("9942") ||      // PIN falsch (konkret)
-                hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
-            {
-                return true;
+            if (invalidPinCodes.contains(hbciRetVal.code)) {
+                return hbciRetVal.code;
             }
         }
 
         for (HBCIRetVal hbciRetVal : segStatus.getErrors()) {
-            if (hbciRetVal.code.equals("9931") || hbciRetVal.code.equals("9942") ||      // PIN falsch (konkret)
-                hbciRetVal.code.equals("9340"))    // Signatur falsch (generisch)
-            {
-                return true;
+            if (invalidPinCodes.contains(hbciRetVal.code)) {
+                return hbciRetVal.code;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

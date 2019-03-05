@@ -41,24 +41,22 @@ import static org.kapott.hbci.security.Sig.SECFUNC_SIG_PT_1STEP;
 @Slf4j
 public class PinTanPassport extends AbstractHBCIPassport {
 
-    private String proxy;
-    private String proxyuser;
-    private String proxypass;
-
-    private boolean verifyTANMode;
-
-    private Map<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
-    private HBCITwoStepMechanism currentSecMechInfo;
-    private List<String> userTwostepMechanisms = new ArrayList<>();
-    private List<GVRTANMediaList.TANMediaInfo> tanMedias;
-
-    private String pin;
-
     static {
         Security.addProvider(new CryptAlgs4JavaProvider());
     }
 
-    public PinTanPassport(String hbciversion, Map<String, String> properties, HBCICallback callback, HBCIProduct product) {
+    private String proxy;
+    private String proxyuser;
+    private String proxypass;
+    private boolean verifyTANMode;
+    private Map<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
+    private HBCITwoStepMechanism currentSecMechInfo;
+    private List<String> userTwostepMechanisms = new ArrayList<>();
+    private List<GVRTANMediaList.TANMediaInfo> tanMedias;
+    private String pin;
+
+    public PinTanPassport(String hbciversion, Map<String, String> properties, HBCICallback callback,
+                          HBCIProduct product) {
         super(hbciversion, properties, callback, product);
     }
 
@@ -89,6 +87,11 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return tanMedias;
     }
 
+    @Override
+    public void setTanMedias(List<GVRTANMediaList.TANMediaInfo> tanMedias) {
+        this.tanMedias = tanMedias;
+    }
+
     public GVRTANMediaList.TANMediaInfo getTanMedia(String name) {
         if (tanMedias != null) {
             Optional<GVRTANMediaList.TANMediaInfo> tanMediaInfoOptional = tanMedias.stream()
@@ -100,11 +103,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
             }
         }
         return null;
-    }
-
-    @Override
-    public void setTanMedias(List<GVRTANMediaList.TANMediaInfo> tanMedias) {
-        this.tanMedias = tanMedias;
     }
 
     public void setBPD(Map<String, String> newBPD) {
@@ -127,7 +125,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
             // wird.
             int maxAllowedVersion = 0;
 
-
             for (String key : newBPD.keySet()) {
                 // newBPD.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.TAN2StepParamsX_z.*")
                 if (key.startsWith("Params")) {
@@ -141,7 +138,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
                         subkey = subkey.substring(subkey.indexOf('.') + 1);
                         if (subkey.startsWith("ParTAN2Step") && subkey.endsWith(".secfunc")) {
-                            // willuhn 2011-06-06 Segment-Versionen ueberspringen, die groesser als die max. zulaessige sind
+                            // willuhn 2011-06-06 Segment-Versionen ueberspringen, die groesser als die max.
+                            // zulaessige sind
                             if (maxAllowedVersion > 0 && segVersion > maxAllowedVersion) {
                                 log.info("skipping segversion " + segVersion + ", larger than allowed version " + maxAllowedVersion);
                                 continue;
@@ -149,7 +147,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
 
                             String secfunc = newBPD.get(key);
 
-                            // willuhn 2011-05-13 Checken, ob wir das Verfahren schon aus einer aktuelleren Segment-Version haben
+                            // willuhn 2011-05-13 Checken, ob wir das Verfahren schon aus einer aktuelleren
+                            // Segment-Version haben
                             HBCITwoStepMechanism prev = bankTwostepMechanisms.get(secfunc);
                             if (prev != null) {
                                 // Wir haben es schonmal. Mal sehen, welche Versionsnummer es hat
@@ -226,7 +225,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     retData.append(newUserId)
                         .append("|")
                         .append(newCustomerId);
-                    callback.callback(HBCICallback.USERID_CHANGED, "*** User ID changed", HBCICallback.TYPE_TEXT, retData);
+                    callback.callback(HBCICallback.USERID_CHANGED, "*** User ID changed", HBCICallback.TYPE_TEXT,
+                        retData);
                 }
             }
         }
@@ -236,14 +236,18 @@ public class PinTanPassport extends AbstractHBCIPassport {
         if (!msgStatus.isOK()) {
             log.debug("dialog init ended with errors - searching for return code 'wrong PIN'");
 
-            if (msgStatus.isInvalidPIN()) {
-                log.info("detected 'invalid PIN' error - clearing passport PIN");
-                clearPIN();
+            Optional.ofNullable(msgStatus.getInvalidPinCode())
+                .ifPresent(invalidPinCode -> {
+                    log.info("detected 'invalid PIN' error - clearing passport PIN");
+                    clearPIN();
 
-                // Aufrufer informieren, dass falsche PIN eingegeben wurde (um evtl. PIN aus Puffer zu löschen, etc.)
-                StringBuffer retData = new StringBuffer();
-                callback.callback(HBCICallback.WRONG_PIN, "*** invalid PIN entered", HBCICallback.TYPE_TEXT, retData);
-            }
+                    // Aufrufer informieren, dass falsche PIN eingegeben wurde (um evtl. PIN aus Puffer zu löschen,
+                    // etc.)
+                    StringBuffer retData = new StringBuffer();
+                    callback.callback(HBCICallback.WRONG_PIN, invalidPinCode, HBCICallback.TYPE_TEXT,
+                        retData);
+                });
+
         }
 
         log.debug("autosecfunc: search for 3920s in response to detect allowed twostep secmechs");
@@ -270,7 +274,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
     }
 
     public String getProfileVersion() {
-        return currentSecMechInfo == null || currentSecMechInfo.getSecfunc().equals(Sig.SECFUNC_SIG_PT_1STEP) ? "1" : "2";
+        return currentSecMechInfo == null || currentSecMechInfo.getSecfunc().equals(Sig.SECFUNC_SIG_PT_1STEP) ? "1" :
+            "2";
     }
 
     public boolean needUserSig() {
