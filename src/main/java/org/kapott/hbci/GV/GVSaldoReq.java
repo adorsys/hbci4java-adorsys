@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.GV;
 
-
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -70,7 +69,8 @@ public class GVSaldoReq extends AbstractHBCIJob {
 
         info.ready = new Saldo();
         String cd = result.get(header + ".booked.CreditDebit");
-        String bookedValue = result.get(header + ".booked.BTG.value") != null ? result.get(header + ".booked.BTG.value") : "0";
+        String bookedValue = result.get(header + ".booked.BTG.value") != null ? result.get(header + ".booked.BTG" +
+            ".value") : "0";
         String st = (cd.equals("D") ? "-" : "") + bookedValue;
         info.ready.value = new Value(
             st,
@@ -80,7 +80,8 @@ public class GVSaldoReq extends AbstractHBCIJob {
 
         cd = result.get(header + ".pending.CreditDebit");
         if (cd != null) {
-            String pendingValue = result.get(header + ".booked.BTG.value") != null ? result.get(header + ".pending.BTG.value") : "0";
+            String pendingValue = result.get(header + ".booked.BTG.value") != null ? result.get(header + ".pending" +
+                ".BTG.value") : "0";
             st = (cd.equals("D") ? "-" : "") + pendingValue;
             info.unready = new Saldo();
             info.unready.value = new Value(

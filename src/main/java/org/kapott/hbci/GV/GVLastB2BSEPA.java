@@ -18,7 +18,6 @@ public class GVLastB2BSEPA extends AbstractGVLastSEPA {
         this(passport, getLowlevelName(), new GVRLastB2BSEPA(passport));
     }
 
-
     public GVLastB2BSEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
         super(passport, lowlevelName, result);
 

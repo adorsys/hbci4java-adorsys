@@ -82,7 +82,6 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.prodName", hbciProduct.getProduct());
         message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
 
-
         return message;
     }
 

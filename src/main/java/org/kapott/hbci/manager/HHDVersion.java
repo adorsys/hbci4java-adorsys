@@ -18,7 +18,7 @@ public enum HHDVersion {
      * QR-Code in HHD-Version 1.3 - die Sparkasse verwendet das so.
      * Muss als erstes hier stehen, weil es sonst falsch als "HHD_1_3" erkannt wird (ID beginnt genauso).
      */
-    QR_1_3(Type.QRCODE,"HHD1\\.3\\..*?QR",null,-1,"hhd13"),
+    QR_1_3(Type.QRCODE, "HHD1\\.3\\..*?QR", null, -1, "hhd13"),
 
     /**
      * QR-Code.
@@ -72,7 +72,7 @@ public enum HHDVersion {
      * @param segVersion       Segment-Version des HKTAN-Elements.
      * @param challengeVersion die Kennung fuer das Lookup in den ChallengeInfo-Daten.
      */
-    private HHDVersion(Type type, String idMatch, String versionStart, int segVersion, String challengeVersion) {
+    HHDVersion(Type type, String idMatch, String versionStart, int segVersion, String challengeVersion) {
         this.type = type;
         this.idMatch = idMatch;
         this.versionStart = versionStart;
@@ -165,7 +165,7 @@ public enum HHDVersion {
     /**
      * Definiert die Art des TAN-Verfahrens.
      */
-    public static enum Type {
+    public enum Type {
         /**
          * chipTAN oder smsTAN.
          */

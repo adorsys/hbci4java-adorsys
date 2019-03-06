@@ -91,7 +91,6 @@ public class GVWPDepotUms extends AbstractHBCIJob {
             saldo_type);
     }
 
-
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
 
@@ -132,7 +131,6 @@ public class GVWPDepotUms extends AbstractHBCIJob {
                         }
                     }
                 }
-
 
                 if (st_time != null) {
                     entry.timestamp = date_time_format.parse(st_date + " " + st_time);
@@ -342,9 +340,11 @@ public class GVWPDepotUms extends AbstractHBCIJob {
 
                                         if (t22f.startsWith(":TRAN")) {
                                             if (t22f.endsWith("SETT")) {
-                                                transaction.transaction_indicator = Transaction.INDICATOR_SETTLEMENT_CLEARING;
+                                                transaction.transaction_indicator =
+                                                    Transaction.INDICATOR_SETTLEMENT_CLEARING;
                                             } else if (t22f.endsWith("CORP")) {
-                                                transaction.transaction_indicator = Transaction.INDICATOR_CORPORATE_ACTION;
+                                                transaction.transaction_indicator =
+                                                    Transaction.INDICATOR_CORPORATE_ACTION;
                                             } else if (t22f.endsWith("BOLE")) {
                                                 transaction.transaction_indicator = Transaction.INDICATOR_LEIHE;
                                             } else if (t22f.endsWith("COLL")) {

@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 /**
  * SEPA-Generator fuer pain.008.002.02.
  */
@@ -34,7 +33,6 @@ public class GenLastSEPA00800202 extends AbstractSEPAGenerator<HashMap<String, S
         //Document
         Document doc = new Document();
 
-
         //Customer Credit Transfer Initiation
         doc.setCstmrDrctDbtInitn(new CustomerDirectDebitInitiationV02());
         doc.getCstmrDrctDbtInitn().setGrpHdr(new GroupHeaderSDD());
@@ -50,9 +48,9 @@ public class GenLastSEPA00800202 extends AbstractSEPAGenerator<HashMap<String, S
         doc.getCstmrDrctDbtInitn().getGrpHdr().getInitgPty().setNm(sepaParams.get("src.name"));
         doc.getCstmrDrctDbtInitn().getGrpHdr().setCtrlSum(SepaUtil.sumBtgValue(sepaParams, maxIndex));
 
-
         //Payment Information
-        ArrayList<PaymentInstructionInformationSDD> pmtInfs = (ArrayList<PaymentInstructionInformationSDD>) doc.getCstmrDrctDbtInitn().getPmtInf();
+        ArrayList<PaymentInstructionInformationSDD> pmtInfs =
+            (ArrayList<PaymentInstructionInformationSDD>) doc.getCstmrDrctDbtInitn().getPmtInf();
         PaymentInstructionInformationSDD pmtInf = new PaymentInstructionInformationSDD();
         pmtInfs.add(pmtInf);
 
@@ -77,7 +75,6 @@ public class GenLastSEPA00800202 extends AbstractSEPAGenerator<HashMap<String, S
         pmtInf.getCdtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSEPA1());
         pmtInf.getCdtrAgt().getFinInstnId().setBIC(sepaParams.get("src.bic"));
 
-
         //Payment Information - ChargeBearer
         pmtInf.setChrgBr(ChargeBearerTypeSEPACode.SLEV);
 
@@ -92,11 +89,13 @@ public class GenLastSEPA00800202 extends AbstractSEPAGenerator<HashMap<String, S
         try {
             pmtInf.getPmtTpInf().getLclInstrm().setCd(LocalInstrumentSEPACode.fromValue(type));
         } catch (IllegalArgumentException e) {
-            throw new HBCI_Exception("Lastschrift-Art " + type + " wird in der SEPA-Version 008.002.02 Ihrer Bank noch nicht unterstützt", e);
+            throw new HBCI_Exception("Lastschrift-Art " + type + " wird in der SEPA-Version 008.002.02 Ihrer Bank " +
+                "noch nicht unterstützt", e);
         }
 
         //Payment Information - Credit Transfer Transaction Information
-        ArrayList<DirectDebitTransactionInformationSDD> drctDbtTxInfs = (ArrayList<DirectDebitTransactionInformationSDD>) pmtInf.getDrctDbtTxInf();
+        ArrayList<DirectDebitTransactionInformationSDD> drctDbtTxInfs =
+            (ArrayList<DirectDebitTransactionInformationSDD>) pmtInf.getDrctDbtTxInf();
         if (maxIndex != null) {
             for (int tnr = 0; tnr <= maxIndex; tnr++) {
                 drctDbtTxInfs.add(createDirectDebitTransactionInformationSDD(sepaParams, tnr));
@@ -125,7 +124,8 @@ public class GenLastSEPA00800202 extends AbstractSEPAGenerator<HashMap<String, S
         drctDbtTxInf.getDrctDbtTx().getCdtrSchmeId().getId().getPrvtId().getOthr().setSchmeNm(new RestrictedPersonIdentificationSchemeNameSEPA());
         drctDbtTxInf.getDrctDbtTx().getCdtrSchmeId().getId().getPrvtId().getOthr().getSchmeNm().setPrtry(IdentificationSchemeNameSEPA.SEPA);
         drctDbtTxInf.getDrctDbtTx().setMndtRltdInf(new MandateRelatedInformationSDD());
-        drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().setMndtId(sepaParams.get(SepaUtil.insertIndex("mandateid", index)));
+        drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().setMndtId(sepaParams.get(SepaUtil.insertIndex("mandateid",
+            index)));
         drctDbtTxInf.getDrctDbtTx().getMndtRltdInf().setDtOfSgntr(SepaUtil.createCalendar(sepaParams.get(SepaUtil.insertIndex("manddateofsig", index))));
 
         boolean amend = Boolean.valueOf(sepaParams.get(SepaUtil.insertIndex("amendmandindic", index)));
@@ -142,8 +142,9 @@ public class GenLastSEPA00800202 extends AbstractSEPAGenerator<HashMap<String, S
 
         //Payment Information - Credit Transfer Transaction Information - Payment Identification
         drctDbtTxInf.setPmtId(new PaymentIdentificationSEPA());
-        drctDbtTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams, SepaUtil.insertIndex("endtoendid", index), AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
-
+        drctDbtTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams, SepaUtil.insertIndex("endtoendid",
+            index), AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird,
+        // wenn keine ID angegeben ist
 
         //Payment Information - Credit Transfer Transaction Information - Creditor
         drctDbtTxInf.setDbtr(new PartyIdentificationSEPA2());
@@ -158,7 +159,6 @@ public class GenLastSEPA00800202 extends AbstractSEPAGenerator<HashMap<String, S
         drctDbtTxInf.setDbtrAgt(new BranchAndFinancialInstitutionIdentificationSEPA1());
         drctDbtTxInf.getDbtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSEPA1());
         drctDbtTxInf.getDbtrAgt().getFinInstnId().setBIC(sepaParams.get(SepaUtil.insertIndex("dst.bic", index)));
-
 
         //Payment Information - Credit Transfer Transaction Information - Amount
         drctDbtTxInf.setInstdAmt(new ActiveOrHistoricCurrencyAndAmountSEPA());

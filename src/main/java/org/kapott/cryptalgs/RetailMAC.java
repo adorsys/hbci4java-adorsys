@@ -1,4 +1,3 @@
-
 /*  $Id: RetailMAC.java,v 1.1 2011/05/04 22:37:58 willuhn Exp $
 
     This file is part of CryptAlgs4Java
@@ -21,49 +20,41 @@
 
 package org.kapott.cryptalgs;
 
+import javax.crypto.*;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.DESedeKeySpec;
+import javax.crypto.spec.IvParameterSpec;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
-import javax.crypto.spec.DESedeKeySpec;
-import javax.crypto.spec.IvParameterSpec;
-
 // TODO: implement some SPI interface?
-public class RetailMAC
-{
-    private SecretKey       deskey;
-    private SecretKey       desedekey;
+public class RetailMAC {
+    private SecretKey deskey;
+    private SecretKey desedekey;
     private IvParameterSpec ivspec;
 
-    private byte[]          buffer=new byte[16];
-    private int             offset;
-    private byte[]          c=new byte[8];
-    private Cipher          cipher;
+    private byte[] buffer = new byte[16];
+    private int offset;
+    private byte[] c = new byte[8];
+    private Cipher cipher;
 
-    public RetailMAC(Key key,IvParameterSpec iv)
-    {
+    public RetailMAC(Key key, IvParameterSpec iv) {
         try {
-            SecretKeyFactory fac=SecretKeyFactory.getInstance("DESede");
-            DESedeKeySpec    spec=(DESedeKeySpec)fac.getKeySpec((SecretKey)key,
-                                                                DESedeKeySpec.class);
-            byte[]           desedekeydata=spec.getKey();
+            SecretKeyFactory fac = SecretKeyFactory.getInstance("DESede");
+            DESedeKeySpec spec = (DESedeKeySpec) fac.getKeySpec((SecretKey) key,
+                DESedeKeySpec.class);
+            byte[] desedekeydata = spec.getKey();
 
-            DESKeySpec spec2=new DESKeySpec(desedekeydata);
-            fac=SecretKeyFactory.getInstance("DES");
-            this.deskey=fac.generateSecret(spec2);
+            DESKeySpec spec2 = new DESKeySpec(desedekeydata);
+            fac = SecretKeyFactory.getInstance("DES");
+            this.deskey = fac.generateSecret(spec2);
 
-            this.desedekey=(SecretKey)key;
-            this.ivspec=iv;
-            this.cipher=Cipher.getInstance("DES");
+            this.desedekey = (SecretKey) key;
+            this.ivspec = iv;
+            this.cipher = Cipher.getInstance("DES");
             reset();
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
@@ -75,23 +66,21 @@ public class RetailMAC
             throw new RuntimeException(e);
         }
     }
-    
-    public byte[] doFinal(byte[] data)
-    {
-        update(data,0,data.length);
+
+    public byte[] doFinal(byte[] data) {
+        update(data, 0, data.length);
         return doFinal();
     }
 
-    public byte[] doFinal()
-    {
-        for (int i=0;i<8;i++) {
-            this.buffer[i]^=this.c[i];
+    public byte[] doFinal() {
+        for (int i = 0; i < 8; i++) {
+            this.buffer[i] ^= this.c[i];
         }
 
         try {
-            Cipher cipher2=Cipher.getInstance("DESede");
+            Cipher cipher2 = Cipher.getInstance("DESede");
             cipher2.init(Cipher.ENCRYPT_MODE, this.desedekey);
-            this.c=cipher2.doFinal(this.buffer, 0, 8);
+            this.c = cipher2.doFinal(this.buffer, 0, 8);
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (NoSuchAlgorithmException e) {
@@ -103,49 +92,44 @@ public class RetailMAC
         } catch (BadPaddingException e) {
             throw new RuntimeException(e);
         }
-        
-        byte[] ret=new byte[8];
+
+        byte[] ret = new byte[8];
         System.arraycopy(this.c, 0, ret, 0, 8);
 
         reset();
         return ret;
     }
 
-    public void update(byte data)
-    {
-        this.buffer[this.offset++]=data;
-        if (this.offset>8) {
+    public void update(byte data) {
+        this.buffer[this.offset++] = data;
+        if (this.offset > 8) {
             hashIt();
         }
     }
 
-    public void reset()
-    {
-        Arrays.fill(this.buffer,(byte)0);
+    public void reset() {
+        Arrays.fill(this.buffer, (byte) 0);
         System.arraycopy(this.ivspec.getIV(), 0, this.c, 0, 8);
-        this.offset=0;
+        this.offset = 0;
     }
 
-    public int getMacLength()
-    {
+    public int getMacLength() {
         return 8;
     }
 
-    public void update(byte[] ibuffer,int offset1,int len)
-    {
-        for (int i=0;i<len;i++)
-            update(ibuffer[offset1+i]);
+    public void update(byte[] ibuffer, int offset1, int len) {
+        for (int i = 0; i < len; i++)
+            update(ibuffer[offset1 + i]);
     }
 
-    private void hashIt()
-    {
-        for (int i=0;i<8;i++) {
-            this.buffer[i]^=this.c[i];
+    private void hashIt() {
+        for (int i = 0; i < 8; i++) {
+            this.buffer[i] ^= this.c[i];
         }
 
         try {
             this.cipher.init(Cipher.ENCRYPT_MODE, this.deskey);
-            this.c=this.cipher.doFinal(this.buffer, 0, 8);
+            this.c = this.cipher.doFinal(this.buffer, 0, 8);
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (IllegalBlockSizeException e) {
@@ -154,8 +138,8 @@ public class RetailMAC
             throw new RuntimeException(e);
         }
 
-        System.arraycopy(this.buffer,8, this.buffer,0, 8);
-        Arrays.fill(this.buffer, 8, 16, (byte)0);
-        this.offset-=8;
+        System.arraycopy(this.buffer, 8, this.buffer, 0, 8);
+        Arrays.fill(this.buffer, 8, 16, (byte) 0);
+        this.offset -= 8;
     }
 }

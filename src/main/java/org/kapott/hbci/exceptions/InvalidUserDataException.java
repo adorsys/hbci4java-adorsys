@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.exceptions;
 
-
 public class InvalidUserDataException
     extends HBCI_Exception {
     public InvalidUserDataException(String msg) {

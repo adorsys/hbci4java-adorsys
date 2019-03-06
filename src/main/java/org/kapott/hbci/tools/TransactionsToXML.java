@@ -35,6 +35,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 
@@ -162,7 +163,7 @@ public class TransactionsToXML {
             root.appendChild(rawElem);
 
             try {
-                String mt940_encoded = Base64.encodeBase64String(rawMT940.getBytes("ISO-8859-1"));
+                String mt940_encoded = Base64.encodeBase64String(rawMT940.getBytes(StandardCharsets.ISO_8859_1));
                 rawElem.appendChild(doc.createCDATASection(mt940_encoded));
             } catch (Exception e) {
                 throw new RuntimeException(e);

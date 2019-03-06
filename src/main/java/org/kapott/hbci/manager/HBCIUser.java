@@ -67,7 +67,8 @@ public final class HBCIUser implements IHandlerData {
             updateUPD(syncResult);
 
             passport.setSysId(syncResult.get("SyncRes.sysid"));
-            passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus, passport.getSysId()});
+            passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus,
+                passport.getSysId()});
             log.debug("new sys-id is " + passport.getSysId());
 
             doDialogEnd(syncResult.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
@@ -97,10 +98,12 @@ public final class HBCIUser implements IHandlerData {
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
             inst.updateBPD(syncResult);
             updateUPD(syncResult);
-            passport.setSigId(new Long(syncResult.get("SyncRes.sigid") != null ? syncResult.get("SyncRes.sigid") : "1"));
+            passport.setSigId(new Long(syncResult.get("SyncRes.sigid") != null ? syncResult.get("SyncRes.sigid") : "1"
+            ));
             passport.incSigId();
 
-            passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus, passport.getSigId()});
+            passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus,
+                passport.getSigId()});
             log.debug("signature id set to " + passport.getSigId());
 
             doDialogEnd(syncResult.get("MsgHead.dialogid"), "2", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);

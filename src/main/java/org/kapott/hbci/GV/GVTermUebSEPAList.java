@@ -36,7 +36,6 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public final class GVTermUebSEPAList extends AbstractSEPAGV {
     private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 

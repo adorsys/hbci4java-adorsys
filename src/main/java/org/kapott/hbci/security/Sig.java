@@ -109,7 +109,8 @@ public final class Sig {
                 u_hashalg = passport.getHashAlg();
                 passport.incSigId();
 
-                fillSigHead(sigHead, passport.getProfileMethod(), passport.getProfileVersion(), msg.getName().endsWith("Res"));
+                fillSigHead(sigHead, passport.getProfileMethod(), passport.getProfileVersion(),
+                    msg.getName().endsWith("Res"));
                 fillSigTail(sigHead, sigTail);
 
                 msg.enumerateSegs(0, SyntaxElement.ALLOW_OVERWRITE);

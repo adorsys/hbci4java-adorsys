@@ -249,7 +249,6 @@ public class AccountCRCAlgs {
         return ((crc % 10) == number[9]);
     }
 
-
     public static boolean alg_25(int[] blz, int[] number) {
         int sum = addProducts(number, 1, 8, new int[]{9, 8, 7, 6, 5, 4, 3, 2}, false);
         int crc = 11 - (sum % 11);
@@ -527,11 +526,7 @@ public class AccountCRCAlgs {
                     factor++;
                 }
 
-                if (found && number[3] == crc) {
-                    ok = true;
-                } else {
-                    ok = false;
-                }
+                ok = found && number[3] == crc;
             }
         }
 
@@ -594,16 +589,11 @@ public class AccountCRCAlgs {
                     }
                     factor++;
                 }
-                if (found && number[3] == crc) {
-                    ok = true;
-                } else {
-                    ok = false;
-                }
+                ok = found && number[3] == crc;
             }
         }
         return ok;
     }
-
 
     /**
      * @author AN
@@ -615,7 +605,6 @@ public class AccountCRCAlgs {
             crc = 0;
         return number[9] == crc;
     }
-
 
     /**
      * @author AN
@@ -630,7 +619,6 @@ public class AccountCRCAlgs {
         }
         return number[9] == crc;
     }
-
 
     public static boolean alg_57(int[] blz, int[] number) {
         int first = number[0] * 10 + number[1];
@@ -694,7 +682,6 @@ public class AccountCRCAlgs {
         return n.equals("0185125434");
     }
 
-
     /**
      * @author AN
      */
@@ -703,7 +690,6 @@ public class AccountCRCAlgs {
         int crc = (10 - sum % 10) % 10;
         return number[9] == crc;
     }
-
 
     public static boolean alg_61(int[] blz, int[] number) {
         int crc;
@@ -749,7 +735,6 @@ public class AccountCRCAlgs {
         return number[7] == crc;
     }
 
-
     /**
      * @author AN
      */
@@ -793,7 +778,6 @@ public class AccountCRCAlgs {
         crc = (10 - sum % 10) % 10;
         return number[9] == crc;
     }
-
 
     public static boolean alg_69(int[] blz, int[] number) {
         boolean variant1 = true;
@@ -849,7 +833,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     /**
      * @author AN
      */
@@ -868,7 +851,6 @@ public class AccountCRCAlgs {
 
         return false;
     }
-
 
     public static boolean alg_76(int[] blz, int[] number) {
         boolean ok = false;
@@ -906,7 +888,6 @@ public class AccountCRCAlgs {
         return ok;
     }
 
-
     /**
      * @author AN
      */
@@ -920,7 +901,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     /**
      * @author AN
      */
@@ -931,7 +911,6 @@ public class AccountCRCAlgs {
         return alg_32(blz, number);
     }
 
-
     /**
      * @author AN
      */
@@ -941,7 +920,6 @@ public class AccountCRCAlgs {
         }
         return alg_33(blz, number);
     }
-
 
     /**
      * @author AN
@@ -976,7 +954,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     /**
      * @author AN
      */
@@ -996,7 +973,6 @@ public class AccountCRCAlgs {
         // Methode B
         return alg_33(blz, number);
     }
-
 
     /**
      * @author AN
@@ -1122,7 +1098,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     public static boolean alg_88(int[] blz, int[] number) {
         int sum = 0;
         if (number[2] == 9)
@@ -1134,7 +1109,6 @@ public class AccountCRCAlgs {
             crc = 0;
         return number[9] == crc;
     }
-
 
     /**
      * @author AN
@@ -1192,7 +1166,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     public static boolean alg_91(int[] blz, int[] number) {
         int sum = addProducts(number, 0, 5, new int[]{7, 6, 5, 4, 3, 2}, false);
         int crc = 11 - (sum % 11);
@@ -1216,7 +1189,6 @@ public class AccountCRCAlgs {
         return number[6] == crc;
     }
 
-
     /**
      * @author AN
      */
@@ -1226,7 +1198,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     public static boolean alg_95(int[] blz, int[] number) {
         if (number[0] == 0) {
             long bigint = calculateIntFromNumber(number);
@@ -1235,7 +1206,7 @@ public class AccountCRCAlgs {
                 bigint >= 396000000 && bigint <= 499999999 ||
                 bigint >= 700000000 && bigint <= 799999999 ||
                 bigint >= 910000000 && bigint <= 989999999
-                ) {
+            ) {
                 return true;
             }
         }
@@ -1259,7 +1230,6 @@ public class AccountCRCAlgs {
         return ret;
     }
 
-
     public static boolean alg_99(int[] blz, int[] number) {
         long bigint = 0;
         if (number[0] == 0)
@@ -1276,7 +1246,6 @@ public class AccountCRCAlgs {
         }
         return ret;
     }
-
 
     /**
      * @author AN
@@ -1298,7 +1267,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     /**
      * @author AN
      */
@@ -1310,7 +1278,6 @@ public class AccountCRCAlgs {
         }
         return false;
     }
-
 
     /**
      * @author AN
@@ -1336,7 +1303,6 @@ public class AccountCRCAlgs {
         return alg_10(blz, number);
     }
 
-
     /**
      * @author AN
      */
@@ -1352,7 +1318,6 @@ public class AccountCRCAlgs {
         return alg_10(blz, number);
     }
 
-
     /**
      * @author AN
      */
@@ -1362,7 +1327,6 @@ public class AccountCRCAlgs {
         }
         return alg_01(blz, number);
     }
-
 
     /**
      * @author AN
@@ -1375,7 +1339,6 @@ public class AccountCRCAlgs {
         // Variante 2
         return alg_03(blz, number);
     }
-
 
     /**
      * @author AN
@@ -1399,7 +1362,6 @@ public class AccountCRCAlgs {
         return number[9] == crc;
     }
 
-
     /**
      * @author AN
      */
@@ -1411,7 +1373,6 @@ public class AccountCRCAlgs {
         // Variante 2
         return alg_06(blz, number);
     }
-
 
     /**
      * @author AN
@@ -1425,7 +1386,6 @@ public class AccountCRCAlgs {
         return alg_01(blz, number);
     }
 
-
     /**
      * @author AN
      */
@@ -1435,7 +1395,6 @@ public class AccountCRCAlgs {
         }
         return alg_06(blz, number);
     }
-
 
     /**
      * @author AN
@@ -1449,7 +1408,6 @@ public class AccountCRCAlgs {
         return alg_00(blz, number);
     }
 
-
     /**
      * @author AN
      */
@@ -1462,7 +1420,6 @@ public class AccountCRCAlgs {
         // Variante 2
         return alg_53(blz, number);
     }
-
 
     public static boolean alg_B8(int[] blz, int[] number) {
         int sum = addProducts(number, 0, 8,
@@ -1478,7 +1435,6 @@ public class AccountCRCAlgs {
 
         return ret;
     }
-
 
     /**
      * @author AN
@@ -1497,7 +1453,6 @@ public class AccountCRCAlgs {
         return alg_20(blz, number);
     }
 
-
     /**
      * @author AN
      */
@@ -1513,7 +1468,6 @@ public class AccountCRCAlgs {
         int crc = (10 - sum % 11) % 10;
         return number[9] == crc;
     }
-
 
     /**
      * @author AN
@@ -1532,7 +1486,6 @@ public class AccountCRCAlgs {
         return alg_06(blz, number);
     }
 
-
     public static boolean alg_D0(int[] blz, int[] number) {
         boolean ok = false;
 
@@ -1548,7 +1501,6 @@ public class AccountCRCAlgs {
 
         return ok;
     }
-
 
     private static int addProducts(int[] number, int first, int last,
                                    int[] factors, boolean withChecksum) {
@@ -1587,7 +1539,7 @@ public class AccountCRCAlgs {
         StringBuffer s = new StringBuffer();
 
         s.append(iban.substring(4));
-        s.append(iban.substring(0, 4));
+        s.append(iban, 0, 4);
 
         StringBuffer s2 = new StringBuffer();
         for (int i = 0; i < s.length(); i++) {
@@ -1614,7 +1566,7 @@ public class AccountCRCAlgs {
         StringBuffer s = new StringBuffer();
 
         s.append(creditorId.substring(7));
-        s.append(creditorId.substring(0, 4));
+        s.append(creditorId, 0, 4);
 
         StringBuffer s2 = new StringBuffer();
         for (int i = 0; i < s.length(); i++) {

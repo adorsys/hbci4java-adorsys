@@ -24,7 +24,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -34,7 +33,8 @@ public final class DEG extends SyntaxElement {
         super(type, name, path, idx, document);
     }
 
-    public DEG(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public DEG(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document,
+               HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
@@ -94,7 +94,9 @@ public final class DEG extends SyntaxElement {
         return ret.toString();
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1,
+                                                            StringBuffer res, Document document, HashMap<String,
+        String> predefs, HashMap<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((dataref.getNodeName()).equals("DEG"))
@@ -109,7 +111,8 @@ public final class DEG extends SyntaxElement {
         return ':';
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res,
+                     Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super.init(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 

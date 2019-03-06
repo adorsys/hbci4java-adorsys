@@ -34,7 +34,6 @@ import java.text.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-
 public final class HBCIUtils {
 
     private static final String VERSION = "HBCI4Java-2.5.12";
@@ -181,7 +180,8 @@ public final class HBCIUtils {
         sb.append("1314"); // hartcodiert fuer "DE
         sb.append("00"); // fest vorgegeben
 
-        BigInteger mod = new BigInteger(sb.toString()).mod(new BigInteger("97")); // "97" ist fest vorgegeben in ISO 7064/Modulo 97-10
+        BigInteger mod = new BigInteger(sb.toString()).mod(new BigInteger("97")); // "97" ist fest vorgegeben in ISO
+        // 7064/Modulo 97-10
         String checksum = String.valueOf(98 - mod.intValue()); // "98" ist fest vorgegeben in ISO 7064/Modulo 97-10
         if (checksum.length() < 2)
             checksum = "0" + checksum;
@@ -319,7 +319,6 @@ public final class HBCIUtils {
         return ret.toString();
     }
 
-
     /**
      * Wandelt ein gegebenes Datumsobjekt in einen String um. Das Format
      * des erzeugten Strings ist abhängig vom gesetzten <em>HBCI4Java</em>-Locale
@@ -434,7 +433,8 @@ public final class HBCIUtils {
 
         try {
             if (time != null)
-                ret = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault()).parse(date + " " + time);
+                ret =
+                    DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault()).parse(date + " " + time);
             else
                 ret = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault()).parse(date);
         } catch (Exception e) {
@@ -443,7 +443,6 @@ public final class HBCIUtils {
 
         return ret;
     }
-
 
     /**
      * Erzeugt einen String im Format YYYY-MM-DD
@@ -523,7 +522,7 @@ public final class HBCIUtils {
 
         try {
             cl = AccountCRCAlgs.class;
-            method = cl.getMethod("alg_" + alg, new Class[]{int[].class, int[].class});
+            method = cl.getMethod("alg_" + alg, int[].class, int[].class);
         } catch (Exception e) {
             LoggerFactory.getLogger(HBCIUtils.class).warn("CRC algorithm " + alg + " not yet implemented");
         }
@@ -610,7 +609,8 @@ public final class HBCIUtils {
                     Object[] args = new Object[]{blz_digits, number_digits};
                     ret = ((Boolean) method.invoke(null, args)).booleanValue();
 
-                    LoggerFactory.getLogger(HBCIUtils.class).debug("\"CRC check for \"+blz+\"/\"+number+\" with alg \"+alg+\": \"+ret");
+                    LoggerFactory.getLogger(HBCIUtils.class).debug("\"CRC check for \"+blz+\"/\"+number+\" with alg " +
+                        "\"+alg+\": \"+ret");
                 } catch (Exception e) {
                     throw new HBCI_Exception(e);
                 }
@@ -630,7 +630,6 @@ public final class HBCIUtils {
     public static boolean checkAccountCRCByAlg(String alg, String number) {
         return checkAccountCRCByAlg(alg, "", number);
     }
-
 
     /**
      * Überprüfen der Gültigkeit einer IBAN. Diese Methode prüft anhand eines
@@ -700,7 +699,6 @@ public final class HBCIUtils {
             banks.put(blz, info);
         }
     }
-
 
     public static void addBankInfo(BankInfo bankInfo) {
         banks.put(bankInfo.getBlz(), bankInfo);
@@ -792,7 +790,7 @@ public final class HBCIUtils {
     }
 
     public static String withCounter(String st, int idx) {
-        return st + ((idx != 0) ? "_" + Integer.toString(idx + 1) : "");
+        return st + ((idx != 0) ? "_" + (idx + 1) : "");
     }
 
     public static int getPosiOfNextDelimiter(String st, int posi) {

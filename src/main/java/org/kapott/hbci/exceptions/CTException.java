@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.exceptions;
 
-
 public class CTException
     extends HBCI_Exception {
     public CTException(String msg) {

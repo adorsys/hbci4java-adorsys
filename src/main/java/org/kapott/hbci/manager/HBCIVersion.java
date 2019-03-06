@@ -40,7 +40,8 @@ public enum HBCIVersion {
     /**
      * FinTS 4.0
      */
-    HBCI_400("400", "FinTS 4.0"),;
+    HBCI_400("400", "FinTS 4.0"),
+    ;
 
     private String id = null;
     private String name = null;
@@ -51,7 +52,7 @@ public enum HBCIVersion {
      * @param id   ID der HBCI-Version.
      * @param name sprechender Name der HBCI-Version.
      */
-    private HBCIVersion(String id, String name) {
+    HBCIVersion(String id, String name) {
         this.id = id;
         this.name = name;
     }

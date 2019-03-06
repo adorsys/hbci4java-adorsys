@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-
 /**
  * <p>ClassLoader, der für das Laden eines Property-Files aus dem Filesystem benutzt
  * werden kann. Dieser ClassLoader kann überall da benutzt werden, wenn eine

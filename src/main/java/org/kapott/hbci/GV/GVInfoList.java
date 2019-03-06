@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.GV;
 
-
 import org.kapott.hbci.GV_Result.GVRInfoList;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;

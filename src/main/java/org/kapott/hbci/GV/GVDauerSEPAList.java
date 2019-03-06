@@ -36,8 +36,6 @@ import org.kapott.hbci.structures.Value;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
-
 
 @Slf4j
 public final class GVDauerSEPAList extends AbstractSEPAGV {

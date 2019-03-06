@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.exceptions;
 
-
 public final class InvalidArgumentException
     extends HBCI_Exception {
     public InvalidArgumentException(String msg) {

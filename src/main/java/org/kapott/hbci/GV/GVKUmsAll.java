@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.GV;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -40,7 +39,6 @@ public class GVKUmsAll extends AbstractHBCIJob {
 
     public GVKUmsAll(HBCIPassportInternal passport) {
         this(passport, getLowlevelName());
-
 
         boolean sepa = false;
         try {

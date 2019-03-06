@@ -62,7 +62,8 @@ public class AbstractShowLowlevelData {
         }
     }
 
-    protected static void displayContentRef(String path, Element ref, Document document, int indent, int currentLevel, int minLevel) {
+    protected static void displayContentRef(String path, Element ref, Document document, int indent, int currentLevel
+        , int minLevel) {
         if (ref.getAttribute("type").length() != 0) {
             StringBuffer spaces = new StringBuffer();
 

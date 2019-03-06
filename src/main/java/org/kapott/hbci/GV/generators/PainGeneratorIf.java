@@ -1,6 +1,5 @@
 package org.kapott.hbci.GV.generators;
 
-
 import org.kapott.hbci.sepa.SepaVersion;
 
 import java.io.OutputStream;
@@ -15,7 +14,7 @@ public interface PainGeneratorIf<T> {
      * Das verwendete Encoding. UTF-8.
      * Siehe Siehe http://www.onlinebanking-forum.de/forum/topic.php?p=107420#real107420
      */
-    public final static String ENCODING = "UTF-8";
+    String ENCODING = "UTF-8";
 
     /**
      * Schreibt den Job als SEPA-XML in den Stream.
@@ -35,7 +34,7 @@ public interface PainGeneratorIf<T> {
      * @param validate true, wenn das erzeugte XML gegen das PAIN-Schema validiert werden soll.
      * @throws Exception
      */
-    public void generate(T source, OutputStream os, boolean validate) throws Exception;
+    void generate(T source, OutputStream os, boolean validate) throws Exception;
 
     /**
      * Liefert die SEPA-Version des Generators.
@@ -49,6 +48,6 @@ public interface PainGeneratorIf<T> {
      * @return die zu deklarierende Schema-Location oder NULL, falls nichts
      * angegeben werden soll.
      */
-    public SepaVersion getSepaVersion();
+    SepaVersion getSepaVersion();
 
 }

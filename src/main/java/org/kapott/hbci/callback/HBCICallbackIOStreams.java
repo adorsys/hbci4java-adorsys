@@ -87,9 +87,11 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
     }
 
     /**
-     * Schreiben von Logging-Ausgaben in einen <code>PrintStream</code>. Diese Methode implementiert die Logging-Schnittstelle
+     * Schreiben von Logging-Ausgaben in einen <code>PrintStream</code>. Diese Methode implementiert die
+     * Logging-Schnittstelle
      * des {@link org.kapott.hbci.callback.HBCICallback}-Interfaces</a>. Die Log-Informationen,
-     * die dieser Methode übergeben werden, werden formatiert auf dem jeweiligen <code>outStream</code> ausgegeben. In dem
+     * die dieser Methode übergeben werden, werden formatiert auf dem jeweiligen <code>outStream</code> ausgegeben.
+     * In dem
      * ausgegebenen String sind in enthalten das Log-Level der Message, ein Zeitstempel im
      * Format "<code>yyyy.MM.dd HH:mm:ss.SSS</code>", die Namen der ThreadGroup und des Threads, aus dem
      * heraus die Log-Message erzeugt wurde, der Klassenname der Klasse, welche die Log-Ausgabe
@@ -341,10 +343,12 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
                 getOutStream().println("status: " + ((HBCIMsgStatus) o[0]).toString());
                 break;
             case STATUS_SEND_TASK:
-                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_NEW_JOB", ((AbstractHBCIJob) o[0]).getName()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_NEW_JOB",
+                    ((AbstractHBCIJob) o[0]).getName()));
                 break;
             case STATUS_SEND_TASK_DONE:
-                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_JOB_DONE", ((AbstractHBCIJob) o[0]).getName()));
+                getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_JOB_DONE",
+                    ((AbstractHBCIJob) o[0]).getName()));
                 break;
             case STATUS_DIALOG_END:
                 getOutStream().println(HBCIUtils.getLocMsg("STATUS_DIALOG_END"));

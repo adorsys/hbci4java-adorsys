@@ -23,7 +23,6 @@ package org.kapott.hbci.callback;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-
 /**
  * Default-Implementation einer Callback-Klasse für textbasierte Anwendungen. Diese Klasse
  * ist eine vollständig funktionsfähige Callback-Klasse und kann direkt in eigenen

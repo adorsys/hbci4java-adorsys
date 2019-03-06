@@ -137,12 +137,13 @@ public final class GVRFestList extends HBCIJobResultImpl {
             if (anlagekonto != null)
                 ret.append("Anlagekonto: ").append(anlagekonto.toString()).append(linesep);
             ret.append("Belastungskonto: ").append(belastungskonto.toString()).append(linesep);
-            ret.append("Ausbuchungskonto: ").append((ausbuchungskonto != null ? ausbuchungskonto.toString() : belastungskonto.toString())).append(linesep);
+            ret.append("Ausbuchungskonto: ").append((ausbuchungskonto != null ? ausbuchungskonto.toString() :
+                belastungskonto.toString())).append(linesep);
             ret.append("Zinskonto: ").append((zinskonto != null ? zinskonto.toString() : belastungskonto.toString())).append(linesep);
             ret.append("Anlagebetrag: ").append(anlagebetrag.toString()).append(linesep);
             if (zinsbetrag != null)
                 ret.append("Voraussichtlicher Zinsbetrag: ").append(zinsbetrag.toString()).append(linesep);
-            ret.append("Nach Ablauf verlängern: ").append(Boolean.toString(verlaengern)).append(linesep);
+            ret.append("Nach Ablauf verlängern: ").append(verlaengern).append(linesep);
             ret.append(konditionen.toString() + linesep);
             if (verlaengern)
                 ret.append(linesep + verlaengerung.toString());
@@ -174,11 +175,11 @@ public final class GVRFestList extends HBCIJobResultImpl {
 
                 ret.append("Verlängerung: ");
                 ret.append("Laufzeit ");
-                ret.append(Integer.toString(laufzeit));
+                ret.append(laufzeit);
                 ret.append(" Betrag ");
                 ret.append(betrag.toString());
                 ret.append(" weiter_verlaengern: ");
-                ret.append(Boolean.toString(verlaengern));
+                ret.append(verlaengern);
 
                 return ret.toString();
             }

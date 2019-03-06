@@ -57,7 +57,8 @@ public final class GVRDauerList extends HBCIJobResultImpl {
         StringBuffer ret = new StringBuffer();
 
         for (Iterator<Dauer> i = entries.iterator(); i.hasNext(); ) {
-            ret.append(HBCIUtils.getLocMsg("STANDINGORDER")).append(" #").append(i).append(System.getProperty("line.separator"));
+            ret.append(HBCIUtils.getLocMsg("STANDINGORDER")).append(" #").append(i).append(System.getProperty("line" +
+                ".separator"));
             ret.append(i.next()).append(System.getProperty("line.separator"));
         }
 
@@ -152,7 +153,8 @@ public final class GVRDauerList extends HBCIJobResultImpl {
          */
         public String aus_breakcount;
         /**
-         * Geänderter Betrag während Aussetzung (Nur gültig, wenn <code>aus_available</code> <code>true</code> ist) (optional)
+         * Geänderter Betrag während Aussetzung (Nur gültig, wenn <code>aus_available</code> <code>true</code> ist)
+         * (optional)
          */
         public Value aus_newvalue;
 
@@ -180,7 +182,6 @@ public final class GVRDauerList extends HBCIJobResultImpl {
          * SEPA Purpose-Code.
          */
         public String purposecode;
-
 
         public Dauer() {
             usage = new String[0];

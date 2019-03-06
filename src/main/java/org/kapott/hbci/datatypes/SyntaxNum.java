@@ -78,5 +78,4 @@ public final class SyntaxNum extends SyntaxDE {
         initData(res, minsize, maxsize);
     }
 
-
 }

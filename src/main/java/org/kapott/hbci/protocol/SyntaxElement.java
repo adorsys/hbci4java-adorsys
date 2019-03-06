@@ -29,7 +29,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /* ein syntaxelement ist ein strukturelement einer hbci-nachricht (die nachricht
     selbst, eine segmentfolge, ein einzelnes segment, eine deg oder
@@ -144,7 +147,8 @@ public abstract class SyntaxElement {
      * enthalten, die fuer einige syntaxelemente den wert angeben, den diese
      * elemente zwingend haben muessen (z.b. ein bestimmter segmentcode o.ae.)
      */
-    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res,
+                            Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         initData(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
@@ -178,7 +182,10 @@ public abstract class SyntaxElement {
      * die delimiter an, die direkt vor dem zu erzeugenden syntaxelement
      * auftauchen muessten
      */
-    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids);
+    protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1,
+                                                                     StringBuffer res, Document document,
+                                                                     HashMap<String, String> predefs, HashMap<String,
+        String> valids);
 
     private void initData(String type, String name, String ppath, int idx, Document document) {
         if (getElementTypeName().equals("SEG"))
@@ -316,7 +323,8 @@ public abstract class SyntaxElement {
         return idx;
     }
 
-    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res,
+                          Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         this.type = type;
         this.name = name;
         this.parent = null;
@@ -412,11 +420,15 @@ public abstract class SyntaxElement {
         setValid(true);
     }
 
-    protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res,
+                        Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         initData(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
-    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node ref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node ref, char predelim0, char predelim1,
+                                                                     StringBuffer res, Document document,
+                                                                     HashMap<String, String> predefs, HashMap<String,
+        String> valids) {
         MultipleSyntaxElements ret = parseNewChildContainer(ref, predelim0, predelim1, res, document, predefs, valids);
         if (ret != null)
             addChildContainer(ret);
@@ -433,7 +445,6 @@ public abstract class SyntaxElement {
             l.extractValues(values);
         }
     }
-
 
     // -------------------------------------------------------------------------------------------
 

@@ -15,7 +15,8 @@ public class GVTANMediaList extends AbstractHBCIJob {
 
     public GVTANMediaList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRTANMediaList(passport));
-        addConstraint("mediatype", "mediatype", "0"); // "1" gibts nicht. Siehe FinTS_3.0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf "TAN-Medium-Art"
+        addConstraint("mediatype", "mediatype", "0"); // "1" gibts nicht. Siehe FinTS_3
+        // .0_Security_Sicherheitsverfahren_PINTAN_Rel_20101027_final_version.pdf "TAN-Medium-Art"
         addConstraint("mediacategory", "mediacategory", "A");
     }
 

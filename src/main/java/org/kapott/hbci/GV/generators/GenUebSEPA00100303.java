@@ -1,6 +1,5 @@
 package org.kapott.hbci.GV.generators;
 
-
 import org.kapott.hbci.GV.AbstractSEPAGV;
 import org.kapott.hbci.GV.SepaUtil;
 import org.kapott.hbci.sepa.SepaVersion;
@@ -33,7 +32,6 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
         //Document
         Document doc = new Document();
 
-
         //Customer Credit Transfer Initiation
         doc.setCstmrCdtTrfInitn(new CustomerCreditTransferInitiationV03());
         doc.getCstmrCdtTrfInitn().setGrpHdr(new GroupHeaderSCT());
@@ -49,9 +47,9 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
         doc.getCstmrCdtTrfInitn().getGrpHdr().getInitgPty().setNm(sepaParams.get("src.name"));
         doc.getCstmrCdtTrfInitn().getGrpHdr().setCtrlSum(SepaUtil.sumBtgValue(sepaParams, maxIndex));
 
-
         //Payment Information
-        ArrayList<PaymentInstructionInformationSCT> pmtInfs = (ArrayList<PaymentInstructionInformationSCT>) doc.getCstmrCdtTrfInitn().getPmtInf();
+        ArrayList<PaymentInstructionInformationSCT> pmtInfs =
+            (ArrayList<PaymentInstructionInformationSCT>) doc.getCstmrCdtTrfInitn().getPmtInf();
         PaymentInstructionInformationSCT pmtInf = new PaymentInstructionInformationSCT();
         pmtInfs.add(pmtInf);
 
@@ -72,15 +70,12 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
         pmtInf.setDbtrAcct(new CashAccountSEPA1());
         pmtInf.setDbtrAgt(new BranchAndFinancialInstitutionIdentificationSEPA3());
 
-
         //Payment Information - Debtor
         pmtInf.getDbtr().setNm(sepaParams.get("src.name"));
-
 
         //Payment Information - DebtorAccount
         pmtInf.getDbtrAcct().setId(new AccountIdentificationSEPA());
         pmtInf.getDbtrAcct().getId().setIBAN(sepaParams.get("src.iban"));
-
 
         //Payment Information - DebtorAgent
         pmtInf.getDbtrAgt().setFinInstnId(new FinancialInstitutionIdentificationSEPA3());
@@ -93,13 +88,12 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
             pmtInf.getDbtrAgt().getFinInstnId().getOthr().setId(OthrIdentificationCode.NOTPROVIDED);
         }
 
-
         //Payment Information - ChargeBearer
         pmtInf.setChrgBr(ChargeBearerTypeSEPACode.SLEV);
 
-
         //Payment Information - Credit Transfer Transaction Information
-        ArrayList<CreditTransferTransactionInformationSCT> cdtTrxTxInfs = (ArrayList<CreditTransferTransactionInformationSCT>) pmtInf.getCdtTrfTxInf();
+        ArrayList<CreditTransferTransactionInformationSCT> cdtTrxTxInfs =
+            (ArrayList<CreditTransferTransactionInformationSCT>) pmtInf.getCdtTrfTxInf();
         if (maxIndex != null) {
             for (int tnr = 0; tnr <= maxIndex; tnr++) {
                 cdtTrxTxInfs.add(createCreditTransferTransactionInformationSCT(sepaParams, tnr));
@@ -116,14 +110,15 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
         this.marshal(of.createDocument(doc), os, validate);
     }
 
-    private CreditTransferTransactionInformationSCT createCreditTransferTransactionInformationSCT(HashMap<String, String> sepaParams, Integer index) {
+    private CreditTransferTransactionInformationSCT createCreditTransferTransactionInformationSCT(HashMap<String,
+        String> sepaParams, Integer index) {
         CreditTransferTransactionInformationSCT cdtTrxTxInf = new CreditTransferTransactionInformationSCT();
-
 
         //Payment Information - Credit Transfer Transaction Information - Payment Identification
         cdtTrxTxInf.setPmtId(new PaymentIdentificationSEPA());
-        cdtTrxTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams, SepaUtil.insertIndex("endtoendid", index), AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird, wenn keine ID angegeben ist
-
+        cdtTrxTxInf.getPmtId().setEndToEndId(SepaUtil.getProperty(sepaParams, SepaUtil.insertIndex("endtoendid",
+            index), AbstractSEPAGV.ENDTOEND_ID_NOTPROVIDED)); // sicherstellen, dass "NOTPROVIDED" eingetragen wird,
+        // wenn keine ID angegeben ist
 
         //Payment Information - Credit Transfer Transaction Information - Creditor
         cdtTrxTxInf.setCdtr(new PartyIdentificationSEPA2());
@@ -146,7 +141,8 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
         //Payment Information - Credit Transfer Transaction Information - Amount
         cdtTrxTxInf.setAmt(new AmountTypeSEPA());
         cdtTrxTxInf.getAmt().setInstdAmt(new ActiveOrHistoricCurrencyAndAmountSEPA());
-        cdtTrxTxInf.getAmt().getInstdAmt().setValue(new BigDecimal(sepaParams.get(SepaUtil.insertIndex("btg.value", index))));
+        cdtTrxTxInf.getAmt().getInstdAmt().setValue(new BigDecimal(sepaParams.get(SepaUtil.insertIndex("btg.value",
+            index))));
 
         cdtTrxTxInf.getAmt().getInstdAmt().setCcy(ActiveOrHistoricCurrencyCodeEUR.EUR);
 

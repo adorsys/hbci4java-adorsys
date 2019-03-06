@@ -28,6 +28,7 @@ import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -272,7 +273,7 @@ public class DTAUS {
             try {
                 byte[] fill = new byte[len - st.length()];
                 Arrays.fill(fill, filler);
-                String fillst = new String(fill, "ISO-8859-1");
+                String fillst = new String(fill, StandardCharsets.ISO_8859_1);
 
                 if (align == ALIGN_LEFT)
                     st = st + fillst;
@@ -284,7 +285,8 @@ public class DTAUS {
                 throw new HBCI_Exception(e);
             }
         } else if (st.length() > len) {
-            throw new InvalidArgumentException("*** string too long: \"" + st + "\" has " + st.length() + " chars, but max is " + len);
+            throw new InvalidArgumentException("*** string too long: \"" + st + "\" has " + st.length() + " chars, " +
+                "but max is " + len);
         }
 
         return st;
@@ -552,10 +554,12 @@ public class DTAUS {
                 ret.append(expand(key, 2, (byte) 0x30, ALIGN_RIGHT));
                 ret.append(expand(addkey, 3, (byte) 0x30, ALIGN_RIGHT));
                 ret.append((char) 0x20);
-                ret.append(expand(Long.toString(value.getCurr().equals("DEM") ? value.getLongValue() : 0), 11, (byte) 0x30, ALIGN_RIGHT));
+                ret.append(expand(Long.toString(value.getCurr().equals("DEM") ? value.getLongValue() : 0), 11,
+                    (byte) 0x30, ALIGN_RIGHT));
                 ret.append(expand(myAccount.blz, 8, (byte) 0x20, ALIGN_RIGHT));
                 ret.append(expand(myAccount.number, 10, (byte) 0x30, ALIGN_RIGHT));
-                ret.append(expand(Long.toString(value.getCurr().equals("EUR") ? value.getLongValue() : 0), 11, (byte) 0x30, ALIGN_RIGHT));
+                ret.append(expand(Long.toString(value.getCurr().equals("EUR") ? value.getLongValue() : 0), 11,
+                    (byte) 0x30, ALIGN_RIGHT));
                 ret.append(expand("", 3, (byte) 0x20, ALIGN_LEFT));
                 ret.append(expand(SyntaxDTAUS.check(otherAccount.name), 27, (byte) 0x20, ALIGN_LEFT));
                 ret.append(expand("", 8, (byte) 0x20, ALIGN_LEFT));
@@ -606,10 +610,13 @@ public class DTAUS {
                     realLenOfCSet += diff;
                 }
 
-                ret.replace(posForNumOfExt, posForNumOfExt + 2, expand(Integer.toString(numOfExt), 2, (byte) 0x30, ALIGN_RIGHT));
-                ret.replace(0, 4, expand(Integer.toString(basicLenOfCSet + 29 * numOfExt), 4, (byte) 0x30, ALIGN_RIGHT));
+                ret.replace(posForNumOfExt, posForNumOfExt + 2, expand(Integer.toString(numOfExt), 2, (byte) 0x30,
+                    ALIGN_RIGHT));
+                ret.replace(0, 4, expand(Integer.toString(basicLenOfCSet + 29 * numOfExt), 4, (byte) 0x30,
+                    ALIGN_RIGHT));
             } catch (NullPointerException e) {
-                throw new HBCI_Exception("probably one or more DTAUS values which MUST be set are null - please refer the API doc", e);
+                throw new HBCI_Exception("probably one or more DTAUS values which MUST be set are null - please refer" +
+                    " the API doc", e);
             }
 
             return ret.toString();

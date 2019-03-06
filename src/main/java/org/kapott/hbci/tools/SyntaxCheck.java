@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-
 public final class SyntaxCheck {
 
     private static String getArg(String[] args, int idx, String st)

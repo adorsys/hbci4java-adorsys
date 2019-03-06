@@ -189,7 +189,8 @@ public final class Crypt {
 
                 // verschluesselte daten extrahieren
                 SEG cryptdata = (SEG) childs.get(2).getElements().get(0);
-                byte[] cryptedstring = cryptdata.getValueOfDE(msgName + ".CryptData.data").getBytes(CommPinTan.ENCODING);
+                byte[] cryptedstring =
+                    cryptdata.getValueOfDE(msgName + ".CryptData.data").getBytes(CommPinTan.ENCODING);
 
                 // key extrahieren
                 SEG crypthead = (SEG) childs.get(1).getElements().get(0);
@@ -229,7 +230,6 @@ public final class Crypt {
                 throw new HBCI_Exception("*** error while decrypting", ex);
             }
         } else log.debug("did not decrypt - message is already cleartext");
-
 
         return message.toString(0);
     }

@@ -97,7 +97,6 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                     }
                 }
 
-
                 if (st_time != null) {
                     entry.timestamp = date_time_format.parse(st_date + " " + st_time);
                 } else {
@@ -184,7 +183,8 @@ public final class GVWPDepotList extends AbstractHBCIJob {
 
                         st = SwiftLegacy.getTagValue(onegattung, "90", new String[]{"A", "B"}, 0);
                         if (st != null) {
-                            gattung.pricequalifier = (st.substring(1, 5).equals("MRKT")) ? GVRWPDepotList.Entry.Gattung.PRICE_QUALIF_MRKT
+                            gattung.pricequalifier = (st.substring(1, 5).equals("MRKT")) ?
+                                GVRWPDepotList.Entry.Gattung.PRICE_QUALIF_MRKT
                                 : GVRWPDepotList.Entry.Gattung.PRICE_QUALIF_HINT;
 
                             int next = 0;
@@ -374,7 +374,8 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                             String onesubsaldo = onegattung.substring(subsaldopos, pos2 + 11);
                             subsaldopos += onesubsaldo.length();
 
-                            GVRWPDepotList.Entry.Gattung.SubSaldo subsaldo = new GVRWPDepotList.Entry.Gattung.SubSaldo();
+                            GVRWPDepotList.Entry.Gattung.SubSaldo subsaldo =
+                                new GVRWPDepotList.Entry.Gattung.SubSaldo();
 
                             st = Swift.getTagValue(onesubsaldo, "93C", 0);
                             subsaldo.qualifier = st.substring(1, 5);

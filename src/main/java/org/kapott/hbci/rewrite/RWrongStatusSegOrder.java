@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-
 // dieser Rewriter muss *VOR* "WrongSequenceNumbers" ausgeführt werden,
 // weil hierbei u.U. die Segment-Sequenz-Nummern durcheinandergebracht werden
 @Slf4j

@@ -43,7 +43,8 @@ public class GVTermUebSEPAEdit extends AbstractSEPAGV {
         addConstraint("usage", "sepa.usage", "");
         addConstraint("date", "sepa.date", null);
 
-        // Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
+        // Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu
+        // identifizieren)
         addConstraint("sepaid", "sepa.sepaid", getPainMessageId());
         addConstraint("pmtinfid", "sepa.pmtinfid", getPainMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED);

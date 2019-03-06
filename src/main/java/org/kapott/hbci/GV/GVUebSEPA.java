@@ -73,7 +73,8 @@ public class GVUebSEPA extends AbstractSEPAGV {
         addConstraint("btg.curr", "sepa.btg.curr", "EUR", true);
         addConstraint("usage", "sepa.usage", "", true);
 
-        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
+        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu
+        // identifizieren)
         addConstraint("sepaid", "sepa.sepaid", getPainMessageId());
         addConstraint("pmtinfid", "sepa.pmtinfid", getPainMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED, true);

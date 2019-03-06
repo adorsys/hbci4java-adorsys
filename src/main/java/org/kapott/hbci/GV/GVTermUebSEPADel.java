@@ -4,7 +4,6 @@ import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.SepaVersion;
 
-
 /**
  * Implementierung des HBCI-Jobs fuer die Löschung einer SEPA-Terminüberweisung.
  */
@@ -52,7 +51,8 @@ public class GVTermUebSEPADel extends AbstractSEPAGV {
         addConstraint("usage", "sepa.usage", "");
         addConstraint("date", "sepa.date", null);
 
-        // Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
+        // Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu
+        // identifizieren)
         addConstraint("sepaid", "sepa.sepaid", getPainMessageId());
         addConstraint("pmtinfid", "sepa.pmtinfid", getPainMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED);
@@ -87,6 +87,7 @@ public class GVTermUebSEPADel extends AbstractSEPAGV {
     /**
      * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainJobName()
      */
+    @Override
     public String getPainJobName() {
         return "UebSEPA";
     }

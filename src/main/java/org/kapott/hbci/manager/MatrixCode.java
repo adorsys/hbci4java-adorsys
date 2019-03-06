@@ -7,7 +7,6 @@
 
 package org.kapott.hbci.manager;
 
-
 import static org.kapott.hbci.comm.CommPinTan.ENCODING;
 
 /**
@@ -17,23 +16,6 @@ public class MatrixCode {
     private String mimetype = null;
     private byte[] image = null;
 
-    /**
-     * Versucht den Text als Matrix-Code zu parsen.
-     * @param data die zu parsenden Daten.
-     * @return der Matrix-Code, wenn er lesbar war, sonst NULL.
-     */
-    public static MatrixCode tryParse(String data)
-    {
-        try
-        {
-            return new MatrixCode(data);
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-    }
-    
     /**
      * ct.
      *
@@ -79,6 +61,20 @@ public class MatrixCode {
 
             System.arraycopy(data, offset, b, 0, len);
             this.image = b;
+        }
+    }
+
+    /**
+     * Versucht den Text als Matrix-Code zu parsen.
+     *
+     * @param data die zu parsenden Daten.
+     * @return der Matrix-Code, wenn er lesbar war, sonst NULL.
+     */
+    public static MatrixCode tryParse(String data) {
+        try {
+            return new MatrixCode(data);
+        } catch (Exception e) {
+            return null;
         }
     }
 

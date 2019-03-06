@@ -28,7 +28,6 @@ import org.w3c.dom.Node;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 @Slf4j
 public final class Message extends SyntaxElement {
@@ -153,7 +152,9 @@ public final class Message extends SyntaxElement {
         return '\'';
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1,
+                                                            StringBuffer res, Document document, HashMap<String,
+        String> predefs, HashMap<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG"))
@@ -220,7 +221,6 @@ public final class Message extends SyntaxElement {
         }
         return false;
     }
-
 
     public Document getDocument() {
         return document;

@@ -52,17 +52,6 @@ public class ChallengeInfo {
     private Map<String, Job> data; // Die Parameter-Daten aus der XML-Datei.
 
     /**
-     * Erzeugt ein neues Challenge-Info-Objekt.
-     *
-     * @return das Challenge-Info-Objekt.
-     */
-    public static synchronized ChallengeInfo getInstance() {
-        if (singleton == null)
-            singleton = new ChallengeInfo();
-        return singleton;
-    }
-
-    /**
      * ct.
      */
     private ChallengeInfo() {
@@ -112,6 +101,17 @@ public class ChallengeInfo {
     }
 
     /**
+     * Erzeugt ein neues Challenge-Info-Objekt.
+     *
+     * @return das Challenge-Info-Objekt.
+     */
+    public static synchronized ChallengeInfo getInstance() {
+        if (singleton == null)
+            singleton = new ChallengeInfo();
+        return singleton;
+    }
+
+    /**
      * Liefert die Challenge-Daten fuer einen Geschaeftsvorfall.
      *
      * @param code die Segmentkennung des Geschaeftsvorfalls.
@@ -153,12 +153,10 @@ public class ChallengeInfo {
             return;
         }
 
-
         // Schritt 1: Challenge-Klasse uebernehmen
         String klass = hhd.getKlass();
         log.debug("using challenge klass " + klass);
         hktan.setParam("challengeklass", klass);
-
 
         // Schritt 2: Challenge-Parameter uebernehmen
         List<Param> params = hhd.getParams();
@@ -243,7 +241,7 @@ public class ChallengeInfo {
          * @param spec der XML-Knoten mit den Daten.
          */
         private HhdVersion(Element spec) {
-            this.klass = ((Element) spec.getElementsByTagName("klass").item(0)).getFirstChild().getNodeValue();
+            this.klass = spec.getElementsByTagName("klass").item(0).getFirstChild().getNodeValue();
 
             NodeList list = spec.getElementsByTagName("param");
             int size = list.getLength();

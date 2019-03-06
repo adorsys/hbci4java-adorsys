@@ -33,6 +33,7 @@ import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Security;
 import java.util.*;
 
@@ -65,7 +66,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
         try {
             int padLength = bytes[bytes.length - 1];
             byte[] encrypted = new String(bytes, 0, bytes.length
-                - padLength, "ISO-8859-1").getBytes("ISO-8859-1");
+                - padLength, StandardCharsets.ISO_8859_1).getBytes(StandardCharsets.ISO_8859_1);
             return new byte[][]{new byte[8], encrypted};
         } catch (Exception ex) {
             throw new HBCI_Exception("*** encrypting message failed", ex);
@@ -75,8 +76,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
     @Override
     public byte[] decrypt(byte[] bytes, byte[] bytes1) {
         try {
-            return new String(new String(bytes1, "ISO-8859-1") + '\001')
-                .getBytes("ISO-8859-1");
+            return (new String(bytes1, StandardCharsets.ISO_8859_1) + '\001')
+                .getBytes(StandardCharsets.ISO_8859_1);
         } catch (Exception ex) {
             throw new HBCI_Exception("*** decrypting of message failed", ex);
         }

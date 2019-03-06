@@ -2,7 +2,6 @@ package org.kapott.hbci.GV.parsers;
 
 import java.util.HashMap;
 
-
 /**
  * Abstrakte Basis-Klasse der SEPA PAIN-Parser.
  *

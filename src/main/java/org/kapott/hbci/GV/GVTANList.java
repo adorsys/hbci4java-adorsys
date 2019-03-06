@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.GV;
 
-
 import org.kapott.hbci.GV_Result.GVRTANList;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -48,8 +47,10 @@ public class GVTANList extends AbstractHBCIJob {
         if (st != null)
             list.date = HBCIUtils.string2DateISO(st);
 
-        String noftansperlist = result.get(header + ".noftansperlist") != null ? result.get(header + ".noftansperlist") : "0";
-        String nofusedtansperlist = result.get(header + ".nofusedtansperlist") != null ? result.get(header + ".nofusedtansperlist") : "0";
+        String noftansperlist = result.get(header + ".noftansperlist") != null ? result.get(header + ".noftansperlist"
+        ) : "0";
+        String nofusedtansperlist = result.get(header + ".nofusedtansperlist") != null ? result.get(header +
+            ".nofusedtansperlist") : "0";
 
         list.nofTANsPerList = Integer.parseInt(noftansperlist);
         list.nofUsedTANsPerList = Integer.parseInt(nofusedtansperlist);

@@ -54,7 +54,6 @@ public class SwiftLegacy {
         return ret;
     }
 
-
     public static String getLineFieldValue(final String stream, final String linenum, int fieldnum) {
         // TODO: hier evtl. sauberer parsen
 

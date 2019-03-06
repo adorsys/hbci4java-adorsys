@@ -154,7 +154,8 @@ public final class HBCIKernel {
         }
     }
 
-    private ArrayList<Rewrite> getRewriters(String rewriters_st) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
+    private ArrayList<Rewrite> getRewriters(String rewriters_st) throws ClassNotFoundException, NoSuchMethodException
+        , InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
         ArrayList<Rewrite> rewriters = new ArrayList<>();
         StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
         while (tok.hasMoreTokens()) {
@@ -289,7 +290,8 @@ public final class HBCIKernel {
             try {
                 passport.getCallback().status(HBCICallback.STATUS_MSG_PARSE, response.getName() + "Res");
                 log.debug("message to pe parsed: " + response.toString(0));
-                response = new Message(responseMessageName, responseString, passport.getSyntaxDocument(), Message.CHECK_SEQ, true);
+                response = new Message(responseMessageName, responseString, passport.getSyntaxDocument(),
+                    Message.CHECK_SEQ, true);
             } catch (Exception ex) {
                 throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), responseString, ex);
             }

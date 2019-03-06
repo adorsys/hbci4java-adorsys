@@ -27,7 +27,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -38,7 +37,8 @@ public final class SF extends SyntaxElement {
         super(type, name, path, idx, document);
     }
 
-    public SF(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public SF(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document,
+              HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
@@ -61,7 +61,8 @@ public final class SF extends SyntaxElement {
         MultipleSyntaxElements ret = null;
 
         if (((Element) ref).getAttribute("minnum").equals("0")) {
-            log.trace("will not create container " + getPath() + " -> " + ((Element) ref).getAttribute("type") + " with minnum=0");
+            log.trace("will not create container " + getPath() + " -> " + ((Element) ref).getAttribute("type") + " " +
+                "with minnum=0");
         } else {
             ret = super.createAndAppendNewChildContainer(ref, document);
         }
@@ -93,7 +94,8 @@ public final class SF extends SyntaxElement {
         return ret.toString();
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res,
+                     Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
         super.init(type, name, path, predelim, idx, res, document, predefs, valids);
     }
 
@@ -162,7 +164,9 @@ public final class SF extends SyntaxElement {
         return ret;
     }
 
-    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1,
+                                                            StringBuffer res, Document document, HashMap<String,
+        String> predefs, HashMap<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG")) {
@@ -174,7 +178,11 @@ public final class SF extends SyntaxElement {
         return ret;
     }
 
-    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node segref, char predelim0, char predelim1, StringBuffer res, int fullResLen, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node segref, char predelim0, char predelim1,
+                                                                     StringBuffer res, int fullResLen,
+                                                                     Document document,
+                                                                     HashMap<String, String> predefs, HashMap<String,
+        String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG")) {
@@ -216,7 +224,8 @@ public final class SF extends SyntaxElement {
                 }
 
                 if (parseNext) {
-                    ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, document, predefs, valids);
+                    ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, document, predefs,
+                        valids);
                 }
             }
         } else if ((segref.getNodeName()).equals("SF")) {

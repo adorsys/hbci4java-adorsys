@@ -68,7 +68,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     private Document syntaxDocument;
     private HBCIProduct hbciProduct;
 
-    public AbstractHBCIPassport(String hbciversion, Map<String, String> properties, HBCICallback callback, HBCIProduct product) {
+    public AbstractHBCIPassport(String hbciversion, Map<String, String> properties, HBCICallback callback,
+                                HBCIProduct product) {
         this.hbciversion = hbciversion;
         this.callback = callback;
         this.properties = properties;
@@ -77,7 +78,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         init();
     }
 
-    public static HBCIPassport getInstance(HBCICallback callback, Map<String, String> properties, String name, Object init) {
+    public static HBCIPassport getInstance(HBCICallback callback, Map<String, String> properties, String name,
+                                           Object init) {
         if (name == null) {
             throw new NullPointerException("name of passport implementation must not be null");
         }
@@ -89,11 +91,12 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
             log.debug("creating new instance of a " + name + " passport");
             Class cl = Class.forName(className);
-            Constructor con = cl.getConstructor(new Class[]{Properties.class, HBCICallback.class, Object.class});
+            Constructor con = cl.getConstructor(Properties.class, HBCICallback.class, Object.class);
             HBCIPassport p = (HBCIPassport) (con.newInstance(new Object[]{properties, callback, init}));
             return p;
         } catch (ClassNotFoundException e) {
-            throw new InvalidUserDataException("*** No passport implementation '" + name + "' found - there must be a class " + className);
+            throw new InvalidUserDataException("*** No passport implementation '" + name + "' found - there must be a" +
+                " class " + className);
         } catch (InvocationTargetException ite) {
             Throwable cause = ite.getCause();
             if (cause instanceof HBCI_Exception)
@@ -209,7 +212,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         boolean haveNumber = (number != null && number.length() != 0);
         boolean haveIBAN = (iban != null && iban.length() != 0);
 
-        for (Konto account1 :  getAccounts()) {
+        for (Konto account1 : getAccounts()) {
             String temp_number = HBCIUtils.stripLeadingZeroes(account1.number);
             String temp_iban = HBCIUtils.stripLeadingZeroes(account1.iban);
 
@@ -391,7 +394,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 if (version.length() != 0) {
                     gvname = gvname.substring(0, versionPos - 3); // remove version and "Par"
 
-                    String knownVersion = (String) ret.get(gvname);
+                    String knownVersion = ret.get(gvname);
 
                     if (knownVersion == null ||
                         Integer.parseInt(version) > Integer.parseInt(knownVersion)) {
@@ -716,9 +719,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 // p.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.can1step")
                 if (key.startsWith("Params")) {
                     String subkey = key.substring(key.indexOf('.') + 1);
-                    if (subkey.startsWith("TAN2StepPar" + segVersion) && subkey.endsWith(".orderhashmode")) {
-                        return true;
-                    }
+                    return subkey.startsWith("TAN2StepPar" + segVersion) && subkey.endsWith(".orderhashmode");
                 }
                 return false;
             })
@@ -783,6 +784,5 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     public HBCICallback getCallback() {
         return callback;
     }
-
 
 }

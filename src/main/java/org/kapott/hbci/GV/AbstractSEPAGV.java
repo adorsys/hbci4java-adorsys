@@ -294,7 +294,6 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         }
     }
 
-
     /**
      * Bei SEPA Geschäftsvorfällen müssen wir verifyConstraints überschreiben um
      * die SEPA XML zu generieren

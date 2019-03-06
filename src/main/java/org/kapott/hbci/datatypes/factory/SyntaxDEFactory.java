@@ -34,8 +34,9 @@ public class SyntaxDEFactory {
     public static SyntaxDE createSyntaxDE(String dataType, String path, Object value, int minsize, int maxsize) {
         // laden der klasse, die die syntax des de enthaelt
         try {
-            Class c = Class.forName("org.kapott.hbci.datatypes.Syntax" + dataType, false, SyntaxDEFactory.class.getClassLoader());
-            Constructor con = c.getConstructor(new Class[]{value.getClass(), int.class, int.class});
+            Class c = Class.forName("org.kapott.hbci.datatypes.Syntax" + dataType, false,
+                SyntaxDEFactory.class.getClassLoader());
+            Constructor con = c.getConstructor(value.getClass(), int.class, int.class);
             return (SyntaxDE) (con.newInstance(new Object[]{value, new Integer(minsize), new Integer(maxsize)}));
         } catch (ClassNotFoundException e) {
             throw new NoSuchSyntaxException(dataType, path);

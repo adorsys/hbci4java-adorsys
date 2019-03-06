@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 /* @brief A class for managing exactly one HBCI-Dialog
 
     A HBCI-Dialog consists of a number of HBCI-messages. These
@@ -58,11 +57,13 @@ public final class HBCIDialog {
 
     private String dialogid;  /* The dialogID for this dialog (unique for each dialog) */
     private long msgnum;    /* An automatically managed message counter. */
-    private List<List<AbstractHBCIJob>> messages = new ArrayList<>();    /* this array contains all messages to be sent (excluding
+    private List<List<AbstractHBCIJob>> messages = new ArrayList<>();    /* this array contains all messages to be
+    sent (excluding
                                              dialogInit and dialogEnd); each element of the arrayList
                                              is again an ArrayList, where each element is one
                                              task (GV) to be sent with this specific message */
-    // liste aller GVs in der aktuellen msg; key ist der hbciCode des jobs, value ist die anzahl dieses jobs in der aktuellen msg
+    // liste aller GVs in der aktuellen msg; key ist der hbciCode des jobs, value ist die anzahl dieses jobs in der
+    // aktuellen msg
     private HashMap<String, String> listOfGVs = new HashMap<>();
     private PinTanPassport passport;
     private HBCIKernel kernel;
@@ -413,7 +414,8 @@ public final class HBCIDialog {
                         "have to generate new message because current type of passport only allows " + maxGVSegTotal + " GV segs per message");
                 } else {
                     log.debug(
-                        "have to generate new message because of BPD restrictions for number of tasks per message; adding job to this new message");
+                        "have to generate new message because of BPD restrictions for number of tasks per message; " +
+                            "adding job to this new message");
                 }
                 newMsg();
                 gv_counter = 1;

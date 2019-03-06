@@ -25,6 +25,7 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -76,7 +77,8 @@ public class DTAUS_CH {
         ret.append("890");
         ret.append("00");
 
-        ret.append(expand(new DecimalFormat("0.000").format(total / 100.0).replace('.', ','), 16, (byte) 0x20, ALIGN_LEFT));
+        ret.append(expand(new DecimalFormat("0.000").format(total / 100.0).replace('.', ','), 16, (byte) 0x20,
+            ALIGN_LEFT));
         ret.append(expand("", 59, (byte) 0x20, ALIGN_LEFT));
 
         return ret.toString();
@@ -87,7 +89,7 @@ public class DTAUS_CH {
             try {
                 byte[] fill = new byte[len - st.length()];
                 Arrays.fill(fill, filler);
-                String fillst = new String(fill, "ISO-8859-1");
+                String fillst = new String(fill, StandardCharsets.ISO_8859_1);
 
                 if (align == ALIGN_LEFT)
                     st = st + fillst;
@@ -99,7 +101,8 @@ public class DTAUS_CH {
                 throw new HBCI_Exception(e);
             }
         } else if (st.length() > len) {
-            throw new InvalidArgumentException("*** string too long: \"" + st + "\" has " + st.length() + " chars, but max is " + len);
+            throw new InvalidArgumentException("*** string too long: \"" + st + "\" has " + st.length() + " chars, " +
+                "but max is " + len);
         }
 
         return st;
@@ -137,13 +140,14 @@ public class DTAUS_CH {
             ret.append("00");
 
             ret.append(expand("", 5, (byte) 0x20, ALIGN_LEFT));
-            ret.append(expand("TAN" + Integer.toString(idx), 11, (byte) 0x20, ALIGN_LEFT));
+            ret.append(expand("TAN" + idx, 11, (byte) 0x20, ALIGN_LEFT));
 
             ret.append(expand(myAccount.number, 24, (byte) 0x20, ALIGN_LEFT));
 
             ret.append(expand("", 6, (byte) 0x20, ALIGN_LEFT));
             ret.append(value.getCurr());
-            ret.append(expand(new DecimalFormat("0.00").format(value.getBigDecimalValue()).replace('.', ','), 12, (byte) 0x20, ALIGN_LEFT));
+            ret.append(expand(new DecimalFormat("0.00").format(value.getBigDecimalValue()).replace('.', ','), 12,
+                (byte) 0x20, ALIGN_LEFT));
             total += value.getLongValue();
 
             ret.append(expand("", 14, (byte) 0x20, ALIGN_LEFT));
@@ -166,7 +170,7 @@ public class DTAUS_CH {
 
             ret.append("04");
             for (int i = 0; i < 4; i++) {
-                ret.append(expand((i < usage.size() ? (String) usage.get(i) : ""),
+                ret.append(expand((i < usage.size() ? usage.get(i) : ""),
                     28, (byte) 0x20, ALIGN_LEFT));
             }
             ret.append(expand("", 14, (byte) 0x20, ALIGN_LEFT));

@@ -30,12 +30,14 @@ public class UpdateBLZProperties {
      * @param args 1. Pfad/Dateiname zu "fints_institute.csv".
      *             2. Pfad/Dateiname zu "blz.properties".
      *             3. Pfad/Dateiname zur neuen "blz.properties".
-     *             4. optional: Pfad/Dateiname zur BLZ-Datei der Bundesbank. Falls angegeben, werden die eventuell vorhandene BIC-Updates übernommen
+     *             4. optional: Pfad/Dateiname zur BLZ-Datei der Bundesbank. Falls angegeben, werden die eventuell
+     *             vorhandene BIC-Updates übernommen
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
         if (args == null || args.length < 3 || args.length > 4) {
-            System.err.println("benoetigte Parameter: 1) fints_institute.csv, 2) blz.properties, 3) zu schreibende blz.properties");
+            System.err.println("benoetigte Parameter: 1) fints_institute.csv, 2) blz.properties, 3) zu schreibende " +
+                "blz.properties");
             System.err.println("optionaler Parameter: 4) BLZ_20160606.txt (BLZ-Update der Bundesbank)");
             System.exit(1);
         }

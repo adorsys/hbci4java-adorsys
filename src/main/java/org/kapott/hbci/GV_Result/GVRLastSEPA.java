@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.GV_Result;
 
-
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
 /**

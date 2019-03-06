@@ -98,7 +98,6 @@ public class ParameterFinder {
     }
 }
 
-
 /**********************************************************************
  * $Log: ParameterFinder.java,v $
  * Revision 1.1  2011/05/13 15:22:08  willuhn

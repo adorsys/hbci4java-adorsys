@@ -49,7 +49,7 @@ public class GVRawSEPA extends AbstractSEPAGV {
         if (pain == null) {
             addConstraint("_sepapain", "sepapain", null);
         } else {
-            setPainXml("B"+pain);
+            setPainXml("B" + pain);
         }
     }
 

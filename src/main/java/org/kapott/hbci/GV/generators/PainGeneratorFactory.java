@@ -28,7 +28,8 @@ public class PainGeneratorFactory {
      * @throws InstantiationException
      * @throws ClassNotFoundException
      */
-    public static PainGeneratorIf get(AbstractHBCIJob job, SepaVersion version) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static PainGeneratorIf get(AbstractHBCIJob job, SepaVersion version) throws ClassNotFoundException,
+        InstantiationException, IllegalAccessException {
         String jobname = ((AbstractSEPAGV) job).getPainJobName(); // referenzierter pain-Geschäftsvorfall
         return get(jobname, version);
     }
@@ -43,7 +44,8 @@ public class PainGeneratorFactory {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public static PainGeneratorIf get(String jobname, SepaVersion version) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static PainGeneratorIf get(String jobname, SepaVersion version) throws ClassNotFoundException,
+        InstantiationException, IllegalAccessException {
         if (!version.canGenerate(jobname))
             throw new InvalidUserDataException("SEPA version is not supported: " + version);
 

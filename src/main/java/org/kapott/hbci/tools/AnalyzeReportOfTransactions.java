@@ -43,7 +43,8 @@ public final class AnalyzeReportOfTransactions {
         HBCIUtils.refreshBLZList(ClassLoader.getSystemResource("blz.properties").openStream());
 
         HashMap<String, String> properties = new HashMap<>();
-        properties.put("kernel.rewriter", "InvalidSegment,WrongStatusSegOrder,WrongSequenceNumbers,MissingMsgRef,HBCIVersion,SigIdLeadingZero,InvalidSuppHBCIVersion,SecTypeTAN,KUmsDelimiters,KUmsEmptyBDateSets");
+        properties.put("kernel.rewriter", "InvalidSegment,WrongStatusSegOrder,WrongSequenceNumbers,MissingMsgRef," +
+            "HBCIVersion,SigIdLeadingZero,InvalidSuppHBCIVersion,SecTypeTAN,KUmsDelimiters,KUmsEmptyBDateSets");
         properties.put("client.passport.default", "PinTanNoFile");
         properties.put("log.loglevel.default", "2");
         properties.put("default.hbciversion", "FinTS3");
@@ -120,5 +121,4 @@ public final class AnalyzeReportOfTransactions {
     public final void main_multithreaded(String[] str) {
     }
 
-    ;
 }

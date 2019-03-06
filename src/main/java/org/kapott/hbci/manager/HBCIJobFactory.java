@@ -36,7 +36,7 @@ public class HBCIJobFactory {
 
         try {
             Class cl = Class.forName(className);
-            Constructor cons = cl.getConstructor(new Class[]{HBCIPassportInternal.class});
+            Constructor cons = cl.getConstructor(HBCIPassportInternal.class);
             ret = (AbstractHBCIJob) cons.newInstance(new Object[]{passport});
         } catch (ClassNotFoundException e) {
             throw new InvalidUserDataException("*** there is no highlevel job named " + jobname + " - need class " + className);

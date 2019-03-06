@@ -1,7 +1,6 @@
 package org.kapott.hbci.manager;
 
 import lombok.Data;
-import org.kapott.hbci.exceptions.HBCI_Exception;
 
 import java.lang.reflect.Field;
 
@@ -40,7 +39,6 @@ public class HBCITwoStepMechanism {
                     //ignore
                 }
         }
-
 
     }
 }

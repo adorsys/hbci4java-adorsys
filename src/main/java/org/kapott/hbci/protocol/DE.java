@@ -28,7 +28,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
 
 public final class DE extends SyntaxElement {
 
@@ -42,7 +45,8 @@ public final class DE extends SyntaxElement {
         initData(dedef, name, path, idx, document);
     }
 
-    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public DE(Node dedef, String name, String path, char predelim, int idx, StringBuffer res,
+              HashMap<String, String> predefs, HashMap<String, String> valids) {
         super(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, null, predefs, valids);
         initData(dedef, res, predefs, predelim, valids);
     }
@@ -169,7 +173,9 @@ public final class DE extends SyntaxElement {
     }
 
     @Override
-    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1, StringBuffer res, Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    protected MultipleSyntaxElements parseNewChildContainer(Node deref, char predelim0, char predelim1,
+                                                            StringBuffer res, Document document, HashMap<String,
+        String> predefs, HashMap<String, String> valids) {
         return null;
     }
 
@@ -182,7 +188,8 @@ public final class DE extends SyntaxElement {
      * anlegen eines de beim parsen funktioniert analog zum
      * anlegen eines de bei der message-synthese
      */
-    private void parseValue(StringBuffer res, HashMap<String, String> predefs, char preDelim, HashMap<String, String> valids) {
+    private void parseValue(StringBuffer res, HashMap<String, String> predefs, char preDelim,
+                            HashMap<String, String> valids) {
         int len = res.length();
 
         if (preDelim != (char) 0 && res.charAt(0) != preDelim) {
@@ -193,7 +200,8 @@ public final class DE extends SyntaxElement {
             // log.("error string: "+res.toString(),log._ERR);
             // log.("current: "+getPath()+":"+type+"("+minsize+","+maxsize+")="+value,log._ERR);
             // log.("predelimiter mismatch (required:"+getPreDelim()+" found:"+temp.charAt(0)+")",log._ERR);
-            throw new PredelimErrorException(getPath(), Character.toString(preDelim), Character.toString(res.charAt(0)));
+            throw new PredelimErrorException(getPath(), Character.toString(preDelim),
+                Character.toString(res.charAt(0)));
         }
 
         this.value = SyntaxDEFactory.createSyntaxDE(getType(), getPath(), res, minsize, maxsize);
@@ -211,7 +219,7 @@ public final class DE extends SyntaxElement {
         boolean ok = false;
         if (valids != null) {
             String header = getPath() + ".value";
-            for (String key: valids.keySet()) {
+            for (String key : valids.keySet()) {
                 if (key.startsWith(header) &&
                     key.indexOf(".", header.length()) == -1) {
 
@@ -230,7 +238,8 @@ public final class DE extends SyntaxElement {
         }
     }
 
-    private void initData(Node dedef, StringBuffer res, HashMap<String, String> predefs, char preDelim, HashMap<String, String> valids) {
+    private void initData(Node dedef, StringBuffer res, HashMap<String, String> predefs, char preDelim,
+                          HashMap<String, String> valids) {
         setValid(false);
 
         value = null;
@@ -256,7 +265,8 @@ public final class DE extends SyntaxElement {
         }
     }
 
-    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    public void init(Node dedef, String name, String path, char predelim, int idx, StringBuffer res, HashMap<String,
+        String> predefs, HashMap<String, String> valids) {
         super.init(((Element) dedef).getAttribute("type"), name, path, predelim, idx, res, null, predefs, valids);
         initData(dedef, res, predefs, predelim, valids);
     }
@@ -279,15 +289,15 @@ public final class DE extends SyntaxElement {
 
     public void getElementPaths(Properties p, int[] segref, int[] degref, int[] deref) {
         if (deref == null) {
-            p.setProperty(Integer.toString(segref[0]) +
-                ":" + Integer.toString(degref[0]), getPath());
+            p.setProperty(segref[0] +
+                ":" + degref[0], getPath());
             degref[0]++;
         } else {
-            p.setProperty(Integer.toString(segref[0]) +
+            p.setProperty(segref[0] +
                     ":" +
-                    Integer.toString(degref[0]) +
+                    degref[0] +
                     "," +
-                    Integer.toString(deref[0]),
+                    deref[0],
                 getPath());
             deref[0]++;
         }

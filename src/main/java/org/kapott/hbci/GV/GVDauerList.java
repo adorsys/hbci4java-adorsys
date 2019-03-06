@@ -29,7 +29,6 @@ import org.kapott.hbci.structures.Value;
 
 import java.util.HashMap;
 
-
 public final class GVDauerList extends AbstractHBCIJob {
 
     public GVDauerList(HBCIPassportInternal passport) {

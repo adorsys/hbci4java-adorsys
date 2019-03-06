@@ -51,7 +51,8 @@ public class GVDauerSEPADel extends AbstractSEPAGV {
         addConstraint("usage", "sepa.usage", "");
         addConstraint("date", "date", "");
 
-        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
+        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu
+        // identifizieren)
         addConstraint("sepaid", "sepa.sepaid", getPainMessageId());
         addConstraint("pmtinfid", "sepa.pmtinfid", getPainMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED);

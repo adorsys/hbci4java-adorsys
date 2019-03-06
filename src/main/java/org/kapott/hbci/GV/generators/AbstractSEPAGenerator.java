@@ -72,7 +72,8 @@ public abstract class AbstractSEPAGenerator<T> implements PainGeneratorIf<T> {
                     }
 
                     if (source == null)
-                        throw new HBCI_Exception("schema validation activated against " + file + " - but schema file could not be found");
+                        throw new HBCI_Exception("schema validation activated against " + file + " - but schema file " +
+                            "could not be found");
 
                     LOG.fine("activating schema validation against " + file);
                     SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

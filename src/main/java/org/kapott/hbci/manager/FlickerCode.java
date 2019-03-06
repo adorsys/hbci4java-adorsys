@@ -217,7 +217,8 @@ public class FlickerCode {
      * Also der Wert von **011100 = 2^4+2^3+s^2 = 28
      *
      * @param num  Zahl, aus der die Summe berechnet werden soll.
-     * @param bits Anzahl der Bits (beginnend bei 0 und beim kleinsten Bit, angegebenes inclusive), deren Wertigkeit addiert werden soll.
+     * @param bits Anzahl der Bits (beginnend bei 0 und beim kleinsten Bit, angegebenes inclusive), deren Wertigkeit
+     *             addiert werden soll.
      * @return der errechnete Wert.
      */
     private static int getBitSum(int num, int bits) {
@@ -495,7 +496,7 @@ public class FlickerCode {
     /**
      * Versionskennung.
      */
-    public static enum HHDVersion {
+    public enum HHDVersion {
         /**
          * HHD-Version 1.4
          */
@@ -510,7 +511,7 @@ public class FlickerCode {
     /**
      * Das Encoding der Nutzdaten.
      */
-    public static enum Encoding {
+    public enum Encoding {
         /**
          * ASC-Encoding.
          */

@@ -235,7 +235,8 @@ public final class HBCIInstitute implements IHandlerData {
                         throw he;
                 }
 //                log.(e);
-                // Viele Kreditinstitute unterstützen den anonymen Login nicht. Dass sollte nicht als Fehler den Anwender beunruhigen
+                // Viele Kreditinstitute unterstützen den anonymen Login nicht. Dass sollte nicht als Fehler den
+                // Anwender beunruhigen
                 log.info("FAILED! - maybe this institute does not support anonymous logins");
                 log.info("we will nevertheless go on");
             }

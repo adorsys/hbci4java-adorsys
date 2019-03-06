@@ -10,71 +10,44 @@
 
 package org.kapott.hbci.GV.parsers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.kapott.hbci.GV.SepaUtil;
+import org.kapott.hbci.GV_Result.GVRKUms.BTag;
+import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
+import org.kapott.hbci.sepa.jaxb.camt_052_001_07.*;
+import org.kapott.hbci.structures.Konto;
+import org.kapott.hbci.structures.Saldo;
+import org.kapott.hbci.structures.Value;
+
+import javax.xml.bind.JAXB;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.JAXB;
-
-import lombok.extern.slf4j.Slf4j;
-import org.kapott.hbci.GV.SepaUtil;
-import org.kapott.hbci.GV_Result.GVRKUms.BTag;
-import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
-import org.kapott.hbci.manager.HBCIUtils;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.AccountIdentification4Choice;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.AccountReport22;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.ActiveOrHistoricCurrencyAndAmount;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.BankToCustomerAccountReportV07;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.BankTransactionCodeStructure4;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.BranchAndFinancialInstitutionIdentification5;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.CashAccount24;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.CashAccount36;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.CashBalance8;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.CreditDebitCode;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.DateAndDateTime2Choice;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.Document;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.EntryDetails8;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.EntryTransaction9;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.FinancialInstitutionIdentification8;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.Party35Choice;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.PartyIdentification125;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.Purpose2Choice;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.ReportEntry9;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.TransactionAgents4;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.TransactionParties4;
-import org.kapott.hbci.sepa.jaxb.camt_052_001_07.TransactionReferences3;
-import org.kapott.hbci.structures.Konto;
-import org.kapott.hbci.structures.Saldo;
-import org.kapott.hbci.structures.Value;
-
 /**
  * Parser zum Lesen von Umsaetzen im CAMT.052 Format in Version 001.07.
  */
 @Slf4j
-public class ParseCamt05200107 extends AbstractCamtParser
-{
+public class ParseCamt05200107 extends AbstractCamtParser {
     /**
      * @see org.kapott.hbci.GV.parsers.ISEPAParser#parse(java.io.InputStream, java.lang.Object)
      */
     @Override
-    public void parse(InputStream xml, List<BTag> tage)
-    {
+    public void parse(InputStream xml, List<BTag> tage) {
 
         Document doc = JAXB.unmarshal(xml, Document.class);
         BankToCustomerAccountReportV07 container = doc.getBkToCstmrAcctRpt();
 
         // Dokument leer
-        if (container == null)
-        {
+        if (container == null) {
             log.warn("camt document empty");
             return;
         }
 
         // Enthaelt per Definition genau einen Report von einem Buchungstag
         List<AccountReport22> reports = container.getRpt();
-        if (reports == null || reports.size() == 0)
-        {
+        if (reports == null || reports.size() == 0) {
             log.warn("camt document empty");
             return;
         }
@@ -83,8 +56,7 @@ public class ParseCamt05200107 extends AbstractCamtParser
         // Da wir aber eine passende Datenstruktur haben, lesen wir mehr ein, falls
         // mehr vorhanden sind. Dann koennen wird den Parser spaeter auch nutzen,
         // um CAMT-Dateien aus anderen Quellen zu lesen.
-        for (AccountReport22 report:reports)
-        {
+        for (AccountReport22 report : reports) {
             ////////////////////////////////////////////////////////////////////
             // Kopf des Buchungstages
             BTag tag = this.createDay(report);
@@ -94,13 +66,12 @@ public class ParseCamt05200107 extends AbstractCamtParser
 
             ////////////////////////////////////////////////////////////////////
             // Die einzelnen Buchungen
-            BigDecimal saldo = tag.start != null && tag.start.value != null ? tag.start.value.getBigDecimalValue() : BigDecimal.ZERO;
+            BigDecimal saldo = tag.start != null && tag.start.value != null ? tag.start.value.getBigDecimalValue() :
+                BigDecimal.ZERO;
 
-            for (ReportEntry9 entry:report.getNtry())
-            {
-                UmsLine line = this.createLine(entry,saldo);
-                if (line != null)
-                {
+            for (ReportEntry9 entry : report.getNtry()) {
+                UmsLine line = this.createLine(entry, saldo);
+                if (line != null) {
                     tag.lines.add(line);
 
                     // Saldo fortschreiben
@@ -114,12 +85,12 @@ public class ParseCamt05200107 extends AbstractCamtParser
 
     /**
      * Erzeugt eine einzelne Umsatzbuchung.
+     *
      * @param entry der Entry aus der CAMT-Datei.
-     * @param der aktuelle Saldo vor dieser Buchung.
+     * @param der   aktuelle Saldo vor dieser Buchung.
      * @return die Umsatzbuchung.
      */
-    private UmsLine createLine(ReportEntry9 entry, BigDecimal currSaldo)
-    {
+    private UmsLine createLine(ReportEntry9 entry, BigDecimal currSaldo) {
         UmsLine line = new UmsLine();
         line.isSepa = true;
         line.isCamt = true;
@@ -146,8 +117,7 @@ public class ParseCamt05200107 extends AbstractCamtParser
         ////////////////////////////////////////////////////////////////////////
         // Buchungs-ID
         TransactionReferences3 ref = tx.getRefs();
-        if (ref != null)
-        {
+        if (ref != null) {
             line.id = trim(ref.getPrtry() != null && ref.getPrtry().size() > 0 ? ref.getPrtry().get(0).getRef() : null);
             line.endToEndId = trim(ref.getEndToEndId());
             line.mandateId = trim(ref.getMndtId());
@@ -157,8 +127,7 @@ public class ParseCamt05200107 extends AbstractCamtParser
         ////////////////////////////////////////////////////////////////////////
         // Gegenkonto: IBAN + Name
         TransactionParties4 other = tx.getRltdPties();
-        if (other != null)
-        {
+        if (other != null) {
             CashAccount24 acc = haben ? other.getDbtrAcct() : other.getCdtrAcct();
             AccountIdentification4Choice id = acc != null ? acc.getId() : null;
             line.other.iban = trim(id != null ? id.getIBAN() : null);
@@ -166,7 +135,7 @@ public class ParseCamt05200107 extends AbstractCamtParser
             Party35Choice party = haben ? other.getDbtr() : other.getCdtr();
             PartyIdentification125 pi = party != null ? party.getPty() : null;
             line.other.name = trim(pi != null ? pi.getNm() : null);
-            
+
             // Abweichender Name, falls vorhanden
             party = haben ? other.getUltmtDbtr() : other.getUltmtCdtr();
             pi = party != null ? party.getPty() : null;
@@ -178,8 +147,7 @@ public class ParseCamt05200107 extends AbstractCamtParser
         ////////////////////////////////////////////////////////////////////////
         // Gegenkonto: BIC
         TransactionAgents4 banks = tx.getRltdAgts();
-        if (banks != null)
-        {
+        if (banks != null) {
             BranchAndFinancialInstitutionIdentification5 bank = haben ? banks.getDbtrAgt() : banks.getCdtrAgt();
             FinancialInstitutionIdentification8 bic = bank != null ? bank.getFinInstnId() : null;
             line.other.bic = trim(bank != null ? bic.getBICFI() : null);
@@ -199,7 +167,7 @@ public class ParseCamt05200107 extends AbstractCamtParser
         // Betrag
         ActiveOrHistoricCurrencyAndAmount amt = entry.getAmt();
         BigDecimal bd = amt.getValue() != null ? amt.getValue() : BigDecimal.ZERO;
-        line.value = new Value(this.checkDebit(bd,entry.getCdtDbtInd()));
+        line.value = new Value(this.checkDebit(bd, entry.getCdtDbtInd()));
         line.value.setCurr(amt.getCcy());
         //
         ////////////////////////////////////////////////////////////////////////
@@ -208,10 +176,9 @@ public class ParseCamt05200107 extends AbstractCamtParser
         // Storno-Kennzeichen
         // Laut Spezifikation kehrt sich bei Stornobuchungen im Gegensatz zu MT940
         // nicht das Vorzeichen um. Der Betrag bleibt also gleich
-        line.isStorno = entry.isRvslInd() != null ? entry.isRvslInd().booleanValue() : false;
+        line.isStorno = entry.isRvslInd() != null && entry.isRvslInd().booleanValue();
         //
         ////////////////////////////////////////////////////////////////////////
-
 
         ////////////////////////////////////////////////////////////////////////
         // Buchungs- und Valuta-Datum
@@ -249,20 +216,16 @@ public class ParseCamt05200107 extends AbstractCamtParser
         // Bei der Sparkasse ist es jedenfalls so.
         BankTransactionCodeStructure4 b = tx.getBkTxCd();
         String code = (b != null && b.getPrtry() != null) ? b.getPrtry().getCd() : null;
-        if (code != null && code.contains("+"))
-        {
+        if (code != null && code.contains("+")) {
             String[] parts = code.split("\\+");
-            if (parts.length == 4)
-            {
-                line.gvcode    = parts[1];
+            if (parts.length == 4) {
+                line.gvcode = parts[1];
                 line.primanota = parts[2];
-                line.addkey    = parts[3];
-            }
-            else if (parts.length == 3)
-            {
-                line.gvcode    = parts[0];
+                line.addkey = parts[3];
+            } else if (parts.length == 3) {
+                line.gvcode = parts[0];
                 line.primanota = parts[1];
-                line.addkey    = parts[2];
+                line.addkey = parts[2];
             }
         }
         //
@@ -278,14 +241,13 @@ public class ParseCamt05200107 extends AbstractCamtParser
         return line;
     }
 
-
     /**
      * Erzeugt einen neuen Buchungstag.
+     *
      * @param report der Report.
      * @return der erzeugte Buchungstag.
      */
-    private BTag createDay(AccountReport22 report)
-    {
+    private BTag createDay(AccountReport22 report) {
         BTag tag = new BTag();
         tag.start = new Saldo();
         tag.end = new Saldo();
@@ -295,14 +257,12 @@ public class ParseCamt05200107 extends AbstractCamtParser
         ////////////////////////////////////////////////////////////////
         // Start- un End-Saldo ermitteln
         final long day = 24 * 60 * 60 * 1000L;
-        for (CashBalance8 bal:report.getBal())
-        {
+        for (CashBalance8 bal : report.getBal()) {
             String code = bal.getTp().getCdOrPrtry().getCd();
 
             // Schluss-Saldo vom Vortag
-            if (code != null && code.equalsIgnoreCase("PRCD"))
-            {
-                tag.start.value = new Value(this.checkDebit(bal.getAmt().getValue(),bal.getCdtDbtInd()));
+            if (code != null && code.equalsIgnoreCase("PRCD")) {
+                tag.start.value = new Value(this.checkDebit(bal.getAmt().getValue(), bal.getCdtDbtInd()));
                 tag.start.value.setCurr(bal.getAmt().getCcy());
 
                 //  Wir erhoehen noch das Datum um einen Tag, damit aus dem
@@ -311,9 +271,8 @@ public class ParseCamt05200107 extends AbstractCamtParser
             }
 
             // End-Saldo
-            if (code != null && code.equalsIgnoreCase("CLBD"))
-            {
-                tag.end.value = new Value(this.checkDebit(bal.getAmt().getValue(),bal.getCdtDbtInd()));
+            if (code != null && code.equalsIgnoreCase("CLBD")) {
+                tag.end.value = new Value(this.checkDebit(bal.getAmt().getValue(), bal.getCdtDbtInd()));
                 tag.end.value.setCurr(bal.getAmt().getCcy());
                 tag.end.timestamp = SepaUtil.toDate(bal.getDt().getDt());
             }
@@ -330,7 +289,7 @@ public class ParseCamt05200107 extends AbstractCamtParser
 
         BranchAndFinancialInstitutionIdentification5 bank = acc.getSvcr();
         if (bank != null && bank.getFinInstnId() != null)
-            tag.my.bic  = trim(bank.getFinInstnId().getBICFI());
+            tag.my.bic = trim(bank.getFinInstnId().getBICFI());
         ////////////////////////////////////////////////////////////////
 
         return tag;
@@ -338,12 +297,12 @@ public class ParseCamt05200107 extends AbstractCamtParser
 
     /**
      * Prueft, ob es sich um einen Soll-Betrag handelt und setzt in dem Fall ein negatives Vorzeichen vor den Wert.
-     * @param d die zu pruefende Zahl.
+     *
+     * @param d    die zu pruefende Zahl.
      * @param code das Soll-/Haben-Kennzeichen.
      * @return der ggf korrigierte Betrag.
      */
-    private BigDecimal checkDebit(BigDecimal d, CreditDebitCode code)
-    {
+    private BigDecimal checkDebit(BigDecimal d, CreditDebitCode code) {
         if (d == null || code == null || code == CreditDebitCode.CRDT)
             return d;
 

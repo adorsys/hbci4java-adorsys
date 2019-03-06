@@ -52,7 +52,8 @@ public class RHBCIVersion extends Rewrite {
                     String origVersion = msgStatus.getData().get("orig_" + msgName + ".MsgHead.hbciversion");
 
                     if (version.length() == 0 || version.equals("0")) {
-                        log.warn("received HBCI version of message ('" + version + "') is incorrect - replacing it with " + origVersion);
+                        log.warn("received HBCI version of message ('" + version + "') is incorrect - replacing it " +
+                            "with " + origVersion);
                         st = new StringBuffer(st).replace(idx + 1, idx2, origVersion).toString();
                     }
                 }

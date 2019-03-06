@@ -119,7 +119,7 @@ public class SyntaxBin extends SyntaxDE {
      */
     public String toString(int zero) {
         String con = getContent();
-        String header = "@" + Integer.toString(con.length()) + "@";
+        String header = "@" + con.length() + "@";
         return header + con;
     }
 

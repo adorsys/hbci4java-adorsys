@@ -2,7 +2,6 @@ package org.kapott.hbci.structures;
 
 import java.math.BigDecimal;
 
-
 public class TypedValue extends BigDecimalValue {
     public static final int TYPE_STCK = 1;
     public static final int TYPE_WERT = 2;

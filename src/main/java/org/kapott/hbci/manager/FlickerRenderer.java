@@ -280,7 +280,6 @@ public class FlickerRenderer {
     }
 }
 
-
 /**********************************************************************
  * $Log: FlickerRenderer.java,v $
  * Revision 1.6  2011/06/07 13:55:08  willuhn

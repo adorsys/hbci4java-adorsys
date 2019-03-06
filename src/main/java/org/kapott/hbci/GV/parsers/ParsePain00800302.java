@@ -66,7 +66,8 @@ public class ParsePain00800302 extends AbstractSepaParser<List<HashMap<String, S
 
                 try {
                     // Auf Auftragsebene suchen
-                    put(prop, Names.CREDITORID, tx.getDrctDbtTx().getCdtrSchmeId().getId().getPrvtId().getOthr().getId());
+                    put(prop, Names.CREDITORID,
+                        tx.getDrctDbtTx().getCdtrSchmeId().getId().getPrvtId().getOthr().getId());
                 } catch (Exception e) {
                     // Auf Header-Ebene suchen
                     put(prop, Names.CREDITORID, pmtInf.getCdtrSchmeId().getId().getPrvtId().getOthr().getId());

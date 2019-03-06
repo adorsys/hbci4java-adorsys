@@ -134,15 +134,15 @@ public final class MultipleDEs extends MultipleSyntaxElements {
             }
         } else {
             if (deref == null) {
-                p.put(Integer.toString(segref[0]) +
-                    ":" + Integer.toString(degref[0]), getPath());
+                p.put(segref[0] +
+                    ":" + degref[0], getPath());
                 degref[0]++;
             } else {
-                p.put(Integer.toString(segref[0]) +
+                p.put(segref[0] +
                         ":" +
-                        Integer.toString(degref[0]) +
+                        degref[0] +
                         "," +
-                        Integer.toString(deref[0]),
+                        deref[0],
                     getPath());
                 deref[0]++;
             }

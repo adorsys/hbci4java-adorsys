@@ -53,7 +53,8 @@ public final class GVCustomMsg extends AbstractHBCIJob {
                 int maxlen = Integer.parseInt(st_maxlen);
 
                 if (value.length() > maxlen) {
-                    String msg = HBCIUtils.getLocMsg("EXCMSG_TOOLONG", new String[]{paramName, value, Integer.toString(maxlen)});
+                    String msg = HBCIUtils.getLocMsg("EXCMSG_TOOLONG", new String[]{paramName, value,
+                        Integer.toString(maxlen)});
                     throw new InvalidUserDataException(msg);
                 }
             }

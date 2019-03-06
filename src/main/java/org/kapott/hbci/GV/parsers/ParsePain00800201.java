@@ -52,7 +52,6 @@ public class ParsePain00800201 extends AbstractSepaParser<List<HashMap<String, S
                 if (purp != null)
                     put(prop, Names.PURPOSECODE, purp.getCd());
 
-
                 XMLGregorianCalendar date = pmtInf.getReqdColltnDt();
                 if (date != null) {
                     put(prop, Names.TARGETDATE, SepaUtil.format(date, null));

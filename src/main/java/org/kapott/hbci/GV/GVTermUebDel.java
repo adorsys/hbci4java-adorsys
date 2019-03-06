@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
-
 @Slf4j
 public final class GVTermUebDel extends AbstractHBCIJob {
 

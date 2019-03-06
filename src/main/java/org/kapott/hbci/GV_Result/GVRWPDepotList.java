@@ -209,7 +209,8 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
             /**
              * Typ des Gesamtsaldos.
              * <ul>
-             * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry#SALDO_TYPE_STCK} - Saldo ist eine Stückzahl</li>
+             * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry#SALDO_TYPE_STCK} - Saldo ist eine
+             * Stückzahl</li>
              * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry#SALDO_TYPE_WERT} - Saldo ist ein Betrag</li>
              * </ul>
              */
@@ -306,7 +307,8 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
                 ret.append(isin).append(" WKN:").append(wkn);
                 ret.append(" CURR:").append(curr).append(")").append(linesep);
                 if (price != null) {
-                    ret.append("Preis: ").append(price.toString()).append(" (").append((pricetype == PRICE_TYPE_PRCT ? "Prozent" : "Betrag"));
+                    ret.append("Preis: ").append(price.toString()).append(" (").append((pricetype == PRICE_TYPE_PRCT
+                        ? "Prozent" : "Betrag"));
                     ret.append("; ").append((pricequalifier == PRICE_QUALIF_MRKT ? "Marktpreis" : "Hinweispreis")).append(")").append(linesep);
                 }
 
@@ -380,8 +382,10 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
                 /**
                  * Gibt den Typ des Saldos {@link #saldo} an (optional).
                  * <ul>
-                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_PRCT} - Saldo ist ein Prozentsatz</li>
-                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_VALUE} - Saldo ist ein Geldbetrag</li>
+                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_PRCT} - Saldo ist ein
+                 * Prozentsatz</li>
+                 * <li>{@link org.kapott.hbci.GV_Result.GVRWPDepotList.Entry.Gattung#PRICE_TYPE_VALUE} - Saldo ist
+                 * ein Geldbetrag</li>
                  * </ul>
                  */
                 public int saldo_type;
@@ -431,7 +435,8 @@ public final class GVRWPDepotList extends HBCIJobResultImpl {
                     String linesep = System.getProperty("line.separator");
 
                     ret.append(qualifier).append(": ");
-                    ret.append(saldo.toString()).append(" (").append(((saldo_type == SALDO_TYPE_STCK) ? "STCK" : "WERT")).append(")").append(linesep);
+                    ret.append(saldo.toString()).append(" (").append(((saldo_type == SALDO_TYPE_STCK) ? "STCK" :
+                        "WERT")).append(")").append(linesep);
 
                     ret.append("Lagerland: ").append(country + linesep);
                     ret.append("Verwahrung Typ: ").append(verwahrung).append(linesep);

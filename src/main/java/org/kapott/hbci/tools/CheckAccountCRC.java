@@ -38,7 +38,8 @@ import org.kapott.hbci.manager.HBCIUtils;
  * die Kontonummer überprüfen konnte und wenn ja, ob die Prüfung erfolgreich
  * verlaufen ist oder nicht.</p>
  * <p>Der Aufruf erfolgt mit
- * <code>java&nbsp;-cp&nbsp;...&nbsp;org.kapott.hbci.tools.CheckAccountCRC&nbsp;&lt;blz&gt;&nbsp;&lt;kontonummer&gt;</code>
+ * <code>java&nbsp;-cp&nbsp;...&nbsp;org.kapott.hbci.tools.CheckAccountCRC&nbsp;&lt;blz&gt;&nbsp;&lt;kontonummer&gt;
+ * </code>
  */
 public class CheckAccountCRC {
     public static void main(String[] args) {
@@ -48,7 +49,6 @@ public class CheckAccountCRC {
             System.out.println("  CheckAccountCRC <iban>");
             System.exit(1);
         }
-
 
         if (args.length == 2) {
             String blz = args[0];

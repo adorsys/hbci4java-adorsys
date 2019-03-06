@@ -53,7 +53,8 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
         addConstraint("btg.curr", "sepa.btg.curr", "EUR");
         addConstraint("usage", "sepa.usage", "");
 
-        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu identifizieren)
+        //Constraints für die PmtInfId (eindeutige SEPA Message ID) und EndToEndId (eindeutige ID um Transaktion zu
+        // identifizieren)
         addConstraint("sepaid", "sepa.sepaid", getPainMessageId());
         addConstraint("pmtinfid", "sepa.pmtinfid", getPainMessageId());
         addConstraint("endtoendid", "sepa.endtoendid", ENDTOEND_ID_NOTPROVIDED);

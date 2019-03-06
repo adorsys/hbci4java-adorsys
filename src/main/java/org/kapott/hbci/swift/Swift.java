@@ -23,10 +23,10 @@ package org.kapott.hbci.swift;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class Swift {
 
-    private static final Pattern PATTERN_NL_TAG = Pattern.compile("\\r\\n(-|-\\r\\n)?:\\d{2}[A-Z]?:"); // Zu dem "(-)?" siehe TestBrokenMT940.java
+    private static final Pattern PATTERN_NL_TAG = Pattern.compile("\\r\\n(-|-\\r\\n)?:\\d{2}[A-Z]?:"); // Zu dem "(-)
+    // ?" siehe TestBrokenMT940.java
 
     /* With this, a block always ends with \r\n- */
     public static String getOneBlock(StringBuffer stream) {
@@ -90,7 +90,6 @@ public class Swift {
         return st.replaceAll("\r\n", "");
     }
 
-
     /* Gets a value from the "multi-tag". Codes look like ?20 - a value goes until
      * the next value-code or until end of data */
     public static String getMultiTagValue(String st, String tag) {
@@ -136,7 +135,6 @@ public class Swift {
 
         return ret;
     }
-
 
     public static String decodeUmlauts(String st) {
         String ret = st.replace('\133', '\304');

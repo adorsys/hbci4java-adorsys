@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 
-
 /**
  * Parser-Implementierung fuer Pain 001.001.02.
  */

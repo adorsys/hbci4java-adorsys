@@ -123,8 +123,10 @@ public interface HBCIJobResult {
      * Hier werden jobinterne Daten gespeichert:</p>
      * <ul>
      * <li><code>basic.dialogid</code> enth&auml;lt die Dialog-ID, mit der der Job ausgef&uuml;hrt wurde</li>
-     * <li><code>basic.msgnum</code> enth&auml;lt die Nachrichtennummer innerhalb des Dialoges, in dem der Job ausgef&uuml;hrt wurde</li>
-     * <li><code>basic.segnum</code> enth&auml;lt die Segmentnummer innerhalb der Nachricht, in der der Job ausgef&uuml;hrt wurde</li>
+     * <li><code>basic.msgnum</code> enth&auml;lt die Nachrichtennummer innerhalb des Dialoges, in dem der Job
+     * ausgef&uuml;hrt wurde</li>
+     * <li><code>basic.segnum</code> enth&auml;lt die Segmentnummer innerhalb der Nachricht, in der der Job
+     * ausgef&uuml;hrt wurde</li>
      * </ul>
      * <p>Diese Daten sollten niemals manuell ausgewertet werden, da es diese <code>basic</code>-Daten
      * in Zukunft nicht mehr geben wird!</p></li>

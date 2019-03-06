@@ -18,7 +18,6 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.sepa.SepaVersion;
 
 /**
  * Job-Implementierung fuer DTAZV Auslandsüberweisungen.
