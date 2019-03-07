@@ -52,11 +52,11 @@ public class GVRKUms extends HBCIJobResultImpl {
     /**
      * Die originale empfangene CAMT-Datei mit den gebuchten Umsaetzen.
      */
-    public List<String> camtBooked = new ArrayList<String>();
+    public List<String> camtBooked = new ArrayList<>();
     /**
      * Die originale empfangenen CAMT-Dateien mit den Vormerkbuchungen.
      */
-    public List<String> camtNotBooked = new ArrayList<String>();
+    public String camtNotBooked;
     /**
      * Dieses Feld enthält einen String, der den nicht-auswertbaren Teil der Kontoauszüge
      * enthält. Es dient nur zu Debugging-Zwecken und sollte eigentlich immer <code>null</code>
@@ -64,21 +64,19 @@ public class GVRKUms extends HBCIJobResultImpl {
      * empfangenen Kontoauszüge nicht richtig geparst werden, und dieser String enthält den
      * "Schwanz" der Kontoauszugsdaten, bei dem das Parsing-Problem aufgetreten ist.
      */
-    public StringBuffer restMT940;
+    private StringBuffer restMT940;
     /**
      * Wie restMT940, allerdings für die Daten der *vorgemerkten* Umsätze.
      */
-    public StringBuffer restMT942;
-    private StringBuffer bufferMT940;
-    private StringBuffer bufferMT942;
+    private StringBuffer restMT942;
+    private StringBuffer mt940raw;
+    private StringBuffer mt942raw;
     private List<BTag> tageMT940;
     private List<BTag> tageMT942;
     private boolean parsed;
 
     public GVRKUms(HBCIPassportInternal passport) {
         super(passport);
-        bufferMT940 = new StringBuffer();
-        bufferMT942 = new StringBuffer();
 
         tageMT940 = new ArrayList<>();
         tageMT942 = new ArrayList<>();
@@ -89,12 +87,12 @@ public class GVRKUms extends HBCIJobResultImpl {
         parsed = false;
     }
 
-    public void appendMT940Data(String data) {
-        this.bufferMT940.append(data);
+    public void setMt940raw(StringBuffer mt940raw) {
+        this.mt940raw = mt940raw;
     }
 
-    public void appendMT942Data(String data) {
-        this.bufferMT942.append(data);
+    public void setMt942raw(StringBuffer mt942raw) {
+        this.mt942raw = mt942raw;
     }
 
     /**
@@ -177,8 +175,8 @@ public class GVRKUms extends HBCIJobResultImpl {
 
     private void verifyMT94xParsing(String where) {
         if (!parsed) {
-            parseMT94x(bufferMT940, tageMT940, restMT940);
-            parseMT94x(bufferMT942, tageMT942, restMT942);
+            parseMT94x(mt940raw, tageMT940, restMT940);
+            parseMT94x(mt942raw, tageMT942, restMT942);
         }
 
         if (restMT940 != null && restMT940.length() != 0) {
@@ -598,12 +596,17 @@ public class GVRKUms extends HBCIJobResultImpl {
     }
 
     public String getRaw() {
-        if (bufferMT940.length() > 0) {
-            return bufferMT940.toString();
+        if (mt940raw != null && mt940raw.length() > 0) {
+            return mt940raw.toString();
         }
-        if (bufferMT942.length() > 0) {
-            return bufferMT942.toString();
+        if (mt942raw != null && mt942raw.length() > 0) {
+            return mt942raw.toString();
         }
+
+        if (getResultData().containsKey("content.booked.message")) {
+            return getResultData().get("content.booked.message");
+        }
+
         return null;
     }
 

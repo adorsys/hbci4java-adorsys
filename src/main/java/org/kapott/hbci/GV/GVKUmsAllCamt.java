@@ -145,7 +145,7 @@ public class GVKUmsAllCamt extends AbstractSEPAGV {
                 ISEPAParser<List<BTag>> parser = SEPAParserFactory.get(version);
 
                 log.debug("  parsing unbooked camt data: " + notbooked);
-                result.camtNotBooked.add(notbooked);
+                result.camtNotBooked = notbooked;
                 parser.parse(new ByteArrayInputStream(notbooked.getBytes(CommPinTan.ENCODING)),
                     result.getDataPerDayUnbooked());
                 log.debug("  parsed unbooked camt data, entries: " + result.getFlatDataUnbooked().size());

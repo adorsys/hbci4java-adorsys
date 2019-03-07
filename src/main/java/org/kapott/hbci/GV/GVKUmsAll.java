@@ -92,13 +92,13 @@ public class GVKUmsAll extends AbstractHBCIJob {
         StringBuffer paramName = new StringBuffer(header).append(".booked");
         String rawData = result.get(paramName.toString());
         if (rawData != null) {
-            umsResult.appendMT940Data(Swift.decodeUmlauts(rawData));
+            umsResult.setMt940raw(new StringBuffer(Swift.decodeUmlauts(rawData)));
         }
 
         paramName = new StringBuffer(header).append(".notbooked");
         rawData = result.get(paramName.toString());
         if (rawData != null) {
-            umsResult.appendMT942Data(Swift.decodeUmlauts(rawData));
+            umsResult.setMt942raw(new StringBuffer(Swift.decodeUmlauts(rawData)));
         }
 
         // TODO: this is for compatibility reasons only
