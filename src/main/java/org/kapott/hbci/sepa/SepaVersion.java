@@ -100,6 +100,9 @@ public class SepaVersion implements Comparable<SepaVersion> {
     public static SepaVersion CAMT_052_001_07 = new SepaVersion(SupportType.PARSE, 7, "urn:iso:std:iso:20022:tech:xsd" +
         ":camt.052.001.07", "camt.052.001.07.xsd", true);
 
+    public static SepaVersion CAMT_053_001_02 = new SepaVersion(SupportType.PARSE, 8, "urn:iso:std:iso:20022:tech:xsd" +
+        ":camt.053.001.02", "camt.053.001.02.xsd", true);
+
     private SupportType support = null;
     private String urn = null;
     private String file = null;
@@ -546,7 +549,13 @@ public class SepaVersion implements Comparable<SepaVersion> {
          * Umsaetze im CAMT.052-Format.
          */
         CAMT_052("Camt", "052", "bank to customer cash management"),
+
+        /**
+         * Umsaetze im CAMT.053-Format.
+         */
+        CAMT_053("Camt", "053", "bank to customer cash management"),
         ;
+
 
         private String type = null;
         private String value = null;
