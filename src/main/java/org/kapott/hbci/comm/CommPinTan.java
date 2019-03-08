@@ -104,6 +104,14 @@ public final class CommPinTan {
         rawMsg = pong();
         callback.status(HBCICallback.STATUS_MSG_RAW_RECV, rawMsg);
 
+//        try {
+//            FileOutputStream fileOutputStream = new FileOutputStream(new File(messageName));
+//            IOUtils.write(rawMsg, fileOutputStream, ENCODING);
+//            fileOutputStream.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
         log.debug("---------------- response ----------------");
         if (log.isTraceEnabled()) {
             Arrays.stream(rawMsg.split("'")).forEach(s -> log.trace(s));
