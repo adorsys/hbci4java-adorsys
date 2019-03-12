@@ -49,9 +49,10 @@ public class GVUmbSEPA extends AbstractSEPAGV {
         }
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
-        if (pain != null) {
+        if (pain == null) {
             addConstraint("_sepapain", "sepapain", null);
-            setParam("_sepapain", pain);
+        } else {
+            setPainXml(pain);
         }
 
         /* dummy constraints to allow an application to set these values. the
@@ -60,7 +61,7 @@ public class GVUmbSEPA extends AbstractSEPAGV {
         addConstraint("src.bic", "sepa.src.bic", null);
         addConstraint("src.iban", "sepa.src.iban", null);
         addConstraint("src.name", "sepa.src.name", null);
-        addConstraint("dst.bic", "sepa.dst.bic", null, true);
+        addConstraint("dst.bic", "sepa.dst.bic", "", true); // Kann eventuell entfallen, da BIC optional
         addConstraint("dst.iban", "sepa.dst.iban", null, true);
         addConstraint("dst.name", "sepa.dst.name", null, true);
         addConstraint("btg.value", "sepa.btg.value", null, true);
