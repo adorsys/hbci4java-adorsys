@@ -36,7 +36,7 @@ public class GVUebSEPA extends AbstractSEPAGV {
     }
 
     public GVUebSEPA(HBCIPassportInternal passport, String name, String pain) {
-        this(passport, getLowlevelName(), pain, null);
+        this(passport, name, pain, null);
     }
 
     public GVUebSEPA(HBCIPassportInternal passport, String name, String pain, HBCIJobResultImpl jobResult) {

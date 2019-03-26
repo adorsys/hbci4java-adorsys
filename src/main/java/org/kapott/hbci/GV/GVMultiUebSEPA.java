@@ -48,9 +48,6 @@ public class GVMultiUebSEPA extends GVUebSEPA {
         return "SammelUebSEPA";
     }
 
-    /**
-     * @see org.kapott.hbci.GV.AbstractSEPAGV#getPainJobName()
-     */
     @Override
     public String getPainJobName() {
         return "UebSEPA";
