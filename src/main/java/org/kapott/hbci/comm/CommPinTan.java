@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -81,14 +82,19 @@ public final class CommPinTan {
                 sysProps.put("https.proxyPort", proxyData[1]);
 
                 log.debug("initializing HBCI4Java proxy authentication callback");
-                Authenticator.setDefault(new PinTanProxyAuthenticator(proxyUser, proxyPass));
+                Authenticator.setDefault(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(proxyUser, proxyPass.toCharArray());
+                    }
+                });
             }
         }
         return this;
     }
 
     public Message pingpong(Message message, String messageName, List<Rewrite> rewriters, HBCIMsgStatus msgStatus) {
-        log.debug("---------------- request ----------------");
+        log.trace("---------------- request ----------------");
         String rawMsg = message.toString(0);
         if (log.isTraceEnabled()) {
             Arrays.stream(rawMsg.split("'")).forEach(s -> log.trace(s));
@@ -112,7 +118,7 @@ public final class CommPinTan {
 //            e.printStackTrace();
 //        }
 
-        log.debug("---------------- response ----------------");
+        log.trace("---------------- response ----------------");
         if (log.isTraceEnabled()) {
             Arrays.stream(rawMsg.split("'")).forEach(s -> log.trace(s));
         }

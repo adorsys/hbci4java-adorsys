@@ -25,7 +25,7 @@ import org.kapott.hbci.manager.HBCIUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>Repräsentation eines HBCI-Statuscodes. Objekte dieser Klasse
@@ -100,14 +100,14 @@ public final class HBCIRetVal
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
-    public HBCIRetVal(HashMap<String, String> result, String header) {
+    HBCIRetVal(Map<String, String> result, String header) {
         this(result, header, null);
     }
 
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
-    public HBCIRetVal(HashMap<String, String> result, String header, String segref) {
+    public HBCIRetVal(Map<String, String> result, String header, String segref) {
         this.segref = segref;
 
         code = result.get(header + ".code");
@@ -123,7 +123,7 @@ public final class HBCIRetVal
             element = path + ((value != null) ? ("=" + value) : "");
         }
 
-        ArrayList<String> a = new ArrayList<String>();
+        ArrayList<String> a = new ArrayList<>();
         int i = 0;
         String parm;
 
@@ -144,28 +144,11 @@ public final class HBCIRetVal
      * zusammenfasst.
      */
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         ret.append(code).append(":").append(text);
 
-        for (int i = 0; i < params.length; i++) {
-            ret.append(" p:").append(params[i]);
-        }
-
-        if (segref != null) {
-            ret.append(" (");
-
-            ret.append(segref);
-            if (deref != null) {
-                ret.append(":");
-                ret.append(deref);
-            }
-
-            if (element != null) {
-                ret.append(": ");
-                ret.append(element);
-            }
-
-            ret.append(")");
+        for (String param : params) {
+            ret.append(" p:").append(param);
         }
 
         return ret.toString().trim();
@@ -194,14 +177,16 @@ public final class HBCIRetVal
         return (code != null) && (code.charAt(0) == '9');
     }
 
+    @Override
     public boolean equals(Object o) {
         boolean ret;
 
         if (o instanceof HBCIRetVal) {
-            boolean equal = true;
+            boolean equal;
             HBCIRetVal other = (HBCIRetVal) o;
 
-            equal &= (code == null && other.code == null) || (code != null && other.code != null && code.equals(other.code));
+            equal =
+                (code == null && other.code == null) || (code != null && other.code != null && code.equals(other.code));
             equal &= (text == null && other.text == null) || (text != null && other.text != null && text.equals(other.text));
             equal &= (segref == null && other.segref == null) || (segref != null && other.segref != null && segref.equals(other.segref));
             equal &= (deref == null && other.deref == null) || (deref != null && other.deref != null && deref.equals(other.deref));

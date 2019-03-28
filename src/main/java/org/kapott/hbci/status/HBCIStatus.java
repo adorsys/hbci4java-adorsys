@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -43,10 +42,6 @@ import java.util.List;
 @Slf4j
 public final class HBCIStatus {
     /**
-     * Statuscode für "alle Statusinformationen besagen OK"
-     */
-    public static final int STATUS_OK = 0;
-    /**
      * Statuscode für "Gesamtstatus kann nicht ermittelt werden". (z.B. weil
      * gar keine Informationen in diesem Objekt enthalten sind)
      */
@@ -55,19 +50,22 @@ public final class HBCIStatus {
      * Statuscode für "es ist mindestens ein Fehlercode enthalten"
      */
     public static final int STATUS_ERR = 2;
-
+    /**
+     * Statuscode für "alle Statusinformationen besagen OK"
+     */
+    static final int STATUS_OK = 0;
     private List<HBCIRetVal> retVals;
     private List<Exception> exceptions;
 
     public HBCIStatus() {
-        retVals = new ArrayList<HBCIRetVal>();
-        exceptions = new ArrayList<Exception>();
+        retVals = new ArrayList<>();
+        exceptions = new ArrayList<>();
     }
 
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
-    public void addException(Exception e) {
+    void addException(Exception e) {
         exceptions.add(e);
         log.error(e.getMessage(), e);
     }
@@ -88,15 +86,14 @@ public final class HBCIStatus {
      * @return <code>true</code>, falls Exceptions gespeichert sind,
      * sonst <code>false</code>
      */
-    public boolean hasExceptions() {
+    boolean hasExceptions() {
         return exceptions.size() != 0;
     }
 
     private boolean hasX(char code) {
         boolean ret = false;
 
-        for (Iterator<HBCIRetVal> i = retVals.iterator(); i.hasNext(); ) {
-            HBCIRetVal retVal = i.next();
+        for (HBCIRetVal retVal : retVals) {
             if (retVal.code.charAt(0) == code) {
                 ret = true;
                 break;
@@ -124,7 +121,7 @@ public final class HBCIStatus {
      * @return <code>true</code>, falls Warnungen vorhanden sind,
      * sonst <code>false</code>
      */
-    public boolean hasWarnings() {
+    private boolean hasWarnings() {
         return hasX('3');
     }
 
@@ -135,16 +132,14 @@ public final class HBCIStatus {
      * @return <code>true</code>, falls Erfolgsmeldungen vorhanden sind,
      * sonst <code>false</code>
      */
-    public boolean hasSuccess() {
+    private boolean hasSuccess() {
         return hasX('0');
     }
 
     private List<HBCIRetVal> getX(char code) {
-        ArrayList<HBCIRetVal> ret_a = new ArrayList<HBCIRetVal>();
+        ArrayList<HBCIRetVal> ret_a = new ArrayList<>();
 
-        for (Iterator<HBCIRetVal> i = retVals.iterator(); i.hasNext(); ) {
-            HBCIRetVal retVal = i.next();
-
+        for (HBCIRetVal retVal : retVals) {
             if (retVal.code.charAt(0) == code) {
                 ret_a.add(retVal);
             }
@@ -160,7 +155,7 @@ public final class HBCIStatus {
      * aufgetreten sind.
      */
     public Exception[] getExceptions() {
-        return exceptions.toArray(new Exception[exceptions.size()]);
+        return exceptions.toArray(new Exception[0]);
     }
 
     /**
@@ -196,7 +191,7 @@ public final class HBCIStatus {
      *
      * @return Array mit HBCI-Returncodes, die allesamt Erfolgsmeldungen beschreiben
      */
-    public List<HBCIRetVal> getSuccess() {
+    private List<HBCIRetVal> getSuccess() {
         return getX('0');
     }
 
@@ -256,11 +251,10 @@ public final class HBCIStatus {
      * @return String mit allen Fehlermeldungen
      */
     public String getErrorString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
 
         if (hasExceptions()) {
-            for (Iterator<Exception> i = exceptions.iterator(); i.hasNext(); ) {
-                Exception ex = i.next();
+            for (Exception ex : exceptions) {
                 ret.append(HBCIUtils.exception2StringShort(ex));
                 ret.append(System.getProperty("line.separator"));
             }
@@ -283,10 +277,9 @@ public final class HBCIStatus {
      * @return String mit allen gespeicherten Status-Informationen
      */
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
 
-        for (Iterator<Exception> i = exceptions.iterator(); i.hasNext(); ) {
-            Exception ex = i.next();
+        for (Exception ex : exceptions) {
             ret.append(HBCIUtils.exception2StringShort(ex));
             ret.append(System.getProperty("line.separator"));
         }
