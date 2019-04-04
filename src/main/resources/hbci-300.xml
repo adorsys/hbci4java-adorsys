@@ -7471,6 +7471,34 @@
             <value path="SegHead.code">HIWSDS</value>
             <value path="SegHead.version">3</value>
         </SEGdef>
+
+        <!-- Verteilte Elektronische Unterschrift (VEU) Multilevel SCA -->
+        <!-- Request -->
+        <SEGdef id="VeuStep1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTO" name="My"/>
+            <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
+            <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
+
+            <value path="SegHead.code">BKTAS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuStepPar1">
+            &GVP;
+
+            <value path="SegHead.code">BITASS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuEmptySignatureHeader1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <value path="SegHead.code">BNLSK</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuEmptySignatureCloser1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <value path="SegHead.code">BNLSA</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
     </SEGs>
 
     <SFs>
@@ -7643,6 +7671,9 @@
             <SEG type="UmbSEPA1" minnum="0"/>
             <SEG type="Umb1" minnum="0"/>
             <SEG type="Umb2" minnum="0"/>
+            <SEG type="VeuStep1" minnum="0"/>
+            <SEG type="VeuEmptySignatureHeader1" minnum="0"/>
+            <SEG type="VeuEmptySignatureCloser1" minnum="0"/>
             <SEG type="Vormerkposten1" minnum="0"/>
             <SEG type="WPDepotList2" minnum="0"/>
             <SEG type="WPDepotList3" minnum="0"/>
@@ -7944,6 +7975,7 @@
             <SEG type="UmbSEPAPar1" minnum="0"/>
             <SEG type="UmbPar1" minnum="0"/>
             <SEG type="UmbPar2" minnum="0"/>
+            <SEG type="VeuStepPar1" minnum="0"/>
             <SEG type="VormerkpostenPar1" minnum="0"/>
             <SEG type="WPDepotListPar2" minnum="0"/>
             <SEG type="WPDepotListPar3" minnum="0"/>
