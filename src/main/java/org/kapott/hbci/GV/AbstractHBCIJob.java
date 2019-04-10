@@ -836,7 +836,7 @@ public abstract class AbstractHBCIJob {
 
             if (!crcok) {
                 // wenn beim validieren ein fehler auftrat, nach neuen daten fragen
-                StringBuffer sb = new StringBuffer(blz).append("|").append(number);
+                StringBuilder sb = new StringBuilder(blz).append("|").append(number);
                 passport.getCallback().callback(
                     HBCICallback.HAVE_CRC_ERROR,
                     HBCIUtils.getLocMsg("CALLB_HAVE_CRC_ERROR"),
@@ -878,7 +878,7 @@ public abstract class AbstractHBCIJob {
             String old_iban = iban;
 
             if (!crcok) {
-                StringBuffer sb = new StringBuffer(iban);
+                StringBuilder sb = new StringBuilder(iban);
                 passport.getCallback().callback(
                     HBCICallback.HAVE_IBAN_ERROR,
                     HBCIUtils.getLocMsg("CALLB_HAVE_IBAN_ERROR"),

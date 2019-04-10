@@ -110,7 +110,7 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
      * Nutzer erwarten, wird die entsprechende Eingabeaufforderung ausgegeben und die
      * Eingabe vom <code>inStream</code> gelesen.
      */
-    public void callback(int reason, String msg, int datatype, StringBuffer retData) {
+    public void callback(int reason, String msg, int datatype, StringBuilder retData) {
 
         try {
             String st;

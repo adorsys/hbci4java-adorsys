@@ -132,7 +132,7 @@ public final class HBCIDialog {
                         HBCICallback.HAVE_INST_MSG,
                         msg.toString(),
                         HBCICallback.TYPE_NONE,
-                        new StringBuffer());
+                        new StringBuilder());
                 }
             }
 

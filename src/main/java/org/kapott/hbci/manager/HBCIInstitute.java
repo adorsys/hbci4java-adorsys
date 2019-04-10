@@ -213,28 +213,20 @@ public final class HBCIInstitute implements IHandlerData {
 
                 HBCIMsgStatus msgStatus = anonymousDialogInit();
 
-                HashMap<String, String> result = msgStatus.getData();
-                updateBPD(result);
+                updateBPD(msgStatus.getData());
 
                 if (!msgStatus.isDialogClosed()) {
-                    try {
-                        anonymousDialogEnd(result.get("MsgHead.dialogid"));
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                    }
+                    anonymousDialogEnd(msgStatus.getData());
                 }
 
                 if (!msgStatus.isOK()) {
                     log.error("fetching BPD failed");
                     throw new ProcessException(HBCIUtils.getLocMsg("ERR_INST_BPDFAILED"), msgStatus);
                 }
+            } catch (HBCI_Exception e) {
+                if (e.isFatal())
+                    throw e;
             } catch (Exception e) {
-                if (e instanceof HBCI_Exception) {
-                    HBCI_Exception he = (HBCI_Exception) e;
-                    if (he.isFatal())
-                        throw he;
-                }
-//                log.(e);
                 // Viele Kreditinstitute unterstützen den anonymen Login nicht. Dass sollte nicht als Fehler den
                 // Anwender beunruhigen
                 log.info("FAILED! - maybe this institute does not support anonymous logins");
@@ -258,6 +250,14 @@ public final class HBCIInstitute implements IHandlerData {
     private HBCIMsgStatus anonymousDialogInit() {
         Message message = MessageFactory.createAnonymouaDialogInit(passport);
         return kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT);
+    }
+
+    private void anonymousDialogEnd(HashMap<String, String> result) {
+        try {
+            anonymousDialogEnd(result.get("MsgHead.dialogid"));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     private void anonymousDialogEnd(String dialogid) {

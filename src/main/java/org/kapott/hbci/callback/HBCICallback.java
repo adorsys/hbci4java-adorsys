@@ -611,7 +611,7 @@ public interface HBCICallback {
      *                 StringBuffer u.U. mit einem vorgeschlagenen default-Wert für die Nutzereingabe
      *                 gefüllt.
      */
-    void callback(int reason, String msg, int datatype, StringBuffer retData);
+    void callback(int reason, String msg, int datatype, StringBuilder retData);
 
     void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc, HHDVersion.Type type);
 

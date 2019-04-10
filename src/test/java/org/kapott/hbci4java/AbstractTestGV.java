@@ -100,7 +100,7 @@ public abstract class AbstractTestGV {
         final HBCICallback callback = new HBCICallbackIOStreams(out, new BufferedReader(new InputStreamReader(System.in))) {
 
             @Override
-            public void callback(int reason, String msg, int datatype, StringBuffer retData) {
+            public void callback(int reason, String msg, int datatype, StringBuilder retData) {
 
                 // haben wir einen vordefinierten Wert?
                 String value = callbackValues.get(reason);
