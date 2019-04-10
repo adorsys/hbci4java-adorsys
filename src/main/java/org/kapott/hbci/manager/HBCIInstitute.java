@@ -40,7 +40,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/* @brief Class representing an HBCI institute.
+/* Class representing an HBCI institute.
 
     It it responsible for storing institute-specific-data (the BPD,
     the signature and encryption keys etc.) and for providing
@@ -48,15 +48,15 @@ import java.util.Map;
 @Slf4j
 public final class HBCIInstitute implements IHandlerData {
 
-    private final static String BPD_KEY_LASTUPDATE = "_lastupdate";
-    private final static String BPD_KEY_HBCIVERSION = "_hbciversion";
+    private static final String BPD_KEY_LASTUPDATE = "_lastupdate";
+    private static final String BPD_KEY_HBCIVERSION = "_hbciversion";
 
     private static final String maxAge = "7";
 
     private HBCIPassportInternal passport;
     private HBCIKernel kernel;
 
-    public HBCIInstitute(HBCIKernel kernel, HBCIPassportInternal passport) {
+    HBCIInstitute(HBCIKernel kernel, HBCIPassportInternal passport) {
         this.kernel = kernel;
         this.passport = passport;
     }
@@ -183,7 +183,7 @@ public final class HBCIInstitute implements IHandlerData {
     /**
      * Aktualisiert die BPD bei Bedarf.
      */
-    public void fetchBPDAnonymous() {
+    void fetchBPDAnonymous() {
         // BPD abholen, wenn nicht vorhanden oder HBCI-Version geaendert
         Map<String, String> bpd = passport.getBPD();
         String hbciVersionOfBPD = (bpd != null) ? bpd.get(BPD_KEY_HBCIVERSION) : null;
