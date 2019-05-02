@@ -28,7 +28,7 @@ public final class SyntaxID
         super(x, minlen, 30);
     }
 
-    public SyntaxID(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxID(StringBuilder res, int minsize, int maxsize) {
         super(res, minsize, 30);
     }
 
@@ -38,7 +38,7 @@ public final class SyntaxID
         super.init(x, minlen, 30);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         super.init(res, minsize, 30);
     }
 }

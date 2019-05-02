@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Rewriter-Modul für Kontoauszüge der 1822direkt-Bank (und vielleicht andere). Die
@@ -117,7 +117,7 @@ public final class RKUmsDelimiters extends Rewrite {
     @Override
     public Message incomingData(Message msg) {
         String header = "GVRes";
-        HashMap<String, String> data = msg.getData();
+        Map<String, String> data = msg.getData();
 
         data.keySet().forEach(key -> {
             if (key.startsWith(header) &&

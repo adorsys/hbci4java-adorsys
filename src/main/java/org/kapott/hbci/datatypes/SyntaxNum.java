@@ -31,14 +31,14 @@ public final class SyntaxNum extends SyntaxDE {
         super(check(st), minsize, maxsize);
     }
 
-    public SyntaxNum(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxNum(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
     private static String check(String st) {
         try {
             new Long(st);
-            StringBuffer ret = new StringBuffer(st);
+            StringBuilder ret = new StringBuilder(st);
 
             // remove heading '0's
             while (ret.length() != 1 && ret.charAt(0) == '0') {
@@ -57,7 +57,7 @@ public final class SyntaxNum extends SyntaxDE {
         super.init(check(st), minsize, maxsize);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -74,7 +74,7 @@ public final class SyntaxNum extends SyntaxDE {
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 

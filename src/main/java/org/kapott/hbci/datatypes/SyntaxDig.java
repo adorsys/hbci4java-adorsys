@@ -32,7 +32,7 @@ public final class SyntaxDig
         super(buildString(st.trim(), minsize), minsize, maxsize);
     }
 
-    public SyntaxDig(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxDig(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -44,7 +44,7 @@ public final class SyntaxDig
      * @brief prepends leading "0" to a number
      */
     private static String buildString(String st, int destlen) {
-        StringBuffer ret = new StringBuffer(destlen);
+        StringBuilder ret = new StringBuilder(destlen);
         ret.append(st);
 
         int len = st.length();
@@ -67,7 +67,7 @@ public final class SyntaxDig
         super.init(buildString(st.trim(), minsize), minsize, maxsize);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -84,7 +84,7 @@ public final class SyntaxDig
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 }

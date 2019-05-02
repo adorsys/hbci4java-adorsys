@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.protocol.SyntaxElement;
 
-import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public class RKUmsEmptyBDateSets extends Rewrite {
@@ -50,7 +50,7 @@ public class RKUmsEmptyBDateSets extends Rewrite {
     @Override
     public Message incomingData(Message msg) {
         String header = "GVRes";
-        HashMap<String, String> data = msg.getData();
+        Map<String, String> data = msg.getData();
 
         for (String key : data.keySet()) {
             if (key.startsWith(header) &&

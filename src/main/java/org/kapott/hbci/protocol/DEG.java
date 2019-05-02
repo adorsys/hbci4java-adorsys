@@ -23,7 +23,7 @@ package org.kapott.hbci.protocol;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -33,9 +33,9 @@ public final class DEG extends SyntaxElement {
         super(type, name, path, idx, document);
     }
 
-    public DEG(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document,
-               HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super(type, name, path, predelim, idx, res, document, predefs, valids);
+    public DEG(String type, String name, String path, char predelim, int idx, StringBuilder res, int fullResLen, Document document,
+               Map<String, String> predefs, Map<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     protected String getElementTypeName() {
@@ -60,7 +60,7 @@ public final class DEG extends SyntaxElement {
     // ---------------------------------------------------------------------------------------------------------------
 
     public String toString(int dummy) {
-        StringBuffer ret = new StringBuffer(128);
+        StringBuilder ret = new StringBuilder(128);
         boolean first = true;
 
         if (isValid()) {
@@ -95,14 +95,14 @@ public final class DEG extends SyntaxElement {
     }
 
     protected MultipleSyntaxElements parseNewChildContainer(Node dataref, char predelim0, char predelim1,
-                                                            StringBuffer res, Document document, HashMap<String,
-        String> predefs, HashMap<String, String> valids) {
+                                                            StringBuilder res, int fullResLen, Document document, Map<String,
+        String> predefs, Map<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((dataref.getNodeName()).equals("DEG"))
-            ret = new MultipleDEGs(dataref, ':', getPath(), predelim0, predelim1, res, document, predefs, valids);
+            ret = new MultipleDEGs(dataref, ':', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         else if ((dataref.getNodeName()).equals("DE"))
-            ret = new MultipleDEs(dataref, ':', getPath(), predelim0, predelim1, res, document, predefs, valids);
+            ret = new MultipleDEs(dataref, ':', getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
 
         return ret;
     }
@@ -111,12 +111,12 @@ public final class DEG extends SyntaxElement {
         return ':';
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res,
-                     Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super.init(type, name, path, predelim, idx, res, document, predefs, valids);
+    public void init(String type, String name, String path, char predelim, int idx, StringBuilder res, int fullResLen,
+                     Document document, Map<String, String> predefs, Map<String, String> valids) {
+        super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
-    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
         if (deref == null) {
             p.put(segref[0] + ":" + degref[0], getPath());
 

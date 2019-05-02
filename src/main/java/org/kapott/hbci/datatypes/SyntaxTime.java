@@ -33,7 +33,7 @@ public final class SyntaxTime
         super(parseTime(x), 6, 6);
     }
 
-    public SyntaxTime(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxTime(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -47,7 +47,7 @@ public final class SyntaxTime
         super.init(parseTime(x), 6, 6);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -57,7 +57,7 @@ public final class SyntaxTime
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 

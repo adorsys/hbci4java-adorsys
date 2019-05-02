@@ -81,10 +81,10 @@ public abstract class MultipleSyntaxElements {
      * einer msg repraesentiert), predelim1 ist allerdings immer der delimiter,
      * der fuer das aktuell uebergeordnete syntaxelement zu verwenden ist)
      */
-    protected MultipleSyntaxElements(Node ref, String path, char predelim0, char predelim1, StringBuffer res,
-                                     Document document, HashMap<String, String> predefs,
-                                     HashMap<String, String> valids) {
-        initData(ref, path, predelim0, predelim1, res, document, predefs, valids);
+    protected MultipleSyntaxElements(Node ref, String path, char predelim0, char predelim1, StringBuilder res,
+                                     int fullResLen, Document document, Map<String, String> predefs,
+                                     Map<String, String> valids) {
+        initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
     /**
@@ -99,8 +99,8 @@ public abstract class MultipleSyntaxElements {
      * siehe SyntaxElement::parseElementList()
      */
     protected abstract SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx,
-                                                              StringBuffer res, Document document, HashMap<String,
-        String> predefs, HashMap<String, String> valids);
+                                                              StringBuilder res, int fullResLen, Document document, Map<String,
+        String> predefs, Map<String, String> valids);
 
     private void initData(Node ref, String path, Document document) {
         type = ((Element) ref).getAttribute("type");
@@ -115,7 +115,7 @@ public abstract class MultipleSyntaxElements {
         this.ref = ref;
         this.document = document;
 
-        StringBuffer temppath = new StringBuffer(128);
+        StringBuilder temppath = new StringBuilder(128);
         if (path != null && path.length() != 0)
             temppath.append(path).append(".");
         temppath.append(name);
@@ -341,8 +341,8 @@ public abstract class MultipleSyntaxElements {
         return idx;
     }
 
-    private void initData(Node ref, String path, char predelim0, char predelim1, StringBuffer res, Document document,
-                          HashMap<String, String> predefs, HashMap<String, String> valids) {
+    private void initData(Node ref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document,
+                          Map<String, String> predefs, Map<String, String> valids) {
         this.ref = null;
         this.document = null;
         this.syntaxIdx = -1;
@@ -354,7 +354,7 @@ public abstract class MultipleSyntaxElements {
         }
         this.parent = null;
 
-        StringBuffer temppath = new StringBuffer(128);
+        StringBuilder temppath = new StringBuilder(128);
         if (path != null && path.length() != 0)
             temppath.append(path).append(".");
         temppath.append(name);
@@ -378,14 +378,14 @@ public abstract class MultipleSyntaxElements {
         try {
             while (!ready) {
                 // sichern des reststrings
-                StringBuffer save = new StringBuffer(res.toString());
+                StringBuilder save = new StringBuilder(res.toString());
                 boolean emptyElementFound = false;
 
                 try {
                     // versuch, ein weiteres syntaxelement zu erzeugen
                     SyntaxElement child = parseAndAppendNewElement(ref, path,
                         (idx == 0) ? predelim0 : predelim1,
-                        idx, res, document, predefs, valids);
+                        idx, res, fullResLen, document, predefs, valids);
                     if (child != null)
                         child.setParent(this);
                 } catch (ParseErrorException e) {
@@ -494,15 +494,15 @@ public abstract class MultipleSyntaxElements {
         }
     }
 
-    protected void init(Node ref, String path, char predelim0, char predelim1, StringBuffer res, Document document,
-                        HashMap<String, String> predefs, HashMap<String, String> valids) {
-        initData(ref, path, predelim0, predelim1, res, document, predefs, valids);
+    protected void init(Node ref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document,
+                        Map<String, String> predefs, Map<String, String> valids) {
+        initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
     /**
      * siehe SyntaxElement.fillValues()
      */
-    protected void extractValues(HashMap<String, String> values) {
+    protected void extractValues(Map<String, String> values) {
         for (Iterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
             i.next().extractValues(values);
         }
@@ -520,7 +520,7 @@ public abstract class MultipleSyntaxElements {
         return toString();
     }
 
-    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
     }
 
     /**

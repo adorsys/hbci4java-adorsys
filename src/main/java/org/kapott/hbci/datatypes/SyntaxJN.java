@@ -31,7 +31,7 @@ public class SyntaxJN
         super(check(x.trim()), 1, 1);
     }
 
-    public SyntaxJN(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxJN(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -47,7 +47,7 @@ public class SyntaxJN
         super.init(check(x.trim()), 1, 1);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -56,7 +56,7 @@ public class SyntaxJN
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 }

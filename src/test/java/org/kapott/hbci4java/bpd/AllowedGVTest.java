@@ -4,11 +4,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kapott.hbci.GV.GVDTAZV;
 import org.kapott.hbci.GV.GVUebSEPA;
+import org.kapott.hbci.manager.DocumentFactory;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.rewrite.Rewrite;
 import org.kapott.hbci4java.AbstractTest;
+import org.w3c.dom.Document;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -16,6 +18,18 @@ import java.util.*;
 import static org.kapott.hbci4java.bpd.HITANSTest.getBPD;
 
 public class AllowedGVTest extends AbstractTest {
+
+//    @Test
+    public void testBpdRaw() throws Exception {
+        String data = getFile("bpd/bpd2-raw.txt");
+
+        Document document = DocumentFactory.createDocument("300");
+
+        Message message = new Message("SynchRes", data, document,
+            Message.CHECK_SEQ, true);
+
+        System.out.println();
+    }
 
     @Test
     public void test() throws Exception {

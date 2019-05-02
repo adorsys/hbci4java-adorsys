@@ -25,6 +25,7 @@ import org.kapott.hbci.manager.HBCIUtils;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Enthält alle Status-Informationen zu genau einem Nachrichtenaustausch.
@@ -69,7 +70,7 @@ public final class HBCIMsgStatus {
     /**
      * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
      */
-    public void addData(HashMap<String, String> _data) {
+    public void addData(Map<String, String> _data) {
         this.data.putAll(_data);
         extractStatusData();
     }

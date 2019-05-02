@@ -27,7 +27,7 @@ public final class SyntaxCur
         super(x.trim(), 3, 3);
     }
 
-    public SyntaxCur(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxCur(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -37,7 +37,7 @@ public final class SyntaxCur
         super.init(x.trim(), 3, 3);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -46,7 +46,7 @@ public final class SyntaxCur
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 

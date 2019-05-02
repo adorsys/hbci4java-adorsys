@@ -37,9 +37,9 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         initData(delimiter);
     }
 
-    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res,
-                       Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super(deref, path, predelim0, predelim1, res, document, predefs, valids);
+    public MultipleDEs(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuilder res,
+                       int fullResLen, Document document, Map<String, String> predefs, Map<String, String> valids) {
+        super(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         initData(delimiter);
     }
 
@@ -72,7 +72,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
     }
 
     public String toString(int dummy) {
-        StringBuffer ret = new StringBuffer(128);
+        StringBuilder ret = new StringBuilder(128);
         boolean first = true;
 
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
@@ -90,9 +90,9 @@ public final class MultipleDEs extends MultipleSyntaxElements {
 
     // -------------------------------------------------------------------------------------------------------
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res,
-                                                     Document document, HashMap<String, String> predefs,
-                                                     HashMap<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuilder res,
+                                                     int fullResLen, Document document, Map<String, String> predefs,
+                                                     Map<String, String> valids) {
         SyntaxElement ret;
 
         Map<String, String> newValids = new HashMap<>();
@@ -109,7 +109,7 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         }
         valids.putAll(newValids);
 
-        addElement(ret = new DE(ref, getName(), path, predelim, idx, res, predefs, valids));
+        addElement(ret = new DE(ref, getName(), path, predelim, idx, res, fullResLen, predefs, valids));
         return ret;
     }
 
@@ -118,13 +118,13 @@ public final class MultipleDEs extends MultipleSyntaxElements {
         this.valids = new ArrayList<>();
     }
 
-    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuffer res,
-                     Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super.init(deref, path, predelim0, predelim1, res, document, predefs, valids);
+    public void init(Node deref, char delimiter, String path, char predelim0, char predelim1, StringBuilder res,
+                     int fullResLen, Document document, Map<String, String> predefs, Map<String, String> valids) {
+        super.init(deref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         initData(delimiter);
     }
 
-    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
         if (getElements().size() != 0) {
             for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
                 SyntaxElement e = i.next();

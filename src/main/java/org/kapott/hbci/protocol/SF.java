@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -37,9 +37,9 @@ public final class SF extends SyntaxElement {
         super(type, name, path, idx, document);
     }
 
-    public SF(String type, String name, String path, char predelim, int idx, StringBuffer res, Document document,
-              HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super(type, name, path, predelim, idx, res, document, predefs, valids);
+    public SF(String type, String name, String path, char predelim, int idx, StringBuilder res, int fullResLen, Document document,
+              Map<String, String> predefs, Map<String, String> valids) {
+        super(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     protected MultipleSyntaxElements createNewChildContainer(Node ref, Document document) {
@@ -81,7 +81,7 @@ public final class SF extends SyntaxElement {
     // -------------------------------------------------------------------------------------------
 
     public String toString(int dummy) {
-        StringBuffer ret = new StringBuffer(256);
+        StringBuilder ret = new StringBuilder(256);
 
         if (isValid())
             for (ListIterator<MultipleSyntaxElements> i = getChildContainers().listIterator(); i.hasNext(); ) {
@@ -94,9 +94,9 @@ public final class SF extends SyntaxElement {
         return ret.toString();
     }
 
-    public void init(String type, String name, String path, char predelim, int idx, StringBuffer res,
-                     Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super.init(type, name, path, predelim, idx, res, document, predefs, valids);
+    public void init(String type, String name, String path, char predelim, int idx, StringBuilder res, int fullResLen,
+                     Document document, Map<String, String> predefs, Map<String, String> valids) {
+        super.init(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     protected char getInDelim() {
@@ -108,7 +108,7 @@ public final class SF extends SyntaxElement {
     // Stimmt dieser Segment-Code nicht mit dem nächsten eigentlich zu parsenden
     // <SEG type="..." minnum="0"> überein, wird gar nicht erst *versucht*, das
     // dieses <SEG> anzuwenden
-    private String[] extractSegId(StringBuffer sb) {
+    private String[] extractSegId(StringBuilder sb) {
         String[] ret = new String[]{"", ""};
 
         if (sb.length() > 1) {
@@ -165,23 +165,23 @@ public final class SF extends SyntaxElement {
     }
 
     protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1,
-                                                            StringBuffer res, Document document, HashMap<String,
-        String> predefs, HashMap<String, String> valids) {
+                                                            StringBuilder res, int fullResLen, Document document, Map<String,
+        String> predefs, Map<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG")) {
-            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, document, predefs, valids);
+            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         } else if ((segref.getNodeName()).equals("SF")) {
-            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, document, predefs, valids);
+            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         }
 
         return ret;
     }
 
     protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node segref, char predelim0, char predelim1,
-                                                                     StringBuffer res, int fullResLen,
+                                                                     StringBuilder res, int fullResLen,
                                                                      Document document,
-                                                                     HashMap<String, String> predefs, HashMap<String,
+                                                                     Map<String, String> predefs, Map<String,
         String> valids) {
         MultipleSyntaxElements ret = null;
 
@@ -224,18 +224,18 @@ public final class SF extends SyntaxElement {
                 }
 
                 if (parseNext) {
-                    ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, document, predefs,
+                    ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, fullResLen, document, predefs,
                         valids);
                 }
             }
         } else if ((segref.getNodeName()).equals("SF")) {
-            ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, document, predefs, valids);
+            ret = super.parseAndAppendNewChildContainer(segref, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         }
 
         return ret;
     }
 
-    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
         if (isValid()) {
             for (Iterator<MultipleSyntaxElements> i = getChildContainers().iterator(); i.hasNext(); ) {
                 MultipleSyntaxElements l = i.next();

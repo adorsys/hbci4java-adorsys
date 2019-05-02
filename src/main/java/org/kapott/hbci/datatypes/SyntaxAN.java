@@ -51,7 +51,7 @@ public class SyntaxAN extends SyntaxDE {
      * first token in the HBCI message will be extracted from @p res and used as
      * init value for the data element
      */
-    public SyntaxAN(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxAN(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -63,7 +63,7 @@ public class SyntaxAN extends SyntaxDE {
      */
     protected static String quote(String x) {
         int len = x.length();
-        StringBuffer temp = new StringBuffer(len << 1);
+        StringBuilder temp = new StringBuilder(len << 1);
 
         for (int i = 0; i < len; i++) {
             char ch = x.charAt(i);
@@ -92,7 +92,7 @@ public class SyntaxAN extends SyntaxDE {
      */
     protected static String unquote(String st) {
         int len = st.length();
-        StringBuffer ret = new StringBuffer(len);
+        StringBuilder ret = new StringBuilder(len);
         int idx = 0;
 
         while (idx < len) {
@@ -126,7 +126,7 @@ public class SyntaxAN extends SyntaxDE {
         return (st == null) ? "" : quote(st);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -135,7 +135,7 @@ public class SyntaxAN extends SyntaxDE {
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minlen, int maxlen) {
+    public void init(StringBuilder res, int minlen, int maxlen) {
         initData(res, minlen, maxlen);
     }
 }

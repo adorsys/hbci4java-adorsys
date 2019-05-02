@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public final class Message extends SyntaxElement {
@@ -37,14 +38,14 @@ public final class Message extends SyntaxElement {
     public final static boolean DONT_CHECK_VALIDS = false;
 
     private Document document;
-    private HashMap<String, String> clientValues = new HashMap<>();
+    private Map<String, String> clientValues = new HashMap<>();
 
     public Message(String type, Document document) {
         super(type, type, null, 0, document);
     }
 
     public Message(String type, String res, Document document, boolean checkSeq, boolean checkValids) {
-        super(type, type, null, (char) 0, 0, new StringBuffer(res),
+        super(type, type, null, (char) 0, 0, new StringBuilder(res), res.length(),
             document,
             new HashMap<>(),
             checkValids ? new HashMap<>() : null);
@@ -79,7 +80,7 @@ public final class Message extends SyntaxElement {
      * der methode werden vom nutzer einzugebenede daten (wie kontonummern, namen
      * usw.) in die generierte nachricht eingebaut
      */
-    private void propagateUserData(HashMap<String, String> clientValues) {
+    private void propagateUserData(Map<String, String> clientValues) {
         String dottedName = getName() + ".";
         clientValues.forEach((key, value) -> {
             if (key.startsWith(dottedName) && value != null && value.length() != 0) {
@@ -141,7 +142,7 @@ public final class Message extends SyntaxElement {
     // -------------------------------------------------------------------------------------------
 
     public void init(String type, String res, Document document, boolean checkSeq, boolean checkValids) {
-        super.init(type, type, null, (char) 0, 0, new StringBuffer(res),
+        super.init(type, type, null, (char) 0, 0, new StringBuilder(res), res.length(),
             document, new HashMap<>(),
             checkValids ? new HashMap<>() : null);
         if (checkSeq)
@@ -153,14 +154,14 @@ public final class Message extends SyntaxElement {
     }
 
     protected MultipleSyntaxElements parseNewChildContainer(Node segref, char predelim0, char predelim1,
-                                                            StringBuffer res, Document document, HashMap<String,
-        String> predefs, HashMap<String, String> valids) {
+                                                            StringBuilder res, int fullResLen, Document document, Map<String,
+        String> predefs, Map<String, String> valids) {
         MultipleSyntaxElements ret = null;
 
         if ((segref.getNodeName()).equals("SEG"))
-            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, document, predefs, valids);
+            ret = new MultipleSEGs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
         else if ((segref.getNodeName()).equals("SF"))
-            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, document, predefs, valids);
+            ret = new MultipleSFs(segref, getPath(), predelim0, predelim1, res, fullResLen, document, predefs, valids);
 
         return ret;
     }
@@ -184,21 +185,19 @@ public final class Message extends SyntaxElement {
 
     // -------------------------------------------------------------------------------------------
 
-    public HashMap<String, String> getData() {
-        HashMap<String, String> hash = new HashMap<>();
-        HashMap p = new HashMap<String, String>();
+    public Map<String, String> getData() {
+        Map<String, String> hash = new HashMap<>();
+        Map p = new HashMap<String, String>();
         int nameskip = getName().length() + 1;
 
         extractValues(hash);
 
-        hash.forEach((key, value) -> {
-            p.put(key.substring(nameskip), value);
-        });
+        hash.forEach((key, value) -> p.put(key.substring(nameskip), value));
 
         return p;
     }
 
-    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
         segref = new int[1];
         segref[0] = 1;
 

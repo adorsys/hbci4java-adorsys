@@ -33,7 +33,7 @@ public final class SyntaxDate
         super(parseDate(x), 8, 8);
     }
 
-    public SyntaxDate(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxDate(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -53,7 +53,7 @@ public final class SyntaxDate
         super.init(parseDate(x), 8, 8);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -63,7 +63,7 @@ public final class SyntaxDate
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 

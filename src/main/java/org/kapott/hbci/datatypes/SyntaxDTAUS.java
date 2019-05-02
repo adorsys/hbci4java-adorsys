@@ -36,7 +36,7 @@ public class SyntaxDTAUS extends SyntaxAN {
         super();
     }
 
-    public SyntaxDTAUS(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxDTAUS(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -96,7 +96,7 @@ public class SyntaxDTAUS extends SyntaxAN {
         super.init();
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         int startidx = skipPreDelim(res);
         int endidx = findNextDelim(res, startidx);
         String st = res.substring(startidx, endidx);
@@ -105,7 +105,7 @@ public class SyntaxDTAUS extends SyntaxAN {
         res.delete(0, endidx);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 

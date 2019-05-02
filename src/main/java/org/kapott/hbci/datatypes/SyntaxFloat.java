@@ -36,7 +36,7 @@ public class SyntaxFloat
         super(double2string(x), minsize, maxsize);
     }
 
-    public SyntaxFloat(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxFloat(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 
@@ -65,7 +65,7 @@ public class SyntaxFloat
         super.init(double2string(x), minsize, maxsize);
     }
 
-    private void initData(StringBuffer res, int minsize, int maxsize) {
+    private void initData(StringBuilder res, int minsize, int maxsize) {
         String st = null;
 
         try {
@@ -91,7 +91,7 @@ public class SyntaxFloat
     }
 
     @Override
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         initData(res, minsize, maxsize);
     }
 

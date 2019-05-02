@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.List;
 
@@ -147,9 +147,9 @@ public abstract class SyntaxElement {
      * enthalten, die fuer einige syntaxelemente den wert angeben, den diese
      * elemente zwingend haben muessen (z.b. ein bestimmter segmentcode o.ae.)
      */
-    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuffer res,
-                            Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
-        initData(type, name, path, predelim, idx, res, document, predefs, valids);
+    protected SyntaxElement(String type, String name, String path, char predelim, int idx, StringBuilder res, int fullResLen,
+                            Document document, Map<String, String> predefs, Map<String, String> valids) {
+        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     /**
@@ -183,8 +183,8 @@ public abstract class SyntaxElement {
      * auftauchen muessten
      */
     protected abstract MultipleSyntaxElements parseNewChildContainer(Node ref, char predelim0, char predelim1,
-                                                                     StringBuffer res, Document document,
-                                                                     HashMap<String, String> predefs, HashMap<String,
+                                                                     StringBuilder res, int fullResLen, Document document,
+                                                                     Map<String, String> predefs, Map<String,
         String> valids);
 
     private void initData(String type, String name, String ppath, int idx, Document document) {
@@ -323,8 +323,8 @@ public abstract class SyntaxElement {
         return idx;
     }
 
-    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuffer res,
-                          Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
+    private void initData(String type, String name, String ppath, char predelim, int idx, StringBuilder res,
+                          int fullResLen, Document document, Map<String, String> predefs, Map<String, String> valids) {
         this.type = type;
         this.name = name;
         this.parent = null;
@@ -337,8 +337,7 @@ public abstract class SyntaxElement {
          * gesamtlänge des ursprünglichen msg-strings minus der länge des
          * reststrings, der jetzt zu parsen ist, und der mit dem aktuellen
          * datenelement beginnt */
-        int fullResLen = res.length();
-        this.posInMsg = fullResLen - res.length();
+        this.posInMsg=fullResLen-res.length();
 
         StringBuilder temppath = new StringBuilder(128);
         if (ppath != null && ppath.length() != 0)
@@ -390,7 +389,7 @@ public abstract class SyntaxElement {
                     MultipleSyntaxElements child = parseAndAppendNewChildContainer(ref,
                         ((counter++) == 0) ? predelim : getInDelim(),
                         getInDelim(),
-                        res, document, predefs, valids);
+                        res, fullResLen, document, predefs, valids);
 
                     if (child != null) {
                         child.setParent(this);
@@ -420,16 +419,16 @@ public abstract class SyntaxElement {
         setValid(true);
     }
 
-    protected void init(String type, String name, String path, char predelim, int idx, StringBuffer res,
-                        Document document, HashMap<String, String> predefs, HashMap<String, String> valids) {
-        initData(type, name, path, predelim, idx, res, document, predefs, valids);
+    protected void init(String type, String name, String path, char predelim, int idx, StringBuilder res, int fullResLen,
+                        Document document, Map<String, String> predefs, Map<String, String> valids) {
+        initData(type, name, path, predelim, idx, res, fullResLen, document, predefs, valids);
     }
 
     protected MultipleSyntaxElements parseAndAppendNewChildContainer(Node ref, char predelim0, char predelim1,
-                                                                     StringBuffer res, Document document,
-                                                                     HashMap<String, String> predefs, HashMap<String,
+                                                                     StringBuilder res, int fullResLen, Document document,
+                                                                     Map<String, String> predefs, Map<String,
         String> valids) {
-        MultipleSyntaxElements ret = parseNewChildContainer(ref, predelim0, predelim1, res, document, predefs, valids);
+        MultipleSyntaxElements ret = parseNewChildContainer(ref, predelim0, predelim1, res, fullResLen, document, predefs, valids);
         if (ret != null)
             addChildContainer(ret);
         return ret;
@@ -440,7 +439,7 @@ public abstract class SyntaxElement {
      * wird in allen anderen typen von syntaxelementen die liste der
      * child-elemente durchlaufen und deren 'fillValues' methode aufgerufen
      */
-    public void extractValues(HashMap<String, String> values) {
+    public void extractValues(Map<String, String> values) {
         for (MultipleSyntaxElements l : childContainers) {
             l.extractValues(values);
         }
@@ -714,7 +713,7 @@ public abstract class SyntaxElement {
         }
     }
 
-    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
     }
 
     public MultipleSyntaxElements getParent() {

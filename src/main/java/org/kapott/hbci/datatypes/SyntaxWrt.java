@@ -28,7 +28,7 @@ public final class SyntaxWrt
         super(x, minsize, 15);
     }
 
-    public SyntaxWrt(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxWrt(StringBuilder res, int minsize, int maxsize) {
         super(res, minsize, 15);
     }
 
@@ -38,7 +38,7 @@ public final class SyntaxWrt
         super.init(x, minsize, 15);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         super.init(res, minsize, 15);
     }
 

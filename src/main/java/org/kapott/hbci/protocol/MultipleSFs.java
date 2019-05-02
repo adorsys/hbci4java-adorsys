@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -35,9 +35,9 @@ public final class MultipleSFs extends MultipleSyntaxElements {
         super(sfref, path, document);
     }
 
-    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document,
-                       HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super(sfref, path, predelim0, predelim1, res, document, predefs, valids);
+    public MultipleSFs(Node sfref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document,
+                       Map<String, String> predefs, Map<String, String> valids) {
+        super(sfref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
     protected SyntaxElement createAndAppendNewElement(Node ref, String path, int idx, Document document) {
@@ -51,7 +51,7 @@ public final class MultipleSFs extends MultipleSyntaxElements {
     }
 
     public String toString(int dummy) {
-        StringBuffer ret = new StringBuffer(256);
+        StringBuilder ret = new StringBuilder(256);
 
         for (ListIterator<SyntaxElement> i = getElements().listIterator(); i.hasNext(); ) {
             SF sf = (SF) (i.next());
@@ -64,20 +64,20 @@ public final class MultipleSFs extends MultipleSyntaxElements {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    public void init(Node sfref, String path, char predelim0, char predelim1, StringBuffer res, Document document,
-                     HashMap<String, String> predefs, HashMap<String, String> valids) {
-        super.init(sfref, path, predelim0, predelim1, res, document, predefs, valids);
+    public void init(Node sfref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document,
+                     Map<String, String> predefs, Map<String, String> valids) {
+        super.init(sfref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
 
-    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuffer res,
-                                                     Document document, HashMap<String, String> predefs,
-                                                     HashMap<String, String> valids) {
+    protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuilder res,
+                                                     int fullResLen, Document document, Map<String, String> predefs,
+                                                     Map<String, String> valids) {
         SyntaxElement ret;
-        addElement((ret = new SF(getType(), getName(), path, predelim, idx, res, document, predefs, valids)));
+        addElement((ret = new SF(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs, valids)));
         return ret;
     }
 
-    public void getElementPaths(HashMap<String, String> p, int[] segref, int[] degref, int[] deref) {
+    public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
         for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
             SyntaxElement e = i.next();
             if (e != null) {

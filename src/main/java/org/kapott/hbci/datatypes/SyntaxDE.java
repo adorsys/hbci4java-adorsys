@@ -85,7 +85,7 @@ public abstract class SyntaxDE {
      * (i.e. the return value is the index into the String @p res where we
      * can start fetching the next syntax token)
      */
-    protected static int skipPreDelim(StringBuffer res) {
+    protected static int skipPreDelim(StringBuilder res) {
         int ret = 0;
 
         if (res.length() != 0) {
@@ -113,7 +113,7 @@ public abstract class SyntaxDE {
      * of an HBCI-specific data-element-delimiter and returns its
      * position.
      */
-    public static int findNextDelim(StringBuffer res, int startidx) {
+    public static int findNextDelim(StringBuilder res, int startidx) {
         int ret = startidx;
         boolean quoted = false;
         boolean quit = false;
@@ -164,7 +164,7 @@ public abstract class SyntaxDE {
         initData(x, minsize, maxsize);
     }
 
-    public void init(StringBuffer x, int minsize, int maxsize) {
+    public void init(StringBuilder x, int minsize, int maxsize) {
         initData(x.toString(), minsize, maxsize);
     }
 

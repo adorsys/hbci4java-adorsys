@@ -26,7 +26,7 @@ public class SyntaxCode
         super(x, minlen, maxlen);
     }
 
-    public SyntaxCode(StringBuffer res, int minsize, int maxsize) {
+    public SyntaxCode(StringBuilder res, int minsize, int maxsize) {
         super(res, minsize, maxsize);
     }
 
@@ -36,7 +36,7 @@ public class SyntaxCode
         super.init(x, minlen, maxlen);
     }
 
-    public void init(StringBuffer res, int minsize, int maxsize) {
+    public void init(StringBuilder res, int minsize, int maxsize) {
         super.init(res, minsize, maxsize);
     }
 

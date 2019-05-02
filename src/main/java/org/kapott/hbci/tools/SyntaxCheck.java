@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public final class SyntaxCheck {
 
@@ -88,7 +89,7 @@ public final class SyntaxCheck {
                 System.out.println(st2);
             }
 
-            HashMap<String, String> p = msg.getData();
+            Map<String, String> p = msg.getData();
             ArrayList al = new ArrayList();
             al.addAll(p.keySet());
 
