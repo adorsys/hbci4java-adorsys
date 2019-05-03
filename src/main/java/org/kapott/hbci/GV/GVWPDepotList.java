@@ -35,11 +35,11 @@ import java.util.HashMap;
 
 public final class GVWPDepotList extends AbstractHBCIJob {
 
-    private StringBuffer buffer;
+    private StringBuilder buffer;
 
     public GVWPDepotList(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRWPDepotList(passport));
-        this.buffer = new StringBuffer();
+        this.buffer = new StringBuilder();
 
         addConstraint("my.number", "Depot.number", null);
         addConstraint("my.subnumber", "Depot.subnumber", "");
@@ -59,7 +59,7 @@ public final class GVWPDepotList extends AbstractHBCIJob {
         HashMap<String, String> result = msgstatus.getData();
 
         // TODO es muessen noch die antwortdaten eines 571 geparst werden
-        StringBuffer paramName = new StringBuffer(header).append(".data535");
+        StringBuilder paramName = new StringBuilder(header).append(".data535");
         buffer.append(Swift.decodeUmlauts(result.get(paramName.toString())));
 
         final SimpleDateFormat date_time_format = new SimpleDateFormat("yyyyMMdd hhmmss");
@@ -173,7 +173,7 @@ public final class GVWPDepotList extends AbstractHBCIJob {
                             gattung.name = st.substring(pos1);
 
                         if (gattung.name != null) {
-                            StringBuffer sb = new StringBuffer(gattung.name);
+                            StringBuilder sb = new StringBuilder(gattung.name);
                             int p;
                             while ((p = sb.indexOf("\r\n")) != -1) {
                                 sb.replace(p, p + 2, " ");

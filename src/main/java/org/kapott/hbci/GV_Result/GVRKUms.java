@@ -64,13 +64,13 @@ public class GVRKUms extends HBCIJobResultImpl {
      * empfangenen Kontoauszüge nicht richtig geparst werden, und dieser String enthält den
      * "Schwanz" der Kontoauszugsdaten, bei dem das Parsing-Problem aufgetreten ist.
      */
-    private StringBuffer restMT940;
+    private StringBuilder restMT940;
     /**
      * Wie restMT940, allerdings für die Daten der *vorgemerkten* Umsätze.
      */
-    private StringBuffer restMT942;
-    private StringBuffer mt940raw;
-    private StringBuffer mt942raw;
+    private StringBuilder restMT942;
+    private StringBuilder mt940raw;
+    private StringBuilder mt942raw;
     private List<BTag> tageMT940;
     private List<BTag> tageMT942;
     private boolean parsed;
@@ -81,18 +81,21 @@ public class GVRKUms extends HBCIJobResultImpl {
         tageMT940 = new ArrayList<>();
         tageMT942 = new ArrayList<>();
 
-        restMT940 = new StringBuffer();
-        restMT942 = new StringBuffer();
+        restMT940 = new StringBuilder();
+        restMT942 = new StringBuilder();
+
+        mt940raw = new StringBuilder();
+        mt942raw = new StringBuilder();
 
         parsed = false;
     }
 
-    public void setMt940raw(StringBuffer mt940raw) {
-        this.mt940raw = mt940raw;
+    public void appendMt940raw(StringBuilder mt940raw) {
+        this.mt940raw.append(mt940raw);
     }
 
-    public void setMt942raw(StringBuffer mt942raw) {
-        this.mt942raw = mt942raw;
+    public void appendMt942raw(StringBuilder mt942raw) {
+        this.mt942raw.append(mt942raw);
     }
 
     /**
@@ -200,7 +203,7 @@ public class GVRKUms extends HBCIJobResultImpl {
         }
     }
 
-    private void parseMT94x(StringBuffer buffer, List<BTag> tage, StringBuffer rest) {
+    private void parseMT94x(StringBuilder buffer, List<BTag> tage, StringBuilder rest) {
         parsed = true;
 
         // Verwenden wir bei CAMT-Umsaetzen.
@@ -829,7 +832,7 @@ public class GVRKUms extends HBCIJobResultImpl {
         public char endtype;
 
         public BTag() {
-            lines = new ArrayList<UmsLine>();
+            lines = new ArrayList<>();
         }
 
         public void addLine(UmsLine line) {

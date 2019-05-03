@@ -29,7 +29,7 @@ public class Swift {
     // ?" siehe TestBrokenMT940.java
 
     /* With this, a block always ends with \r\n- */
-    public static String getOneBlock(StringBuffer stream) {
+    public static String getOneBlock(StringBuilder stream) {
         String ret = null;
 
         int endpos = stream.indexOf("\r\n:20:", 1);

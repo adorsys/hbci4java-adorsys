@@ -36,11 +36,11 @@ import java.util.HashMap;
 
 public class GVWPDepotUms extends AbstractHBCIJob {
 
-    private StringBuffer buffer;
+    private StringBuilder buffer;
 
     public GVWPDepotUms(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRWPDepotUms(passport));
-        this.buffer = new StringBuffer();
+        this.buffer = new StringBuilder();
 
         addConstraint("my.number", "Depot.number", null);
         addConstraint("my.subnumber", "Depot.subnumber", "");
@@ -198,7 +198,7 @@ public class GVWPDepotUms extends AbstractHBCIJob {
                             instrument.name = st.substring(pos1);
 
                         if (instrument.name != null) {
-                            StringBuffer sb = new StringBuffer(instrument.name);
+                            StringBuilder sb = new StringBuilder(instrument.name);
                             int p;
                             while ((p = sb.indexOf("\r\n")) != -1) {
                                 sb.replace(p, p + 2, " ");

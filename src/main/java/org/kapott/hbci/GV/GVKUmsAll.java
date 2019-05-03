@@ -85,26 +85,26 @@ public class GVKUmsAll extends AbstractHBCIJob {
         return "KUmsZeit";
     }
 
+    @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         GVRKUms umsResult = (GVRKUms) jobResult;
 
-        StringBuffer paramName = new StringBuffer(header).append(".booked");
-        String rawData = result.get(paramName.toString());
+        String rawData = result.get(header+".booked");
         if (rawData != null) {
-            umsResult.setMt940raw(new StringBuffer(Swift.decodeUmlauts(rawData)));
+            umsResult.appendMt940raw(new StringBuilder(Swift.decodeUmlauts(rawData)));
         }
 
-        paramName = new StringBuffer(header).append(".notbooked");
-        rawData = result.get(paramName.toString());
+        rawData = result.get(header+".notbooked");
         if (rawData != null) {
-            umsResult.setMt942raw(new StringBuffer(Swift.decodeUmlauts(rawData)));
+            umsResult.appendMt942raw(new StringBuilder(Swift.decodeUmlauts(rawData)));
         }
 
         // TODO: this is for compatibility reasons only
         jobResult.storeResult("notbooked", result.get(header + ".notbooked"));
     }
 
+    @Override
     public void verifyConstraints() {
         super.verifyConstraints();
         checkAccountCRC("my");
