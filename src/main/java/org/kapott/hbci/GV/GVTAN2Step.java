@@ -82,6 +82,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
         return "TAN2Step";
     }
 
+    @Override
     public void setParam(String paramName, String value) {
         if (paramName.equals("orderhash")) {
             value = "B" + value;
@@ -93,14 +94,14 @@ public class GVTAN2Step extends AbstractHBCIJob {
         this.originJob = originJob;
     }
 
+    @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         String segcode = result.get(header + ".SegHead.code");
         log.debug("found HKTAN response with segcode " + segcode);
 
         Optional<String> resultHbciCode = Optional.ofNullable(originJob)
-            .map(abstractHBCIJob -> abstractHBCIJob.getHBCICode())
-            .filter(u -> !Objects.isNull(u))
+            .map(AbstractHBCIJob::getHBCICode)
             .map(hbciCode -> new StringBuffer(hbciCode).replace(1, 2, "I").toString())
             .filter(hbciCode -> hbciCode.equals(segcode));
 

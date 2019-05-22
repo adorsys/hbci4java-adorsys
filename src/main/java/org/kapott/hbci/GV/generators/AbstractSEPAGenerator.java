@@ -1,11 +1,14 @@
 package org.kapott.hbci.GV.generators;
 
+import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.sepa.SepaVersion;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -14,7 +17,6 @@ import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.logging.Logger;
 
 /**
  * Abstrakte Basis-Implementierung der SEPA-Generatoren.
@@ -26,8 +28,8 @@ import java.util.logging.Logger;
  *            Verwendung von "HBCIUtils" & Co verzichtet werden. Das ist auch der Grund, warum hier
  *            das Java-Logging verwendet wird und nicht das HBCI4Java-eigene.
  */
+@Slf4j
 public abstract class AbstractSEPAGenerator<T> implements PainGeneratorIf<T> {
-    private final static Logger LOG = Logger.getLogger(AbstractSEPAGenerator.class.getName());
 
     /**
      * Schreibt die Bean mittels JAXB in den Strean.
@@ -35,9 +37,9 @@ public abstract class AbstractSEPAGenerator<T> implements PainGeneratorIf<T> {
      * @param e        das zu schreibende JAXBElement mit der Bean.
      * @param os       der OutputStream, in den das XML geschrieben wird.
      * @param validate true, wenn das erzeugte XML gegen das PAIN-Schema validiert werden soll.
-     * @throws Exception
+     * @throws JAXBException JAXBException
      */
-    protected void marshal(JAXBElement e, OutputStream os, boolean validate) throws Exception {
+    protected void marshal(JAXBElement e, OutputStream os, boolean validate) throws JAXBException, SAXException {
         JAXBContext jaxbContext = JAXBContext.newInstance(e.getDeclaredType());
         Marshaller marshaller = jaxbContext.createMarshaller();
 
@@ -52,34 +54,33 @@ public abstract class AbstractSEPAGenerator<T> implements PainGeneratorIf<T> {
         if (version != null) {
             String schemaLocation = version.getSchemaLocation();
             if (schemaLocation != null) {
-                LOG.fine("appending schemaLocation " + schemaLocation);
+                log.trace("appending schemaLocation " + schemaLocation);
                 marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, schemaLocation);
             }
 
             String file = version.getFile();
-            if (file != null) {
-                if (validate) {
-                    Source source = null;
-                    InputStream is = this.getClass().getClassLoader().getResourceAsStream(file);
+            if (file != null && validate) {
 
-                    if (is != null) {
-                        source = new StreamSource(is);
-                    } else {
-                        // Fallback auf File-Objekt
-                        File f = new File(file);
-                        if (f.isFile() && f.canRead())
-                            source = new StreamSource(f);
-                    }
+                Source source = null;
+                InputStream is = this.getClass().getClassLoader().getResourceAsStream(file);
 
-                    if (source == null)
-                        throw new HBCI_Exception("schema validation activated against " + file + " - but schema file " +
-                            "could not be found");
-
-                    LOG.fine("activating schema validation against " + file);
-                    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-                    Schema schema = schemaFactory.newSchema(source);
-                    marshaller.setSchema(schema);
+                if (is != null) {
+                    source = new StreamSource(is);
+                } else {
+                    // Fallback auf File-Objekt
+                    File f = new File(file);
+                    if (f.isFile() && f.canRead())
+                        source = new StreamSource(f);
                 }
+
+                if (source == null)
+                    throw new HBCI_Exception("schema validation activated against " + file + " - but schema file " +
+                        "could not be found");
+
+                log.trace("activating schema validation against " + file);
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                Schema schema = schemaFactory.newSchema(source);
+                marshaller.setSchema(schema);
             }
         }
 

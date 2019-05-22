@@ -35,10 +35,10 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
     private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVTermUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName(), null);
+        this(passport, getLowlevelName());
     }
 
-    public GVTermUebSEPA(HBCIPassportInternal passport, String name, String pain) {
+    public GVTermUebSEPA(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRTermUeb(passport));
 
         addConstraint("src.bic", "My.bic", null);
@@ -53,11 +53,7 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         }
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
-        if (pain == null) {
-            addConstraint("_sepapain", "sepapain", null);
-        } else {
-            setPainXml(pain);
-        }
+        addConstraint("_sepapain", "sepapain", null);
 
         /* dummy constraints to allow an application to set these values. the
          * overriden setLowlevelParam() stores these values in a special structure

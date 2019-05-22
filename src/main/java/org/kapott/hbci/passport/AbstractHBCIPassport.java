@@ -92,8 +92,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
             log.debug("creating new instance of a " + name + " passport");
             Class cl = Class.forName(className);
             Constructor con = cl.getConstructor(Properties.class, HBCICallback.class, Object.class);
-            HBCIPassport p = (HBCIPassport) (con.newInstance(new Object[]{properties, callback, init}));
-            return p;
+            return (HBCIPassport) (con.newInstance(new Object[]{properties, callback, init}));
         } catch (ClassNotFoundException e) {
             throw new InvalidUserDataException("*** No passport implementation '" + name + "' found - there must be a" +
                 " class " + className);
@@ -213,11 +212,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         boolean haveIBAN = (iban != null && iban.length() != 0);
 
         for (Konto account1 : getAccounts()) {
-            String temp_number = HBCIUtils.stripLeadingZeroes(account1.number);
-            String temp_iban = HBCIUtils.stripLeadingZeroes(account1.iban);
+            String tempNumber = HBCIUtils.stripLeadingZeroes(account1.number);
+            String tempIban = HBCIUtils.stripLeadingZeroes(account1.iban);
 
-            if (haveNumber && number.equals(temp_number) ||
-                haveIBAN && iban.equals(temp_iban)) {
+            if (haveNumber && number.equals(tempNumber) ||
+                haveIBAN && iban.equals(tempIban)) {
                 account.blz = account1.blz;
                 account.country = account1.country;
                 account.number = account1.number;
@@ -232,13 +231,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 break;
             }
         }
-    }
-
-    public final Konto findAccountByIban(String iban) {
-        return getAccounts().stream()
-            .filter(konto -> konto.iban.equals(iban))
-            .findFirst()
-            .orElse(null);
     }
 
     public final Konto findAccountByAccountNumber(String number) {
@@ -270,7 +262,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final Integer getPort() {
-        return (port != null) ? port : new Integer(0);
+        return (port != null) ? port : 0;
     }
 
     public final void setPort(Integer port) {
@@ -341,16 +333,11 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 i++;
             }
 
-            if (temp.size() != 0)
+            if (!temp.isEmpty())
                 ret = (temp.toArray(ret));
         }
 
         return ret;
-    }
-
-    public final String getDefaultLang() {
-        String value = (bpd != null) ? bpd.get("CommListRes.deflang") : null;
-        return (value != null) ? value : "0";
     }
 
     public final String getLang() {
@@ -359,7 +346,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
     }
 
     public final Long getSigId() {
-        return sigid != null ? sigid : new Long(1);
+        return sigid != null ? sigid : 1;
     }
 
     public final void setSigId(Long sigid) {
@@ -425,52 +412,14 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
 
         String searchstring = gvname + "Par" + version;
         bpd.keySet().forEach(key -> {
-            if (key.startsWith("Params") &&
-                key.indexOf("." + searchstring + ".Par") != -1) {
+            if (key.startsWith("Params") && key.contains("." + searchstring + ".Par")) {
                 int searchIdx = key.indexOf(searchstring);
-                result.put(key.substring(key.indexOf(".",
-                    searchIdx + searchstring.length() + 4) + 1),
+                result.put(key.substring(key.indexOf('.', searchIdx + searchstring.length() + 4) + 1),
                     bpd.get(key));
             }
         });
 
         return result;
-    }
-
-    /**
-     * <p>Gibt eine Liste mit Strings zurück, welche Bezeichnungen für die einzelnen Rückgabedaten
-     * eines Lowlevel-Jobs darstellen. Jedem {@link org.kapott.hbci.GV.AbstractHBCIJob} ist ein
-     * Result-Objekt zugeordnet, welches die Rückgabedaten und Statusinformationen zu dem jeweiligen
-     * Job enthält (kann mit {@link org.kapott.hbci.GV.AbstractHBCIJob#getJobResult()}
-     * ermittelt werden). Bei den meisten Highlevel-Jobs handelt es sich dabei um bereits aufbereitete
-     * Daten (Kontoauszüge werden z.B. nicht in dem ursprünglichen SWIFT-Format zurückgegeben, sondern
-     * bereits als fertig geparste Buchungseinträge).</p>
-     * <p>Bei Lowlevel-Jobs gibt es diese Aufbereitung der Daten nicht. Statt dessen müssen die Daten
-     * manuell aus der Antwortnachricht extrahiert und interpretiert werden. Die einzelnen Datenelemente
-     * der Antwortnachricht werden in einem Properties-Objekt bereitgestellt. Jeder Eintrag
-     * darin enthält den Namen und den Wert eines Datenelementes aus der Antwortnachricht.</p>
-     * <p>Die Methode <code>getLowlevelJobResultNames()</code> gibt nun alle gültigen Namen zurück,
-     * für welche in dem Result-Objekt Daten gespeichert sein können. Ob für ein Datenelement tatsächlich
-     * ein Wert in dem Result-Objekt existiert, wird damit nicht bestimmt, da einzelne Datenelemente
-     * optional sind.</p>
-     * <p>Mit dem Tool {@link org.kapott.hbci.tools.ShowLowlevelGVRs} kann offline eine
-     * Liste aller Job-Result-Datenelemente erzeugt werden.</p>
-     * <p>Zur Beschreibung von High- und Lowlevel-Jobs siehe auch die Dokumentation
-     * im Package <code>org.kapott.hbci.GV</code>.</p>
-     *
-     * @param gvname Lowlevelname des Geschäftsvorfalls, für den die Namen der Rückgabedaten benötigt werden.
-     * @return Liste aller möglichen Property-Keys, für die im Result-Objekt eines Lowlevel-Jobs
-     * Werte vorhanden sein könnten
-     */
-    public List<String> getLowlevelJobResultNames(String gvname) {
-        if (gvname == null || gvname.length() == 0)
-            throw new InvalidArgumentException(HBCIUtils.getLocMsg("EXCMSG_EMPTY_JOBNAME"));
-
-        String version = getSupportedLowlevelJobs().get(gvname);
-        if (version == null)
-            throw new HBCI_Exception("*** lowlevel job " + gvname + " not supported");
-
-        return getGVResultNames(syntaxDocument, gvname, version);
     }
 
     /**
@@ -558,8 +507,8 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return getJobRestrictions(gvname, version);
     }
 
-    private Hashtable<String, List<String>> getLowlevelGVs(Document document) {
-        Hashtable<String, List<String>> result = new Hashtable<>();
+    private HashMap<String, List<String>> getLowlevelGVs(Document document) {
+        HashMap<String, List<String>> result = new HashMap<>();
 
         Element gvlist = document.getElementById("GV");
         NodeList gvs = gvlist.getChildNodes();
@@ -587,107 +536,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         }
 
         return result;
-    }
-
-    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-parameter
-     * zurück */
-    public List<String> getGVParameterNames(Document document, String gvname, String version) {
-        ArrayList<String> ret = new ArrayList<>();
-        Element gvdef = document.getElementById(gvname + version);
-        NodeList gvcontent = gvdef.getChildNodes();
-        int len = gvcontent.getLength();
-
-        boolean first = true;
-        for (int i = 0; i < len; i++) {
-            Node contentref = gvcontent.item(i);
-
-            if (contentref.getNodeType() == Node.ELEMENT_NODE) {
-                // skip seghead
-                if (first) {
-                    first = false;
-                } else {
-                    addLowlevelProperties(document, ret, "", (Element) contentref);
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-result-parameter
-     * zurück */
-    private List<String> getGVResultNames(Document document, String gvname, String version) {
-        ArrayList<String> ret = new ArrayList<>();
-        Element gvdef = document.getElementById(gvname + "Res" + version);
-
-        if (gvdef != null) {
-            NodeList gvcontent = gvdef.getChildNodes();
-            int len = gvcontent.getLength();
-
-            boolean first = true;
-            for (int i = 0; i < len; i++) {
-                Node contentref = gvcontent.item(i);
-
-                if (contentref.getNodeType() == Node.ELEMENT_NODE) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        addLowlevelProperties(document, ret, "", (Element) contentref);
-                    }
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    /* gibt für einen hbci-gv ("saldo3") die liste aller ll-job-restriction-
-     * parameter zurück */
-    public List<String> getGVRestrictionNames(Document document, String gvname, String version) {
-        ArrayList<String> ret = new ArrayList<>();
-
-        // SEGdef id="TermUebPar1" finden
-        Element gvdef = document.getElementById(gvname + "Par" + version);
-
-        if (gvdef != null) {
-            // alle darin enthaltenen elemente durchlaufen, bis ein element
-            // DEG type="ParTermUeb1" gefunden ist
-            NodeList gvcontent = gvdef.getChildNodes();
-            int len = gvcontent.getLength();
-
-            for (int i = 0; i < len; i++) {
-                Node contentref = gvcontent.item(i);
-
-                if (contentref.getNodeType() == Node.ELEMENT_NODE) {
-                    String type = ((Element) contentref).getAttribute("type");
-                    if (type.startsWith("Par")) {
-                        // wenn ein DEG type="ParTermUeb" gefunden ist, können
-                        // alle umgebenenden schleifenvariablen wiederverwendet
-                        // werden, weil es nur *ein* solches element geben kann
-                        // und die umgebende schleife demzufolge abgebrochen werden
-                        // kann, nachdem das gefundenen element bearbeitet wurde
-
-                        // DEGdef id="ParTermUeb1" finden
-                        gvdef = document.getElementById(type);
-                        gvcontent = gvdef.getChildNodes();
-                        len = gvcontent.getLength();
-
-                        // darin alle elemente durchlaufen und deren namen
-                        // zur ergebnisliste hinzufügen
-                        for (i = 0; i < len; i++) {
-                            contentref = gvcontent.item(i);
-
-                            if (contentref.getNodeType() == Node.ELEMENT_NODE) {
-                                addLowlevelProperties(document, ret, "", (Element) contentref);
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        return ret;
     }
 
     private void addLowlevelProperties(Document document, ArrayList<String> result, String path, Element ref) {

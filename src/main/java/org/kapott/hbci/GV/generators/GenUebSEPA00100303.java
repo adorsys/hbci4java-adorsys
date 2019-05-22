@@ -8,12 +8,12 @@ import org.kapott.hbci.sepa.jaxb.pain_001_003_03.*;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * SEPA-Generator fuer pain.001.003.03.
  */
-public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, String>> {
+public class GenUebSEPA00100303 extends AbstractSEPAGenerator<Map<String, String>> {
     /**
      * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getSepaVersion()
      */
@@ -26,7 +26,7 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
      * @see PainGeneratorIf#generate(Object, OutputStream, boolean)
      */
     @Override
-    public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) throws Exception {
+    public void generate(Map<String, String> sepaParams, OutputStream os, boolean validate) {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
 
         //Document
@@ -107,10 +107,14 @@ public class GenUebSEPA00100303 extends AbstractSEPAGenerator<HashMap<String, St
             pmtInf.setBtchBookg(batch.equals("1"));
 
         ObjectFactory of = new ObjectFactory();
-        this.marshal(of.createDocument(doc), os, validate);
+        try {
+            this.marshal(of.createDocument(doc), os, validate);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
-    private CreditTransferTransactionInformationSCT createCreditTransferTransactionInformationSCT(HashMap<String,
+    private CreditTransferTransactionInformationSCT createCreditTransferTransactionInformationSCT(Map<String,
         String> sepaParams, Integer index) {
         CreditTransferTransactionInformationSCT cdtTrxTxInf = new CreditTransferTransactionInformationSCT();
 

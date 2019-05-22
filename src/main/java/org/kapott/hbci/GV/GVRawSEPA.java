@@ -24,7 +24,7 @@ import org.kapott.hbci.sepa.SepaVersion;
  */
 public class GVRawSEPA extends AbstractSEPAGV {
 
-    private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
+    private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVRawSEPA(HBCIPassportInternal passport) {
         this(passport, getLowlevelName(), null);
@@ -44,11 +44,11 @@ public class GVRawSEPA extends AbstractSEPAGV {
             addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
-
         if (pain == null) {
+            addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
             addConstraint("_sepapain", "sepapain", null);
         } else {
+            setPainVersion(SepaVersion.autodetect(pain).getURN());
             setPainXml("B" + pain);
         }
     }
@@ -76,5 +76,10 @@ public class GVRawSEPA extends AbstractSEPAGV {
     @Override
     protected SepaVersion.Type getPainType() {
         return SepaVersion.Type.PAIN_001;
+    }
+
+    @Override
+    public String getPainJobName() {
+        return null; //not needed for generators
     }
 }

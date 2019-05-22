@@ -59,7 +59,7 @@ public class ChallengeInfo {
 
         ////////////////////////////////////////////////////////////////////////////
         // XML-Datei lesen
-        InputStream dataStream = null;
+        InputStream dataStream;
 
         String filename = "challengedata.xml";
         dataStream = ChallengeInfo.class.getClassLoader().getResourceAsStream(filename);
@@ -67,7 +67,7 @@ public class ChallengeInfo {
             throw new InvalidUserDataException("*** can not load challenge information from " + filename);
 
         // mit den so gefundenen xml-daten ein xml-dokument bauen
-        Document doc = null;
+        Document doc;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setIgnoringComments(true);
@@ -216,7 +216,7 @@ public class ChallengeInfo {
          * @param version die HHD-Version.
          * @return die Challenge-Parameter fuer die HHD-Version.
          */
-        public HhdVersion getVersion(String version) {
+        HhdVersion getVersion(String version) {
             return this.versions.get(version);
         }
     }
@@ -228,12 +228,12 @@ public class ChallengeInfo {
         /**
          * Die Challenge-Klasse.
          */
-        private String klass = null;
+        private String klass;
 
         /**
          * Liste der Challenge-Parameter.
          */
-        private List<Param> params = new ArrayList<Param>();
+        private List<Param> params = new ArrayList<>();
 
         /**
          * ct.
@@ -277,25 +277,25 @@ public class ChallengeInfo {
         /**
          * Der Typ des Parameters.
          */
-        private String type = null;
+        private String type;
 
         /**
          * Der Pfad in den Geschaeftsvorfall-Parametern, unter dem der Wert steht.
          */
-        private String path = null;
+        private String path;
 
         /**
          * Optional: Der Name einer Bedingung, die erfuellt sein muss, damit
          * der Parameter verwendet wird. Konkret ist hier der Name eines Property
          * aus secmechInfo gemeint. Also ein BPD-Parameter.
          */
-        private String conditionName = null;
+        private String conditionName;
 
         /**
          * Optional: Der Wert, den der BPD-Parameter haben muss, damit der Challenge-Parameter
          * verwendet wird.
          */
-        private String conditionValue = null;
+        private String conditionValue;
 
         /**
          * ct.

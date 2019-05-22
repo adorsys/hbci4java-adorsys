@@ -161,4 +161,9 @@ public class GVKUmsAllCamt extends AbstractSEPAGV {
         super.verifyConstraints();
         checkAccountCRC("my");
     }
+
+    @Override
+    public String getPainJobName() {
+        return getLowlevelName();
+    }
 }

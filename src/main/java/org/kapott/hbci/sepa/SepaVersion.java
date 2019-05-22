@@ -12,11 +12,13 @@ import org.kapott.hbci.GV.generators.PainGeneratorIf;
 import org.kapott.hbci.GV.parsers.ISEPAParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -30,86 +32,104 @@ import static org.kapott.hbci.comm.CommPinTan.ENCODING;
  */
 @Slf4j
 public class SepaVersion implements Comparable<SepaVersion> {
-    private final static Pattern PATTERN = Pattern.compile("([a-z]{2,8})\\.(\\d\\d\\d)\\.(\\d\\d\\d)\\.(\\d\\d)");
-    private final static Map<Type, List<SepaVersion>> knownVersions = new HashMap<Type, List<SepaVersion>>();
 
-    private final static String DF_MAJOR = "000";
-    private final static String DF_MINOR = "00";
+    private static final Pattern PATTERN = Pattern.compile("([a-z]{2,8})\\.(\\d\\d\\d)\\.(\\d\\d\\d)\\.(\\d\\d)");
+    private static final Map<Type, List<SepaVersion>> knownVersions = new EnumMap<>(Type.class);
+    private static final String DF_MAJOR = "000";
+    private static final String DF_MINOR = "00";
 
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_001_001_02 = new SepaVersion(SupportType.GENERATE, 1, "urn:sepade:xsd:pain.001.001" +
+    public static final SepaVersion PAIN_001_001_02 = new SepaVersion(SupportType.GENERATE, 1, "urn:sepade:xsd:pain" +
+        ".001.001" +
         ".02", "pain.001.001.02.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_001_002_02 = new SepaVersion(SupportType.GENERATE, 2, "urn:swift:xsd:$pain.001.002" +
+    public static final SepaVersion PAIN_001_002_02 = new SepaVersion(SupportType.GENERATE, 2, "urn:swift:xsd:$pain" +
+        ".001.002" +
         ".02", "pain.001.002.02.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_001_002_03 = new SepaVersion(SupportType.GENERATE, 3, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_001_002_03 = new SepaVersion(SupportType.GENERATE, 3, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.001.002.03", "pain.001.002.03.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_001_003_03 = new SepaVersion(SupportType.GENERATE, 4, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_001_003_03 = new SepaVersion(SupportType.GENERATE, 4, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.001.003.03", "pain.001.003.03.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_001_001_03 = new SepaVersion(SupportType.GENERATE, 5, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_001_001_03 = new SepaVersion(SupportType.GENERATE, 5, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.001.001.03", "pain.001.001.03.xsd", true);
-
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_002_002_02 = new SepaVersion(SupportType.GENERATE, 1, "urn:swift:xsd:$pain.002.002" +
+    public static final SepaVersion PAIN_002_002_02 = new SepaVersion(SupportType.GENERATE, 1, "urn:swift:xsd:$pain" +
+        ".002.002" +
         ".02", "pain.002.002.02.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_002_003_03 = new SepaVersion(SupportType.GENERATE, 2, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_002_003_03 = new SepaVersion(SupportType.GENERATE, 2, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.002.003.03", "pain.002.003.03.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_002_001_03 = new SepaVersion(SupportType.GENERATE, 3, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_002_001_03 = new SepaVersion(SupportType.GENERATE, 3, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.002.001.03", "pain.002.001.03.xsd", true);
-
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_008_001_01 = new SepaVersion(SupportType.GENERATE, 1, "urn:sepade:xsd:pain.008.001" +
+    public static final SepaVersion PAIN_008_001_01 = new SepaVersion(SupportType.GENERATE, 1, "urn:sepade:xsd:pain" +
+        ".008.001" +
         ".01", "pain.008.001.01.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_008_002_01 = new SepaVersion(SupportType.GENERATE, 2, "urn:swift:xsd:$pain.008.002" +
+    public static final SepaVersion PAIN_008_002_01 = new SepaVersion(SupportType.GENERATE, 2, "urn:swift:xsd:$pain" +
+        ".008.002" +
         ".01", "pain.008.002.01.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_008_002_02 = new SepaVersion(SupportType.GENERATE, 3, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_008_002_02 = new SepaVersion(SupportType.GENERATE, 3, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.008.002.02", "pain.008.002.02.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_008_003_02 = new SepaVersion(SupportType.GENERATE, 4, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_008_003_02 = new SepaVersion(SupportType.GENERATE, 4, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.008.003.02", "pain.008.003.02.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion PAIN_008_001_02 = new SepaVersion(SupportType.GENERATE, 5, "urn:iso:std:iso:20022:tech" +
+    public static final SepaVersion PAIN_008_001_02 = new SepaVersion(SupportType.GENERATE, 5, "urn:iso:std:iso:20022" +
+        ":tech" +
         ":xsd:pain.008.001.02", "pain.008.001.02.xsd", true);
-
     @SuppressWarnings("javadoc")
-    public static SepaVersion CAMT_052_001_01 = new SepaVersion(SupportType.PARSE, 1, "urn:iso:std:iso:20022:tech:xsd" +
+    public static final SepaVersion CAMT_052_001_01 = new SepaVersion(SupportType.PARSE, 1, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
         ":camt.052.001.01", "camt.052.001.01.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion CAMT_052_001_02 = new SepaVersion(SupportType.PARSE, 2, "urn:iso:std:iso:20022:tech:xsd" +
+    public static final SepaVersion CAMT_052_001_02 = new SepaVersion(SupportType.PARSE, 2, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
         ":camt.052.001.02", "camt.052.001.02.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion CAMT_052_001_03 = new SepaVersion(SupportType.PARSE, 3, "urn:iso:std:iso:20022:tech:xsd" +
+    public static final SepaVersion CAMT_052_001_03 = new SepaVersion(SupportType.PARSE, 3, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
         ":camt.052.001.03", "camt.052.001.03.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion CAMT_052_001_04 = new SepaVersion(SupportType.PARSE, 4, "urn:iso:std:iso:20022:tech:xsd" +
-        ":camt.052.001.04", "camt.052.001.04.xsd", true);
-    @SuppressWarnings("javadoc")
-    public static SepaVersion CAMT_052_001_05 = new SepaVersion(SupportType.PARSE, 5, "urn:iso:std:iso:20022:tech:xsd" +
+    public static final SepaVersion CAMT_052_001_05 = new SepaVersion(SupportType.PARSE, 5, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
         ":camt.052.001.05", "camt.052.001.05.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion CAMT_052_001_06 = new SepaVersion(SupportType.PARSE, 6, "urn:iso:std:iso:20022:tech:xsd" +
+    public static final SepaVersion CAMT_052_001_06 = new SepaVersion(SupportType.PARSE, 6, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
         ":camt.052.001.06", "camt.052.001.06.xsd", true);
     @SuppressWarnings("javadoc")
-    public static SepaVersion CAMT_052_001_07 = new SepaVersion(SupportType.PARSE, 7, "urn:iso:std:iso:20022:tech:xsd" +
+    public static final SepaVersion CAMT_052_001_07 = new SepaVersion(SupportType.PARSE, 7, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
         ":camt.052.001.07", "camt.052.001.07.xsd", true);
-
-    public static SepaVersion CAMT_053_001_02 = new SepaVersion(SupportType.PARSE, 8, "urn:iso:std:iso:20022:tech:xsd" +
+    @SuppressWarnings("javadoc")
+    public static final SepaVersion CAMT_053_001_02 = new SepaVersion(SupportType.PARSE, 8, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
         ":camt.053.001.02", "camt.053.001.02.xsd", true);
+    @SuppressWarnings("javadoc")
+    public static final SepaVersion CAMT_052_001_04 = new SepaVersion(SupportType.PARSE, 4, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
+        ":camt.052.001.04", "camt.052.001.04.xsd", true);
 
-    private SupportType support = null;
-    private String urn = null;
-    private String file = null;
-    private Type type = null;
-    private int major = 0;
-    private int minor = 0;
-    private int order = 0;
+    private SupportType support;
+    private String urn;
+    private String file;
+    private Type type;
+    private int major;
+    private int minor;
+    private int order;
 
     /**
      * Erzeugt eine SEPA-Version aus dem URN bzw dem Dateinamen.
@@ -137,12 +157,8 @@ public class SepaVersion implements Comparable<SepaVersion> {
 
         // Zur Liste der bekannten Versionen hinzufuegen
         if (add) {
-            List<SepaVersion> list = knownVersions.get(this.type);
-            if (list == null) {
-                list = new ArrayList<SepaVersion>();
-                knownVersions.put(type, list);
-            }
-            list.add(this);
+            knownVersions.computeIfAbsent(this.type, type1 -> new ArrayList<>())
+                .add(this);
         }
     }
 
@@ -179,7 +195,7 @@ public class SepaVersion implements Comparable<SepaVersion> {
      * @return der zugehoerige Enum-Wert.
      * @throws IllegalArgumentException wenn der Typ unbekannt ist.
      */
-    private static Type findType(String type, String value) throws IllegalArgumentException {
+    private static Type findType(String type, String value) {
         if (type == null || type.length() == 0)
             throw new IllegalArgumentException("no SEPA type type given");
 
@@ -200,7 +216,7 @@ public class SepaVersion implements Comparable<SepaVersion> {
      * @return die hoechste Version oder NULL wenn die Liste leer ist.
      */
     public static SepaVersion findGreatest(List<SepaVersion> list) {
-        if (list == null || list.size() == 0)
+        if (list == null || list.isEmpty())
             return null;
 
         // Sortieren, damit die hoechste Version hinten steht
@@ -252,6 +268,30 @@ public class SepaVersion implements Comparable<SepaVersion> {
                 return null;
 
             return SepaVersion.byURN(uri);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e2) {
+            throw new IllegalArgumentException(e2);
+        }
+    }
+
+    public static SepaVersion autodetect(String xml) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setIgnoringComments(true);
+            factory.setValidating(false);
+            factory.setNamespaceAware(true);
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(xml)));
+            Node root = doc.getFirstChild(); // Das ist das Element mit dem Namen "Document"
+
+            if (root == null)
+                throw new IllegalArgumentException("XML data did not contain a root element");
+
+            return Optional.ofNullable(root.getNamespaceURI())
+                .map(SepaVersion::byURN)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid pain xml"));
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e2) {
@@ -330,15 +370,12 @@ public class SepaVersion implements Comparable<SepaVersion> {
      * @return der Name der Java-Klasse des zugehoerigen SEPA-Generators.
      */
     public String getGeneratorClass(String jobName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(PainGeneratorIf.class.getPackage().getName());
-        sb.append(".Gen");
-        sb.append(jobName);
-        sb.append(this.type.getValue());
-        sb.append(new DecimalFormat(DF_MAJOR).format(this.major));
-        sb.append(new DecimalFormat(DF_MINOR).format(this.minor));
-
-        return sb.toString();
+        return PainGeneratorIf.class.getPackage().getName() +
+            ".Gen" +
+            jobName +
+            this.type.getValue() +
+            new DecimalFormat(DF_MAJOR).format(this.major) +
+            new DecimalFormat(DF_MINOR).format(this.minor);
     }
 
     /**
@@ -347,16 +384,12 @@ public class SepaVersion implements Comparable<SepaVersion> {
      * @return der Name der Java-Klasse des zugehoerigen SEPA-Parsers.
      */
     public String getParserClass() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(ISEPAParser.class.getPackage().getName());
-        sb.append(".Parse");
-
-        sb.append(this.type.getType());
-        sb.append(this.type.getValue());
-        sb.append(new DecimalFormat(DF_MAJOR).format(this.major));
-        sb.append(new DecimalFormat(DF_MINOR).format(this.minor));
-
-        return sb.toString();
+        return ISEPAParser.class.getPackage().getName() +
+            ".Parse" +
+            this.type.getType() +
+            this.type.getValue() +
+            new DecimalFormat(DF_MAJOR).format(this.major) +
+            new DecimalFormat(DF_MINOR).format(this.minor);
     }
 
     /**
@@ -381,7 +414,7 @@ public class SepaVersion implements Comparable<SepaVersion> {
      *
      * @return true, wenn ein Parser vorhanden ist.
      */
-    public boolean canParse() {
+    private boolean canParse() {
         try {
             Class.forName(this.getParserClass());
             return true;
@@ -556,18 +589,10 @@ public class SepaVersion implements Comparable<SepaVersion> {
         CAMT_053("Camt", "053", "bank to customer cash management"),
         ;
 
+        private String type;
+        private String value;
+        private String name;
 
-        private String type = null;
-        private String value = null;
-        private String name = null;
-
-        /**
-         * ct.
-         *
-         * @param type
-         * @param value
-         * @param name
-         */
         Type(String type, String value, String name) {
             this.type = type;
             this.value = value;

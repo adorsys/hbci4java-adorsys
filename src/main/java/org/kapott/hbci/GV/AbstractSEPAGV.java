@@ -22,24 +22,24 @@ import java.util.*;
 public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     /**
      * Token, der als End-to-End ID Platzhalter verwendet wird, wenn keine angegeben wurde.
-     * In pain.001.001.02 wurde dieser Token noch explizit erwaehnt. Inzwischen nicht mehr.
+     * In painVersion.001.001.02 wurde dieser Token noch explizit erwaehnt. Inzwischen nicht mehr.
      * Nach Ruecksprache mit Holger vom onlinebanking-forum.de weiss ich aber, dass VRNetworld
      * den auch verwendet und er von Banken als solcher erkannt wird.
      */
-    public final static String ENDTOEND_ID_NOTPROVIDED = "NOTPROVIDED";
+    public static final String ENDTOEND_ID_NOTPROVIDED = "NOTPROVIDED";
 
-    protected final HashMap<String, String> painParams = new HashMap<>();
-    private SepaVersion pain;
+    final HashMap<String, String> painParams = new HashMap<>();
+    private SepaVersion painVersion;
     private PainGeneratorIf generator = null;
 
     public AbstractSEPAGV(HBCIPassportInternal passport, String name) {
         super(passport, name, new HBCIJobResultImpl(passport));
-        this.pain = this.determinePainVersion(passport, name);
+        this.painVersion = this.determinePainVersion(passport, name);
     }
 
     public AbstractSEPAGV(HBCIPassportInternal passport, String name, HBCIJobResultImpl jobResult) {
         super(passport, name, jobResult);
-        this.pain = this.determinePainVersion(passport, name);
+        this.painVersion = this.determinePainVersion(passport, name);
     }
 
     /**
@@ -58,12 +58,12 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     protected abstract SepaVersion.Type getPainType();
 
     /**
-     * Diese Methode schaut in den BPD nach den unterstützen pain Versionen
-     * (bei LastSEPA pain.008.xxx.xx) und vergleicht diese mit den von HBCI4Java
-     * unterstützen pain Versionen. Der größte gemeinsamme Nenner wird
+     * Diese Methode schaut in den BPD nach den unterstützen painVersion Versionen
+     * (bei LastSEPA painVersion.008.xxx.xx) und vergleicht diese mit den von HBCI4Java
+     * unterstützen painVersion Versionen. Der größte gemeinsamme Nenner wird
      * zurueckgeliefert.
      *
-     * @param passport
+     * @param passport passport
      * @param gvName   der Geschaeftsvorfall fuer den in den BPD nach dem PAIN-Versionen
      *                 gesucht werden soll.
      * @return die ermittelte PAIN-Version.
@@ -79,34 +79,34 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         // Wir haben gar keine PAIN-Version gefunden
         if (globalVersion == null && jobVersion == null) {
             SepaVersion def = this.getDefaultPainVersion();
-            log.warn("unable to determine matching pain version, using default: " + def);
+            log.warn("unable to determine matching painVersion version, using default: " + def);
             return def;
         }
 
         // Wenn wir keine GV-spezifische haben, dann nehmen wir die globale
         if (jobVersion == null) {
-            log.debug("have no job-specific pain version, using global pain version: " + globalVersion);
+            log.debug("have no job-specific painVersion version, using global painVersion version: " + globalVersion);
             return globalVersion;
         }
 
         // Ansonsten hat die vom Job Vorrang:
-        log.debug("using job-specific pain version: " + jobVersion);
+        log.debug("using job-specific painVersion version: " + jobVersion);
         return jobVersion;
     }
 
     /**
-     * Diese Methode schaut in den BPD nach den unterstützen pain Versionen
-     * (bei LastSEPA pain.008.xxx.xx) und vergleicht diese mit den von HBCI4Java
-     * unterstützen pain Versionen. Der größte gemeinsamme Nenner wird
+     * Diese Methode schaut in den BPD nach den unterstützen painVersion Versionen
+     * (bei LastSEPA painVersion.008.xxx.xx) und vergleicht diese mit den von HBCI4Java
+     * unterstützen painVersion Versionen. Der größte gemeinsamme Nenner wird
      * zurueckgeliefert.
      *
-     * @param passport
+     * @param passport passport
      * @param gvName   der Geschaeftsvorfall fuer den in den BPD nach dem PAIN-Versionen
      *                 gesucht werden soll.
      * @return die ermittelte PAIN-Version oder NULL wenn keine ermittelt werden konnte.
      */
     private SepaVersion determinePainVersionInternal(HBCIPassportInternal passport, final String gvName) {
-        log.debug("searching for supported pain versions for GV " + gvName);
+        log.debug("searching for supported painVersion versions for GV " + gvName);
 
         if (!passport.jobSupported(gvName)) {
             log.debug("don't have any BPD for GV " + gvName);
@@ -143,7 +143,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
                     found.add(version);
                 }
             } catch (Exception e) {
-                log.warn("ignoring invalid pain version " + urn);
+                log.warn("ignoring invalid painVersion version " + urn);
                 log.error(e.getMessage(), e);
             }
         }
@@ -157,7 +157,8 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * directly in the message, but have to go into the SEPA document which will
      * by created later (in verifyConstraints())
      */
-    protected void setLowlevelParam(String key, String value) {
+    @Override
+    public void setLowlevelParam(String key, String value) {
         String intern = getName() + ".sepa.";
 
         if (key.startsWith(intern)) {
@@ -176,9 +177,10 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * messages). So we read the sepa lowlevel-values from the special sepa
      * structure instead from the lowlevel params for the message
      *
-     * @param key
+     * @param key key
      * @return the lowlevel param.
      */
+    @Override
     public String getLowlevelParam(String key) {
         String result;
 
@@ -215,7 +217,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return der SEPA-Generator.
      */
-    protected final PainGeneratorIf getPainGenerator() {
+    private final PainGeneratorIf getPainGenerator() {
         if (this.generator == null) {
             try {
                 this.generator = PainGeneratorFactory.get(this, this.getPainVersion());
@@ -233,8 +235,13 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return der zu verwendende PAIN-Version fuer die HBCI-Nachricht.
      */
-    protected SepaVersion getPainVersion() {
-        return this.pain;
+    @Override
+    public SepaVersion getPainVersion() {
+        return this.painVersion;
+    }
+
+    void setPainVersion(String version) {
+        setLowlevelParam(getName() + ".sepadescr", version);
     }
 
     /**
@@ -245,7 +252,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         // Hier wird die XML rein geschrieben
         ByteArrayOutputStream o = new ByteArrayOutputStream();
 
-        // Passenden SEPA Generator zur verwendeten pain Version laden
+        // Passenden SEPA Generator zur verwendeten painVersion Version laden
         PainGeneratorIf gen = this.getPainGenerator();
 
         // Die XML in den baos schreiben, ggf fehler behandeln
@@ -266,7 +273,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
             log.debug("generated XML:\n" + xml);
             setParam("_sepapain", "B" + xml);
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -275,7 +282,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         return getLowlevelParam(getName() + ".sepapain");
     }
 
-    public void setPainXml(String painXml) {
+    void setPainXml(String painXml) {
         setLowlevelParam(getName() + ".sepapain", painXml);
     }
 
@@ -298,6 +305,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * Bei SEPA Geschäftsvorfällen müssen wir verifyConstraints überschreiben um
      * die SEPA XML zu generieren
      */
+    @Override
     public void verifyConstraints() {
         // creating SEPA document and storing it in _sepapain
         if (this.acceptsParam("_sepapain")) {
@@ -309,7 +317,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
         // TODO: checkIBANCRC
     }
 
-    public void setSEPAParam(String name, String value) {
+    private void setSEPAParam(String name, String value) {
         this.painParams.put(name, value);
     }
 
@@ -320,17 +328,15 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      * @param name
      * @return Value
      */
-    public String getPainParam(String name) {
+    private String getPainParam(String name) {
         return this.painParams.get(name);
     }
 
     /**
-     * Referenzierter pain-Jobname. Bei vielen Geschäftsvorfällen
-     * (z.B. Daueraufträgen) wird die pain der Einzeltransaktion verwendet.
+     * Referenzierter painVersion-Jobname. Bei vielen Geschäftsvorfällen
+     * (z.B. Daueraufträgen) wird die painVersion der Einzeltransaktion verwendet.
      *
      * @return Value
      */
-    public String getPainJobName() {
-        return this.getJobName();
-    }
+    public abstract String getPainJobName();
 }

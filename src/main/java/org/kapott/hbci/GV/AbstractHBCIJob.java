@@ -32,6 +32,7 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.protocol.SyntaxElement;
+import org.kapott.hbci.sepa.SepaVersion;
 import org.kapott.hbci.status.HBCIMsgStatus;
 import org.kapott.hbci.status.HBCIRetVal;
 import org.kapott.hbci.structures.Konto;
@@ -103,7 +104,7 @@ public abstract class AbstractHBCIJob {
 
     /* gibt den segmentcode für diesen job zurück */
     public String getHBCICode() {
-        StringBuffer ret = null;
+        StringBuilder ret = null;
 
         // Macht aus z.Bsp. "KUmsZeit5" -> "KUmsZeitPar5.SegHead.code"
         StringBuilder searchString = new StringBuilder(name);
@@ -126,7 +127,7 @@ public abstract class AbstractHBCIJob {
                 tempkey.delete(0, tempkey.indexOf(".") + 1);
 
                 if (tempkey.toString().equals(searchString.toString())) {
-                    ret = new StringBuffer(passport.getBPD().get(key));
+                    ret = new StringBuilder(passport.getBPD().get(key));
                     ret.replace(1, 2, "K");
                     ret.deleteCharAt(ret.length() - 1);
                     break;
@@ -299,12 +300,8 @@ public abstract class AbstractHBCIJob {
 
     public void verifyConstraints() {
         // durch alle gespeicherten constraints durchlaufen
-        for (String s : constraints.keySet()) {
-            // dazu alle ziel-lowlevelparameter mit default-wert extrahieren
-            String[][] values = constraints.get(s);
-
-            // durch alle ziel-lowlevel-parameternamen durchlaufen, die gesetzt werden müssen
-            for (String[] value : values) {
+        for (Map.Entry<String, String[][]> entry : constraints.entrySet()) {
+            for (String[] value : entry.getValue()) {
                 //Array mit Pfadname und default Wert
                 // lowlevel-name (Pfadname) des parameters (z.B. wird Frontendname src.bic zum Pfad My.bic
                 String destination = value[0];
@@ -312,7 +309,7 @@ public abstract class AbstractHBCIJob {
                 String defValue = value[1];
 
                 String givenContent = getLowlevelParam(destination);
-                if (givenContent == null && indexedConstraints.contains(s)) {
+                if (givenContent == null && indexedConstraints.contains(entry.getKey())) {
                     givenContent = getLowlevelParam(insertIndex(destination, 0));
                 }
 
@@ -321,7 +318,7 @@ public abstract class AbstractHBCIJob {
                     content = givenContent;
 
                 if (content == null) {
-                    String msg = HBCIUtils.getLocMsg("EXC_MISSING_HL_PROPERTY", s);
+                    String msg = HBCIUtils.getLocMsg("EXC_MISSING_HL_PROPERTY", entry.getKey());
                     throw new InvalidUserDataException(msg);
                 }
 
@@ -346,7 +343,7 @@ public abstract class AbstractHBCIJob {
         return createJobSegment(0);
     }
 
-    public SEG createJobSegment(int segnum) {
+    private SEG createJobSegment(int segnum) {
         SEG seg;
         try {
             seg = new SEG(getName(), getName(), null, 0, passport.getSyntaxDocument());
@@ -484,7 +481,7 @@ public abstract class AbstractHBCIJob {
         setParam(paramName, Integer.toString(i));
     }
 
-    protected boolean acceptsParam(String hlParamName) {
+    boolean acceptsParam(String hlParamName) {
         return constraints.get(hlParamName) != null;
     }
 
@@ -553,7 +550,7 @@ public abstract class AbstractHBCIJob {
         setLowlevelParam(getName() + ".offset", (offset != null) ? offset : "");
     }
 
-    protected void setLowlevelParam(String key, String value) {
+    public void setLowlevelParam(String key, String value) {
         log.debug("setting lowlevel parameter " + key + " = " + value);
         llParams.put(key, value);
     }
@@ -568,12 +565,8 @@ public abstract class AbstractHBCIJob {
      *
      * @return aktuelle gesetzte Lowlevel-Parameter für diesen Job
      */
-    public HashMap<String, String> getLowlevelParams() {
+    public Map<String, String> getLowlevelParams() {
         return llParams;
-    }
-
-    public void setLowlevelParams(HashMap<String, String> llParams) {
-        this.llParams = llParams;
     }
 
     public String getLowlevelParam(String key) {
@@ -657,7 +650,7 @@ public abstract class AbstractHBCIJob {
         boolean needs = false;
 
         if (executed) {
-            HBCIRetVal retval = null;
+            HBCIRetVal retval;
             int num = jobResult.getJobStatus().getRetVals().size();
 
             for (int i = 0; i < num; i++) {
@@ -771,7 +764,7 @@ public abstract class AbstractHBCIJob {
      * betreffen, werden im @c data Property unter dem namen @c ret_i.*
      * gespeichert. @i entspricht dabei dem @c retValCounter.
      */
-    protected void saveReturnValues(HBCIMsgStatus status, int sref) {
+    private void saveReturnValues(HBCIMsgStatus status, int sref) {
         List<HBCIRetVal> retVals = status.segStatus.getRetVals();
         String segref = Integer.toString(sref);
 
@@ -811,8 +804,8 @@ public abstract class AbstractHBCIJob {
         return jobResult;
     }
 
-    private void _checkAccountCRC(String frontendname,
-                                  String blz, String number) {
+    private void checkAccountCRCInternal(String frontendname,
+                                         String blz, String number) {
         // pruefsummenberechnung nur wenn blz/kontonummer angegeben sind
         if (blz == null || number == null) {
             return;
@@ -823,16 +816,16 @@ public abstract class AbstractHBCIJob {
 
         // daten merken, die im urspruenglich verwendet wurden (um spaeter
         // zu wissen, ob sie korrigiert wurden)
-        String orig_blz = blz;
-        String orig_number = number;
+        String origBlz = blz;
+        String origNumber = number;
 
         while (true) {
             // daten validieren
             boolean crcok = HBCIUtils.checkAccountCRC(blz, number);
 
             // aktuelle daten merken
-            String old_blz = blz;
-            String old_number = number;
+            String oldBlz = blz;
+            String oldNumber = number;
 
             if (!crcok) {
                 // wenn beim validieren ein fehler auftrat, nach neuen daten fragen
@@ -848,22 +841,22 @@ public abstract class AbstractHBCIJob {
                 number = sb.substring(idx + 1);
             }
 
-            if (blz.equals(old_blz) && number.equals(old_number)) {
+            if (blz.equals(oldBlz) && number.equals(oldNumber)) {
                 // blz und kontonummer auch nach rueckfrage unveraendert,
                 // also tatsaechlich mit diesen daten weiterarbeiten
                 break;
             }
         }
 
-        if (!blz.equals(orig_blz)) {
+        if (!blz.equals(origBlz)) {
             setParam(frontendname + ".KIK.blz", blz);
         }
-        if (!number.equals(orig_number)) {
+        if (!number.equals(origNumber)) {
             setParam(frontendname + ".number", number);
         }
     }
 
-    private void _checkIBANCRC(String frontendname, String iban) {
+    private void checkIBANCRCInternal(String frontendname, String iban) {
         // pruefsummenberechnung nur wenn iban vorhanden ist
         if (iban == null || iban.length() == 0) {
             return;
@@ -871,11 +864,11 @@ public abstract class AbstractHBCIJob {
 
         // daten merken, die im urspruenglich verwendet wurden (um spaeter
         // zu wissen, ob sie korrigiert wurden)
-        String orig_iban = iban;
+        String origIban = iban;
         while (true) {
             boolean crcok = HBCIUtils.checkIBANCRC(iban);
 
-            String old_iban = iban;
+            String oldIban = iban;
 
             if (!crcok) {
                 StringBuilder sb = new StringBuilder(iban);
@@ -888,13 +881,13 @@ public abstract class AbstractHBCIJob {
                 iban = sb.toString();
             }
 
-            if (iban.equals(old_iban)) {
+            if (iban.equals(oldIban)) {
                 // iban unveraendert
                 break;
             }
         }
 
-        if (!iban.equals(orig_iban)) {
+        if (!iban.equals(origIban)) {
             setParam(frontendname + ".iban", iban);
         }
     }
@@ -911,7 +904,7 @@ public abstract class AbstractHBCIJob {
             String blz = llParams.get(lowlevelHeader + ".KIK.blz");
             String number = llParams.get(lowlevelHeader + ".number");
             // blz/number ueberpruefen
-            _checkAccountCRC(frontendname, blz, number);
+            checkAccountCRCInternal(frontendname, blz, number);
         }
 
         // analoges fuer die IBAN
@@ -921,7 +914,7 @@ public abstract class AbstractHBCIJob {
             String lowlevelHeader = paramname.substring(0, paramname.lastIndexOf(".iban"));
 
             String iban = llParams.get(lowlevelHeader + ".iban");
-            _checkIBANCRC(frontendname, iban);
+            checkIBANCRCInternal(frontendname, iban);
         }
     }
 
@@ -943,36 +936,7 @@ public abstract class AbstractHBCIJob {
         return result;
     }
 
-    /**
-     * Liefert das Auftraggeber-Konto, wie es ab HKTAN5 erforderlich ist.
-     *
-     * @return das Auftraggeber-Konto oder NULL, wenn keines angegeben ist.
-     */
-    public Konto getOrderAccount() {
-        // Checken, ob wir das Konto unter "My.[number/iban]" haben
-        String prefix = this.getName() + ".My.";
-        String number = this.getLowlevelParam(prefix + "number");
-        String iban = this.getLowlevelParam(prefix + "iban");
-        if ((number == null || number.length() == 0) && (iban == null || iban.length() == 0)) {
-            // OK, vielleicht unter "KTV.[number/iban]"?
-            prefix = this.getName() + ".KTV.";
-            number = this.getLowlevelParam(prefix + "number");
-            iban = this.getLowlevelParam(prefix + "iban");
-
-            if ((number == null || number.length() == 0) && (iban == null || iban.length() == 0))
-                return null; // definitiv kein Konto vorhanden
-        }
-        Konto k = new Konto();
-        k.number = number;
-        k.iban = iban;
-        k.bic = this.getLowlevelParam(prefix + "bic");
-        k.subnumber = this.getLowlevelParam(prefix + "subnumber");
-        k.blz = this.getLowlevelParam(prefix + "KIK.blz");
-        k.country = this.getLowlevelParam(prefix + "KIK.country");
-        return k;
-    }
-
-    protected boolean twoDigitValueInList(String value, String list) {
+    boolean twoDigitValueInList(String value, String list) {
         boolean found = false;
         int len = list.length();
 
@@ -1028,15 +992,19 @@ public abstract class AbstractHBCIJob {
             digest.update(segdata.getBytes(ENCODING));
             return new String(digest.digest(), ENCODING);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
-    public boolean needTan() {
-        return passport.getPinTanInfo(getHBCICode()).equals("J");
+    public Map<String, String[][]> getConstraints() {
+        return constraints;
     }
 
     public String getRawData() {
+        return null;
+    }
+
+    public SepaVersion getPainVersion() {
         return null;
     }
 }

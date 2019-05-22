@@ -252,8 +252,6 @@ public interface HBCIPassport {
 
     String[] getSuppVersions();
 
-    String getDefaultLang();
-
     Map<String, String> getProperties();
 
     HBCICallback getCallback();

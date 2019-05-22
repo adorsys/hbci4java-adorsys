@@ -5,7 +5,9 @@ import org.kapott.hbci.GV.SepaUtil;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.sepa.SepaVersion;
 import org.kapott.hbci.sepa.jaxb.pain_008_002_01.*;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator<HashMap<String, S
      * @see PainGeneratorIf#generate(Object, OutputStream, boolean)
      */
     @Override
-    public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) throws Exception {
+    public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
 
         //Document
@@ -107,10 +109,14 @@ public class GenLastSEPA00800201 extends AbstractSEPAGenerator<HashMap<String, S
         }
 
         ObjectFactory of = new ObjectFactory();
-        this.marshal(of.createDocument(doc), os, validate);
+        try {
+            this.marshal(of.createDocument(doc), os, validate);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
-    private DirectDebitTransactionInformationSDD createDirectDebitTransactionInformationSDD(HashMap<String, String> sepaParams, Integer index) throws Exception {
+    private DirectDebitTransactionInformationSDD createDirectDebitTransactionInformationSDD(HashMap<String, String> sepaParams, Integer index) {
         DirectDebitTransactionInformationSDD drctDbtTxInf = new DirectDebitTransactionInformationSDD();
 
         drctDbtTxInf.setDrctDbtTx(new DirectDebitTransactionSDD());

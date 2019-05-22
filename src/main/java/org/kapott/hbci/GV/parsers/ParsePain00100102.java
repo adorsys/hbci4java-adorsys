@@ -29,7 +29,7 @@ public class ParsePain00100102 extends AbstractSepaParser<List<HashMap<String, S
         List<CreditTransferTransactionInformation2> txList = pmtInf.getCdtTrfTxInf();
 
         for (CreditTransferTransactionInformation2 tx : txList) {
-            HashMap<String, String> prop = new HashMap();
+            HashMap<String, String> prop = new HashMap<>();
 
             put(prop, Names.PMTINFID, pmtInf.getPmtInfId());
             put(prop, Names.SRC_NAME, pain.getGrpHdr().getInitgPty().getNm());

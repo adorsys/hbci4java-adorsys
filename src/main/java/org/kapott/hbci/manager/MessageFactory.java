@@ -56,7 +56,7 @@ public final class MessageFactory {
         message.rawSet("Idn.sysStatus", passport.getSysStatus());
         message.rawSet("ProcPrep.BPD", passport.getBPDVersion());
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
-        message.rawSet("ProcPrep.lang", passport.getDefaultLang());
+        message.rawSet("ProcPrep.lang", passport.getLang());
 
         HBCIProduct hbciProduct = Optional.ofNullable(passport.getHbciProduct())
             .orElse(HBCI_PRODUCT);

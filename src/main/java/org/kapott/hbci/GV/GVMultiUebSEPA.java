@@ -28,11 +28,11 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 public class GVMultiUebSEPA extends GVUebSEPA {
 
     public GVMultiUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName(), null);
+        this(passport, getLowlevelName());
     }
 
-    public GVMultiUebSEPA(HBCIPassportInternal passport, String name, String pain) {
-        super(passport, name, pain);
+    public GVMultiUebSEPA(HBCIPassportInternal passport, String name) {
+        super(passport, name);
 
         addConstraint("batchbook", "sepa.batchbook", "");
         addConstraint("Total.value", "Total.value", null);

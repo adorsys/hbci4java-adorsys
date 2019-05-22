@@ -63,6 +63,7 @@ public final class GVTermUebEdit extends AbstractHBCIJob {
         return "TermUebEdit";
     }
 
+    @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         String orderid = result.get(header + ".orderid");
@@ -71,13 +72,13 @@ public final class GVTermUebEdit extends AbstractHBCIJob {
         ((GVRTermUebEdit) (jobResult)).setOrderIdOld(result.get(header + ".orderidold"));
 
         if (orderid != null && orderid.length() != 0) {
-            HashMap<String, String> p = getLowlevelParams();
+            Map<String, String> p = getLowlevelParams();
             HashMap<String, String> p2 = new HashMap<>();
 
-            for (String key : p.keySet()) {
-                if (!key.endsWith(".id")) {
-                    p2.put(key.substring(key.indexOf(".") + 1),
-                        p.get(key));
+            for (Map.Entry<String, String> entry : p.entrySet()) {
+                if (!entry.getKey().endsWith(".id")) {
+                    p2.put(entry.getKey().substring(entry.getKey().indexOf(".") + 1),
+                        entry.getValue());
                 }
             }
 

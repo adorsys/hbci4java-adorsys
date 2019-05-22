@@ -3,12 +3,13 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.structures.Value;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,15 +17,14 @@ import java.util.regex.Pattern;
  * Ein paar statische Hilfs-Methoden fuer die Generierung der SEPA-Nachrichten.
  */
 public class SepaUtil {
-    public final static String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    public final static String DATE_FORMAT = "yyyy-MM-dd";
 
     /**
      * Das Platzhalter-Datum, welches verwendet werden soll, wenn kein Datum angegeben ist.
      */
-    public final static String DATE_UNDEFINED = "1999-01-01";
-
-    private final static Pattern INDEX_PATTERN = Pattern.compile("\\w+\\[(\\d+)\\](\\..*)?");
+    public static final String DATE_UNDEFINED = "1999-01-01";
+    private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final Pattern INDEX_PATTERN = Pattern.compile("\\w+\\[(\\d+)\\](\\..*)?");
 
     /**
      * Erzeugt ein neues XMLCalender-Objekt.
@@ -32,15 +32,19 @@ public class SepaUtil {
      * @param isoDate optional. Das zu verwendende Datum.
      *                Wird es weggelassen, dann wird das aktuelle Datum (mit Uhrzeit) verwendet.
      * @return das XML-Calendar-Objekt.
-     * @throws Exception
      */
-    public static XMLGregorianCalendar createCalendar(String isoDate) throws Exception {
+    public static XMLGregorianCalendar createCalendar(String isoDate) {
         if (isoDate == null) {
             SimpleDateFormat format = new SimpleDateFormat(DATETIME_FORMAT);
             isoDate = format.format(new Date());
         }
 
-        DatatypeFactory df = DatatypeFactory.newInstance();
+        DatatypeFactory df = null;
+        try {
+            df = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new IllegalArgumentException(e);
+        }
         return df.newXMLGregorianCalendar(isoDate);
     }
 
@@ -96,7 +100,7 @@ public class SepaUtil {
      * @param properties die Properties, mit denen gearbeitet werden soll
      * @return Maximaler Index, oder {@code null}, wenn keine indizierten Properties gefunden wurden
      */
-    public static Integer maxIndex(HashMap<String, String> properties) {
+    public static Integer maxIndex(Map<String, String> properties) {
         Integer max = null;
         for (String key : properties.keySet()) {
             Matcher m = INDEX_PATTERN.matcher(key);
@@ -119,7 +123,7 @@ public class SepaUtil {
      * @param max        Maximaler Index, oder {@code null} für Einzeltransaktionen
      * @return Summe aller Beträge
      */
-    public static BigDecimal sumBtgValue(HashMap<String, String> sepaParams, Integer max) {
+    public static BigDecimal sumBtgValue(Map<String, String> sepaParams, Integer max) {
         if (max == null)
             return new BigDecimal(sepaParams.get("btg.value"));
 
@@ -168,7 +172,7 @@ public class SepaUtil {
      * @param properties Auftrags-Properties.
      * @return das Value-Objekt mit der Summe.
      */
-    public static Value sumBtgValueObject(HashMap<String, String> properties) {
+    public static Value sumBtgValueObject(Map<String, String> properties) {
         Integer maxIndex = maxIndex(properties);
         BigDecimal btg = sumBtgValue(properties, maxIndex);
         String curr = properties.get(insertIndex("btg.curr", maxIndex == null ? null : 0));
@@ -184,7 +188,7 @@ public class SepaUtil {
      * @param defaultValue der Default-Wert.
      * @return der Wert.
      */
-    public static String getProperty(HashMap<String, String> props, String name, String defaultValue) {
+    public static String getProperty(Map<String, String> props, String name, String defaultValue) {
         String value = props.get(name);
         return value != null && value.length() > 0 ? value : defaultValue;
     }

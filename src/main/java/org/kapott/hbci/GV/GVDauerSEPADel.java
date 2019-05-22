@@ -15,7 +15,7 @@ public class GVDauerSEPADel extends AbstractSEPAGV {
 
     private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
-    public GVDauerSEPADel(HBCIPassportInternal passport, String pain) {
+    public GVDauerSEPADel(HBCIPassportInternal passport) {
         super(passport, getLowlevelName(), new GVRDauerEdit(passport));
 
         addConstraint("src.bic", "My.bic", null);
@@ -30,11 +30,7 @@ public class GVDauerSEPADel extends AbstractSEPAGV {
         }
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
-        if (pain == null) {
-            addConstraint("_sepapain", "sepapain", null);
-        } else {
-            setPainXml(pain);
-        }
+        addConstraint("_sepapain", "sepapain", null);
         addConstraint("orderid", "orderid", null);
 
         /* dummy constraints to allow an application to set these values. the

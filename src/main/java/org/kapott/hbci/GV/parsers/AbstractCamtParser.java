@@ -40,10 +40,10 @@ public abstract class AbstractCamtParser implements ISEPAParser<List<BTag>> {
      * @return die getrimmte Liste.
      */
     protected List<String> trim(List<String> list) {
-        if (list == null || list.size() == 0)
+        if (list == null || list.isEmpty())
             return list;
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (String s : list) {
             s = trim(s);
 

@@ -8,12 +8,12 @@ import org.kapott.hbci.sepa.jaxb.pain_008_001_01.*;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * SEPA-Generator fuer das Schema pain.008.001.01.
  */
-public class GenLastSEPA00800101 extends AbstractSEPAGenerator<HashMap<String, String>> {
+public class GenLastSEPA00800101 extends AbstractSEPAGenerator<Map<String, String>> {
     /**
      * @see org.kapott.hbci.GV.generators.AbstractSEPAGenerator#getSepaVersion()
      */
@@ -26,7 +26,7 @@ public class GenLastSEPA00800101 extends AbstractSEPAGenerator<HashMap<String, S
      * @see PainGeneratorIf#generate(Object, OutputStream, boolean)
      */
     @Override
-    public void generate(HashMap<String, String> sepaParams, OutputStream os, boolean validate) throws Exception {
+    public void generate(Map<String, String> sepaParams, OutputStream os, boolean validate) {
         Integer maxIndex = SepaUtil.maxIndex(sepaParams);
 
         //Document
@@ -92,10 +92,14 @@ public class GenLastSEPA00800101 extends AbstractSEPAGenerator<HashMap<String, S
         }
 
         ObjectFactory of = new ObjectFactory();
-        this.marshal(of.createDocument(doc), os, validate);
+        try {
+            this.marshal(of.createDocument(doc), os, validate);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
-    private DirectDebitTransactionInformation2 createDirectDebitTransactionInformation2(HashMap<String, String> sepaParams, Integer index) throws Exception {
+    private DirectDebitTransactionInformation2 createDirectDebitTransactionInformation2(Map<String, String> sepaParams, Integer index) {
         DirectDebitTransactionInformation2 drctDbtTxInf = new DirectDebitTransactionInformation2();
 
         drctDbtTxInf.setDrctDbtTx(new DirectDebitTransaction4());

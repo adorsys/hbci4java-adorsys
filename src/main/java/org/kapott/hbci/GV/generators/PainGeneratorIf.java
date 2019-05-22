@@ -32,9 +32,8 @@ public interface PainGeneratorIf<T> {
      *                 der Parameternamen bedient.
      * @param os       der Stream.
      * @param validate true, wenn das erzeugte XML gegen das PAIN-Schema validiert werden soll.
-     * @throws Exception
      */
-    void generate(T source, OutputStream os, boolean validate) throws Exception;
+    void generate(T source, OutputStream os, boolean validate);
 
     /**
      * Liefert die SEPA-Version des Generators.

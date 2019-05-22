@@ -13,13 +13,9 @@ import java.util.Map;
 
 public class GVDauerSEPANew extends AbstractSEPAGV {
 
-    private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
+    private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVDauerSEPANew(HBCIPassportInternal passport) {
-        this(passport, null);
-    }
-
-    public GVDauerSEPANew(HBCIPassportInternal passport, String pain) {
         super(passport, getLowlevelName(), new GVRDauerNew(passport));
 
         addConstraint("src.bic", "My.bic", null);
@@ -34,11 +30,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
         }
 
         addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
-        if (pain == null) {
-            addConstraint("_sepapain", "sepapain", null);
-        } else {
-            setPainXml(pain);
-        }
+        addConstraint("_sepapain", "sepapain", null);
 
         /* dummy constraints to allow an application to set these values. the
          * overriden setLowlevelParam() stores these values in a special structure

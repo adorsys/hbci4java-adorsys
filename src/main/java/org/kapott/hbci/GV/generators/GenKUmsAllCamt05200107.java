@@ -14,7 +14,10 @@ import org.kapott.hbci.GV_Result.GVRKUms.BTag;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.sepa.jaxb.camt_052_001_07.*;
 import org.kapott.hbci.structures.Saldo;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.OutputStream;
@@ -31,7 +34,7 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
      * @see PainGeneratorIf#generate(Object, OutputStream, boolean)
      */
     @Override
-    public void generate(List<BTag> source, OutputStream os, boolean validate) throws Exception {
+    public void generate(List<BTag> source, OutputStream os, boolean validate) {
         final Document doc = new Document();
         final BankToCustomerAccountReportV07 container = new BankToCustomerAccountReportV07();
         doc.setBkToCstmrAcctRpt(container);
@@ -47,7 +50,11 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
         }
 
         ObjectFactory of = new ObjectFactory();
-        this.marshal(of.createDocument(doc), os, validate);
+        try {
+            this.marshal(of.createDocument(doc), os, validate);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**
@@ -57,7 +64,7 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
      * @return die CAMT-Umsatzbuchung.
      * @throws Exception
      */
-    private ReportEntry9 createLine(UmsLine line) throws Exception {
+    private ReportEntry9 createLine(UmsLine line) {
         ReportEntry9 entry = new ReportEntry9();
 
         EntryDetails8 detail = new EntryDetails8();
@@ -236,9 +243,8 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
      *
      * @param tag der Tag.
      * @return der Header des Buchungstages.
-     * @throws Exception
      */
-    private AccountReport22 createDay(BTag tag) throws Exception {
+    private AccountReport22 createDay(BTag tag) {
         AccountReport22 report = new AccountReport22();
 
         if (tag != null) {
@@ -272,7 +278,7 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
      * @return das CAMT-Saldo-Objekt.
      * @throws Exception
      */
-    private CashBalance8 createSaldo(Saldo saldo, boolean start) throws Exception {
+    private CashBalance8 createSaldo(Saldo saldo, boolean start) {
         CashBalance8 bal = new CashBalance8();
 
         BalanceType13 bt = new BalanceType13();
@@ -306,12 +312,16 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
      *
      * @param timestamp der Zeitstempel.
      * @return das Calendar-Objekt.
-     * @throws Exception
      */
-    private XMLGregorianCalendar createCalendar(Long timestamp) throws Exception {
-        DatatypeFactory df = DatatypeFactory.newInstance();
+    private XMLGregorianCalendar createCalendar(Long timestamp) {
+        DatatypeFactory df = null;
+        try {
+            df = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
         GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeInMillis(timestamp != null ? timestamp.longValue() : System.currentTimeMillis());
+        cal.setTimeInMillis(timestamp != null ? timestamp : System.currentTimeMillis());
         return df.newXMLGregorianCalendar(cal);
     }
 }
