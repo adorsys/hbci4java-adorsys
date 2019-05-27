@@ -115,6 +115,28 @@
     </job>
 
     <!-- SEPA-Terminueberweisung -->
+    <job code="HKCME">
+        <challengeinfo spec="hhd12">
+            <klass>22</klass>
+            <param>sepa.dst.iban</param>
+            <param condition-name="needchallengevalue" condition-value="J" type="Wrt">sepa.btg.value</param>
+            <param condition-name="needchallengevalue" condition-value="J">sepa.btg.curr</param>
+        </challengeinfo>
+        <challengeinfo spec="hhd13">
+            <klass>22</klass>
+            <param>SegHead.code</param>
+            <param>sepa.dst.iban</param>
+            <param condition-name="needchallengevalue" condition-value="J" type="Wrt">sepa.btg.value</param>
+            <param condition-name="needchallengevalue" condition-value="J">sepa.btg.curr</param>
+        </challengeinfo>
+        <challengeinfo spec="hhd14">
+            <klass>09</klass>
+            <param type="Wrt">sepa.btg.value</param>
+            <param>sepa.dst.iban</param>
+        </challengeinfo>
+    </job>
+
+    <!-- SEPA-Terminueberweisung -->
     <job code="HKCSE">
         <challengeinfo spec="hhd12">
             <klass>22</klass>

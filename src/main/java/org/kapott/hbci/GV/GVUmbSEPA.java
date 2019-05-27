@@ -28,7 +28,7 @@ import org.kapott.hbci.sepa.SepaVersion;
  */
 public class GVUmbSEPA extends AbstractSEPAGV {
 
-    private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
+    private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVUmbSEPA(HBCIPassportInternal passport) {
         this(passport, getLowlevelName(), null);

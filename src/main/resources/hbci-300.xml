@@ -4889,6 +4889,13 @@
             <value path="SegHead.code">HKCME</value>
             <value path="SegHead.version">1</value>
         </SEGdef>
+        <SEGdef id="TermSammelUebSEPA1Res1">
+            <DEG type="SegHeadInst" name="SegHead"/>
+            <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
+
+            <value path="SegHead.code">HICME</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
         <SEGdef id="TermSammelUebSEPAPar1">
             &GVP2;
             <DEG type="ParTermSammelUebSEPA"/>
@@ -7728,6 +7735,7 @@
             <SEG type="LastCOR1SEPARes1" minnum="0"/>
             <SEG type="LastB2BSEPARes1" minnum="0"/>
             <SEG type="SammelLastSEPARes1" minnum="0"/>
+            <SEG type="TermSammelUebSEPA1Res1" minnum="0"/>
             <SEG type="SammelLastCOR1SEPARes1" minnum="0"/>
             <SEG type="SammelLastB2BSEPARes1" minnum="0"/>
             <SEG type="OrderHistoryRes1" minnum="0"/>

@@ -45,15 +45,15 @@ import java.util.Properties;
 @Slf4j
 public final class CommPinTan {
 
-    public final static String ENCODING = "ISO-8859-1";
+    public static final String ENCODING = "ISO-8859-1";
     /**
      * Timeout fuer HTTP connect in Millisekunden.
      */
-    private final static int HTTP_CONNECT_TIMEOUT = 60 * 1000;
+    private static final int HTTP_CONNECT_TIMEOUT = 60 * 1000;
     /**
      * Timeout fuer HTTP Read in Millisekunden.
      */
-    private final static int HTTP_READ_TIMEOUT = 5 * HTTP_CONNECT_TIMEOUT;
+    private static final int HTTP_READ_TIMEOUT = 5 * HTTP_CONNECT_TIMEOUT;
     private HBCICallback callback;
     private URL url;
     private HttpURLConnection conn;
@@ -97,7 +97,7 @@ public final class CommPinTan {
         log.trace("---------------- request ----------------");
         String rawMsg = message.toString(0);
         if (log.isTraceEnabled()) {
-            Arrays.stream(rawMsg.split("'")).forEach(s -> log.trace(s));
+            Arrays.stream(rawMsg.split("'")).forEach(log::trace);
         }
 
         // ausgehende nachricht versenden
@@ -120,7 +120,7 @@ public final class CommPinTan {
 
         log.trace("---------------- response ----------------");
         if (log.isTraceEnabled()) {
-            Arrays.stream(rawMsg.split("'")).forEach(s -> log.trace(s));
+            Arrays.stream(rawMsg.split("'")).forEach(log::trace);
         }
 
         Message responseMessage;

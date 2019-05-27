@@ -75,7 +75,7 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
     protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuilder res,
                                                      int fullResLen, Document document, Map<String, String> predefs,
                                                      Map<String, String> valids) {
-        SyntaxElement ret = null;
+        SyntaxElement ret;
         addElement((ret = new SEG(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs, valids)));
         return ret;
     }
