@@ -17,6 +17,7 @@ import org.kapott.hbci.status.HBCIExecStatus;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -56,8 +57,8 @@ public abstract class AbstractTestGV {
         out = logfile != null ? new PrintStream(new BufferedOutputStream(new FileOutputStream(logfile))) : System.out;
         ////////////////////////////////////////////////////////////////////////
 
-
-        String configfile = System.getProperty("config", System.getProperty("user.dir") + File.separator + this.getClass().getSimpleName() + ".properties");
+        String configfile = System.getProperty("config",
+            System.getProperty("user.dir") + File.separator + this.getClass().getSimpleName() + ".properties");
         File file = new File(configfile);
 
         if (file.exists() && file.canRead()) {
@@ -73,8 +74,10 @@ public abstract class AbstractTestGV {
         }
 
         // Presets fuer den Callback
-        this.callbackValues.put(HBCICallback.NEED_COUNTRY, params.getProperty("country", System.getProperty("country", "DE")));
-        this.callbackValues.put(HBCICallback.NEED_CUSTOMERID, params.getProperty("customerid", System.getProperty("customerid")));
+        this.callbackValues.put(HBCICallback.NEED_COUNTRY, params.getProperty("country", System.getProperty("country"
+            , "DE")));
+        this.callbackValues.put(HBCICallback.NEED_CUSTOMERID, params.getProperty("customerid", System.getProperty(
+            "customerid")));
         this.callbackValues.put(HBCICallback.NEED_USERID, params.getProperty("userid", System.getProperty("useris")));
         this.callbackValues.put(HBCICallback.NEED_PT_PIN, params.getProperty("pin", System.getProperty("pin")));
 
@@ -84,10 +87,10 @@ public abstract class AbstractTestGV {
         this.callbackValues.put(HBCICallback.NEED_CONNECTION, "");
         this.callbackValues.put(HBCICallback.CLOSE_CONNECTION, "");
 
-
         // Initialisierungsparameter fuer HBCI4Java selbst
         HashMap props = new HashMap<>();
-        props.put("log.loglevel.default", this.params.getProperty("log.loglevel.default", System.getProperty("log.loglevel.default", "4")));
+        props.put("log.loglevel.default", this.params.getProperty("log.loglevel.default", System.getProperty("log" +
+            ".loglevel.default", "4")));
         props.put("client.passport.PinTan.init", "1");
         props.put("client.passport.PinTan.checkcert", this.params.getProperty("client.passport.PinTan.checkcert", "1"));
         props.put("client.passport.PinTan.proxy", this.params.getProperty("client.passport.PinTan.proxy", ""));
@@ -97,10 +100,11 @@ public abstract class AbstractTestGV {
         // Callback initialisieren.
         // Wenn wir passende Antworten in den Presets haben, koennen wir sie direkt
         // beantworten
-        final HBCICallback callback = new HBCICallbackIOStreams(out, new BufferedReader(new InputStreamReader(System.in))) {
+        final HBCICallback callback = new HBCICallbackIOStreams(out,
+            new BufferedReader(new InputStreamReader(System.in))) {
 
             @Override
-            public void callback(int reason, String msg, int datatype, StringBuilder retData) {
+            public void callback(int reason, List<String> msg, int datatype, StringBuilder retData) {
 
                 // haben wir einen vordefinierten Wert?
                 String value = callbackValues.get(reason);
@@ -193,7 +197,7 @@ public abstract class AbstractTestGV {
          */
         public void testStatus(HBCIExecStatus status) {
             if (!status.isOK())
-                System.err.println(status.getErrorString());
+                System.err.println(status.getErrorMessages());
             Assert.assertTrue("Ausfuehrungsstatus nicht OK", status.isOK());
         }
 

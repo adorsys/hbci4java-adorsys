@@ -32,6 +32,7 @@ import org.kapott.hbci.status.HBCIInstMessage;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -130,7 +131,7 @@ public final class HBCIDialog {
                     }
                     passport.getCallback().callback(
                         HBCICallback.HAVE_INST_MSG,
-                        msg.toString(),
+                        Collections.singletonList(msg.toString()),
                         HBCICallback.TYPE_NONE,
                         new StringBuilder());
                 }

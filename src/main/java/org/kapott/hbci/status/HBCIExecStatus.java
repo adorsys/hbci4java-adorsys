@@ -24,18 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-/**
- * Statusinformationen über alle ausgeführten Dialoge. Die Methode
- * {@link org.kapott.hbci.manager.HBCIHandler#execute()} gibt nach der Ausführung
- * aller HBCI-Dialoge ein Objekt dieser Klasse zurück. Dieses Objekt enthält
- * Informationen darüber, für welche Kunden-IDs tatsächlich HBCI-Dialoge geführt
- * wurden. Für jeden geführten HBCI-Dialog existiert dann ein
- * {@link HBCIDialogStatus}-Objekt, welches Informationen zu dem jeweiligen
- * Dialog enthält.
- */
 @Slf4j
 public class HBCIExecStatus {
 
@@ -55,21 +45,6 @@ public class HBCIExecStatus {
         }
         exceptions.add(e);
         log.error(e.getMessage(), e);
-    }
-
-    /**
-     * Gibt eine Liste von Status-Informationen für jeden ausgeführten HBCI-Dialog
-     * zurück. Diese Methode ist insofern von eingeschränkter Bedeutung, weil
-     * es nicht möglich ist, einem {@link HBCIDialogStatus}-Objekt dieser Liste
-     * die Kunden-ID zuzuordnen, unter der der jeweilige Dialog geführt wurde.
-     * Dazu müssen die Methoden und {@link #getDialogStatus()}
-     * verwendet werden.
-     *
-     * @return Menge aller gespeicherten HBCI-Dialog-Status-Informationen
-     * @deprecated sinnlos
-     */
-    public HBCIDialogStatus getDialogStatusList() {
-        return dialogStatus;
     }
 
     /**
@@ -107,46 +82,38 @@ public class HBCIExecStatus {
      *
      * @return String mit allen aufgetretenen Fehlermeldungen
      */
-    public String getErrorString() {
-        StringBuffer ret = new StringBuffer();
-        String linesep = System.getProperty("line.separator");
+    public List<String> getErrorMessages() {
+        List<String> ret = new ArrayList<>();
 
         List<Exception> exc = getExceptions();
-        if (exc != null && exc.size() != 0) {
-
-            // ret.append(HBCIUtils.getLocMsg("STAT_EXCEPTIONS")).append(":").append(linesep);
-            for (Iterator<Exception> j = exc.iterator(); j.hasNext(); ) {
-                ret.append(HBCIUtils.exception2StringShort(j.next()));
-                ret.append(linesep);
+        if (exc != null && !exc.isEmpty()) {
+            for (Exception e : exc) {
+                ret.add(HBCIUtils.exception2StringShort(e));
             }
         }
 
-        HBCIDialogStatus status = getDialogStatus();
-        if (status != null) {
-            String errMsg = status.getErrorString();
-            if (errMsg.length() != 0) {
-                ret.append(errMsg + linesep);
-            }
+        if (getDialogStatus() != null) {
+            ret.addAll(getDialogStatus().getErrorMessages());
         }
 
-        return ret.toString().trim();
+        return ret;
     }
 
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         String linesep = System.getProperty("line.separator");
 
         List<Exception> exc = getExceptions();
         if (exc != null) {
-            for (Iterator<Exception> j = exc.iterator(); j.hasNext(); ) {
-                ret.append(HBCIUtils.exception2StringShort(j.next()));
+            for (Exception e : exc) {
+                ret.append(HBCIUtils.exception2StringShort(e));
                 ret.append(linesep);
             }
         }
 
         HBCIDialogStatus status = getDialogStatus();
         if (status != null) {
-            ret.append(status.toString() + linesep);
+            ret.append(status.toString()).append(linesep);
         }
 
         return ret.toString().trim();
@@ -157,7 +124,7 @@ public class HBCIExecStatus {
         List<Exception> exc = getExceptions();
         HBCIDialogStatus status = getDialogStatus();
 
-        ok &= (exc == null || exc.size() == 0);
+        ok = (exc == null || exc.isEmpty());
         ok &= (status != null && status.isOK());
 
         return ok;

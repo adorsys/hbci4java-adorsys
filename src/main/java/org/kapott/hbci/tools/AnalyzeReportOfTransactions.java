@@ -111,9 +111,9 @@ public final class AnalyzeReportOfTransactions {
         } else {
             // Log error messages
             System.out.println("Job-Error");
-            System.out.println(result.getJobStatus().getErrorString());
+            System.out.println(result.getJobStatus().getErrorList());
             System.out.println("Global Error");
-            System.out.println(ret.getErrorString());
+            System.out.println(ret.getErrorMessages());
         }
     }
 

@@ -832,7 +832,7 @@ public abstract class AbstractHBCIJob {
                 StringBuilder sb = new StringBuilder(blz).append("|").append(number);
                 passport.getCallback().callback(
                     HBCICallback.HAVE_CRC_ERROR,
-                    HBCIUtils.getLocMsg("CALLB_HAVE_CRC_ERROR"),
+                    Collections.singletonList(HBCIUtils.getLocMsg("CALLB_HAVE_CRC_ERROR")),
                     HBCICallback.TYPE_TEXT,
                     sb);
 
@@ -874,7 +874,7 @@ public abstract class AbstractHBCIJob {
                 StringBuilder sb = new StringBuilder(iban);
                 passport.getCallback().callback(
                     HBCICallback.HAVE_IBAN_ERROR,
-                    HBCIUtils.getLocMsg("CALLB_HAVE_IBAN_ERROR"),
+                    Collections.singletonList(HBCIUtils.getLocMsg("CALLB_HAVE_IBAN_ERROR")),
                     HBCICallback.TYPE_TEXT,
                     sb);
 

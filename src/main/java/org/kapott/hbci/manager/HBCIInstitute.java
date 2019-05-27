@@ -272,7 +272,7 @@ public final class HBCIInstitute implements IHandlerData {
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {
-            log.error("dialog end failed: " + status.getErrorString());
+            log.error("dialog end failed: " + status.getErrorList());
 
             String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
             throw new ProcessException(msg, status);

@@ -22,6 +22,7 @@ package org.kapott.hbci.status;
 
 import org.kapott.hbci.manager.HBCIUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -124,7 +125,7 @@ public final class HBCIDialogStatus {
         boolean ret = true;
 
         if (initStatus != null) {
-            ret &= initStatus.isOK();
+            ret = initStatus.isOK();
         }
 
         if (msgStatusList != null) {
@@ -150,40 +151,25 @@ public final class HBCIDialogStatus {
      *
      * @return einen String, der alle im Dialog aufgetretenen Fehler beschreibt
      */
-    public String getErrorString() {
-        StringBuffer ret = new StringBuffer();
+    public List<String> getErrorMessages() {
+        List<String> ret = new ArrayList<>();
 
         if (initStatus != null) {
-            String s = initStatus.getErrorString();
-            if (s.length() != 0) {
-                // ret.append(HBCIUtils.getLocMsg("STAT_INIT")).append(":");
-                // ret.append(System.getProperty("line.separator"));
-                ret.append(s);
-                ret.append(System.getProperty("line.separator"));
-            }
+            ret.addAll(initStatus.getErrorList());
         }
 
         if (msgStatusList != null) {
-            msgStatusList.forEach(msgStatus -> {
-                String s = msgStatus.getErrorString();
-                if (s.length() != 0) {
-                    ret.append(s);
-                    ret.append(System.getProperty("line.separator"));
-                }
+            msgStatusList.forEach(hbciMsgStatus -> {
+                ret.addAll(hbciMsgStatus.getErrorList());
             });
+
         }
 
         if (endStatus != null) {
-            String s = endStatus.getErrorString();
-            if (s.length() != 0) {
-                // ret.append(HBCIUtils.getLocMsg("STAT_END")).append(":");
-                // ret.append(System.getProperty("line.separator"));
-                ret.append(s);
-                ret.append(System.getProperty("line.separator"));
-            }
+            ret.addAll(endStatus.getErrorList());
         }
 
-        return ret.toString().trim();
+        return ret;
     }
 
     /**
@@ -196,7 +182,7 @@ public final class HBCIDialogStatus {
      * Dialog enthält
      */
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
 
         ret.append(HBCIUtils.getLocMsg("STAT_INIT")).append(":").append(System.getProperty("line.separator"));
         if (initStatus != null) {

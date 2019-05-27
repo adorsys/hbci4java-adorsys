@@ -226,7 +226,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     retData.append(newUserId)
                         .append("|")
                         .append(newCustomerId);
-                    callback.callback(HBCICallback.USERID_CHANGED, "*** User ID changed", HBCICallback.TYPE_TEXT,
+                    callback.callback(HBCICallback.USERID_CHANGED, Collections.singletonList("*** User ID changed"),
+                        HBCICallback.TYPE_TEXT,
                         retData);
                 }
             }
@@ -245,7 +246,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                     // Aufrufer informieren, dass falsche PIN eingegeben wurde (um evtl. PIN aus Puffer zu löschen,
                     // etc.)
                     StringBuilder retData = new StringBuilder();
-                    callback.callback(HBCICallback.WRONG_PIN, invalidPinCode, HBCICallback.TYPE_TEXT,
+                    callback.callback(HBCICallback.WRONG_PIN, msgStatus.getErrorList(), HBCICallback.TYPE_TEXT,
                         retData);
                 });
 

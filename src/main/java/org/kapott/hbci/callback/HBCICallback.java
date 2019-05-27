@@ -22,6 +22,8 @@ package org.kapott.hbci.callback;
 
 import org.kapott.hbci.manager.HHDVersion;
 
+import java.util.List;
+
 /**
  * <p>Schnittstelle, die eine Callback-Klasse implementieren muss. Beim Initialisieren von <em>HBCI4Java</em>
  * muss ein Callback-Objekt angegeben werden. Die Klasse dieses Objektes muss die HBCICallback-Schnittstelle
@@ -611,7 +613,7 @@ public interface HBCICallback {
      *                 StringBuffer u.U. mit einem vorgeschlagenen default-Wert für die Nutzereingabe
      *                 gefüllt.
      */
-    void callback(int reason, String msg, int datatype, StringBuilder retData);
+    void callback(int reason, List<String> messages, int datatype, StringBuilder retData);
 
     void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc, HHDVersion.Type type);
 

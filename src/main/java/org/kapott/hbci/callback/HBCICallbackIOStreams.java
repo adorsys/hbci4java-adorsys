@@ -31,6 +31,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import java.io.BufferedReader;
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -110,7 +111,7 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
      * Nutzer erwarten, wird die entsprechende Eingabeaufforderung ausgegeben und die
      * Eingabe vom <code>inStream</code> gelesen.
      */
-    public void callback(int reason, String msg, int datatype, StringBuilder retData) {
+    public void callback(int reason, List<String> msg, int datatype, StringBuilder retData) {
 
         try {
             String st;

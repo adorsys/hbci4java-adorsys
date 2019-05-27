@@ -250,24 +250,22 @@ public final class HBCIStatus {
      *
      * @return String mit allen Fehlermeldungen
      */
-    public String getErrorString() {
-        StringBuilder ret = new StringBuilder();
+    public List<String> getErrorList() {
+        List<String> ret = new ArrayList<>();
 
         if (hasExceptions()) {
             for (Exception ex : exceptions) {
-                ret.append(HBCIUtils.exception2StringShort(ex));
-                ret.append(System.getProperty("line.separator"));
+                ret.add(HBCIUtils.exception2StringShort(ex));
             }
         }
 
         if (hasErrors()) {
             for (HBCIRetVal hbciRetVal : getErrors()) {
-                ret.append(hbciRetVal.toString());
-                ret.append(System.getProperty("line.separator"));
+                ret.add(hbciRetVal.toString());
             }
         }
 
-        return ret.toString().trim();
+        return ret;
     }
 
     /**

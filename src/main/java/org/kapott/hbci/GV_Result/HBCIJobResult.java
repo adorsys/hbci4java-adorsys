@@ -62,8 +62,8 @@ public interface HBCIJobResult {
      * Bei <code>false</code> kann es sein, dass der Job trotzdem ausgeführt wurde und nur
      * die Antwortnachricht vom HBCI-Server nicht empfangen werden konnte oder fehlerhaft war.
      * In diesem Fall sollte also die Fehlermeldung aus
-     * {@link org.kapott.hbci.status.HBCIStatus#getErrorString() jobStatus.getErrorString()} bzw.
-     * {@link org.kapott.hbci.status.HBCIStatus#getErrorString() globStatus.getErrorString()}
+     * {@link org.kapott.hbci.status.HBCIStatus#getErrorList() jobStatus.getErrorMessages()} bzw.
+     * {@link org.kapott.hbci.status.HBCIStatus#getErrorList() globStatus.getErrorMessages()}
      * genau ausgewertet werden.</p>
      *
      * @return <code>true</code>, wenn der Auftrag mit Sicherheit erfolgreich

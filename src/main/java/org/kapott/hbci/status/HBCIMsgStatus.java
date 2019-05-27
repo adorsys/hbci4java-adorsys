@@ -22,10 +22,7 @@ package org.kapott.hbci.status;
 
 import org.kapott.hbci.manager.HBCIUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>Enthält alle Status-Informationen zu genau einem Nachrichtenaustausch.
@@ -180,19 +177,18 @@ public final class HBCIMsgStatus {
      * allen Exception-Meldungen sowie allen evtl. empfangenen Fehlermeldungen.
      * Die Meldungen werden aus den einzelnen
      * {@link org.kapott.hbci.status.HBCIStatus}-Objekten durch
-     * Aufruf der Methode {@link org.kapott.hbci.status.HBCIStatus#getErrorString()}
+     * Aufruf der Methode {@link org.kapott.hbci.status.HBCIStatus#getErrorList()}
      * erzeugt.
      *
      * @return String mit allen aufgetretenen Fehlermeldungen
      */
-    public String getErrorString() {
-        StringBuffer ret = new StringBuffer();
+    public List<String> getErrorList() {
+        List<String> ret = new ArrayList<>();
 
-        ret.append(globStatus.getErrorString());
-        ret.append(System.getProperty("line.separator"));
-        ret.append(segStatus.getErrorString());
+        ret.addAll(globStatus.getErrorList());
+        ret.addAll(segStatus.getErrorList());
 
-        return ret.toString().trim();
+        return ret;
     }
 
     /**
@@ -207,7 +203,7 @@ public final class HBCIMsgStatus {
      * @return einen String, der alle Status-Informationen zu einer Nachricht enthält
      */
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         ret.append(globStatus.toString());
         ret.append(System.getProperty("line.separator"));
         ret.append(segStatus.toString());

@@ -56,18 +56,19 @@ public class GVRAccInfo extends HBCIJobResultImpl {
      * <code>null</code>, kann aber die Länge <code>0</code> haben
      */
     public AccInfo[] getEntries() {
-        return entries.toArray(new AccInfo[entries.size()]);
+        return entries.toArray(new AccInfo[0]);
     }
 
+    @Override
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         String linesep = System.getProperty("line.separator");
 
         int num = 0;
-        for (Iterator<AccInfo> i = entries.iterator(); i.hasNext(); ) {
+        for (AccInfo entry : entries) {
             num++;
             ret.append("Kontoinfo #").append(num).append(linesep);
-            ret.append((i.next()).toString() + linesep);
+            ret.append((entry).toString()).append(linesep);
         }
 
         return ret.toString().trim();
