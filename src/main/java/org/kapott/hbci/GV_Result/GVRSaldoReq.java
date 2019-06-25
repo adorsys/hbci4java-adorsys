@@ -51,8 +51,8 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
      *
      * @return Array mit Saldeninformationen
      */
-    public Info[] getEntries() {
-        return saldi.toArray(new Info[saldi.size()]);
+    public List<Info> getEntries() {
+        return saldi;
     }
 
     public String toString() {
