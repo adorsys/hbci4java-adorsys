@@ -24,7 +24,7 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIRetVal;
 import org.kapott.hbci.status.HBCIStatus;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Basis-Interface für die Rückgabedaten von
@@ -134,7 +134,7 @@ public interface HBCIJobResult {
      *
      * @return die Antwortdaten im Rohformat
      */
-    HashMap<String, String> getResultData();
+    Map<String, String> getResultData();
 
     /**
      * Gibt ein Status-Objekt zurück, welches Status-Informationen zur HBCI-Nachricht selbst

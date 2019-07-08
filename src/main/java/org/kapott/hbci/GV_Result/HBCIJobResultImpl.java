@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
 
@@ -81,7 +82,7 @@ public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
         return format.format(new Date()) + "/" + getDialogId() + "/" + getMsgNum() + "/" + getSegNum();
     }
 
-    public HashMap<String, String> getResultData() {
+    public Map<String, String> getResultData() {
         return resultData;
     }
 
@@ -99,12 +100,12 @@ public class HBCIJobResultImpl implements Serializable, HBCIJobResult {
     }
 
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         Object[] a = resultData.keySet().toArray();
 
         Arrays.sort(a);
-        for (int i = 0; i < a.length; i++) {
-            String key = (String) (a[i]);
+        for (Object o : a) {
+            String key = (String) (o);
             ret.append(key).append(" = ").append(resultData.get(key)).append(System.getProperty("line.separator"));
         }
 

@@ -33,12 +33,16 @@ import java.util.Map;
 @Slf4j
 public class GVKUmsAllCamt extends AbstractSEPAGV {
 
+    private boolean rawResponse;
+
     public GVKUmsAllCamt(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRKUms(passport));
     }
 
-    public GVKUmsAllCamt(HBCIPassportInternal passport) {
+    public GVKUmsAllCamt(HBCIPassportInternal passport, boolean rawResponse) {
         this(passport, getLowlevelName());
+
+        this.rawResponse = rawResponse;
 
         addConstraint("my.bic", "KTV.bic", null);
         addConstraint("my.iban", "KTV.iban", null);
@@ -109,6 +113,10 @@ public class GVKUmsAllCamt extends AbstractSEPAGV {
 
     @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        if (rawResponse) {
+            return;
+        }
+
         HashMap<String, String> data = msgstatus.getData();
         GVRKUms result = (GVRKUms) jobResult;
         final String format = data.get(header + ".format");
