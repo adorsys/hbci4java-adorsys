@@ -598,18 +598,17 @@ public class GVRKUms extends HBCIJobResultImpl {
         }
     }
 
-    public String getRaw() {
+    public List<String> getRaw() {
         if (mt940raw != null && mt940raw.length() > 0) {
-            return mt940raw.toString();
+            return Collections.singletonList(mt940raw.toString());
         }
         if (mt942raw != null && mt942raw.length() > 0) {
-            return mt942raw.toString();
+            return Collections.singletonList(mt942raw.toString());
         }
 
-        if (getResultData().containsKey("content.booked.message")) {
-            return getResultData().get("content.booked.message");
+        if (camtBooked != null && camtBooked.size() > 0) {
+            return camtBooked;
         }
-
         return null;
     }
 

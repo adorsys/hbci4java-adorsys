@@ -113,10 +113,6 @@ public class GVKUmsAllCamt extends AbstractSEPAGV {
 
     @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        if (rawResponse) {
-            return;
-        }
-
         HashMap<String, String> data = msgstatus.getData();
         GVRKUms result = (GVRKUms) jobResult;
         final String format = data.get(header + ".format");
@@ -126,41 +122,52 @@ public class GVKUmsAllCamt extends AbstractSEPAGV {
             if (booked == null)
                 break;
 
-            try {
-                // Im Prinzip wuerde es reichen, die verwendete CAMT-Version einmalig anhand
-                // des uebergebenen camt-Deskriptors in "format" zu ermitteln. Aber es gibt
-                // tatsaechlich Banken, die in der HBCI-Nachricht eine andere Version angeben,
-                // als sie tatsaechlich senden. Siehe https://www.willuhn.de/bugzilla/show_bug.cgi?id=1806
-                // Das betraf PAIN-Messages. Ich weiss nicht, ob das bei CAMT auch vorkommt.
-                // Ich gehe aber auf Nummer sicher.
-                final SepaVersion version = SepaVersion.choose(format, booked);
-                ISEPAParser<List<BTag>> parser = SEPAParserFactory.get(version);
+            result.camtBooked.add(booked);
 
-                log.debug("  parsing camt data: " + booked);
-                result.camtBooked.add(booked);
-                parser.parse(new ByteArrayInputStream(booked.getBytes(CommPinTan.ENCODING)), result.getDataPerDay());
-                log.debug("  parsed camt data, entries: " + result.getFlatData().size());
-            } catch (Exception e) {
-                log.error("  unable to parse camt data: " + e.getMessage());
-                throw new HBCI_Exception("Error parsing CAMT document", e);
+            if (!rawResponse) {
+                parseCamtBooked(result, format, booked);
             }
         }
 
         final String notbooked = data.get(header + ".notbooked");
         if (notbooked != null) {
-            try {
-                final SepaVersion version = SepaVersion.choose(format, notbooked);
-                ISEPAParser<List<BTag>> parser = SEPAParserFactory.get(version);
+            parseCamtNotBooked(result, format, notbooked);
+        }
+    }
 
-                log.debug("  parsing unbooked camt data: " + notbooked);
-                result.camtNotBooked = notbooked;
-                parser.parse(new ByteArrayInputStream(notbooked.getBytes(CommPinTan.ENCODING)),
-                    result.getDataPerDayUnbooked());
-                log.debug("  parsed unbooked camt data, entries: " + result.getFlatDataUnbooked().size());
-            } catch (Exception e) {
-                log.error("  unable to parse unbooked camt data: " + e.getMessage());
-                throw new HBCI_Exception("Error parsing CAMT document", e);
-            }
+    private void parseCamtBooked(GVRKUms result, String format, String camt) {
+        try {
+            // Im Prinzip wuerde es reichen, die verwendete CAMT-Version einmalig anhand
+            // des uebergebenen camt-Deskriptors in "format" zu ermitteln. Aber es gibt
+            // tatsaechlich Banken, die in der HBCI-Nachricht eine andere Version angeben,
+            // als sie tatsaechlich senden. Siehe https://www.willuhn.de/bugzilla/show_bug.cgi?id=1806
+            // Das betraf PAIN-Messages. Ich weiss nicht, ob das bei CAMT auch vorkommt.
+            // Ich gehe aber auf Nummer sicher.
+            final SepaVersion version = SepaVersion.choose(format, camt);
+            ISEPAParser<List<BTag>> parser = SEPAParserFactory.get(version);
+
+            log.debug("  parsing camt data: " + camt);
+            parser.parse(new ByteArrayInputStream(camt.getBytes(CommPinTan.ENCODING)), result.getDataPerDay());
+            log.debug("  parsed camt data, entries: " + result.getFlatData().size());
+        } catch (Exception e) {
+            log.error("  unable to parse camt data: " + e.getMessage());
+            throw new HBCI_Exception("Error parsing CAMT document", e);
+        }
+    }
+
+    private void parseCamtNotBooked(GVRKUms result, String format, String notbooked) {
+        try {
+            final SepaVersion version = SepaVersion.choose(format, notbooked);
+            ISEPAParser<List<BTag>> parser = SEPAParserFactory.get(version);
+
+            log.debug("  parsing unbooked camt data: " + notbooked);
+            result.camtNotBooked = notbooked;
+            parser.parse(new ByteArrayInputStream(notbooked.getBytes(CommPinTan.ENCODING)),
+                result.getDataPerDayUnbooked());
+            log.debug("  parsed unbooked camt data, entries: " + result.getFlatDataUnbooked().size());
+        } catch (Exception e) {
+            log.error("  unable to parse unbooked camt data: " + e.getMessage());
+            throw new HBCI_Exception("Error parsing CAMT document", e);
         }
     }
 
