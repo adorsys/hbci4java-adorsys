@@ -5391,7 +5391,7 @@
         <!--  willuhn 2011-05-16 END HKTAN/HITAN/HITANS Version 5 -->
 
         <!--  age 2018-11-16 BEGIN HKTAN Version 6 -->
-        <SEGdef id="TAN2Step6" needsRequestTag="1">
+        <SEGdef id="TAN2Step6">
             <DEG type="SegHeadUser" name="SegHead"/>
             <DE name="process" type="Code" maxsize="1"/>
             <DE name="ordersegcode" type="AN" maxsize="6" minnum="0"/>
@@ -8031,6 +8031,7 @@
             <SEG type="MsgHeadUser" name="MsgHead"/>
             <SEG type="Idn"/>
             <SEG type="ProcPrep"/>
+<!--            <SEG type="TAN2Step6" name="TAN2Step"/>-->
             <SEG type="MsgTailUser" name="MsgTail"/>
 
             <value path="MsgHead.dialogid">0</value>
@@ -8040,6 +8041,8 @@
             <value path="Idn.customerid">9999999999</value>
             <value path="Idn.sysid">0</value>
             <value path="Idn.sysStatus">0</value>
+
+<!--            <value path="TAN2Step.process">4</value>-->
         </MSGdef>
         <MSGdef id="DialogInitAnonRes" dontsign="1" dontcrypt="1">
             &MsgSigHeadInst;

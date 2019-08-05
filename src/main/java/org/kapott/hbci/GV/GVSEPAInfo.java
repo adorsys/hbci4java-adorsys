@@ -39,6 +39,7 @@ public class GVSEPAInfo extends AbstractHBCIJob {
         return "SEPAInfo";
     }
 
+    @Override
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         Map<String, String> result = msgstatus.getData();
         Map<String, String> upd = passport.getUPD();

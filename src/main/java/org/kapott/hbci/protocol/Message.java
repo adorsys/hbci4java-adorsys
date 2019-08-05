@@ -127,6 +127,7 @@ public final class Message extends SyntaxElement {
         autoSetMsgSize();
     }
 
+    @Override
     public String toString(int dummy) {
         StringBuilder ret = new StringBuilder(1024);
 
@@ -166,6 +167,7 @@ public final class Message extends SyntaxElement {
         return ret;
     }
 
+    @Override
     public String getValueOfDE(String path) {
         String ret = null;
 
@@ -187,7 +189,7 @@ public final class Message extends SyntaxElement {
 
     public Map<String, String> getData() {
         Map<String, String> hash = new HashMap<>();
-        Map p = new HashMap<String, String>();
+        Map<String, String> p = new HashMap<>();
         int nameskip = getName().length() + 1;
 
         extractValues(hash);
@@ -197,6 +199,7 @@ public final class Message extends SyntaxElement {
         return p;
     }
 
+    @Override
     public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
         segref = new int[1];
         segref[0] = 1;

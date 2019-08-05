@@ -31,10 +31,8 @@ import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.status.HBCIInstMessage;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /* @brief A class for managing exactly one HBCI-Dialog
 
@@ -65,7 +63,7 @@ public final class HBCIDialog {
                                              task (GV) to be sent with this specific message */
     // liste aller GVs in der aktuellen msg; key ist der hbciCode des jobs, value ist die anzahl dieses jobs in der
     // aktuellen msg
-    private HashMap<String, String> listOfGVs = new HashMap<>();
+    private HashMap<String, Integer> listOfGVs = new HashMap<>();
     private PinTanPassport passport;
     private HBCIKernel kernel;
 
@@ -112,7 +110,6 @@ public final class HBCIDialog {
             if (msgStatus.isOK()) {
                 HBCIInstitute inst = new HBCIInstitute(kernel, passport);
                 inst.updateBPD(result);
-                inst.extractKeys(result);
 
                 HBCIUser user = new HBCIUser(kernel, passport);
                 user.updateUPD(result);
@@ -223,37 +220,7 @@ public final class HBCIDialog {
 
                     // nachrichtenaustausch durchführen
                     msgstatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
-
-                    // searching for first segment number that belongs to the custom_msg
-                    // we look for entries like {"1","CustomMsg.MsgHead"} and so
-                    // on (this data is inserted from the HBCIKernelImpl.rawDoIt() method),
-                    // until we find the first segment containing a task
-                    int offset;   // this specifies, how many segments precede the first task segment
-                    for (offset = 1; true; offset++) {
-                        String path = msgstatus.getData().get(Integer.toString(offset));
-                        if (path == null || path.startsWith("CustomMsg.GV")) {
-                            if (path == null) { // wenn kein entsprechendes Segment gefunden, dann offset auf 0 setzen
-                                offset = 0;
-                            }
-                            break;
-                        }
-                    }
-
-                    if (offset != 0) {
-                        // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
-                        // in fillOutStore wird auch "executed" fuer den jeweiligen Task auf true gesetzt.
-                        for (AbstractHBCIJob task : tasks) {
-                            if (task.needsContinue(loop)) {
-                                // nur wenn der auftrag auch tatsaechlich gesendet werden musste
-                                try {
-                                    task.fillJobResult(msgstatus, offset);
-                                    passport.getCallback().status(HBCICallback.STATUS_SEND_TASK_DONE, task);
-                                } catch (Exception e) {
-                                    msgstatus.addException(e);
-                                }
-                            }
-                        }
-                    }
+                    handleOffsetMessages(tasks, loop, msgstatus);
 
                     if (msgstatus.hasExceptions()) {
                         log.error("aborting current loop because of errors");
@@ -272,6 +239,39 @@ public final class HBCIDialog {
         });
 
         return messageStatusList;
+    }
+
+    private void handleOffsetMessages(List<AbstractHBCIJob> tasks, int loop, HBCIMsgStatus msgstatus) {
+        // searching for first segment number that belongs to the custom_msg
+        // we look for entries like {"1","CustomMsg.MsgHead"} and so
+        // on (this data is inserted from the HBCIKernelImpl.rawDoIt() method),
+        // until we find the first segment containing a task
+        int offset;   // this specifies, how many segments precede the first task segment
+        for (offset = 1; true; offset++) {
+            String path = msgstatus.getData().get(Integer.toString(offset));
+            if (path == null || path.startsWith("CustomMsg.GV")) {
+                if (path == null) { // wenn kein entsprechendes Segment gefunden, dann offset auf 0 setzen
+                    offset = 0;
+                }
+                break;
+            }
+        }
+
+        if (offset != 0) {
+            // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
+            // in fillOutStore wird auch "executed" fuer den jeweiligen Task auf true gesetzt.
+            for (AbstractHBCIJob task : tasks) {
+                if (task.needsContinue(loop)) {
+                    // nur wenn der auftrag auch tatsaechlich gesendet werden musste
+                    try {
+                        task.fillJobResult(msgstatus, offset);
+                        passport.getCallback().status(HBCICallback.STATUS_SEND_TASK_DONE, task);
+                    } catch (Exception e) {
+                        msgstatus.addException(e);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -363,12 +363,19 @@ public final class HBCIDialog {
     private int getTotalNumberOfGVSegsInCurrentMessage() {
         int total = 0;
 
-        for (String hbciCode : listOfGVs.keySet()) {
-            total += Integer.parseInt(listOfGVs.get(hbciCode));
+        for (Map.Entry<String, Integer> hbciCode : listOfGVs.entrySet()) {
+            total += hbciCode.getValue();
         }
 
         log.debug("there are currently " + total + " GV segs in this message");
         return total;
+    }
+
+    public List<List<AbstractHBCIJob>> getTan2StepRequiredMessages() {
+        return messages.stream()
+            .filter(hbciJobList -> hbciJobList.stream()
+                .anyMatch(hbciJob -> passport.tan2StepRequired(hbciJob.getHBCICode())))
+            .collect(Collectors.toList());
     }
 
     public List<AbstractHBCIJob> addTask(AbstractHBCIJob job) {
@@ -389,8 +396,8 @@ public final class HBCIDialog {
             }
 
             int gva_counter = listOfGVs.size();
-            String counter_st = listOfGVs.get(hbciCode);
-            int gv_counter = counter_st != null ? Integer.parseInt(counter_st) : 0;
+            Integer counter_st = listOfGVs.get(hbciCode);
+            int gv_counter = counter_st != null ? counter_st : 0;
             int total_counter = getTotalNumberOfGVSegsInCurrentMessage();
 
             gv_counter++;
@@ -422,7 +429,7 @@ public final class HBCIDialog {
                 gv_counter = 1;
             }
 
-            listOfGVs.put(hbciCode, Integer.toString(gv_counter));
+            listOfGVs.put(hbciCode, gv_counter);
 
             List<AbstractHBCIJob> messageJobs = messages.get(messages.size() - 1);
             messageJobs.add(job);

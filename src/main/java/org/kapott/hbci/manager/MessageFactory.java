@@ -46,7 +46,7 @@ public final class MessageFactory {
 
     private static final HBCIProduct HBCI_PRODUCT = new HBCIProduct("36792786FA12F235F04647689", "3.2");
 
-    public static Message createDialogInit(String msgName, String syncMode, HBCIPassportInternal passport) {
+    static Message createDialogInit(String msgName, String syncMode, HBCIPassportInternal passport) {
 
         Message message = createMessage(msgName, passport.getSyntaxDocument());
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
@@ -69,14 +69,16 @@ public final class MessageFactory {
         return message;
     }
 
-    public static Message createAnonymouaDialogInit(HBCIPassportInternal passport) {
-        Message message = createMessage("DialogInitAnon", passport.getSyntaxDocument());
+    static Message createAnonymousDialogInit(HBCIPassportInternal passport) {
+        Message message = message = createMessage("DialogInitAnon", passport.getSyntaxDocument());
+
+        //HKIDN
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
         message.rawSet("Idn.KIK.country", passport.getCountry());
+        //HKVVB
         message.rawSet("ProcPrep.BPD", "0");
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
         message.rawSet("ProcPrep.lang", "0");
-
         HBCIProduct hbciProduct = Optional.ofNullable(passport.getHbciProduct())
             .orElse(HBCI_PRODUCT);
         message.rawSet("ProcPrep.prodName", hbciProduct.getProduct());
@@ -85,7 +87,8 @@ public final class MessageFactory {
         return message;
     }
 
-    public static Message createDialogEnd(HBCIPassportInternal passport, String dialogid, long msgNumber) {
+
+    static Message createDialogEnd(HBCIPassportInternal passport, String dialogid, long msgNumber) {
         Message message = MessageFactory.createMessage("DialogEnd", passport.getSyntaxDocument());
         message.rawSet("DialogEndS.dialogid", dialogid);
         message.rawSet("MsgHead.dialogid", dialogid);
@@ -97,9 +100,8 @@ public final class MessageFactory {
 
     /**
      * @param msgName The name (i.e. XML-identifier for a MSGdef-node) of the message to be generated.
+     * @param document hbci-definition xml document
      * @return A new MSG object representing the generated message.
-     * @internal
-     * @brief Generates the HBCI message @p msgName.
      * <p>
      * The document description for the message to be generated is taken from an
      * XML node @c MSGdef where the attribute @c id equals @p msgName.

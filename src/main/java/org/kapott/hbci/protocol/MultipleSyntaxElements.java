@@ -29,7 +29,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 /* die child-elemente von strukturierten syntaxelementen (msg, seg, sg, deg)
     werden nicht direkt als listenelemente der uebergeordneten
@@ -99,8 +102,9 @@ public abstract class MultipleSyntaxElements {
      * siehe SyntaxElement::parseElementList()
      */
     protected abstract SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx,
-                                                              StringBuilder res, int fullResLen, Document document, Map<String,
-        String> predefs, Map<String, String> valids);
+                                                              StringBuilder res, int fullResLen, Document document,
+                                                              Map<String,
+                                                                  String> predefs, Map<String, String> valids);
 
     private void initData(Node ref, String path, Document document) {
         type = ((Element) ref).getAttribute("type");
@@ -191,8 +195,7 @@ public abstract class MultipleSyntaxElements {
             }
         }
 
-        for (ListIterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
+        for (SyntaxElement e : elements) {
             String ePath = e.getPath();
             if (destPath.equals(ePath) || destPath.startsWith(ePath + ".")) {
                 if (e.propagateValue(destPath, value, tryToCreate, allowOverwrite)) {
@@ -213,19 +216,18 @@ public abstract class MultipleSyntaxElements {
         this.parent = parent;
     }
 
-    public int getSyntaxIdx() {
+    int getSyntaxIdx() {
         return this.syntaxIdx;
     }
 
-    public void setSyntaxIdx(int syntaxIdx) {
+    void setSyntaxIdx(int syntaxIdx) {
         this.syntaxIdx = syntaxIdx;
     }
 
     protected boolean storeValidValueInDE(String destPath, String value) {
         boolean ret = false;
 
-        for (ListIterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
+        for (SyntaxElement e : elements) {
             String ePath = e.getPath();
             if (destPath.equals(ePath) || destPath.startsWith(ePath + ".")) {
                 if (e.storeValidValueInDE(destPath, value)) {
@@ -244,8 +246,7 @@ public abstract class MultipleSyntaxElements {
     protected String getValueOfDE(String path) {
         String ret = null;
 
-        for (ListIterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
+        for (SyntaxElement e : elements) {
             String ePath = e.getPath();
             if (path.equals(ePath) || path.startsWith(ePath + ".")) {
                 ret = e.getValueOfDE(path);
@@ -259,8 +260,7 @@ public abstract class MultipleSyntaxElements {
     protected String getValueOfDE(String path, int zero) {
         String ret = null;
 
-        for (ListIterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
+        for (SyntaxElement e : elements) {
             String ePath = e.getPath();
             if (path.equals(ePath) || path.startsWith(ePath + ".")) {
                 ret = e.getValueOfDE(path, 0);
@@ -271,11 +271,10 @@ public abstract class MultipleSyntaxElements {
         return ret;
     }
 
-    protected SyntaxElement getElement(String path) {
+    SyntaxElement getElement(String path) {
         SyntaxElement ret = null;
 
-        for (ListIterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
+        for (SyntaxElement e : elements) {
             String ePath = e.getPath();
             if (path.equals(ePath) || path.startsWith(ePath + ".")) {
                 ret = e.getElement(path);
@@ -301,13 +300,12 @@ public abstract class MultipleSyntaxElements {
 
     protected void validate() {
         int idx = 0;
-        for (ListIterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
+        for (SyntaxElement e : elements) {
             validateOneElement(e, idx++);
         }
     }
 
-    public void addElement(SyntaxElement x) {
+    void addElement(SyntaxElement x) {
         elements.add(x);
     }
 
@@ -329,11 +327,10 @@ public abstract class MultipleSyntaxElements {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    protected int enumerateSegs(int startValue, boolean allowOverwrite) {
+    int enumerateSegs(int startValue, boolean allowOverwrite) {
         int idx = startValue;
 
-        for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
-            SyntaxElement s = i.next();
+        for (SyntaxElement s : getElements()) {
             if (s != null)
                 idx = s.enumerateSegs(idx, allowOverwrite);
         }
@@ -341,7 +338,8 @@ public abstract class MultipleSyntaxElements {
         return idx;
     }
 
-    private void initData(Node ref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document,
+    private void initData(Node ref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen,
+                          Document document,
                           Map<String, String> predefs, Map<String, String> valids) {
         this.ref = null;
         this.document = null;
@@ -383,9 +381,8 @@ public abstract class MultipleSyntaxElements {
 
                 try {
                     // versuch, ein weiteres syntaxelement zu erzeugen
-                    SyntaxElement child = parseAndAppendNewElement(ref, path,
-                        (idx == 0) ? predelim0 : predelim1,
-                        idx, res, fullResLen, document, predefs, valids);
+                    SyntaxElement child = parseAndAppendNewElement(ref, path, (idx == 0) ? predelim0 : predelim1, idx
+                        , res, fullResLen, document, predefs, valids);
                     if (child != null)
                         child.setParent(this);
                 } catch (ParseErrorException e) {
@@ -494,7 +491,8 @@ public abstract class MultipleSyntaxElements {
         }
     }
 
-    protected void init(Node ref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document,
+    protected void init(Node ref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen,
+                        Document document,
                         Map<String, String> predefs, Map<String, String> valids) {
         initData(ref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
@@ -503,14 +501,14 @@ public abstract class MultipleSyntaxElements {
      * siehe SyntaxElement.fillValues()
      */
     protected void extractValues(Map<String, String> values) {
-        for (Iterator<SyntaxElement> i = elements.listIterator(); i.hasNext(); ) {
-            i.next().extractValues(values);
+        for (SyntaxElement element : elements) {
+            element.extractValues(values);
         }
     }
 
-    protected int checkSegSeq(int value) {
-        for (Iterator<SyntaxElement> i = elements.iterator(); i.hasNext(); ) {
-            value = i.next().checkSegSeq(value);
+    int checkSegSeq(int value) {
+        for (SyntaxElement element : elements) {
+            value = element.checkSegSeq(value);
         }
 
         return value;

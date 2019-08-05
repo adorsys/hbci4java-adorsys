@@ -75,13 +75,12 @@ public final class HBCIKernel {
         @param cryptit A boolean value specifying, if the message to be sent should be encrypted.
         @return A Properties object that contains a path-value-pair for each dataelement of
                 the received message. */
-    public HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit) {
+    HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit) {
         HBCIMsgStatus msgStatus = new HBCIMsgStatus();
 
         try {
-            message.complete();
-
             log.debug("generating raw message " + message.getName());
+            message.complete();
             passport.getCallback().status(HBCICallback.STATUS_MSG_CREATE, message.getName());
 
             // liste der rewriter erzeugen
@@ -110,7 +109,6 @@ public final class HBCIKernel {
         } catch (Exception e) {
             // TODO: hack to be able to "disable" HKEND response message analysis
             // because some credit institutes are buggy regarding HKEND responses
-            String paramName = "client.errors.ignoreDialogEndErrors";
             if (message.getName().startsWith("DialogEnd")) {
                 log.error(e.getMessage(), e);
                 log.warn("error while receiving DialogEnd response - " +
@@ -136,9 +134,7 @@ public final class HBCIKernel {
         message.extractValues(current);
         HashMap<String, String> origs = new HashMap<>();
 
-        current.forEach((key, value) -> {
-            origs.put("orig_" + key, value);
-        });
+        current.forEach((key, value) -> origs.put("orig_" + key, value));
         msgStatus.addData(origs);
 
         // zu versendene nachricht loggen
@@ -154,10 +150,10 @@ public final class HBCIKernel {
         }
     }
 
-    private ArrayList<Rewrite> getRewriters(String rewriters_st) throws ClassNotFoundException, NoSuchMethodException
+    private ArrayList<Rewrite> getRewriters(String rewritersString) throws ClassNotFoundException, NoSuchMethodException
         , InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
         ArrayList<Rewrite> rewriters = new ArrayList<>();
-        StringTokenizer tok = new StringTokenizer(rewriters_st, ",");
+        StringTokenizer tok = new StringTokenizer(rewritersString, ",");
         while (tok.hasMoreTokens()) {
             String rewriterName = tok.nextToken().trim();
             if (rewriterName.length() != 0) {

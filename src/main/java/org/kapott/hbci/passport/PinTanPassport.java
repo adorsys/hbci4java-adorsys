@@ -49,7 +49,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
     private String proxy;
     private String proxyuser;
     private String proxypass;
-    private boolean verifyTANMode;
     private Map<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
     private HBCITwoStepMechanism currentSecMechInfo;
     private List<String> userTwostepMechanisms = new ArrayList<>();
@@ -361,65 +360,23 @@ public class PinTanPassport extends AbstractHBCIPassport {
         return Sig.HASHALG_RIPEMD160;
     }
 
-    public void setInstSigKey(HBCIKey key) {
-    }
-
     public void setInstEncKey(HBCIKey key) {
         // TODO: implementieren für bankensignatur bei HITAN
     }
 
-    public void incSigId() {
-        // for PinTan we always use the same sigid
-    }
-
-    public String getPinTanInfo(String jobHbciCode) {
-        String ret = "";
-        Map<String, String> bpd = getBPD();
-
-        if (bpd != null) {
-            boolean isGV = false;
-            StringBuffer paramCode = new StringBuffer(jobHbciCode).replace(1, 2, "I").append("S");
-
-            for (String key : bpd.keySet()) {
-                if (key.startsWith("Params") &&
-                    key.substring(key.indexOf(".") + 1).startsWith("PinTanPar") &&
-                    key.contains(".ParPinTan.PinTanGV") &&
-                    key.endsWith(".segcode")) {
-                    String code2 = bpd.get(key);
-                    if (jobHbciCode.equals(code2)) {
+    public boolean tan2StepRequired(String jobHbciCode) {
+        if (getBPD() != null) {
+            for (Map.Entry<String, String> bpdEntry : getBPD().entrySet()) {
+                String key = bpdEntry.getKey();
+                if (key.startsWith("Params") && key.substring(key.indexOf(".") + 1).startsWith("PinTanPar") && key.contains(".ParPinTan.PinTanGV") && key.endsWith(".segcode")) {
+                    if (jobHbciCode.equals(bpdEntry.getValue())) {
                         key = key.substring(0, key.length() - ("segcode").length()) + "needtan";
-                        ret = bpd.get(key);
-                        break;
+                        return getBPD().get(key).equalsIgnoreCase("J");
                     }
-                } else if (key.startsWith("Params") &&
-                    key.endsWith(".SegHead.jobHbciCode")) {
-
-                    String code2 = bpd.get(key);
-                    if (paramCode.equals(code2)) {
-                        isGV = true;
-                    }
-                }
-            }
-
-            // wenn das kein GV ist, dann ist es ein Admin-Segment
-            if (ret.length() == 0 && !isGV) {
-                if (verifyTANMode && jobHbciCode.equals("HKIDN")) {
-                    // im TAN-verify-mode wird bei der dialog-initialisierung
-                    // eine TAN mit versandt; die Dialog-Initialisierung erkennt
-                    // man am HKIDN-segment
-                    ret = "J";
-                    deactivateTANVerifyMode();
-                } else {
-                    ret = "A";
                 }
             }
         }
-
-        return ret;
-    }
-
-    private void deactivateTANVerifyMode() {
-        this.verifyTANMode = false;
+        return false;
     }
 
     public String getProxy() {

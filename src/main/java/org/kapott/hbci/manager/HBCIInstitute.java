@@ -22,7 +22,6 @@ package org.kapott.hbci.manager;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.comm.CommPinTan;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.ProcessException;
@@ -30,15 +29,13 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.math.BigInteger;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.spec.KeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.kapott.hbci.manager.HBCIKernel.DONT_CRYPTIT;
+import static org.kapott.hbci.manager.HBCIKernel.DONT_SIGNIT;
 
 /* Class representing an HBCI institute.
 
@@ -81,57 +78,6 @@ public final class HBCIInstitute implements IHandlerData {
             passport.setBPD(newBPD);
             log.info("installed new BPD with version " + passport.getBPDVersion());
             passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT_DONE, passport.getBPD());
-        }
-    }
-
-    /**
-     * gets the server public keys from the result and store them in the passport
-     */
-    void extractKeys(HashMap<String, String> result) {
-        boolean foundChanges = false;
-
-        try {
-            log.debug("extracting public institute keys from results");
-
-            for (int i = 0; i < 3; i++) {
-                String head = HBCIUtils.withCounter("SendPubKey", i);
-                String keyType = result.get(head + ".KeyName.keytype");
-                if (keyType == null)
-                    continue;
-
-                String keyCountry = result.get(head + ".KeyName.KIK.country");
-                String keyBLZ = result.get(head + ".KeyName.KIK.blz");
-                String keyUserId = result.get(head + ".KeyName.userid");
-                String keyNum = result.get(head + ".KeyName.keynum");
-                String keyVersion = result.get(head + ".KeyName.keyversion");
-
-                log.info("found key " +
-                    keyCountry + "_" + keyBLZ + "_" + keyUserId + "_" + keyType + "_" +
-                    keyNum + "_" + keyVersion);
-
-                byte[] keyExponent = result.get(head + ".PubKey.exponent").getBytes(CommPinTan.ENCODING);
-                byte[] keyModulus = result.get(head + ".PubKey.modulus").getBytes(CommPinTan.ENCODING);
-
-                KeyFactory fac = KeyFactory.getInstance("RSA");
-                KeySpec spec = new RSAPublicKeySpec(new BigInteger(+1, keyModulus),
-                    new BigInteger(+1, keyExponent));
-                Key key = fac.generatePublic(spec);
-
-                if (keyType.equals("S")) {
-                    passport.setInstSigKey(new HBCIKey(keyCountry, keyBLZ, keyUserId, keyNum, keyVersion, key));
-                    foundChanges = true;
-                } else if (keyType.equals("V")) {
-                    passport.setInstEncKey(new HBCIKey(keyCountry, keyBLZ, keyUserId, keyNum, keyVersion, key));
-                    foundChanges = true;
-                }
-            }
-        } catch (Exception e) {
-            String msg = HBCIUtils.getLocMsg("EXCMSG_EXTR_IKEYS_ERR");
-            throw new HBCI_Exception(msg, e);
-        }
-
-        if (foundChanges) {
-            passport.getCallback().status(HBCICallback.STATUS_INST_GET_KEYS_DONE, null);
         }
     }
 
@@ -248,8 +194,8 @@ public final class HBCIInstitute implements IHandlerData {
     }
 
     private HBCIMsgStatus anonymousDialogInit() {
-        Message message = MessageFactory.createAnonymouaDialogInit(passport);
-        return kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT);
+        Message dialogInitMessage = MessageFactory.createAnonymousDialogInit(passport);
+        return kernel.rawDoIt(dialogInitMessage, DONT_SIGNIT, DONT_CRYPTIT);
     }
 
     private void anonymousDialogEnd(HashMap<String, String> result) {
@@ -268,7 +214,7 @@ public final class HBCIInstitute implements IHandlerData {
         message.rawSet("MsgHead.msgnum", "2");
         message.rawSet("DialogEndS.dialogid", dialogid);
         message.rawSet("MsgTail.msgnum", "2");
-        HBCIMsgStatus status = kernel.rawDoIt(message, HBCIKernel.DONT_SIGNIT, HBCIKernel.DONT_CRYPTIT);
+        HBCIMsgStatus status = kernel.rawDoIt(message, DONT_SIGNIT, DONT_CRYPTIT);
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
 
         if (!status.isOK()) {

@@ -538,29 +538,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return result;
     }
 
-    private void addLowlevelProperties(Document document, ArrayList<String> result, String path, Element ref) {
-        if (ref.getAttribute("type").length() != 0) {
-            if (ref.getNodeName().equals("DE")) {
-                String name = ref.getAttribute("name");
-                result.add(pathWithDot(path) + name);
-            } else {
-                String name = ref.getAttribute("name");
-                if (name.length() == 0)
-                    name = ref.getAttribute("type");
-
-                Element def = document.getElementById(ref.getAttribute("type"));
-                NodeList defcontent = def.getChildNodes();
-                int len = defcontent.getLength();
-
-                for (int i = 0; i < len; i++) {
-                    Node content = defcontent.item(i);
-                    if (content.getNodeType() == Node.ELEMENT_NODE)
-                        addLowlevelProperties(document, result, pathWithDot(path) + name, (Element) content);
-                }
-            }
-        }
-    }
-
     public String getOrderHashMode(int segVersion) {
         return getBPD().keySet().stream()
             .filter(key -> {

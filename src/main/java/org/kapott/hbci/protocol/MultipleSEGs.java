@@ -25,16 +25,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.Map;
-import java.util.Iterator;
 
 @Slf4j
 public final class MultipleSEGs extends MultipleSyntaxElements {
 
-    public MultipleSEGs(Node segref, String path, Document document) {
+    MultipleSEGs(Node segref, String path, Document document) {
         super(segref, path, document);
     }
 
-    public MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document
+    MultipleSEGs(Node segref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen,
+                 Document document
         , Map<String, String> predefs, Map<String, String> valids) {
         super(segref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
@@ -45,6 +45,7 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         return ret;
     }
 
+    @Override
     public void init(Node segref, String path, Document document) {
         super.init(segref, path, document);
     }
@@ -54,6 +55,7 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         return super.toString();
     }
 
+    @Override
     public String toString(int dummy) {
         StringBuilder ret = new StringBuilder(256);
 
@@ -65,9 +67,9 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
         return ret.toString();
     }
 
-    // ---------------------------------------------------------------------------------------------------------------
-
-    public void init(Node segref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen, Document document,
+    @Override
+    public void init(Node segref, String path, char predelim0, char predelim1, StringBuilder res, int fullResLen,
+                     Document document,
                      Map<String, String> predefs, Map<String, String> valids) {
         super.init(segref, path, predelim0, predelim1, res, fullResLen, document, predefs, valids);
     }
@@ -75,14 +77,15 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
     protected SyntaxElement parseAndAppendNewElement(Node ref, String path, char predelim, int idx, StringBuilder res,
                                                      int fullResLen, Document document, Map<String, String> predefs,
                                                      Map<String, String> valids) {
-        SyntaxElement ret;
-        addElement((ret = new SEG(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs, valids)));
+        SyntaxElement ret = new SEG(getType(), getName(), path, predelim, idx, res, fullResLen, document, predefs,
+            valids);
+        addElement(ret);
         return ret;
     }
 
+    @Override
     public void getElementPaths(Map<String, String> p, int[] segref, int[] degref, int[] deref) {
-        for (Iterator<SyntaxElement> i = getElements().iterator(); i.hasNext(); ) {
-            SyntaxElement e = i.next();
+        for (SyntaxElement e : getElements()) {
             if (e != null) {
                 e.getElementPaths(p, segref, degref, deref);
             }
@@ -100,8 +103,8 @@ public final class MultipleSEGs extends MultipleSyntaxElements {
     //   Params.LastPar1
     //   Params.UebPar1
     //   Params_2.KUmsPar1
-    public boolean hasValidChilds() {
-        return (getElements().size() != 0);
+    boolean hasValidChilds() {
+        return (!getElements().isEmpty());
     }
 
 }

@@ -21,7 +21,6 @@
 package org.kapott.hbci.passport;
 
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.manager.HBCIKey;
 import org.kapott.hbci.manager.HBCIProduct;
 import org.kapott.hbci.manager.HBCITwoStepMechanism;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -50,10 +49,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
     String getProfileVersion();
 
     boolean needUserSig();
-
-    void setInstSigKey(HBCIKey key);
-
-    void setInstEncKey(HBCIKey key);
 
     String getInstEncKeyName();
 
@@ -139,8 +134,6 @@ public interface HBCIPassportInternal extends HBCIPassport {
     Document getSyntaxDocument();
 
     Node getSyntaxDef(String name);
-
-    Object getPinTanInfo(String hbciCode);
 
     String getOrderHashMode(int segVersion);
 

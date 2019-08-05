@@ -57,18 +57,16 @@ public final class HBCIUser implements IHandlerData {
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
-            HashMap<String, String> syncResult = syncStatus.getData();
-
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
-            inst.updateBPD(syncResult);
-            updateUPD(syncResult);
+            inst.updateBPD(syncStatus.getData());
+            updateUPD(syncStatus.getData());
 
-            passport.setSysId(syncResult.get("SyncRes.sysid"));
+            passport.setSysId(syncStatus.getData().get("SyncRes.sysid"));
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus,
                 passport.getSysId()});
             log.debug("new sys-id is " + passport.getSysId());
 
-            doDialogEnd(syncResult.get("MsgHead.dialogid"));
+            doDialogEnd(syncStatus.getData().get("MsgHead.dialogid"));
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
         } finally {
@@ -200,9 +198,7 @@ public final class HBCIUser implements IHandlerData {
         // Wir haben noch keine BPD. Offensichtlich unterstuetzt die Bank
         // das Abrufen von BPDs ueber einen anonymen Dialog nicht. Also machen
         // wir das jetzt hier mit einem nicht-anonymen Dialog gleich mit
-        if (bpd == null || passport.getUPD() == null ||
-            hbciVersionOfUPD == null ||
-            !hbciVersionOfUPD.equals(passport.getHBCIVersion())) {
+        if (bpd == null || passport.getUPD() == null || hbciVersionOfUPD == null || !hbciVersionOfUPD.equals(passport.getHBCIVersion())) {
             fetchUPD();
         }
     }
