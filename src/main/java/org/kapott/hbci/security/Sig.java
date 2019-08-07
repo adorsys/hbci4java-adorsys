@@ -36,6 +36,8 @@ import java.util.Random;
 @Slf4j
 public final class Sig {
 
+    public static ThreadLocal<String> gurk = new ThreadLocal<>(); //TODO remove this
+
     public final static String SECFUNC_HBCI_SIG_RDH = "1";
     public final static String SECFUNC_HBCI_SIG_DDV = "2";
 
@@ -147,6 +149,8 @@ public final class Sig {
     private void fillSigHead(SEG sighead, String profileMethod, String profileVersion, boolean response) {
         String sigheadName = sighead.getPath();
         String seccheckref = Integer.toString(Math.abs(new Random().nextInt()));
+
+        gurk.set(seccheckref);
 
         Date d = new Date();
 

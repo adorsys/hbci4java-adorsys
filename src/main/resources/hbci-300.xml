@@ -7478,7 +7478,7 @@
             <DEG type="SegHeadUser" name="SegHead"/>
             <DEG type="KTO" name="My"/>
             <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
-            <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
+            <DE name="unknown" type="Bin" maxsize="2560" minnum="0"/>
 
             <value path="SegHead.code">BKTAS</value>
             <value path="SegHead.version">1</value>
@@ -7487,6 +7487,21 @@
             &GVP;
 
             <value path="SegHead.code">BITASS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuList1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTO" name="My"/> <!-- number:country:blz -->
+            <DE name="supported" type="AN" maxsize="5" minnum="0" />
+            <DE name="tailnum" type="Num" maxsize="1"/>
+
+            <value path="SegHead.code">BKTAB</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuListPar1">
+            &GVP;
+
+            <value path="SegHead.code">BITABS</value>
             <value path="SegHead.version">1</value>
         </SEGdef>
         <SEGdef id="VeuEmptySignatureHeader1">
@@ -7672,6 +7687,7 @@
             <SEG type="Umb1" minnum="0"/>
             <SEG type="Umb2" minnum="0"/>
             <SEG type="VeuStep1" minnum="0"/>
+            <SEG type="VeuList1" minnum="0"/>
             <SEG type="VeuEmptySignatureHeader1" minnum="0"/>
             <SEG type="VeuEmptySignatureCloser1" minnum="0"/>
             <SEG type="Vormerkposten1" minnum="0"/>
