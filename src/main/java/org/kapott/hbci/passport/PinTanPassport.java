@@ -22,6 +22,7 @@ package org.kapott.hbci.passport;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.cryptalgs.CryptAlgs4JavaProvider;
+import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -364,15 +365,19 @@ public class PinTanPassport extends AbstractHBCIPassport {
         // TODO: implementieren für bankensignatur bei HITAN
     }
 
-    public boolean tan2StepRequired(String jobHbciCode) {
-        if (getBPD() != null) {
-            for (Map.Entry<String, String> bpdEntry : getBPD().entrySet()) {
-                String key = bpdEntry.getKey();
-                if (key.startsWith("Params") && key.substring(key.indexOf(".") + 1).startsWith("PinTanPar") && key.contains(".ParPinTan.PinTanGV") && key.endsWith(".segcode")) {
-                    if (jobHbciCode.equals(bpdEntry.getValue())) {
-                        key = key.substring(0, key.length() - ("segcode").length()) + "needtan";
-                        return getBPD().get(key).equalsIgnoreCase("J");
-                    }
+    public boolean tan2StepRequired(List<AbstractHBCIJob> hbciJobs) {
+        return hbciJobs.stream()
+            .map(AbstractHBCIJob::getHBCICode)
+            .anyMatch(this::tan2StepRequired);
+    }
+
+    private boolean tan2StepRequired(String jobHbciCode) {
+        for (Map.Entry<String, String> bpdEntry : getBPD().entrySet()) {
+            String key = bpdEntry.getKey();
+            if (key.startsWith("Params") && key.substring(key.indexOf(".") + 1).startsWith("PinTanPar") && key.contains(".ParPinTan.PinTanGV") && key.endsWith(".segcode")) {
+                if (jobHbciCode.equals(bpdEntry.getValue())) {
+                    key = key.substring(0, key.length() - ("segcode").length()) + "needtan";
+                    return getBPD().get(key).equalsIgnoreCase("J");
                 }
             }
         }

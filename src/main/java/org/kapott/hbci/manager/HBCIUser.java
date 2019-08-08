@@ -59,6 +59,7 @@ public final class HBCIUser implements IHandlerData {
 
             HBCIInstitute inst = new HBCIInstitute(kernel, passport);
             inst.updateBPD(syncStatus.getData());
+
             updateUPD(syncStatus.getData());
 
             passport.setSysId(syncStatus.getData().get("SyncRes.sysid"));

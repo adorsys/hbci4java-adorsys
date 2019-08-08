@@ -153,12 +153,14 @@ public final class HBCIDialog {
     }
 
     private void registerUser() {
-        try {
-            log.debug("registering user");
-            HBCIUser user = new HBCIUser(kernel, passport);
-            user.updateUserData();
-        } catch (Exception ex) {
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
+        if (passport.getUPD() == null) {
+            try {
+                log.debug("registering user");
+                HBCIUser user = new HBCIUser(kernel, passport);
+                user.updateUserData();
+            } catch (Exception ex) {
+                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
+            }
         }
     }
 
@@ -371,11 +373,8 @@ public final class HBCIDialog {
         return total;
     }
 
-    public List<List<AbstractHBCIJob>> getTan2StepRequiredMessages() {
-        return messages.stream()
-            .filter(hbciJobList -> hbciJobList.stream()
-                .anyMatch(hbciJob -> passport.tan2StepRequired(hbciJob.getHBCICode())))
-            .collect(Collectors.toList());
+    public void addTasks(List<AbstractHBCIJob> jobs) {
+        jobs.forEach(this::addTask);
     }
 
     public List<AbstractHBCIJob> addTask(AbstractHBCIJob job) {
