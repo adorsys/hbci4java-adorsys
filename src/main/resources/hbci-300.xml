@@ -5351,6 +5351,7 @@
                 <validvalue>2</validvalue>
                 <validvalue>3</validvalue>
                 <validvalue>4</validvalue>
+                <validvalue>S</validvalue>
             </valids>
 
             <value path="SegHead.code">HKTAN</value>
@@ -5374,6 +5375,7 @@
                 <validvalue>2</validvalue>
                 <validvalue>3</validvalue>
                 <validvalue>4</validvalue>
+                <validvalue>S</validvalue>
             </valids>
 
             <value path="SegHead.code">HITAN</value>
@@ -5432,6 +5434,7 @@
                 <validvalue>2</validvalue>
                 <validvalue>3</validvalue>
                 <validvalue>4</validvalue>
+                <validvalue>S</validvalue>
             </valids>
 
             <value path="SegHead.code">HITAN</value>
