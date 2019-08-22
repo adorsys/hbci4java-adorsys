@@ -27,7 +27,6 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -36,12 +35,14 @@ import java.util.Optional;
 @Slf4j
 public class GVTAN2Step extends AbstractHBCIJob {
 
-    private AbstractHBCIJob originJob;
+    private AbstractHBCIJob scaJob;
 
-    public GVTAN2Step(HBCIPassportInternal passport) {
+    public GVTAN2Step(HBCIPassportInternal passport, AbstractHBCIJob scaJob) {
         super(passport, getLowlevelName(), new GVRSaldoReq(passport));
+        this.scaJob = scaJob;
 
         addConstraint("process", "process", null);
+        addConstraint("ordersegcode", "ordersegcode", "");
         addConstraint("orderhash", "orderhash", "");
         addConstraint("orderref", "orderref", "");
         addConstraint("listidx", "listidx", "");
@@ -90,17 +91,13 @@ public class GVTAN2Step extends AbstractHBCIJob {
         super.setParam(paramName, value);
     }
 
-    public void setOriginJob(AbstractHBCIJob originJob) {
-        this.originJob = originJob;
-    }
-
     @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         String segcode = result.get(header + ".SegHead.code");
         log.debug("found HKTAN response with segcode " + segcode);
 
-        Optional<String> resultHbciCode = Optional.ofNullable(originJob)
+        Optional<String> resultHbciCode = Optional.ofNullable(scaJob)
             .map(AbstractHBCIJob::getHBCICode)
             .map(hbciCode -> new StringBuffer(hbciCode).replace(1, 2, "I").toString())
             .filter(hbciCode -> hbciCode.equals(segcode));
@@ -109,7 +106,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
             // das ist für PV#2, wenn nach dem nachträglichen versenden der TAN das
             // antwortsegment des jobs aus der vorherigen Nachricht zurückommt
             log.debug("this is a response segment for the original task - storing results in the original job");
-            originJob.extractResults(msgstatus, header, idx);
+            scaJob.extractResults(msgstatus, header, idx);
         } else {
             log.debug("this is a \"real\" HKTAN response - analyzing HITAN data");
 
@@ -122,5 +119,12 @@ public class GVTAN2Step extends AbstractHBCIJob {
             HHDVersion hhd = HHDVersion.find(passport.getCurrentSecMechInfo());
             passport.getCallback().tanChallengeCallback(orderref, challenge, hhdUc, hhd.getType());
         }
+    }
+
+    @Override
+    public boolean needsContinue(int loop) {
+        return Optional.ofNullable(scaJob)
+            .map(hbciJob -> hbciJob.needsContinue(loop))
+            .orElse(false);
     }
 }

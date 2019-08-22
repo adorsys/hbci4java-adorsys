@@ -32,7 +32,6 @@ import org.kapott.hbci.status.HBCIInstMessage;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /* @brief A class for managing exactly one HBCI-Dialog
 
@@ -94,14 +93,14 @@ public final class HBCIDialog {
      * passed to appropriate methods in the @c institute and @c user objects to
      * update their internal state with the data received from the institute.
      */
-    private HBCIMsgStatus doDialogInit() {
+    private HBCIMsgStatus doDialogInit(String scaOrderSegCode) {
         HBCIMsgStatus msgStatus = new HBCIMsgStatus();
 
         try {
             log.debug(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT"));
             passport.getCallback().status(HBCICallback.STATUS_DIALOG_INIT, null);
 
-            Message message = MessageFactory.createDialogInit("DialogInit", null, passport);
+            Message message = MessageFactory.createDialogInit("DialogInit", scaOrderSegCode, null, passport);
             msgStatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
 
             passport.postInitResponseHook(msgStatus);
@@ -246,7 +245,7 @@ public final class HBCIDialog {
     private void handleOffsetMessages(List<AbstractHBCIJob> tasks, int loop, HBCIMsgStatus msgstatus) {
         // searching for first segment number that belongs to the custom_msg
         // we look for entries like {"1","CustomMsg.MsgHead"} and so
-        // on (this data is inserted from the HBCIKernelImpl.rawDoIt() method),
+        // on (this data is inserted from the HBCIKernel.rawDoIt() method),
         // until we find the first segment containing a task
         int offset;   // this specifies, how many segments precede the first task segment
         for (offset = 1; true; offset++) {
@@ -300,6 +299,10 @@ public final class HBCIDialog {
         return msgStatus;
     }
 
+    public HBCIExecStatus execute(boolean closeDialog) {
+        return execute("HKIDN", closeDialog);
+    }
+
     /**
      * <p>Ausführen aller bisher erzeugten Aufträge. Diese Methode veranlasst den HBCI-Kernel,
      * die Aufträge, die durch die Aufrufe auszuführen. </p>
@@ -307,16 +310,30 @@ public final class HBCIDialog {
      * @return ein Status-Objekt, anhand dessen der Erfolg oder das Fehlschlagen
      * der Dialoge festgestellt werden kann.
      */
-    public HBCIExecStatus execute(boolean closeDialog) {
+    public HBCIExecStatus execute(String scaOrderSegCode, boolean closeDialog) {
         HBCIExecStatus ret = new HBCIExecStatus();
 
         log.debug("executing dialog");
         try {
-            ret.setDialogStatus(doIt(closeDialog));
+            HBCIDialogStatus hbciDialogStatus = initDialog(scaOrderSegCode);
+
+            doIt(hbciDialogStatus, closeDialog);
+
+            ret.setDialogStatus(hbciDialogStatus);
         } catch (Exception e) {
             ret.addException(e);
         }
         return ret;
+    }
+
+    private HBCIDialogStatus initDialog(String scaOrderSegCode) {
+        log.debug("executing dialog");
+        HBCIDialogStatus dialogStatus = new HBCIDialogStatus();
+
+        if (dialogid == null) {
+            dialogStatus.setInitStatus(doDialogInit(scaOrderSegCode));
+        }
+        return dialogStatus;
     }
 
     /**
@@ -327,14 +344,7 @@ public final class HBCIDialog {
      * nachrichten bzw. tasks, die noch nicht ausgeführt wurden,
      * von der aufrufenden methode neu erzeugt werden
      */
-    private HBCIDialogStatus doIt(boolean closeDialog) {
-        log.debug("executing dialog");
-        HBCIDialogStatus dialogStatus = new HBCIDialogStatus();
-
-        if (dialogid == null) {
-            dialogStatus.setInitStatus(doDialogInit());
-        }
-
+    private void doIt(HBCIDialogStatus dialogStatus, boolean closeDialog) {
         if (dialogid != null || dialogStatus.initStatus.isOK()) {
             dialogStatus.setMsgStatusList(doJobs());
 
@@ -342,8 +352,6 @@ public final class HBCIDialog {
                 dialogStatus.setEndStatus(doDialogEnd());
             }
         }
-
-        return dialogStatus;
     }
 
     public String getDialogID() {
@@ -356,10 +364,6 @@ public final class HBCIDialog {
 
     private void nextMsgNum() {
         msgnum++;
-    }
-
-    public void setDialogid(String dialogid) {
-        this.dialogid = dialogid;
     }
 
     private int getTotalNumberOfGVSegsInCurrentMessage() {

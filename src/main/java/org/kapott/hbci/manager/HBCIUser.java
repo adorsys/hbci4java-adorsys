@@ -53,7 +53,7 @@ public final class HBCIUser implements IHandlerData {
             passport.setSigId(1L);
             passport.setSysId("0");
 
-            syncStatus = doDialogInit("Synch", "0");
+            syncStatus = doDialogInitSync("Synch", "HKIDN", "0");
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
@@ -85,7 +85,7 @@ public final class HBCIUser implements IHandlerData {
 
             passport.setSigId(new Long("9999999999999999"));
 
-            msgStatus = doDialogInit("Synch", "2");
+            msgStatus = doDialogInitSync("Synch", "HKIDN", "2");
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
 
@@ -139,7 +139,7 @@ public final class HBCIUser implements IHandlerData {
             passport.getCallback().status(HBCICallback.STATUS_INIT_UPD, null);
             log.info("fetching UPD (BPD-Version: " + passport.getBPDVersion() + ")");
 
-            HBCIMsgStatus msgStatus = doDialogInit("DialogInit", null);
+            HBCIMsgStatus msgStatus = doDialogInitSync("DialogInit", "HKIDN", null);
 
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), msgStatus);
@@ -158,8 +158,8 @@ public final class HBCIUser implements IHandlerData {
         }
     }
 
-    private HBCIMsgStatus doDialogInit(String messageName, String syncMode) {
-        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport);
+    private HBCIMsgStatus doDialogInitSync(String messageName, String orderSegCode, String syncMode) {
+        Message message = MessageFactory.createDialogInit(messageName, orderSegCode, syncMode, passport);
         return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
     }
 

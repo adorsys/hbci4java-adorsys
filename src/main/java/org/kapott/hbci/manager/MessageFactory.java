@@ -46,9 +46,11 @@ public final class MessageFactory {
 
     private static final HBCIProduct HBCI_PRODUCT = new HBCIProduct("36792786FA12F235F04647689", "3.2");
 
-    static Message createDialogInit(String msgName, String syncMode, HBCIPassportInternal passport) {
-
-        Message message = createMessage(msgName, passport.getSyntaxDocument());
+    static Message createDialogInit(String dialogName, String scaOrderSegCode, String syncMode, HBCIPassportInternal passport) {
+        Message message = createMessage(dialogName, passport.getSyntaxDocument());
+        message.rawSet("MsgHead.dialogid", "0");
+        message.rawSet("MsgHead.msgnum", "1");
+        message.rawSet("MsgTail.msgnum", "1");
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
         message.rawSet("Idn.KIK.country", passport.getCountry());
         message.rawSet("Idn.customerid", passport.getCustomerId());
@@ -63,6 +65,9 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.prodName", hbciProduct.getProduct());
         message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
 
+        message.rawSet("TAN2Step6.process", "4");
+        message.rawSet("TAN2Step6.ordersegcode", scaOrderSegCode);
+
         if (syncMode != null) {
             message.rawSet("Sync.mode", syncMode);
         }
@@ -70,11 +75,16 @@ public final class MessageFactory {
     }
 
     static Message createAnonymousDialogInit(HBCIPassportInternal passport) {
-        Message message = message = createMessage("DialogInitAnon", passport.getSyntaxDocument());
-
+        Message message = createMessage("DialogInitAnon", passport.getSyntaxDocument());
+        message.rawSet("MsgHead.dialogid", "0");
+        message.rawSet("MsgHead.msgnum", "1");
+        message.rawSet("MsgTail.msgnum", "1");
         //HKIDN
         message.rawSet("Idn.KIK.blz", passport.getBLZ());
         message.rawSet("Idn.KIK.country", passport.getCountry());
+        message.rawSet("Idn.customerid", "9999999999");
+        message.rawSet("Idn.sysid", "0");
+        message.rawSet("Idn.sysStatus", "0");
         //HKVVB
         message.rawSet("ProcPrep.BPD", "0");
         message.rawSet("ProcPrep.UPD", passport.getUPDVersion());
@@ -83,10 +93,11 @@ public final class MessageFactory {
             .orElse(HBCI_PRODUCT);
         message.rawSet("ProcPrep.prodName", hbciProduct.getProduct());
         message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
+        //HKTAN
+        message.rawSet("TAN2Step6.process", "4");
 
         return message;
     }
-
 
     static Message createDialogEnd(HBCIPassportInternal passport, String dialogid, long msgNumber) {
         Message message = MessageFactory.createMessage("DialogEnd", passport.getSyntaxDocument());
@@ -99,7 +110,7 @@ public final class MessageFactory {
     }
 
     /**
-     * @param msgName The name (i.e. XML-identifier for a MSGdef-node) of the message to be generated.
+     * @param msgName  The name (i.e. XML-identifier for a MSGdef-node) of the message to be generated.
      * @param document hbci-definition xml document
      * @return A new MSG object representing the generated message.
      * <p>

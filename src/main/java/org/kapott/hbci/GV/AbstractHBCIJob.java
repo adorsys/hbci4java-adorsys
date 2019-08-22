@@ -29,6 +29,7 @@ import org.kapott.hbci.exceptions.InvalidArgumentException;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.exceptions.JobNotSupportedException;
 import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.KnownReturncode;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.SEG;
 import org.kapott.hbci.protocol.SyntaxElement;
@@ -545,9 +546,10 @@ public abstract class AbstractHBCIJob {
         }
     }
 
-    public void setContinueOffset(int loop) {
-        String offset = getContinueOffset(loop);
-        setLowlevelParam(getName() + ".offset", (offset != null) ? offset : "");
+    public void setContinueOffset(int loop)
+    {
+        final String offset = this.getContinueOffset(loop);
+        this.setLowlevelParam(this.getName() + ".offset",(offset != null) ? offset : "");
     }
 
     public void setLowlevelParam(String key, String value) {
@@ -647,41 +649,39 @@ public abstract class AbstractHBCIJob {
        Das ist in zwei Fällen der Fall: der Task wurde noch nie ausgeführt; oder der Task
        wurde bereits ausgeführt, hat aber eine "offset"-Meldung zurückgegeben */
     public boolean needsContinue(int loop) {
-        boolean needs = false;
+        // Wurde noch nie ausgefuehrt
+        if (!this.executed)
+            return true;
 
-        if (executed) {
-            HBCIRetVal retval;
-            int num = jobResult.getJobStatus().getRetVals().size();
-
-            for (int i = 0; i < num; i++) {
-                retval = jobResult.getRetVal(i);
-
-                if (retval.code.equals("3040") && retval.params.length != 0 && (--loop) == 0) {
-                    needs = true;
-                    break;
-                }
-            }
-        } else needs = true;
-
-        return needs;
+        return this.getContinueOffset(loop) != null;
     }
 
     /* gibt (sofern vorhanden) den offset-Wert des letzten HBCI-Rückgabecodes
        zurück */
-    private String getContinueOffset(int loop) {
-        String ret = null;
-        int num = jobResult.getResultsSize();
+    private String getContinueOffset(int loop)
+    {
+        HBCIRetVal ret = this.getW3040(loop);
+        return ret != null ? ret.params[0] : null;
+    }
 
-        for (int i = 0; i < num; i++) {
+    /**
+     * Liefert den Rueckgabecode 3040 (fuer "Weitere Daten folgen"), insofern vorhanden.
+     * @param loop die Nummer des Durchlaufs, beginnend bei 0.
+     * @return der Rueckgabewert, insofern vorhanden. Sonst NULL.
+     */
+    private HBCIRetVal getW3040(int loop)
+    {
+        final int num = jobResult.getResultsSize();
+
+        for (int i=0;i<num;i++)
+        {
             HBCIRetVal retval = jobResult.getRetVal(i);
 
-            if (retval.code.equals("3040") && retval.params.length != 0 && (--loop) == 0) {
-                ret = retval.params[0];
-                break;
-            }
+            if (KnownReturncode.W3040.is(retval.code) && retval.params.length!=0 && (--loop)==0)
+                return retval;
         }
 
-        return ret;
+        return null;
     }
 
     /* füllt das Objekt mit den Rückgabedaten. Dazu wird zuerst eine Liste aller
