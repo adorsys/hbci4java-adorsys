@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.adorsys</groupId>
     <artifactId>hbci4j-adorsys</artifactId>
-    <version>3.4.24-SNAPSHOT</version>
+    <version>3.5.0</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>HBCI4j - Home Banking Computer Interface for Java - Clone from https://github.com/hbci4j/hbci4java
