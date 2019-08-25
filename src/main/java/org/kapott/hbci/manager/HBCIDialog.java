@@ -221,7 +221,10 @@ public final class HBCIDialog {
 
                     // nachrichtenaustausch durchführen
                     msgstatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
-                    handleOffsetMessages(tasks, loop, msgstatus);
+                    int offset = evaluteOffset(msgstatus);
+                    if (offset != 0) {
+                        fillJobResults(tasks, offset, loop, msgstatus);
+                    }
 
                     if (msgstatus.hasExceptions()) {
                         log.error("aborting current loop because of errors");
@@ -242,7 +245,7 @@ public final class HBCIDialog {
         return messageStatusList;
     }
 
-    private void handleOffsetMessages(List<AbstractHBCIJob> tasks, int loop, HBCIMsgStatus msgstatus) {
+    private int evaluteOffset(HBCIMsgStatus msgstatus) {
         // searching for first segment number that belongs to the custom_msg
         // we look for entries like {"1","CustomMsg.MsgHead"} and so
         // on (this data is inserted from the HBCIKernel.rawDoIt() method),
@@ -258,21 +261,24 @@ public final class HBCIDialog {
             }
         }
 
-        if (offset != 0) {
-            // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
-            // in fillOutStore wird auch "executed" fuer den jeweiligen Task auf true gesetzt.
-            for (AbstractHBCIJob task : tasks) {
-                if (task.needsContinue(loop)) {
-                    // nur wenn der auftrag auch tatsaechlich gesendet werden musste
-                    try {
-                        task.fillJobResult(msgstatus, offset);
-                        passport.getCallback().status(HBCICallback.STATUS_SEND_TASK_DONE, task);
-                    } catch (Exception e) {
-                        msgstatus.addException(e);
-                    }
+        return offset;
+    }
+
+    private void fillJobResults(List<AbstractHBCIJob> tasks, int offset, int loop, HBCIMsgStatus msgstatus) {
+        // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
+        // in fillOutStore wird auch "executed" fuer den jeweiligen Task auf true gesetzt.
+        for (AbstractHBCIJob task : tasks) {
+            if (task.isFinished(loop)) {
+                // nur wenn der auftrag auch tatsaechlich gesendet werden musste
+                try {
+                    task.fillJobResult(msgstatus, offset);
+                    passport.getCallback().status(HBCICallback.STATUS_SEND_TASK_DONE, task);
+                } catch (Exception e) {
+                    msgstatus.addException(e);
                 }
             }
         }
+
     }
 
     /**
@@ -464,5 +470,9 @@ public final class HBCIDialog {
 
     public void setKernel(HBCIKernel kernel) {
         this.kernel = kernel;
+    }
+
+    public void close() {
+        doDialogEnd();
     }
 }

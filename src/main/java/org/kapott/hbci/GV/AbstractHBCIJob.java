@@ -1007,4 +1007,8 @@ public abstract class AbstractHBCIJob {
     public SepaVersion getPainVersion() {
         return null;
     }
+
+    public boolean isFinished(int loop) {
+        return needsContinue(loop);
+    }
 }

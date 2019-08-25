@@ -137,15 +137,15 @@ public final class HBCIStatus {
     }
 
     private List<HBCIRetVal> getX(char code) {
-        ArrayList<HBCIRetVal> ret_a = new ArrayList<>();
+        ArrayList<HBCIRetVal> hbciRetVals = new ArrayList<>();
 
         for (HBCIRetVal retVal : retVals) {
             if (retVal.code.charAt(0) == code) {
-                ret_a.add(retVal);
+                hbciRetVals.add(retVal);
             }
         }
 
-        return ret_a;
+        return hbciRetVals;
     }
 
     /**
@@ -173,7 +173,7 @@ public final class HBCIStatus {
      *
      * @return Array mit HBCI-Returncodes, die allesamt Fehlermeldungen beschreiben
      */
-    public List<HBCIRetVal> getErrors() {
+    List<HBCIRetVal> getErrors() {
         return getX('9');
     }
 

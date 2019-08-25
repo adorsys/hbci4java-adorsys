@@ -95,6 +95,7 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
         //HKTAN
         message.rawSet("TAN2Step6.process", "4");
+        message.rawSet("TAN2Step6.ordersegcode", "HKIDN");
 
         return message;
     }

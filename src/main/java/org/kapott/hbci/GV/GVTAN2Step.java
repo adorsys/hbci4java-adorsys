@@ -35,11 +35,14 @@ import java.util.Optional;
 @Slf4j
 public class GVTAN2Step extends AbstractHBCIJob {
 
+    private boolean executed;
+    private boolean secondStep;
     private AbstractHBCIJob scaJob;
 
-    public GVTAN2Step(HBCIPassportInternal passport, AbstractHBCIJob scaJob) {
+    public GVTAN2Step(HBCIPassportInternal passport, AbstractHBCIJob scaJob, boolean secondStep) {
         super(passport, getLowlevelName(), new GVRSaldoReq(passport));
         this.scaJob = scaJob;
+        this.secondStep = secondStep;
 
         addConstraint("process", "process", null);
         addConstraint("ordersegcode", "ordersegcode", "");
@@ -93,6 +96,8 @@ public class GVTAN2Step extends AbstractHBCIJob {
 
     @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        executed = true;
+
         HashMap<String, String> result = msgstatus.getData();
         String segcode = result.get(header + ".SegHead.code");
         log.debug("found HKTAN response with segcode " + segcode);
@@ -122,9 +127,18 @@ public class GVTAN2Step extends AbstractHBCIJob {
     }
 
     @Override
+    public boolean isFinished(int loop) {
+        return true;
+    }
+
+    @Override
     public boolean needsContinue(int loop) {
+        if (secondStep && executed) {
+            return false;
+        }
+
         return Optional.ofNullable(scaJob)
             .map(hbciJob -> hbciJob.needsContinue(loop))
-            .orElse(false);
+            .orElse(!executed);
     }
 }

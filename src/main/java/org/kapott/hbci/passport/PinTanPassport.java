@@ -365,10 +365,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
         // TODO: implementieren für bankensignatur bei HITAN
     }
 
-    public boolean tan2StepRequired(List<AbstractHBCIJob> hbciJobs) {
-        return hbciJobs.stream()
-            .map(AbstractHBCIJob::getHBCICode)
-            .anyMatch(this::tan2StepRequired);
+    public boolean tan2StepRequired(AbstractHBCIJob hbciJob) {
+        return tan2StepRequired(hbciJob.getHBCICode());
     }
 
     private boolean tan2StepRequired(String jobHbciCode) {
