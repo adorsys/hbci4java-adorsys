@@ -92,8 +92,8 @@ public class ParseCamt05200101 extends AbstractCamtParser {
      */
     private UmsLine createLine(ReportEntry1 entry, BigDecimal currSaldo) {
         UmsLine line = new UmsLine();
-        line.isSepa = true;
-        line.isCamt = true;
+        line.sepa = true;
+        line.camt = true;
         line.other = new Konto();
 
         List<EntryTransaction1> txList = entry.getTxDtls();
@@ -166,7 +166,7 @@ public class ParseCamt05200101 extends AbstractCamtParser {
         // Storno-Kennzeichen
         // Laut Spezifikation kehrt sich bei Stornobuchungen im Gegensatz zu MT940
         // nicht das Vorzeichen um. Der Betrag bleibt also gleich
-        line.isStorno = entry.isRvslInd() != null && entry.isRvslInd().booleanValue();
+        line.storno = entry.isRvslInd() != null && entry.isRvslInd().booleanValue();
         //
         ////////////////////////////////////////////////////////////////////////
 
@@ -196,7 +196,7 @@ public class ParseCamt05200101 extends AbstractCamtParser {
         ////////////////////////////////////////////////////////////////////////
         // Art und Kundenreferenz
         line.text = trim(entry.getAddtlNtryInf());
-        line.customerref = trim(entry.getAcctSvcrRef());
+        line.customerRef = trim(entry.getAcctSvcrRef());
         //
         ////////////////////////////////////////////////////////////////////////
 

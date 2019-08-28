@@ -346,11 +346,11 @@ public class GVRKUms extends HBCIJobResultImpl {
                     // extract credit/debit
                     String cd;
                     if (st_ums.charAt(next) == 'C' || st_ums.charAt(next) == 'D') {
-                        line.isStorno = false;
+                        line.storno = false;
                         cd = st_ums.substring(next, next + 1);
                         next++;
                     } else {
-                        line.isStorno = true;
+                        line.storno = true;
                         cd = st_ums.substring(next + 1, next + 2);
                         next += 2;
                     }
@@ -375,7 +375,7 @@ public class GVRKUms extends HBCIJobResultImpl {
                     // wenn eine ehemalige Gutschrift (Credit) storniert wird,
                     // in dem Fall wäre als "C" der Indikator für den negativen
                     // Buchungsbetrag
-                    String negValueIndikator = line.isStorno ? "C" : "D";
+                    String negValueIndikator = line.storno ? "C" : "D";
                     line.value.setValue(
                         string2Long(
                             (cd.equals(negValueIndikator) ? "-" : "") + st_ums.substring(next, npos).replace(',', '.'),
@@ -398,7 +398,7 @@ public class GVRKUms extends HBCIJobResultImpl {
                         npos = st_ums.indexOf("\r\n", next);
                     if (npos == -1)
                         npos = st_ums.length();
-                    line.customerref = st_ums.substring(next, npos);
+                    line.customerRef = st_ums.substring(next, npos);
                     next = npos;
 
                     // check for instref
@@ -408,11 +408,11 @@ public class GVRKUms extends HBCIJobResultImpl {
                         npos = st_ums.indexOf("\r\n", next);
                         if (npos == -1)
                             npos = st_ums.length();
-                        line.instref = st_ums.substring(next, npos);
+                        line.instRef = st_ums.substring(next, npos);
                         next = npos + 2;
                     }
-                    if (line.instref == null)
-                        line.instref = "";
+                    if (line.instRef == null)
+                        line.instRef = "";
 
                     // check for additional information
                     if (next < st_ums.length() && st_ums.charAt(next) == '\r') {
@@ -457,7 +457,7 @@ public class GVRKUms extends HBCIJobResultImpl {
                         st_multi = Swift.packMulti(st_multi.substring(3));
 
                         if (!line.gvcode.equals("999")) {
-                            line.isSepa = line.gvcode.startsWith("1");
+                            line.sepa = line.gvcode.startsWith("1");
                             line.text = Swift.getMultiTagValue(st_multi, "00");
                             line.primanota = Swift.getMultiTagValue(st_multi, "10");
                             for (int i = 0; i < 10; i++) {
@@ -479,7 +479,7 @@ public class GVRKUms extends HBCIJobResultImpl {
                                 }
                             }
 
-                            if (line.isSepa) {
+                            if (line.sepa) {
                                 acc.bic = acc.blz;
                                 acc.iban = acc.number;
                             }
@@ -620,7 +620,7 @@ public class GVRKUms extends HBCIJobResultImpl {
         /**
          * Handelt es sich um eine Storno-Buchung?
          */
-        public boolean isStorno;
+        public boolean storno;
         /**
          * Der Saldo <em>nach</em> dem Buchen des Betrages <code>value</code>
          */
@@ -628,11 +628,11 @@ public class GVRKUms extends HBCIJobResultImpl {
         /**
          * Kundenreferenz
          */
-        public String customerref;
+        public String customerRef;
         /**
          * Kreditinstituts-Referenz
          */
-        public String instref;
+        public String instRef;
         /**
          * Ursprünglicher Betrag (bei ausländischen Buchungen; optional)
          */
@@ -699,12 +699,12 @@ public class GVRKUms extends HBCIJobResultImpl {
         /**
          * Gibt an, ob ein Umsatz ein SEPA-Umsatz ist
          **/
-        public boolean isSepa;
+        public boolean sepa;
 
         /**
          * Gibt an, ob ein Umsatz per CAMT abgerufen wurde.
          */
-        public boolean isCamt;
+        public boolean camt;
 
         /**
          * NUR BEI CAMT: Eindeutiger Identifier der Buchung. Erst seit SEPA mit Abruf per CAMT
@@ -729,7 +729,7 @@ public class GVRKUms extends HBCIJobResultImpl {
 
         public UmsLine() {
             usage = new ArrayList<>();
-            isSepa = false;
+            sepa = false;
         }
 
         void addUsage(String st) {
@@ -743,9 +743,9 @@ public class GVRKUms extends HBCIJobResultImpl {
             String linesep = System.getProperty("line.separator");
 
             ret.append(HBCIUtils.date2StringLocal(valuta)).append(" ").append(HBCIUtils.date2StringLocal(bdate)).append(" ");
-            ret.append(customerref).append(":").append(instref).append(" ");
+            ret.append(customerRef).append(":").append(instRef).append(" ");
             ret.append(value.toString());
-            ret.append(isStorno ? " (Storno)" : "");
+            ret.append(storno ? " (Storno)" : "");
             if (orig_value != null)
                 ret.append(" (orig ").append(orig_value.toString()).append(")");
             if (charge_value != null)

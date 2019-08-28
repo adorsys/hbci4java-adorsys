@@ -14,9 +14,7 @@ import org.kapott.hbci.GV_Result.GVRKUms.BTag;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.sepa.jaxb.camt_052_001_07.*;
 import org.kapott.hbci.structures.Saldo;
-import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -164,7 +162,7 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
 
         ////////////////////////////////////////////////////////////////////////
         // Storno-Kennzeichen
-        if (line.isStorno)
+        if (line.storno)
             entry.setRvslInd(Boolean.TRUE);
         //
         ////////////////////////////////////////////////////////////////////////
@@ -194,7 +192,7 @@ public class GenKUmsAllCamt05200107 extends AbstractSEPAGenerator<List<BTag>> {
         ////////////////////////////////////////////////////////////////////////
         // Art und Kundenreferenz
         entry.setAddtlNtryInf(line.text);
-        entry.setAcctSvcrRef(line.customerref);
+        entry.setAcctSvcrRef(line.customerRef);
         //
         ////////////////////////////////////////////////////////////////////////
 
