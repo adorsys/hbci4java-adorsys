@@ -64,30 +64,19 @@ public class GVRKUms extends HBCIJobResultImpl {
      * empfangenen Kontoauszüge nicht richtig geparst werden, und dieser String enthält den
      * "Schwanz" der Kontoauszugsdaten, bei dem das Parsing-Problem aufgetreten ist.
      */
-    private StringBuilder restMT940;
+    private StringBuilder restMT940 = new StringBuilder();
     /**
      * Wie restMT940, allerdings für die Daten der *vorgemerkten* Umsätze.
      */
-    private StringBuilder restMT942;
-    private StringBuilder mt940raw;
-    private StringBuilder mt942raw;
-    private List<BTag> tageMT940;
-    private List<BTag> tageMT942;
-    private boolean parsed;
+    private StringBuilder restMT942 = new StringBuilder();
+    private StringBuilder mt940raw = new StringBuilder();
+    private StringBuilder mt942raw = new StringBuilder();
+    private List<BTag> tageMT940 = new ArrayList<>();
+    private List<BTag> tageMT942 = new ArrayList<>();
+    private boolean parsed = false;
 
     public GVRKUms(HBCIPassportInternal passport) {
         super(passport);
-
-        tageMT940 = new ArrayList<>();
-        tageMT942 = new ArrayList<>();
-
-        restMT940 = new StringBuilder();
-        restMT942 = new StringBuilder();
-
-        mt940raw = new StringBuilder();
-        mt942raw = new StringBuilder();
-
-        parsed = false;
     }
 
     public void appendMt940raw(StringBuilder mt940raw) {
@@ -128,9 +117,8 @@ public class GVRKUms extends HBCIJobResultImpl {
     public List<UmsLine> getFlatData() {
         verifyMT94xParsing("getFlatData()");
 
-        List<UmsLine> result = new ArrayList<UmsLine>();
-        for (Iterator<BTag> i = tageMT940.iterator(); i.hasNext(); ) {
-            BTag tag = i.next();
+        List<UmsLine> result = new ArrayList<>();
+        for (BTag tag : tageMT940) {
             result.addAll(tag.lines);
         }
 
@@ -146,8 +134,7 @@ public class GVRKUms extends HBCIJobResultImpl {
         verifyMT94xParsing("getFlatDataUnbooked()");
 
         List<UmsLine> result = new ArrayList<UmsLine>();
-        for (Iterator<BTag> i = tageMT942.iterator(); i.hasNext(); ) {
-            BTag tag = i.next();
+        for (BTag tag : tageMT942) {
             result.addAll(tag.lines);
         }
 
@@ -157,19 +144,19 @@ public class GVRKUms extends HBCIJobResultImpl {
     public String toString() {
         verifyMT94xParsing("toString()");
 
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         String linesep = System.getProperty("line.separator");
 
         // mt940
-        for (Iterator<UmsLine> i = getFlatData().iterator(); i.hasNext(); ) {
-            ret.append(i.next().toString()).append(linesep);
+        for (UmsLine umsLine : getFlatData()) {
+            ret.append(umsLine.toString()).append(linesep);
         }
         ret.append("rest: ").append(restMT940).append(linesep).append(linesep);
 
         // mt942
         ret.append("not yet booked:").append(linesep);
-        for (Iterator<UmsLine> i = getFlatDataUnbooked().iterator(); i.hasNext(); ) {
-            ret.append(i.next().toString()).append(linesep);
+        for (UmsLine umsLine : getFlatDataUnbooked()) {
+            ret.append(umsLine.toString()).append(linesep);
         }
         ret.append("rest: ").append(restMT942);
 
@@ -741,18 +728,18 @@ public class GVRKUms extends HBCIJobResultImpl {
         public String mandateId;
 
         public UmsLine() {
-            usage = new ArrayList<String>();
+            usage = new ArrayList<>();
             isSepa = false;
         }
 
-        public void addUsage(String st) {
+        void addUsage(String st) {
             if (st != null) {
                 usage.add(st);
             }
         }
 
         public String toString() {
-            StringBuffer ret = new StringBuffer();
+            StringBuilder ret = new StringBuilder();
             String linesep = System.getProperty("line.separator");
 
             ret.append(HBCIUtils.date2StringLocal(valuta)).append(" ").append(HBCIUtils.date2StringLocal(bdate)).append(" ");
@@ -808,7 +795,7 @@ public class GVRKUms extends HBCIJobResultImpl {
         /**
          * Nummer des Kontoauszuges (optional)
          */
-        public String counter;
+        String counter;
         /**
          * Saldo zu Beginn des Buchungstages
          */
@@ -834,19 +821,19 @@ public class GVRKUms extends HBCIJobResultImpl {
             lines = new ArrayList<>();
         }
 
-        public void addLine(UmsLine line) {
+        void addLine(UmsLine line) {
             lines.add(line);
         }
 
         public String toString() {
-            StringBuffer ret = new StringBuffer();
+            StringBuilder ret = new StringBuilder();
             String linesep = System.getProperty("line.separator");
 
             ret.append("Konto ").append(my.toString()).append(" - Auszugsnummer ").append(counter).append(linesep);
             ret.append("  ").append((starttype == 'F' ? "Anfangs" : "Zwischen")).append("saldo: ").append(start.toString()).append(linesep);
 
-            for (Iterator<UmsLine> i = lines.iterator(); i.hasNext(); ) {
-                ret.append("  ").append(i.next().toString()).append(linesep);
+            for (UmsLine line : lines) {
+                ret.append("  ").append(line.toString()).append(linesep);
             }
 
             ret.append("  ").append((endtype == 'F' ? "Schluss" : "Zwischen")).append("saldo: ").append(end.toString());

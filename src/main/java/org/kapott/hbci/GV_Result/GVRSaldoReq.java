@@ -55,11 +55,11 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
         return saldi;
     }
 
+    @Override
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
 
-        for (int i = 0; i < saldi.size(); i++) {
-            GVRSaldoReq.Info info = saldi.get(i);
+        for (Info info : saldi) {
             ret.append(info.toString()).append(System.getProperty("line.separator"));
         }
 
@@ -97,7 +97,7 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
         public Value used;
 
         public String toString() {
-            StringBuffer ret = new StringBuffer();
+            StringBuilder ret = new StringBuilder();
             String linesep = System.getProperty("line.separator");
 
             ret.append("Konto: ").append(konto.toString()).append(linesep);

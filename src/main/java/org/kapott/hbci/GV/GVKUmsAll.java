@@ -33,7 +33,8 @@ import java.util.HashMap;
  */
 @Slf4j
 public class GVKUmsAll extends AbstractHBCIJob {
-    public GVKUmsAll(HBCIPassportInternal passport, String name) {
+
+    GVKUmsAll(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRKUms(passport));
     }
 
@@ -90,12 +91,12 @@ public class GVKUmsAll extends AbstractHBCIJob {
         HashMap<String, String> result = msgstatus.getData();
         GVRKUms umsResult = (GVRKUms) jobResult;
 
-        String rawData = result.get(header+".booked");
+        String rawData = result.get(header + ".booked");
         if (rawData != null) {
             umsResult.appendMt940raw(new StringBuilder(Swift.decodeUmlauts(rawData)));
         }
 
-        rawData = result.get(header+".notbooked");
+        rawData = result.get(header + ".notbooked");
         if (rawData != null) {
             umsResult.appendMt942raw(new StringBuilder(Swift.decodeUmlauts(rawData)));
         }

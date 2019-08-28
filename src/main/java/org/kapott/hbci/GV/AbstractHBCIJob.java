@@ -103,8 +103,12 @@ public abstract class AbstractHBCIJob {
         llParams.put(this.name, "requested");
     }
 
-    /* gibt den segmentcode für diesen job zurück */
     public String getHBCICode() {
+        return getHBCICode(true);
+    }
+
+    /* gibt den segmentcode für diesen job zurück */
+    public String getHBCICode(boolean reduce) {
         StringBuilder ret = null;
 
         // Macht aus z.Bsp. "KUmsZeit5" -> "KUmsZeitPar5.SegHead.code"
@@ -130,7 +134,9 @@ public abstract class AbstractHBCIJob {
                 if (tempkey.toString().equals(searchString.toString())) {
                     ret = new StringBuilder(passport.getBPD().get(key));
                     ret.replace(1, 2, "K");
-                    ret.deleteCharAt(ret.length() - 1);
+                    if (reduce) {
+                        ret.deleteCharAt(ret.length() - 1);
+                    }
                     break;
                 }
             }
@@ -546,10 +552,9 @@ public abstract class AbstractHBCIJob {
         }
     }
 
-    public void setContinueOffset(int loop)
-    {
+    public void setContinueOffset(int loop) {
         final String offset = this.getContinueOffset(loop);
-        this.setLowlevelParam(this.getName() + ".offset",(offset != null) ? offset : "");
+        this.setLowlevelParam(this.getName() + ".offset", (offset != null) ? offset : "");
     }
 
     public void setLowlevelParam(String key, String value) {
@@ -658,26 +663,24 @@ public abstract class AbstractHBCIJob {
 
     /* gibt (sofern vorhanden) den offset-Wert des letzten HBCI-Rückgabecodes
        zurück */
-    private String getContinueOffset(int loop)
-    {
+    private String getContinueOffset(int loop) {
         HBCIRetVal ret = this.getW3040(loop);
         return ret != null ? ret.params[0] : null;
     }
 
     /**
      * Liefert den Rueckgabecode 3040 (fuer "Weitere Daten folgen"), insofern vorhanden.
+     *
      * @param loop die Nummer des Durchlaufs, beginnend bei 0.
      * @return der Rueckgabewert, insofern vorhanden. Sonst NULL.
      */
-    private HBCIRetVal getW3040(int loop)
-    {
+    private HBCIRetVal getW3040(int loop) {
         final int num = jobResult.getResultsSize();
 
-        for (int i=0;i<num;i++)
-        {
+        for (int i = 0; i < num; i++) {
             HBCIRetVal retval = jobResult.getRetVal(i);
 
-            if (KnownReturncode.W3040.is(retval.code) && retval.params.length!=0 && (--loop)==0)
+            if (KnownReturncode.W3040.is(retval.code) && retval.params.length != 0 && (--loop) == 0)
                 return retval;
         }
 
