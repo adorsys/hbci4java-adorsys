@@ -22,11 +22,13 @@ package org.kapott.hbci.GV;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
+import org.kapott.hbci.manager.HBCIDialog;
 import org.kapott.hbci.manager.HHDVersion;
 import org.kapott.hbci.manager.KnownReturncode;
 import org.kapott.hbci.manager.KnownTANProcess;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
+import org.kapott.hbci.status.HBCIRetVal;
 
 import java.util.HashMap;
 
@@ -118,9 +120,12 @@ public class GVTAN2Step extends AbstractHBCIJob {
             // Pruefen, ob die Bank eventuell ein 3040 gesendet hat - sie also noch weitere Daten braucht.
             // Das 3040 bezieht sich dann aber nicht auf unser HKTAN sondern auf den eigentlichen GV
             // In dem Fall muessen wir dem eigentlichen Task mitteilen, dass er erneut ausgefuehrt werden soll.
-            if (this.toInsCode(this.getHBCICode()).equals(segCode) && KnownReturncode.W3040.searchReturnValue(msgstatus.segStatus.getWarnings()) != null) {
+            HBCIRetVal w3040 = KnownReturncode.W3040.searchReturnValue(msgstatus.segStatus.getWarnings());
+            if (this.toInsCode(this.getHBCICode(false)).equals(segCode) && w3040 != null) {
                 log.debug("found status code 3040, need to repeat task " + this.scaJob.getHBCICode());
                 this.redo = this.scaJob;
+                this.redo.setNeedsTan(true);
+                this.redo.fillJobResult(msgstatus, msgstatus.findTaskSegment());
             }
 
             // Das ist das Response auf den eigentlichen GV - an den Task durchreichen

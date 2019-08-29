@@ -213,7 +213,7 @@ public final class HBCIDialog {
                 msgstatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
                 nextMsgNum();
 
-                final int segnum = this.findTaskSegment(msgstatus);
+                final int segnum = msgstatus.findTaskSegment();
                 if (segnum != 0) {
                     // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
                     for (AbstractHBCIJob task : msg.getTasks()) {
@@ -269,14 +269,15 @@ public final class HBCIDialog {
 
     private void patchMessageForSca(HBCIMessage msg) {
         AbstractHBCIJob tan2StepRequiredJob = msg.getTasks().stream()
-            .filter(hbciCode -> getPassport().tan2StepRequired(hbciCode))
+            .filter(task -> task.isNeedsTan())
             .findAny()
             .orElse(null);
 
         if (tan2StepRequiredJob != null && msg.findTask("HKTAN") == null) {
             final GVTAN2Step hktan = new GVTAN2Step(getPassport(), tan2StepRequiredJob);
             hktan.setProcess(KnownTANProcess.PROCESS2_STEP1);
-            hktan.setSegVersion(getPassport().getCurrentSecMechInfo().getSegversion()); // muessen wir explizit setzen, damit wir das HKTAN in der gleichen Version schicken, in der das HITANS kam.
+            hktan.setSegVersion(getPassport().getCurrentSecMechInfo().getSegversion()); // muessen wir explizit
+            // setzen, damit wir das HKTAN in der gleichen Version schicken, in der das HITANS kam.
 
             if (getPassport().tanMediaNeeded()) {
                 hktan.setParam("tanmedia", getPassport().getCurrentSecMechInfo().getMedium());
@@ -286,38 +287,7 @@ public final class HBCIDialog {
         }
     }
 
-    /**
-     * Sucht in den Ergebnis-Daten des Kernels nach der ersten Segment-Nummer mit einem Task-Response.
-     *
-     * @param msgstatus die Ergebnis-Daten des Kernels.
-     * @return die Nummer des Segments oder -1, wenn keines gefunden wurde.
-     */
-    private int findTaskSegment(HBCIMsgStatus msgstatus) {
-        HashMap<String, String> result = msgstatus.getData();
 
-        // searching for first segment number that belongs to the custom_msg
-        // we look for entries like {"1","CustomMsg.GV*"} and so on (this data is inserted from the HBCIKernelImpl
-        // .rawDoIt() method),
-        // until we find the first segment containing a task
-        int segnum = 1;
-        while (segnum < 1000) // Wir brauchen ja nicht endlos suchen
-        {
-            final String path = result.get(Integer.toString(segnum));
-
-            // Wir sind am Ende der Segmente angekommen
-            if (path == null)
-                return -1;
-
-            // Wir haben ein GV-Antwort-Segment gefunden
-            if (path.startsWith("CustomMsg.GV"))
-                return segnum;
-
-            // naechstes Segment
-            segnum++;
-        }
-
-        return -1;
-    }
 
     /**
      * Processes the DialogEnd stage of an HBCIDialog (mid-level API).

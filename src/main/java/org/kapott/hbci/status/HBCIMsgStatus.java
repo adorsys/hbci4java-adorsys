@@ -251,4 +251,36 @@ public final class HBCIMsgStatus {
 
         return false;
     }
+
+    /**
+     * Sucht in den Ergebnis-Daten des Kernels nach der ersten Segment-Nummer mit einem Task-Response.
+     *
+     * @return die Nummer des Segments oder -1, wenn keines gefunden wurde.
+     */
+    public int findTaskSegment() {
+        HashMap<String, String> result = getData();
+
+        // searching for first segment number that belongs to the custom_msg
+        // we look for entries like {"1","CustomMsg.GV*"} and so on (this data is inserted from the HBCIKernelImpl
+        // .rawDoIt() method),
+        // until we find the first segment containing a task
+        int segnum = 1;
+        while (segnum < 1000) // Wir brauchen ja nicht endlos suchen
+        {
+            final String path = result.get(Integer.toString(segnum));
+
+            // Wir sind am Ende der Segmente angekommen
+            if (path == null)
+                return -1;
+
+            // Wir haben ein GV-Antwort-Segment gefunden
+            if (path.startsWith("CustomMsg.GV"))
+                return segnum;
+
+            // naechstes Segment
+            segnum++;
+        }
+
+        return -1;
+    }
 }

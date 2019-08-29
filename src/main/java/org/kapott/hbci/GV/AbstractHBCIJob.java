@@ -55,7 +55,7 @@ public abstract class AbstractHBCIJob {
     private String name;              /* Job-Name mit Versionsnummer */
     private String jobName;           /* Job-Name ohne Versionsnummer */
     private int segVersion;        /* Segment-Version */
-    private HashMap<String, String> llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
+    private Map<String, String> llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
     private int idx;                  /* idx gibt an, der wievielte task innerhalb der aktuellen message
                                          dieser GV ist */
     private boolean executed;
@@ -81,6 +81,19 @@ public abstract class AbstractHBCIJob {
     private int loopCount = 0;
     private boolean haveTan = false;
     private boolean skip = false;
+    private boolean needsTan = false;
+
+    public void setLlParams(Map<String, String> llParams) {
+        this.llParams = llParams;
+    }
+
+    public void setNeedsTan(boolean needsTan) {
+        this.needsTan = needsTan;
+    }
+
+    public boolean isNeedsTan() {
+        return needsTan;
+    }
 
     public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
         this.passport = passport;
@@ -681,6 +694,10 @@ public abstract class AbstractHBCIJob {
         }
 
         return null;
+    }
+
+    public void addLoop() {
+        this.loopCount++;
     }
 
     /* füllt das Objekt mit den Rückgabedaten. Dazu wird zuerst eine Liste aller
