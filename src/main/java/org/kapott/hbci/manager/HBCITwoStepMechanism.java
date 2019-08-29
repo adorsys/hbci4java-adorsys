@@ -19,6 +19,7 @@ public class HBCITwoStepMechanism {
     private String needchallengevalue;
     private String zkamethod_name;
     private String zkamethod_version;
+    private String medium;
 
     public void setValue(String key, String value) {
         switch (key) {

@@ -23,11 +23,12 @@ package org.kapott.hbci.GV;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.manager.HHDVersion;
+import org.kapott.hbci.manager.KnownReturncode;
+import org.kapott.hbci.manager.KnownTANProcess;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
-import java.util.Optional;
 
 /**
  * @author stefan.palme
@@ -35,14 +36,13 @@ import java.util.Optional;
 @Slf4j
 public class GVTAN2Step extends AbstractHBCIJob {
 
-    private boolean executed;
-    private boolean secondStep;
     private AbstractHBCIJob scaJob;
+    private AbstractHBCIJob redo;
+    private KnownTANProcess process = null;
 
-    public GVTAN2Step(HBCIPassportInternal passport, AbstractHBCIJob scaJob, boolean secondStep) {
+    public GVTAN2Step(HBCIPassportInternal passport, AbstractHBCIJob scaJob) {
         super(passport, getLowlevelName(), new GVRSaldoReq(passport));
         this.scaJob = scaJob;
-        this.secondStep = secondStep;
 
         addConstraint("process", "process", null);
         addConstraint("ordersegcode", "ordersegcode", "");
@@ -86,6 +86,16 @@ public class GVTAN2Step extends AbstractHBCIJob {
         return "TAN2Step";
     }
 
+    /**
+     * Speichert den Prozess-Schritt des HKTAN.
+     *
+     * @param p der Prozess-Schritt.
+     */
+    public void setProcess(KnownTANProcess p) {
+        this.process = p;
+        this.setParam("process", p.getCode());
+    }
+
     @Override
     public void setParam(String paramName, String value) {
         if (paramName.equals("orderhash")) {
@@ -96,49 +106,56 @@ public class GVTAN2Step extends AbstractHBCIJob {
 
     @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        executed = true;
-
         HashMap<String, String> result = msgstatus.getData();
-        String segcode = result.get(header + ".SegHead.code");
-        log.debug("found HKTAN response with segcode " + segcode);
+        String segCode = result.get(header + ".SegHead.code");
+        log.debug("found HKTAN response with segcode " + segCode);
 
-        Optional<String> resultHbciCode = Optional.ofNullable(scaJob)
-            .map(AbstractHBCIJob::getHBCICode)
-            .map(hbciCode -> new StringBuffer(hbciCode).replace(1, 2, "I").toString())
-            .filter(hbciCode -> hbciCode.equals(segcode));
+        ///////////////////////////////////////////////////////////////////////
+        // Die folgenden Sonderbehandlungen sind nur bei Prozess-Variante 2 in Schritt 2 noetig,
+        // weil wir dort ein Response auf einen GV erhalten, wir selbst aber gar nicht der GV sind sondern das HKTAN
+        // Step2
+        if (this.process == KnownTANProcess.PROCESS2_STEP2 && this.scaJob != null) {
+            // Pruefen, ob die Bank eventuell ein 3040 gesendet hat - sie also noch weitere Daten braucht.
+            // Das 3040 bezieht sich dann aber nicht auf unser HKTAN sondern auf den eigentlichen GV
+            // In dem Fall muessen wir dem eigentlichen Task mitteilen, dass er erneut ausgefuehrt werden soll.
+            if (this.toInsCode(this.getHBCICode()).equals(segCode) && KnownReturncode.W3040.searchReturnValue(msgstatus.segStatus.getWarnings()) != null) {
+                log.debug("found status code 3040, need to repeat task " + this.scaJob.getHBCICode());
+                this.redo = this.scaJob;
+            }
 
-        if (resultHbciCode.isPresent()) {
-            // das ist für PV#2, wenn nach dem nachträglichen versenden der TAN das
-            // antwortsegment des jobs aus der vorherigen Nachricht zurückommt
-            log.debug("this is a response segment for the original task - storing results in the original job");
-            scaJob.extractResults(msgstatus, header, idx);
-        } else {
-            log.debug("this is a \"real\" HKTAN response - analyzing HITAN data");
+            // Das ist das Response auf den eigentlichen GV - an den Task durchreichen
+            // Muessen wir extra pruefen, weil das hier auch das HITAN sein koennte. Das schauen wir aber nicht an
+            if (this.toInsCode(this.scaJob.getHBCICode()).equals(segCode)) {
+                log.debug("this is a response segment for the original task - storing results in the original job");
+                this.scaJob.extractResults(msgstatus, header, idx);
+            }
 
-            String orderref = result.get(header + ".orderref");
-
-            // willuhn 2011-05-27 Challenge HHDuc aus dem Reponse holen und im Passport zwischenspeichern
-            String hhdUc = result.get(header + ".challenge_hhd_uc");
-            String challenge = result.get(header + ".challenge");
-
-            HHDVersion hhd = HHDVersion.find(passport.getCurrentSecMechInfo());
-            passport.getCallback().tanChallengeCallback(orderref, challenge, hhdUc, hhd.getType());
+            // Wir haben hier nichts weiter zu tun
+            return;
         }
+
+        String orderref = result.get(header + ".orderref");
+
+        // willuhn 2011-05-27 Challenge HHDuc aus dem Reponse holen und im Passport zwischenspeichern
+        String hhdUc = result.get(header + ".challenge_hhd_uc");
+        String challenge = result.get(header + ".challenge");
+
+        HHDVersion hhd = HHDVersion.find(passport.getCurrentSecMechInfo());
+        passport.getCallback().tanChallengeCallback(orderref, challenge, hhdUc, hhd.getType());
+    }
+
+    /**
+     * Liefert zu einem HBCI-Code vom Client den zugehoerigen HBCI-Code des Instituts.
+     *
+     * @param hbciCode der HBCI-Code des Clients.
+     * @return der HBCI-Code des Instituts.
+     */
+    private String toInsCode(String hbciCode) {
+        return new StringBuffer(hbciCode).replace(1, 2, "I").toString();
     }
 
     @Override
-    public boolean isFinished(int loop) {
-        return true;
-    }
-
-    @Override
-    public boolean needsContinue(int loop) {
-        if (secondStep && executed) {
-            return false;
-        }
-
-        return Optional.ofNullable(scaJob)
-            .map(hbciJob -> hbciJob.needsContinue(loop))
-            .orElse(!executed);
+    public AbstractHBCIJob redo() {
+        return this.redo;
     }
 }

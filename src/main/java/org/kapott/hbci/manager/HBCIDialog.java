@@ -22,6 +22,7 @@ package org.kapott.hbci.manager;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.AbstractHBCIJob;
+import org.kapott.hbci.GV.GVTAN2Step;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.passport.PinTanPassport;
@@ -55,13 +56,7 @@ public final class HBCIDialog {
 
     private String dialogid;  /* The dialogID for this dialog (unique for each dialog) */
     private long msgnum;    /* An automatically managed message counter. */
-    private List<List<AbstractHBCIJob>> messages = new ArrayList<>();    /* this array contains all messages to be
-    sent (excluding
-                                             dialogInit and dialogEnd); each element of the arrayList
-                                             is again an ArrayList, where each element is one
-                                             task (GV) to be sent with this specific message */
-    // liste aller GVs in der aktuellen msg; key ist der hbciCode des jobs, value ist die anzahl dieses jobs in der
-    // aktuellen msg
+    private HBCIMessageQueue queue;
     private HashMap<String, Integer> listOfGVs = new HashMap<>();
     private PinTanPassport passport;
     private HBCIKernel kernel;
@@ -75,7 +70,7 @@ public final class HBCIDialog {
         this.msgnum = msgnum;
         this.passport = passport;
         this.kernel = new HBCIKernel(passport);
-        this.messages.add(new ArrayList<>());
+        this.queue = new HBCIMessageQueue();
 
         if (dialogid == null) {
             log.debug("creating new dialog");
@@ -168,117 +163,160 @@ public final class HBCIDialog {
 
         ArrayList<HBCIMsgStatus> messageStatusList = new ArrayList<>();
 
-        messages.forEach(tasks -> {
-            // loop wird benutzt, um zu zählen, wie oft bereits "nachgehakt" wurde,
-            // falls ein bestimmter job nicht mit einem einzigen nachrichtenaustausch
-            // abgearbeitet werden konnte (z.b. abholen kontoauszüge)
-            int loop = 0;
+        while (true) {
+            HBCIMessage msg = this.queue.poll();
+
+            if (msg == null) {
+                break;
+            }
+            patchMessageForSca(msg);
+
             HBCIMsgStatus msgstatus = new HBCIMsgStatus();
 
-            // diese schleife loopt solange, bis alle jobs der aktuellen nachricht
-            // tatsächlich abgearbeitet wurden (also inclusive "nachhaken")
-            while (true) {
-                boolean addMsgStatus = true;
+            boolean addMsgStatus = true;
 
-                try {
-                    int taskNum = 0;
+            try {
+                int taskNum = 0;
 
-                    Message message = MessageFactory.createMessage("CustomMsg", passport.getSyntaxDocument());
+                Message message = MessageFactory.createMessage("CustomMsg", passport.getSyntaxDocument());
 
-                    // durch alle jobs loopen, die eigentlich in der aktuellen
-                    // nachricht abgearbeitet werden müssten
-                    for (AbstractHBCIJob task : tasks) {
-                        // wenn der Task entweder noch gar nicht ausgeführt wurde
-                        // oder in der letzten Antwortnachricht ein entsprechendes
-                        // Offset angegeben wurde
-                        if (task.needsContinue(loop)) {
-                            task.setContinueOffset(loop);
+                // durch alle jobs loopen, die eigentlich in der aktuellen
+                // nachricht abgearbeitet werden müssten
+                for (AbstractHBCIJob task : msg.getTasks()) {
+                    if (task.skipped())
+                        continue;
 
-                            log.debug("adding task " + task.getName());
-                            passport.getCallback().status(HBCICallback.STATUS_SEND_TASK, task);
-                            task.setIdx(taskNum);
+                    // Uebernimmt den aktuellen loop-Wert in die Lowlevel-Parameter
+                    task.applyOffset();
+                    task.setIdx(taskNum);
 
-                            // Daten für den Task festlegen
-                            String header = HBCIUtils.withCounter("GV", taskNum);
-                            task.getLowlevelParams().forEach((key, value) ->
-                                message.rawSet(header + "." + key, value));
+                    // Daten für den Task festlegen
+                    String header = HBCIUtils.withCounter("GV", taskNum);
+                    task.getLowlevelParams().forEach((key, value) ->
+                        message.rawSet(header + "." + key, value));
 
-                            taskNum++;
+                    taskNum++;
+                }
+
+                // Das passiert immer dann, wenn wir in der Message nur ein HKTAN#2 aus Prozess-Variante 2 hatten.
+                // Dieses aufgrund einer 3076-SCA-Ausnahme aber nicht benoetigt wird.
+                if (taskNum == 0) {
+                    addMsgStatus = false;
+                    break;
+                }
+
+                message.rawSet("MsgHead.dialogid", dialogid);
+                message.rawSet("MsgHead.msgnum", Long.toString(msgnum));
+                message.rawSet("MsgTail.msgnum", Long.toString(msgnum));
+
+                // nachrichtenaustausch durchführen
+                msgstatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
+                nextMsgNum();
+
+                final int segnum = this.findTaskSegment(msgstatus);
+                if (segnum != 0) {
+                    // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
+                    for (AbstractHBCIJob task : msg.getTasks()) {
+                        if (task.skipped())
+                            continue;
+
+                        try {
+                            task.fillJobResult(msgstatus, segnum);
+                        } catch (Exception e) {
+                            msgstatus.addException(e);
                         }
                     }
+                }
 
-                    // wenn keine jobs für die aktuelle message existieren
-                    if (taskNum == 0) {
-                        log.debug("loop " + (loop + 1) + " aborted, because there are no more tasks to be executed");
-                        addMsgStatus = false;
-                        break;
-                    }
+                if (msgstatus.hasExceptions()) {
+                    log.error("aborting current loop because of errors");
+                    break;
+                }
 
-                    message.rawSet("MsgHead.dialogid", dialogid);
-                    message.rawSet("MsgHead.msgnum", Long.toString(msgnum));
-                    message.rawSet("MsgTail.msgnum", Long.toString(msgnum));
-                    nextMsgNum();
+                ////////////////////////////////////////////////////////////////////
+                // Jobs erneut ausfuehren, falls noetig.
+                HBCIMessage newMsg = null;
+                for (AbstractHBCIJob task : msg.getTasks()) {
+                    if (task.skipped())
+                        continue;
 
-                    // nachrichtenaustausch durchführen
-                    msgstatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
-                    int offset = evaluteOffset(msgstatus);
-                    if (offset != 0) {
-                        fillJobResults(tasks, offset, loop, msgstatus);
-                    }
+                    AbstractHBCIJob redo = task.redo();
+                    if (redo != null) {
+                        // Nachricht bei Bedarf erstellen und an die Queue haengen
+                        if (newMsg == null) {
+                            newMsg = new HBCIMessage();
+                            queue.append(newMsg);
+                        }
 
-                    if (msgstatus.hasExceptions()) {
-                        log.error("aborting current loop because of errors");
-                        break;
-                    }
-
-                    loop++;
-                } catch (Exception e) {
-                    msgstatus.addException(e);
-                } finally {
-                    if (addMsgStatus) {
-                        messageStatusList.add(msgstatus);
+                        // Task hinzufuegen
+                        log.debug("repeat task " + redo.getName());
+                        newMsg.append(redo);
                     }
                 }
+                //
+                ////////////////////////////////////////////////////////////////////
+            } catch (Exception e) {
+                msgstatus.addException(e);
+            } finally {
+                if (addMsgStatus) {
+                    messageStatusList.add(msgstatus);
+                }
             }
-        });
+        }
 
         return messageStatusList;
     }
 
-    private int evaluteOffset(HBCIMsgStatus msgstatus) {
-        // searching for first segment number that belongs to the custom_msg
-        // we look for entries like {"1","CustomMsg.MsgHead"} and so
-        // on (this data is inserted from the HBCIKernel.rawDoIt() method),
-        // until we find the first segment containing a task
-        int offset;   // this specifies, how many segments precede the first task segment
-        for (offset = 1; true; offset++) {
-            String path = msgstatus.getData().get(Integer.toString(offset));
-            if (path == null || path.startsWith("CustomMsg.GV")) {
-                if (path == null) { // wenn kein entsprechendes Segment gefunden, dann offset auf 0 setzen
-                    offset = 0;
-                }
-                break;
-            }
-        }
+    private void patchMessageForSca(HBCIMessage msg) {
+        AbstractHBCIJob tan2StepRequiredJob = msg.getTasks().stream()
+            .filter(hbciCode -> getPassport().tan2StepRequired(hbciCode))
+            .findAny()
+            .orElse(null);
 
-        return offset;
+        if (tan2StepRequiredJob != null && msg.findTask("HKTAN") == null) {
+            final GVTAN2Step hktan = new GVTAN2Step(getPassport(), tan2StepRequiredJob);
+            hktan.setProcess(KnownTANProcess.PROCESS2_STEP1);
+            hktan.setSegVersion(getPassport().getCurrentSecMechInfo().getSegversion()); // muessen wir explizit setzen, damit wir das HKTAN in der gleichen Version schicken, in der das HITANS kam.
+
+            if (getPassport().tanMediaNeeded()) {
+                hktan.setParam("tanmedia", getPassport().getCurrentSecMechInfo().getMedium());
+            }
+
+            msg.append(hktan);
+        }
     }
 
-    private void fillJobResults(List<AbstractHBCIJob> tasks, int offset, int loop, HBCIMsgStatus msgstatus) {
-        // für jeden Task die entsprechenden Rückgabedaten-Klassen füllen
-        // in fillOutStore wird auch "executed" fuer den jeweiligen Task auf true gesetzt.
-        for (AbstractHBCIJob task : tasks) {
-            if (task.isFinished(loop)) {
-                // nur wenn der auftrag auch tatsaechlich gesendet werden musste
-                try {
-                    task.fillJobResult(msgstatus, offset);
-                    passport.getCallback().status(HBCICallback.STATUS_SEND_TASK_DONE, task);
-                } catch (Exception e) {
-                    msgstatus.addException(e);
-                }
-            }
+    /**
+     * Sucht in den Ergebnis-Daten des Kernels nach der ersten Segment-Nummer mit einem Task-Response.
+     *
+     * @param msgstatus die Ergebnis-Daten des Kernels.
+     * @return die Nummer des Segments oder -1, wenn keines gefunden wurde.
+     */
+    private int findTaskSegment(HBCIMsgStatus msgstatus) {
+        HashMap<String, String> result = msgstatus.getData();
+
+        // searching for first segment number that belongs to the custom_msg
+        // we look for entries like {"1","CustomMsg.GV*"} and so on (this data is inserted from the HBCIKernelImpl
+        // .rawDoIt() method),
+        // until we find the first segment containing a task
+        int segnum = 1;
+        while (segnum < 1000) // Wir brauchen ja nicht endlos suchen
+        {
+            final String path = result.get(Integer.toString(segnum));
+
+            // Wir sind am Ende der Segmente angekommen
+            if (path == null)
+                return -1;
+
+            // Wir haben ein GV-Antwort-Segment gefunden
+            if (path.startsWith("CustomMsg.GV"))
+                return segnum;
+
+            // naechstes Segment
+            segnum++;
         }
 
+        return -1;
     }
 
     /**
@@ -383,15 +421,11 @@ public final class HBCIDialog {
         return total;
     }
 
-    public void addTasks(List<AbstractHBCIJob> jobs) {
-        jobs.forEach(this::addTask);
-    }
-
-    public List<AbstractHBCIJob> addTask(AbstractHBCIJob job) {
+    public HBCIMessage addTask(AbstractHBCIJob job) {
         return this.addTask(job, true);
     }
 
-    public List<AbstractHBCIJob> addTask(AbstractHBCIJob job, boolean verify) {
+    public HBCIMessage addTask(AbstractHBCIJob job, boolean verify) {
         try {
             log.info(HBCIUtils.getLocMsg("EXCMSG_ADDJOB", job.getName()));
             if (verify) {
@@ -439,10 +473,9 @@ public final class HBCIDialog {
             }
 
             listOfGVs.put(hbciCode, gv_counter);
-
-            List<AbstractHBCIJob> messageJobs = messages.get(messages.size() - 1);
-            messageJobs.add(job);
-            return messageJobs;
+            HBCIMessage last = queue.getLast();
+            last.append(job);
+            return last;
         } catch (Exception e) {
             String msg = HBCIUtils.getLocMsg("EXCMSG_CANTADDJOB", job.getName());
             log.error("task " + job.getName() + " will not be executed in current dialog");
@@ -452,12 +485,8 @@ public final class HBCIDialog {
 
     private void newMsg() {
         log.debug("starting new message");
-        messages.add(new ArrayList<>());
+        this.queue.append(new HBCIMessage());
         listOfGVs.clear();
-    }
-
-    public List<List<AbstractHBCIJob>> getMessages() {
-        return this.messages;
     }
 
     public PinTanPassport getPassport() {

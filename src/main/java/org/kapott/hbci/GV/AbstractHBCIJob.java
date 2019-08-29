@@ -78,6 +78,9 @@ public abstract class AbstractHBCIJob {
                                          default-Wert=null,
                                          so *muss* die Anwendung einen Wert spezifizieren */
     private HashSet<String> indexedConstraints;
+    private int loopCount = 0;
+    private boolean haveTan = false;
+    private boolean skip = false;
 
     public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
         this.passport = passport;
@@ -552,8 +555,8 @@ public abstract class AbstractHBCIJob {
         }
     }
 
-    public void setContinueOffset(int loop) {
-        final String offset = this.getContinueOffset(loop);
+    public void applyOffset() {
+        final String offset = this.getContinueOffset();
         this.setLowlevelParam(this.getName() + ".offset", (offset != null) ? offset : "");
     }
 
@@ -650,21 +653,14 @@ public abstract class AbstractHBCIJob {
         });
     }
 
-    /* stellt fest, ob für diesen Task ein neues Auftragssegment generiert werden muss.
-       Das ist in zwei Fällen der Fall: der Task wurde noch nie ausgeführt; oder der Task
-       wurde bereits ausgeführt, hat aber eine "offset"-Meldung zurückgegeben */
-    public boolean needsContinue(int loop) {
-        // Wurde noch nie ausgefuehrt
-        if (!this.executed)
-            return true;
-
-        return this.getContinueOffset(loop) != null;
+    public AbstractHBCIJob redo() {
+        return (this.getContinueOffset() != null) ? this : null;
     }
 
     /* gibt (sofern vorhanden) den offset-Wert des letzten HBCI-Rückgabecodes
        zurück */
-    private String getContinueOffset(int loop) {
-        HBCIRetVal ret = this.getW3040(loop);
+    private String getContinueOffset() {
+        HBCIRetVal ret = this.getW3040(this.loopCount);
         return ret != null ? ret.params[0] : null;
     }
 
@@ -693,7 +689,12 @@ public abstract class AbstractHBCIJob {
        die GV-spezifischen Daten im outStore abgelegt */
     public void fillJobResult(HBCIMsgStatus status, int offset) {
         try {
-            executed = true;
+            this.executed = true;
+            this.haveTan = false;
+            this.skip = false;
+            this.loopCount++;
+            HashMap<String, String> result = status.getData();
+
             // nachsehen, welche antwortsegmente ueberhaupt
             // zu diesem task gehoeren
 
@@ -701,8 +702,10 @@ public abstract class AbstractHBCIJob {
             // antwort-segmente benötigt)
             HashMap<Integer, String> keyHeaders = new HashMap<>();
             status.getData().keySet().forEach(key -> {
-                if (key.startsWith("GVRes") && key.endsWith(".SegHead.ref")) {
-                    String segref = status.getData().get(key);
+                if (key.startsWith("GVRes") &&
+                    key.endsWith(".SegHead.ref")) {
+
+                    String segref = result.get(key);
                     if ((Integer.parseInt(segref)) - offset == idx) {
                         // nummer des antwortsegments ermitteln
                         int resnum = 0;
@@ -711,13 +714,13 @@ public abstract class AbstractHBCIJob {
                         }
 
                         keyHeaders.put(
-                            resnum,
+                            new Integer(resnum),
                             key.substring(0, key.length() - (".SegHead.ref").length()));
                     }
                 }
             });
 
-            saveBasicValues(status.getData(), idx + offset);
+            saveBasicValues(result, idx + offset);
             saveReturnValues(status, idx + offset);
 
             // segment-header-namen der antwortsegmente in der reihenfolge des
@@ -1011,7 +1014,12 @@ public abstract class AbstractHBCIJob {
         return null;
     }
 
-    public boolean isFinished(int loop) {
-        return needsContinue(loop);
+    /**
+     * Prueft, ob der Auftrag uebersprungen werden soll.
+     * @return true, wenn der Auftrag uebersprungen werden soll.
+     */
+    public boolean skipped()
+    {
+        return this.skip;
     }
 }
