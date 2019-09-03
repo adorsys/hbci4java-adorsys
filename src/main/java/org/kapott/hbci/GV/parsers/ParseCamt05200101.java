@@ -140,7 +140,7 @@ public class ParseCamt05200101 extends AbstractCamtParser {
         if (banks != null) {
             BranchAndFinancialInstitutionIdentification3 bank = haben ? banks.getDbtrAgt() : banks.getCdtrAgt();
             FinancialInstitutionIdentification5Choice bic = bank != null ? bank.getFinInstnId() : null;
-            line.other.bic = trim(bank != null ? bic.getBIC() : null);
+            line.other.bic = trim(bic != null ? bic.getBIC() : null);
         }
         //
         ////////////////////////////////////////////////////////////////////////
