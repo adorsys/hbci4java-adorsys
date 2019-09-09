@@ -53,7 +53,7 @@ public class GVTAN2Step extends AbstractHBCIJob {
         addConstraint("listidx", "listidx", "");
         addConstraint("notlasttan", "notlasttan", "N");
         addConstraint("info", "info", "");
-
+        addConstraint("tanmedia", "tanmedia", "");
         addConstraint("storno", "storno", "");
         addConstraint("challengeklass", "challengeklass", "");
         addConstraint("ChallengeKlassParam1", "ChallengeKlassParams.param1", "");
@@ -65,10 +65,6 @@ public class GVTAN2Step extends AbstractHBCIJob {
         addConstraint("ChallengeKlassParam7", "ChallengeKlassParams.param7", "");
         addConstraint("ChallengeKlassParam8", "ChallengeKlassParams.param8", "");
         addConstraint("ChallengeKlassParam9", "ChallengeKlassParams.param9", "");
-
-        addConstraint("tanmedia", "tanmedia", "");
-
-        addConstraint("ordersegcode", "ordersegcode", "");
 
         addConstraint("orderaccount.bic", "OrderAccount.bic", null);
         addConstraint("orderaccount.iban", "OrderAccount.iban", null);
