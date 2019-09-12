@@ -23,7 +23,6 @@ import org.kapott.hbci.exceptions.ProcessException;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MessageFactory;
-import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
 import org.kapott.hbci.status.HBCIExecStatus;
@@ -95,7 +94,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID, null);
             log.info("syncing signature id");
 
-            passport.setSigId(new Long("9999999999999999"));
+            passport.setSigId(9999999999999999L);
 
             msgStatus = doDialogInitSync("Synch", "2");
             if (!msgStatus.isOK())
@@ -104,8 +103,9 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
             HashMap<String, String> syncResult = msgStatus.getData();
 
             updateUPD(syncResult);
-            passport.setSigId(new Long(syncResult.get("SyncRes.sigid") != null ? syncResult.get("SyncRes.sigid") : "1"
-            ));
+            passport.setSigId(syncResult.get("SyncRes.sigid") != null
+                ? Long.valueOf(syncResult.get("SyncRes.sigid"))
+                : 1L);
             passport.incSigId();
 
             passport.getCallback().status(HBCICallback.STATUS_INIT_SIGID_DONE, new Object[]{msgStatus,
@@ -122,7 +122,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
         }
     }
 
-    void updateUPD(Map<String, String> result) {
+    private void updateUPD(Map<String, String> result) {
         log.debug("extracting UPD from results");
 
         Map<String, String> newUpd = new HashMap<>();
@@ -166,36 +166,21 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
     }
 
     private HBCIMsgStatus doDialogInitSync(String messageName, String syncMode) {
-        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport);
+        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport, true, "HKIDN");
         return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
     }
 
-    void updateUserData() {
+    private void updateUserData() {
         if (passport.getSysStatus().equals("1")) {
             if (passport.getSysId().equals("0"))
                 fetchSysId();
             if (passport.getSigId() == -1)
                 fetchSigId();
         }
-//
-//        Map<String, String> upd = passport.getUPD();
-//        Map<String, String> bpd = passport.getBPD();
-//        String hbciVersionOfUPD = upd != null ? upd.get("_hbciversion") : null;
-//
-//        // BPD und UPD exlizit anfordern
-//        if (bpd == null || upd == null || hbciVersionOfUPD == null || !hbciVersionOfUPD.equals(passport
-//        .getHBCIVersion())) {
-//            fetchUPD();
-//        }
     }
 
     @Override
     public boolean isAnonymous() {
         return false;
-    }
-
-    @Override
-    public HBCIMsgStatus dialogInit() {
-        throw new UnsupportedOperationException();
     }
 }

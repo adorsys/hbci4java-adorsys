@@ -205,9 +205,4 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
     public boolean isAnonymous() {
         return true;
     }
-
-    @Override
-    public HBCIMsgStatus dialogInit() {
-        throw new UnsupportedOperationException();
-    }
 }
