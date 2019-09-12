@@ -75,7 +75,7 @@ public final class HBCIKernel {
         @param cryptit A boolean value specifying, if the message to be sent should be encrypted.
         @return A Properties object that contains a path-value-pair for each dataelement of
                 the received message. */
-    HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit) {
+    public HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit) {
         HBCIMsgStatus msgStatus = new HBCIMsgStatus();
 
         try {

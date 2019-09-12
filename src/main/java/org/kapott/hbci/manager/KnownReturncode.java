@@ -119,7 +119,7 @@ public enum KnownReturncode {
      * @return der gesuchte Rueckmeldecode oder NULL, wenn er nicht existiert.
      */
     public HBCIRetVal searchReturnValue(List<HBCIRetVal> rets) {
-        if (rets == null || rets.size() == 0)
+        if (rets == null || rets.isEmpty())
             return null;
 
         return rets.stream().filter(hbciRetVal -> is(hbciRetVal.code))

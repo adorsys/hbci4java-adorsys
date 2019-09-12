@@ -22,7 +22,6 @@ package org.kapott.hbci.GV;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
-import org.kapott.hbci.manager.HBCIDialog;
 import org.kapott.hbci.manager.HHDVersion;
 import org.kapott.hbci.manager.KnownReturncode;
 import org.kapott.hbci.manager.KnownTANProcess;

@@ -9,7 +9,7 @@ import org.kapott.hbci.GV_Result.HBCIJobResult;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.callback.HBCICallbackIOStreams;
 import org.kapott.hbci.manager.BankInfo;
-import org.kapott.hbci.manager.HBCIDialog;
+import org.kapott.hbci.dialog.HBCIJobsDialog;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassport;
 import org.kapott.hbci.passport.PinTanPassport;
@@ -156,10 +156,10 @@ public abstract class AbstractTestGV {
         AbstractHBCIJob job = newJob(e.getJobname(), this.passport);
         e.configure(job, this.passport, this.params);
 
-        HBCIDialog dialog = new HBCIDialog(passport);
+        HBCIJobsDialog dialog = new HBCIJobsDialog(passport);
         dialog.addTask(job);
 
-        e.testStatus(dialog.execute(true));
+        e.testStatus(dialog.execute());
         e.testResult(job.getJobResult());
     }
 

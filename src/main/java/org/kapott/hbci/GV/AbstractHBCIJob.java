@@ -58,7 +58,6 @@ public abstract class AbstractHBCIJob {
     private Map<String, String> llParams;       /* Eingabeparameter für diesen GV (Saldo.KTV.number) */
     private int idx;                  /* idx gibt an, der wievielte task innerhalb der aktuellen message
                                          dieser GV ist */
-    private boolean executed;
     private int contentCounter;       /* Zähler, wie viele Rückgabedaten bereits in outStore eingetragen wurden
                                            (entspricht der anzahl der antwort-segmente!)*/
     private HashMap<String, String[][]> constraints;    /* Festlegungen, welche Parameter eine Anwendung setzen muss,
@@ -79,7 +78,6 @@ public abstract class AbstractHBCIJob {
                                          so *muss* die Anwendung einen Wert spezifizieren */
     private HashSet<String> indexedConstraints;
     private int loopCount = 0;
-    private boolean haveTan = false;
     private boolean skip = false;
     private boolean needsTan = false;
 
@@ -87,7 +85,7 @@ public abstract class AbstractHBCIJob {
         this.llParams = llParams;
     }
 
-    public void setNeedsTan(boolean needsTan) {
+    void setNeedsTan(boolean needsTan) {
         this.needsTan = needsTan;
     }
 
@@ -107,7 +105,6 @@ public abstract class AbstractHBCIJob {
         this.contentCounter = 0;
         this.constraints = new HashMap<>();
         this.indexedConstraints = new HashSet<>();
-        this.executed = false;
 
         /* offensichtlich soll ein GV mit dem Namen name in die nachricht
            aufgenommen werden. da GV durch segmente definiert sind, und einige
@@ -706,8 +703,6 @@ public abstract class AbstractHBCIJob {
        die GV-spezifischen Daten im outStore abgelegt */
     public void fillJobResult(HBCIMsgStatus status, int offset) {
         try {
-            this.executed = true;
-            this.haveTan = false;
             this.skip = false;
             this.loopCount++;
             HashMap<String, String> result = status.getData();

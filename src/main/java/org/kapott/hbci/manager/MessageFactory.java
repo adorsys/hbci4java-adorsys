@@ -46,7 +46,8 @@ public final class MessageFactory {
 
     private static final HBCIProduct HBCI_PRODUCT = new HBCIProduct("36792786FA12F235F04647689", "3.2");
 
-    static Message createDialogInit(String dialogName, String scaOrderSegCode, String syncMode, HBCIPassportInternal passport) {
+    public static Message createDialogInit(String dialogName, String syncMode,
+                                           HBCIPassportInternal passport) {
         Message message = createMessage(dialogName, passport.getSyntaxDocument());
         message.rawSet("MsgHead.dialogid", "0");
         message.rawSet("MsgHead.msgnum", "1");
@@ -66,7 +67,7 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
 
         message.rawSet("TAN2Step6.process", "4");
-        message.rawSet("TAN2Step6.ordersegcode", scaOrderSegCode);
+        message.rawSet("TAN2Step6.ordersegcode", "HKIDN");
 
         if (syncMode != null) {
             message.rawSet("Sync.mode", syncMode);
@@ -74,7 +75,7 @@ public final class MessageFactory {
         return message;
     }
 
-    static Message createAnonymousDialogInit(HBCIPassportInternal passport) {
+    public static Message createAnonymousDialogInit(HBCIPassportInternal passport) {
         Message message = createMessage("DialogInitAnon", passport.getSyntaxDocument());
         message.rawSet("MsgHead.dialogid", "0");
         message.rawSet("MsgHead.msgnum", "1");
@@ -100,8 +101,10 @@ public final class MessageFactory {
         return message;
     }
 
-    static Message createDialogEnd(HBCIPassportInternal passport, String dialogid, long msgNumber) {
-        Message message = MessageFactory.createMessage("DialogEnd", passport.getSyntaxDocument());
+    public static Message createDialogEnd(boolean anonymous, HBCIPassportInternal passport, String dialogid,
+                                          long msgNumber) {
+        Message message = MessageFactory.createMessage(anonymous ? "DialogEndAnon" : "DialogEnd",
+            passport.getSyntaxDocument());
         message.rawSet("DialogEndS.dialogid", dialogid);
         message.rawSet("MsgHead.dialogid", dialogid);
         message.rawSet("MsgHead.msgnum", Long.toString(msgNumber));

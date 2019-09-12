@@ -33,9 +33,9 @@ import java.util.Map;
 @Slf4j
 public final class Message extends SyntaxElement {
 
-    public final static boolean CHECK_SEQ = true;
-    public final static boolean DONT_CHECK_SEQ = false;
-    public final static boolean DONT_CHECK_VALIDS = false;
+    public static final boolean CHECK_SEQ = true;
+    public static final boolean DONT_CHECK_SEQ = false;
+    public static final boolean DONT_CHECK_VALIDS = false;
 
     private Document document;
     private Map<String, String> clientValues = new HashMap<>();

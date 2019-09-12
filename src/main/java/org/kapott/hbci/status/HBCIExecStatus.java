@@ -20,6 +20,8 @@
 
 package org.kapott.hbci.status;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
@@ -29,7 +31,9 @@ import java.util.List;
 @Slf4j
 public class HBCIExecStatus {
 
-    private HBCIDialogStatus dialogStatus;
+    @Getter
+    @Setter
+    private List<HBCIMsgStatus> msgStatusList;
     private ArrayList<Exception> exceptions;
 
     public HBCIExecStatus() {
@@ -45,22 +49,6 @@ public class HBCIExecStatus {
         }
         exceptions.add(e);
         log.error(e.getMessage(), e);
-    }
-
-    /**
-     * {@link HBCIDialogStatus} für den Dialog einer bestimmten Kunden-ID zurückgeben.
-     *
-     * @return Status-Objekt für den ausgewählten Dialog
-     */
-    public HBCIDialogStatus getDialogStatus() {
-        return dialogStatus;
-    }
-
-    /**
-     * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
-     */
-    public void setDialogStatus(HBCIDialogStatus status) {
-        this.dialogStatus = status;
     }
 
     /**
@@ -92,8 +80,11 @@ public class HBCIExecStatus {
             }
         }
 
-        if (getDialogStatus() != null) {
-            ret.addAll(getDialogStatus().getErrorMessages());
+        if (msgStatusList != null) {
+            msgStatusList.forEach(hbciMsgStatus -> {
+                ret.addAll(hbciMsgStatus.getErrorList());
+            });
+
         }
 
         return ret;
@@ -111,22 +102,30 @@ public class HBCIExecStatus {
             }
         }
 
-        HBCIDialogStatus status = getDialogStatus();
-        if (status != null) {
-            ret.append(status.toString()).append(linesep);
+        if (msgStatusList != null) {
+            for (int i = 0; i < msgStatusList.size(); i++) {
+                ret.append(HBCIUtils.getLocMsg("STAT_MSG")).append(" #").append(i + 1).append(":").append(System.getProperty("line.separator"));
+                ret.append(msgStatusList.get(i).toString());
+                ret.append(System.getProperty("line.separator"));
+            }
         }
 
         return ret.toString().trim();
     }
 
     public boolean isOK() {
-        boolean ok = true;
-        List<Exception> exc = getExceptions();
-        HBCIDialogStatus status = getDialogStatus();
+        if (exceptions != null && !exceptions.isEmpty()) {
+            return false;
+        }
 
-        ok = (exc == null || exc.isEmpty());
-        ok &= (status != null && status.isOK());
+        boolean ret = true;
 
-        return ok;
+        if (msgStatusList != null) {
+            for (HBCIMsgStatus hbciMsgStatus : msgStatusList) {
+                ret &= hbciMsgStatus.isOK();
+            }
+        }
+
+        return ret;
     }
 }

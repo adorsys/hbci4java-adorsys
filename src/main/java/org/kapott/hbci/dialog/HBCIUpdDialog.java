@@ -1,31 +1,32 @@
-/*  $Id: HBCIUser.java,v 1.2 2011/08/31 14:05:21 willuhn Exp $
+/*
+ * Copyright 2018-2019 adorsys GmbH & Co KG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-    This file is part of HBCI4Java
-    Copyright (C) 2001-2008  Stefan Palme
-
-    HBCI4Java is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    HBCI4Java is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-
-package org.kapott.hbci.manager;
+package org.kapott.hbci.dialog;
 
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.ProcessException;
+import org.kapott.hbci.manager.HBCIKernel;
+import org.kapott.hbci.manager.HBCIUtils;
+import org.kapott.hbci.manager.MessageFactory;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.passport.PinTanPassport;
 import org.kapott.hbci.protocol.Message;
+import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
@@ -34,14 +35,28 @@ import java.util.Map;
 /* @brief Instances of this class represent a certain user in combination with
     a certain institute. */
 @Slf4j
-public final class HBCIUser implements IHandlerData {
+public final class HBCIUpdDialog extends AbstractHbciDialog {
 
-    private HBCIPassportInternal passport;
-    private HBCIKernel kernel;
+    public HBCIUpdDialog(PinTanPassport passport) {
+        super(passport);
+    }
 
-    HBCIUser(HBCIKernel kernel, HBCIPassportInternal passport) {
-        this.kernel = kernel;
-        this.passport = passport;
+    @Override
+    public HBCIExecStatus execute() {
+        if (passport.getUPD() == null) {
+            try {
+                log.debug("registering user");
+                updateUserData();
+            } catch (Exception ex) {
+                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public long getMsgnum() {
+        return 2;
     }
 
     private void fetchSysId() {
@@ -53,12 +68,9 @@ public final class HBCIUser implements IHandlerData {
             passport.setSigId(1L);
             passport.setSysId("0");
 
-            syncStatus = doDialogInitSync("Synch", "HKIDN", "0");
+            syncStatus = doDialogInitSync("Synch", "0");
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
-
-            HBCIInstitute inst = new HBCIInstitute(kernel, passport);
-            inst.updateBPD(syncStatus.getData());
 
             updateUPD(syncStatus.getData());
 
@@ -67,7 +79,7 @@ public final class HBCIUser implements IHandlerData {
                 passport.getSysId()});
             log.debug("new sys-id is " + passport.getSysId());
 
-            doDialogEnd(syncStatus.getData().get("MsgHead.dialogid"));
+            this.dialogId = syncStatus.getData().get("MsgHead.dialogid");
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), e);
         } finally {
@@ -85,14 +97,12 @@ public final class HBCIUser implements IHandlerData {
 
             passport.setSigId(new Long("9999999999999999"));
 
-            msgStatus = doDialogInitSync("Synch", "HKIDN", "2");
+            msgStatus = doDialogInitSync("Synch", "2");
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
 
             HashMap<String, String> syncResult = msgStatus.getData();
 
-            HBCIInstitute inst = new HBCIInstitute(kernel, passport);
-            inst.updateBPD(syncResult);
             updateUPD(syncResult);
             passport.setSigId(new Long(syncResult.get("SyncRes.sigid") != null ? syncResult.get("SyncRes.sigid") : "1"
             ));
@@ -102,7 +112,7 @@ public final class HBCIUser implements IHandlerData {
                 passport.getSigId()});
             log.debug("signature id set to " + passport.getSigId());
 
-            doDialogEnd(syncResult.get("MsgHead.dialogid"));
+            this.dialogId = syncResult.get("MsgHead.dialogid");
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), e);
         } finally {
@@ -139,49 +149,25 @@ public final class HBCIUser implements IHandlerData {
             passport.getCallback().status(HBCICallback.STATUS_INIT_UPD, null);
             log.info("fetching UPD (BPD-Version: " + passport.getBPDVersion() + ")");
 
-            HBCIMsgStatus msgStatus = doDialogInitSync("DialogInit", "HKIDN", null);
+            HBCIMsgStatus msgStatus = doDialogInitSync("DialogInit", null);
 
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), msgStatus);
 
             HashMap<String, String> result = msgStatus.getData();
 
-            HBCIInstitute inst = new HBCIInstitute(kernel, passport);
-            inst.updateBPD(result);
-
             passport.postInitResponseHook(msgStatus);
             updateUPD(result);
 
-            doDialogEnd(result.get("MsgHead.dialogid"));
+            this.dialogId = result.get("MsgHead.dialogid");
         } catch (Exception e) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), e);
         }
     }
 
-    private HBCIMsgStatus doDialogInitSync(String messageName, String orderSegCode, String syncMode) {
-        Message message = MessageFactory.createDialogInit(messageName, orderSegCode, syncMode, passport);
+    private HBCIMsgStatus doDialogInitSync(String messageName, String syncMode) {
+        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport);
         return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
-    }
-
-    private void doDialogEnd(String dialogid) {
-        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END, null);
-
-        Message message = MessageFactory.createMessage("DialogEnd", passport.getSyntaxDocument());
-        message.rawSet("MsgHead.dialogid", dialogid);
-        message.rawSet("MsgHead.msgnum", "2");
-        message.rawSet("DialogEndS.dialogid", dialogid);
-        message.rawSet("MsgTail.msgnum", "2");
-
-        HBCIMsgStatus status = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
-
-        passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, status);
-
-        if (!status.isOK()) {
-            log.error("dialog end failed: " + status.getErrorList());
-
-            String msg = HBCIUtils.getLocMsg("ERR_INST_ENDFAILED");
-            throw new ProcessException(msg, status);
-        }
     }
 
     void updateUserData() {
@@ -191,20 +177,25 @@ public final class HBCIUser implements IHandlerData {
             if (passport.getSigId() == -1)
                 fetchSigId();
         }
-
-        Map<String, String> upd = passport.getUPD();
-        Map<String, String> bpd = passport.getBPD();
-        String hbciVersionOfUPD = upd != null ? upd.get("_hbciversion") : null;
-
-        // Wir haben noch keine BPD. Offensichtlich unterstuetzt die Bank
-        // das Abrufen von BPDs ueber einen anonymen Dialog nicht. Also machen
-        // wir das jetzt hier mit einem nicht-anonymen Dialog gleich mit
-        if (bpd == null || passport.getUPD() == null || hbciVersionOfUPD == null || !hbciVersionOfUPD.equals(passport.getHBCIVersion())) {
-            fetchUPD();
-        }
+//
+//        Map<String, String> upd = passport.getUPD();
+//        Map<String, String> bpd = passport.getBPD();
+//        String hbciVersionOfUPD = upd != null ? upd.get("_hbciversion") : null;
+//
+//        // BPD und UPD exlizit anfordern
+//        if (bpd == null || upd == null || hbciVersionOfUPD == null || !hbciVersionOfUPD.equals(passport
+//        .getHBCIVersion())) {
+//            fetchUPD();
+//        }
     }
 
-    public HBCIPassportInternal getPassport() {
-        return this.passport;
+    @Override
+    public boolean isAnonymous() {
+        return false;
+    }
+
+    @Override
+    public HBCIMsgStatus dialogInit() {
+        throw new UnsupportedOperationException();
     }
 }

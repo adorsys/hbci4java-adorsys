@@ -25,7 +25,7 @@ import org.kapott.hbci.GV.GVKUmsAll;
 import org.kapott.hbci.GV_Result.GVRKUms;
 import org.kapott.hbci.GV_Result.GVRKUms.UmsLine;
 import org.kapott.hbci.callback.HBCICallbackConsole;
-import org.kapott.hbci.manager.HBCIDialog;
+import org.kapott.hbci.dialog.HBCIJobsDialog;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.passport.PinTanPassport;
@@ -59,7 +59,7 @@ public final class AnalyzeReportOfTransactions {
         // Initialize User Passport
         PinTanPassport passport = (PinTanPassport) PinTanPassport
             .getInstance(new HBCICallbackConsole(), properties);
-        HBCIDialog dialog = new HBCIDialog(passport);
+        HBCIJobsDialog dialog = new HBCIJobsDialog(passport);
 
         passport.setPIN(System.getProperty("pin"));
 
@@ -67,7 +67,7 @@ public final class AnalyzeReportOfTransactions {
         analyzeReportOfTransactions(passport, dialog);
     }
 
-    private static void analyzeReportOfTransactions(HBCIPassportInternal hbciPassport, HBCIDialog hbciDialog) {
+    private static void analyzeReportOfTransactions(HBCIPassportInternal hbciPassport, HBCIJobsDialog hbciDialog) {
         // Use first available HBCI account
         Konto myaccount = hbciPassport.getAccounts().get(0);
 
@@ -81,7 +81,8 @@ public final class AnalyzeReportOfTransactions {
         hbciDialog.addTask(bankAccountStatementJob);
 
         // Execute all jobs
-        HBCIExecStatus ret = hbciDialog.execute(true);
+        HBCIExecStatus ret = hbciDialog.execute();
+        hbciDialog.close();
 
         // GVRKUms = Geschäfts Vorfall Result Konto Umsatz
         GVRKUms result = (GVRKUms) bankAccountStatementJob.getJobResult();
