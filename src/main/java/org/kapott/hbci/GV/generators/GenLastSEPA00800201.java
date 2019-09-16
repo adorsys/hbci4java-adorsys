@@ -5,9 +5,7 @@ import org.kapott.hbci.GV.SepaUtil;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.sepa.SepaVersion;
 import org.kapott.hbci.sepa.jaxb.pain_008_002_01.*;
-import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;

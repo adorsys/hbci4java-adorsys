@@ -36,11 +36,11 @@ public abstract class AbstractHbciDialog {
 
     @Getter
     protected final PinTanPassport passport;
+    protected final HBCIKernel kernel;
     @Getter
     String dialogId;
     @Getter
     long msgnum;
-    protected final HBCIKernel kernel;
     private boolean closed;
 
     AbstractHbciDialog(PinTanPassport passport) {
@@ -48,7 +48,7 @@ public abstract class AbstractHbciDialog {
         this.kernel = new HBCIKernel(passport);
     }
 
-    public abstract HBCIExecStatus execute();
+    public abstract HBCIExecStatus execute(boolean close);
 
     public abstract boolean isAnonymous();
 
@@ -60,26 +60,24 @@ public abstract class AbstractHbciDialog {
         log.debug("start dialog");
         HBCIMsgStatus msgStatus = new HBCIMsgStatus();
 
-        try {
-            log.debug(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT"));
-            passport.getCallback().status(HBCICallback.STATUS_DIALOG_INIT, null);
+        log.debug(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT"));
+        passport.getCallback().status(HBCICallback.STATUS_DIALOG_INIT, null);
 
-            Message message = MessageFactory.createDialogInit("DialogInit", null, passport, scaRequired, orderSegCode);
-            msgStatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
+        Message message = MessageFactory.createDialogInit("DialogInit", null, passport, scaRequired, orderSegCode);
+        msgStatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
 
-            passport.postInitResponseHook(msgStatus);
+        passport.postInitResponseHook(msgStatus);
 
-            HashMap<String, String> result = msgStatus.getData();
-            if (msgStatus.isOK()) {
-                msgnum = 2;
-                this.dialogId = result.get("MsgHead.dialogid");
-                handleBankMessages(result);
-            }
+        HashMap<String, String> result = msgStatus.getData();
+        if (msgStatus.isOK()) {
+            msgnum = 2;
+            this.dialogId = result.get("MsgHead.dialogid");
+            handleBankMessages(result);
 
-            passport.getCallback().status(HBCICallback.STATUS_DIALOG_INIT_DONE, new Object[]{msgStatus, dialogId});
-        } catch (Exception e) {
-            msgStatus.addException(e);
+            passport.updateUPD(result);
         }
+
+        passport.getCallback().status(HBCICallback.STATUS_DIALOG_INIT_DONE, new Object[]{msgStatus, dialogId});
 
         return msgStatus;
     }

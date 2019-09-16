@@ -234,6 +234,28 @@ public class PinTanPassport extends AbstractHBCIPassport {
         }
     }
 
+    public void updateUPD(Map<String, String> result) {
+        log.debug("extracting UPD from results");
+
+        Map<String, String> newUpd = new HashMap<>();
+
+        result.forEach((key, value) -> {
+            if (key.startsWith("UPD.")) {
+                newUpd.put(key.substring(4), value);
+            }
+        });
+
+        if (newUpd.size() != 0) {
+            newUpd.put("_hbciversion", getHBCIVersion());
+
+            String oldVersion = getUPDVersion();
+            setUPD(newUpd);
+
+            log.info("installed new UPD [old version: " + oldVersion + ", new version: " + getUPDVersion() + "]");
+            getCallback().status(HBCICallback.STATUS_INIT_UPD_DONE, getUPD());
+        }
+    }
+
     public void postInitResponseHook(HBCIMsgStatus msgStatus) {
         if (!msgStatus.isOK()) {
             log.debug("dialog init ended with errors - searching for return code 'wrong PIN'");

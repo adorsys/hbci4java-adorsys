@@ -30,6 +30,7 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.io.BufferedReader;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -398,4 +399,52 @@ public class HBCICallbackIOStreams extends AbstractHBCICallback {
                 throw new HBCI_Exception(HBCIUtils.getLocMsg("STATUS_INVALID", Integer.toString(statusTag)));
         }
     }
+
+    /**
+     * Erzeugt einen Log-Eintrag. Diese Methode wird von den mitgelieferten
+     * Callback-Klassen für die Erzeugung von Log-Einträgen verwendet. Um
+     * ein eigenes Format für die Log-Eintrage zu definieren, kann diese
+     * Methode mit einer eigenen Implementierung überschrieben werden.<br/>
+     * Die Parameter entsprechen denen der
+     * {@link HBCICallback#log(String, int, Date, StackTraceElement) log}-Methode
+     *
+     * @return ein Log-Eintrag
+     */
+    protected String createDefaultLogLine(String msg, int level, Date date, StackTraceElement trace) {
+        String[] levels = {"NON", "ERR", "WRN", "INF", "DBG", "DB2", "INT"};
+        StringBuffer ret = new StringBuffer(128);
+        ret.append("<").append(levels[level]).append("> ");
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
+        ret.append("[").append(df.format(date)).append("] ");
+
+        Thread thread = Thread.currentThread();
+        ret.append("[").append(thread.getThreadGroup().getName());
+        ret.append("/").append(thread.getName()).append("] ");
+
+        String classname = trace.getClassName();
+        String hbciname = "org.kapott.hbci.";
+        if (classname != null && classname.startsWith(hbciname))
+            ret.append(classname.substring((hbciname).length())).append(": ");
+
+        if (msg == null)
+            msg = "";
+        StringBuffer escapedString = new StringBuffer();
+        int len = msg.length();
+
+        for (int i = 0; i < len; i++) {
+            char ch = msg.charAt(i);
+            int x = ch;
+
+            if ((x < 26 && x != 9 && x != 10 && x != 13) || ch == '\\') {
+                String temp = Integer.toString(x, 16);
+                if (temp.length() != 2)
+                    temp = "0" + temp;
+                escapedString.append("\\").append(temp);
+            } else escapedString.append(ch);
+        }
+        ret.append(escapedString);
+        return ret.toString();
+    }
+
 }

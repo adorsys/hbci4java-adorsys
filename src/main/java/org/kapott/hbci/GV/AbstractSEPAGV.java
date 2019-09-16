@@ -217,7 +217,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return der SEPA-Generator.
      */
-    private final PainGeneratorIf getPainGenerator() {
+    private PainGeneratorIf getPainGenerator() {
         if (this.generator == null) {
             try {
                 this.generator = PainGeneratorFactory.get(this, this.getPainVersion());

@@ -1,77 +1,48 @@
-/*  $Id: AbstractHBCICallback.java,v 1.1 2011/05/04 22:37:52 willuhn Exp $
-
-    This file is part of HBCI4Java
-    Copyright (C) 2001-2008  Stefan Palme
-
-    HBCI4Java is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    HBCI4Java is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * Copyright 2018-2019 adorsys GmbH & Co KG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.kapott.hbci.callback;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.kapott.hbci.manager.HHDVersion;
 
-public abstract class AbstractHBCICallback implements HBCICallback {
-    /**
-     * Erzeugt einen Log-Eintrag. Diese Methode wird von den mitgelieferten
-     * Callback-Klassen für die Erzeugung von Log-Einträgen verwendet. Um
-     * ein eigenes Format für die Log-Eintrage zu definieren, kann diese
-     * Methode mit einer eigenen Implementierung überschrieben werden.<br/>
-     * Die Parameter entsprechen denen der
-     * {@link HBCICallback#log(String, int, Date, StackTraceElement) log}-Methode
-     *
-     * @return ein Log-Eintrag
-     */
-    protected String createDefaultLogLine(String msg, int level, Date date, StackTraceElement trace) {
-        String[] levels = {"NON", "ERR", "WRN", "INF", "DBG", "DB2", "INT"};
-        StringBuffer ret = new StringBuffer(128);
-        ret.append("<").append(levels[level]).append("> ");
+import java.util.List;
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS");
-        ret.append("[").append(df.format(date)).append("] ");
+public class AbstractHBCICallback implements HBCICallback {
+    @Override
+    public void callback(int reason, List<String> messages, int datatype, StringBuilder retData) {
 
-        Thread thread = Thread.currentThread();
-        ret.append("[").append(thread.getThreadGroup().getName());
-        ret.append("/").append(thread.getName()).append("] ");
-
-        String classname = trace.getClassName();
-        String hbciname = "org.kapott.hbci.";
-        if (classname != null && classname.startsWith(hbciname))
-            ret.append(classname.substring((hbciname).length())).append(": ");
-
-        if (msg == null)
-            msg = "";
-        StringBuffer escapedString = new StringBuffer();
-        int len = msg.length();
-
-        for (int i = 0; i < len; i++) {
-            char ch = msg.charAt(i);
-            int x = ch;
-
-            if ((x < 26 && x != 9 && x != 10 && x != 13) || ch == '\\') {
-                String temp = Integer.toString(x, 16);
-                if (temp.length() != 2)
-                    temp = "0" + temp;
-                escapedString.append("\\").append(temp);
-            } else escapedString.append(ch);
-        }
-        ret.append(escapedString);
-        return ret.toString();
     }
 
-    public final void status(int statusTag, Object o) {
-        status(statusTag, new Object[]{o});
+    @Override
+    public void tanChallengeCallback(String orderRef, String challenge, String challenge_hhd_uc, HHDVersion.Type type) {
+
+    }
+
+    @Override
+    public String needTAN() {
+        return null;
+    }
+
+    @Override
+    public void status(int statusTag, Object[] o) {
+
+    }
+
+    @Override
+    public void status(int statusTag, Object o) {
+
     }
 }

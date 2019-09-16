@@ -278,9 +278,10 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
      *
      * @return ein Status-Objekt, anhand dessen der Erfolg oder das Fehlschlagen
      * der Dialoge festgestellt werden kann.
+     * @param close
      */
     @Override
-    public HBCIExecStatus execute() {
+    public HBCIExecStatus execute(boolean close) {
         HBCIExecStatus ret = new HBCIExecStatus();
 
         log.debug("executing dialog");
@@ -288,6 +289,9 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
             ret.setMsgStatusList(doJobs());
         } catch (Exception e) {
             ret.addException(e);
+        }
+        if (close) {
+            close();
         }
         return ret;
     }

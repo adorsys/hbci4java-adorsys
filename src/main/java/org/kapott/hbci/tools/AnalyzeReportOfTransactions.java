@@ -81,8 +81,7 @@ public final class AnalyzeReportOfTransactions {
         hbciDialog.addTask(bankAccountStatementJob);
 
         // Execute all jobs
-        HBCIExecStatus ret = hbciDialog.execute();
-        hbciDialog.close();
+        HBCIExecStatus ret = hbciDialog.execute(true);
 
         // GVRKUms = Geschäfts Vorfall Result Konto Umsatz
         GVRKUms result = (GVRKUms) bankAccountStatementJob.getJobResult();

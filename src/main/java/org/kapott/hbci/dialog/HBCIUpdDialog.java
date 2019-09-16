@@ -29,7 +29,6 @@ import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /* @brief Instances of this class represent a certain user in combination with
     a certain institute. */
@@ -41,11 +40,14 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
     }
 
     @Override
-    public HBCIExecStatus execute() {
+    public HBCIExecStatus execute(boolean close) {
         if (passport.getUPD() == null) {
             try {
                 log.debug("registering user");
                 updateUserData();
+                if (close) {
+                    close();
+                }
             } catch (Exception ex) {
                 throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
             }
@@ -71,7 +73,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
-            updateUPD(syncStatus.getData());
+            passport.updateUPD(syncStatus.getData());
 
             passport.setSysId(syncStatus.getData().get("SyncRes.sysid"));
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus,
@@ -102,7 +104,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
 
             HashMap<String, String> syncResult = msgStatus.getData();
 
-            updateUPD(syncResult);
+            passport.updateUPD(syncResult);
             passport.setSigId(syncResult.get("SyncRes.sigid") != null
                 ? Long.valueOf(syncResult.get("SyncRes.sigid"))
                 : 1L);
@@ -122,28 +124,6 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
         }
     }
 
-    private void updateUPD(Map<String, String> result) {
-        log.debug("extracting UPD from results");
-
-        Map<String, String> newUpd = new HashMap<>();
-
-        result.forEach((key, value) -> {
-            if (key.startsWith("UPD.")) {
-                newUpd.put(key.substring(4), value);
-            }
-        });
-
-        if (newUpd.size() != 0) {
-            newUpd.put("_hbciversion", passport.getHBCIVersion());
-
-            String oldVersion = passport.getUPDVersion();
-            passport.setUPD(newUpd);
-
-            log.info("installed new UPD [old version: " + oldVersion + ", new version: " + passport.getUPDVersion() + "]");
-            passport.getCallback().status(HBCICallback.STATUS_INIT_UPD_DONE, passport.getUPD());
-        }
-    }
-
     private void fetchUPD() {
         try {
             passport.getCallback().status(HBCICallback.STATUS_INIT_UPD, null);
@@ -157,7 +137,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
             HashMap<String, String> result = msgStatus.getData();
 
             passport.postInitResponseHook(msgStatus);
-            updateUPD(result);
+            passport.updateUPD(result);
 
             this.dialogId = result.get("MsgHead.dialogid");
         } catch (Exception e) {

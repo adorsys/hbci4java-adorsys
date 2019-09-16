@@ -159,7 +159,7 @@ public abstract class AbstractTestGV {
         HBCIJobsDialog dialog = new HBCIJobsDialog(passport);
         dialog.addTask(job);
 
-        e.testStatus(dialog.execute());
+        e.testStatus(dialog.execute(true));
         e.testResult(job.getJobResult());
     }
 
