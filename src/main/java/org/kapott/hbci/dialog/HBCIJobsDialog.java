@@ -195,7 +195,7 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
                 message.rawSet("MsgTail.msgnum", Long.toString(msgnum));
 
                 // nachrichtenaustausch durchführen
-                msgstatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
+                msgstatus = kernel.rawDoIt(message, null, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
                 nextMsgNum();
 
                 final int segnum = msgstatus.findTaskSegment();

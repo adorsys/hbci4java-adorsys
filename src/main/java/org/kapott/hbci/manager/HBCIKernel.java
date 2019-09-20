@@ -33,10 +33,7 @@ import org.kapott.hbci.security.Sig;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 @Slf4j
 public final class HBCIKernel {
@@ -75,7 +72,7 @@ public final class HBCIKernel {
         @param cryptit A boolean value specifying, if the message to be sent should be encrypted.
         @return A Properties object that contains a path-value-pair for each dataelement of
                 the received message. */
-    public HBCIMsgStatus rawDoIt(Message message, boolean signit, boolean cryptit) {
+    public HBCIMsgStatus rawDoIt(Message message, String responseMessageName, boolean signit, boolean cryptit) {
         HBCIMsgStatus msgStatus = new HBCIMsgStatus();
 
         try {
@@ -98,7 +95,8 @@ public final class HBCIKernel {
 
             processMessage(message, msgStatus);
 
-            String messageName = message.getName();
+            String messageName = Optional.ofNullable(responseMessageName)
+                .orElse(message.getName());
 
             // soll nachricht verschlüsselt werden?
             if (cryptit) {

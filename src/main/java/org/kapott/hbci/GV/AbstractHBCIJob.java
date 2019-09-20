@@ -81,18 +81,6 @@ public abstract class AbstractHBCIJob {
     private boolean skip = false;
     private boolean needsTan = false;
 
-    public void setLlParams(Map<String, String> llParams) {
-        this.llParams = llParams;
-    }
-
-    void setNeedsTan(boolean needsTan) {
-        this.needsTan = needsTan;
-    }
-
-    public boolean isNeedsTan() {
-        return needsTan;
-    }
-
     public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
         this.passport = passport;
 
@@ -114,6 +102,18 @@ public abstract class AbstractHBCIJob {
            auf keinen fall "zu viel" gesetzt, da dieser code nur ausgefuehrt wird,
            wenn das jeweilige segment tatsaechlich erzeugt werden soll */
         llParams.put(this.name, "requested");
+    }
+
+    public void setLlParams(Map<String, String> llParams) {
+        this.llParams = llParams;
+    }
+
+    public boolean isNeedsTan() {
+        return needsTan;
+    }
+
+    void setNeedsTan(boolean needsTan) {
+        this.needsTan = needsTan;
     }
 
     public String getHBCICode() {
@@ -714,8 +714,7 @@ public abstract class AbstractHBCIJob {
             // antwort-segmente benötigt)
             HashMap<Integer, String> keyHeaders = new HashMap<>();
             status.getData().keySet().forEach(key -> {
-                if (key.startsWith("GVRes") &&
-                    key.endsWith(".SegHead.ref")) {
+                if (key.startsWith("GVRes") && key.endsWith(".SegHead.ref")) {
 
                     String segref = result.get(key);
                     if ((Integer.parseInt(segref)) - offset == idx) {
@@ -1028,10 +1027,10 @@ public abstract class AbstractHBCIJob {
 
     /**
      * Prueft, ob der Auftrag uebersprungen werden soll.
+     *
      * @return true, wenn der Auftrag uebersprungen werden soll.
      */
-    public boolean skipped()
-    {
+    public boolean skipped() {
         return this.skip;
     }
 }

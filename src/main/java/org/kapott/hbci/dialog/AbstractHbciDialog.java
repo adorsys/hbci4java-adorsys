@@ -19,6 +19,7 @@ package org.kapott.hbci.dialog;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.callback.HBCICallback;
+import org.kapott.hbci.exceptions.ProcessException;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MessageFactory;
@@ -52,19 +53,25 @@ public abstract class AbstractHbciDialog {
 
     public abstract boolean isAnonymous();
 
-    public HBCIMsgStatus dialogInit(boolean scaRequired) {
-        return dialogInit(scaRequired, "HKIDN");
+    public HBCIMsgStatus dialogInit(boolean withHktan) {
+        return dialogInit(withHktan, "HKIDN");
     }
 
-    public HBCIMsgStatus dialogInit(boolean scaRequired, String orderSegCode) {
+    public HBCIMsgStatus dialogInit(boolean withHktan, String orderSegCode) {
         log.debug("start dialog");
-        HBCIMsgStatus msgStatus = new HBCIMsgStatus();
+
+        if (passport.getSysId().equals("0")) {
+            HBCIMsgStatus syncStatus = fetchSysId(withHktan);
+
+            passport.updateUPD(syncStatus.getData());
+            passport.setSysId(syncStatus.getData().get("SyncRes.sysid"));
+        }
 
         log.debug(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT"));
         passport.getCallback().status(HBCICallback.STATUS_DIALOG_INIT, null);
 
-        Message message = MessageFactory.createDialogInit("DialogInit", null, passport, scaRequired, orderSegCode);
-        msgStatus = kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
+        Message message = MessageFactory.createDialogInit("DialogInit", null, passport, withHktan, orderSegCode);
+        HBCIMsgStatus msgStatus = kernel.rawDoIt(message, "DialogInitSCA", HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
 
         passport.postInitResponseHook(msgStatus);
 
@@ -82,6 +89,14 @@ public abstract class AbstractHbciDialog {
         return msgStatus;
     }
 
+    private HBCIMsgStatus fetchSysId(boolean withHktan) {
+        Message message = MessageFactory.createDialogInit("Synch", "0", passport, withHktan, "HKIDN");
+        HBCIMsgStatus syncStatus = kernel.rawDoIt(message, null, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
+        if (!syncStatus.isOK())
+            throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
+        return syncStatus;
+    }
+
     public HBCIMsgStatus close() {
         if (closed || dialogId == null) {
             return null;
@@ -93,7 +108,7 @@ public abstract class AbstractHbciDialog {
             passport.getCallback().status(HBCICallback.STATUS_DIALOG_END, null);
 
             Message message = MessageFactory.createDialogEnd(isAnonymous(), passport, dialogId, getMsgnum());
-            msgStatus = kernel.rawDoIt(message, !isAnonymous(), !isAnonymous());
+            msgStatus = kernel.rawDoIt(message, null, !isAnonymous(), !isAnonymous());
 
             passport.getCallback().status(HBCICallback.STATUS_DIALOG_END_DONE, msgStatus);
         } catch (Exception e) {

@@ -8088,11 +8088,8 @@
         <MSGdef id="CustomMsgRes">
             &MsgSigHeadInst;
             <SEG type="RetGlob"/>
-            <SEG type="TAN2StepRes6" minnum="0" maxnum="0"/>
             <SEG type="RetSeg" minnum="0" maxnum="0"/>
-            <SEG type="TAN2StepRes6" minnum="0" maxnum="0"/>
             <SF type="GVRes" minnum="0" maxnum="0"/>
-            <SEG type="TAN2StepRes6" minnum="0" maxnum="0"/>
             <SF type="BPD" minnum="0"/>
             <SF type="UPD" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="0"/>

@@ -46,7 +46,7 @@ public final class MessageFactory {
 
     private static final HBCIProduct HBCI_PRODUCT = new HBCIProduct("36792786FA12F235F04647689", "3.2");
 
-    public static Message createDialogInit(String dialogName, String syncMode, HBCIPassportInternal passport, boolean scaRequired, String orderSegCode) {
+    public static Message createDialogInit(String dialogName, String syncMode, HBCIPassportInternal passport, boolean withHktan, String orderSegCode) {
         Message message = createMessage(dialogName, passport.getSyntaxDocument());
         message.rawSet("MsgHead.dialogid", "0");
         message.rawSet("MsgHead.msgnum", "1");
@@ -65,7 +65,7 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.prodName", hbciProduct.getProduct());
         message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
 
-        if (scaRequired) {
+        if (withHktan) {
             message.rawSet("TAN2Step6.process", "4");
             message.rawSet("TAN2Step6.ordersegcode", orderSegCode);
         }

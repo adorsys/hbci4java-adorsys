@@ -147,7 +147,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
 
     private HBCIMsgStatus doDialogInitSync(String messageName, String syncMode) {
         Message message = MessageFactory.createDialogInit(messageName, syncMode, passport, true, "HKIDN");
-        return kernel.rawDoIt(message, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
+        return kernel.rawDoIt(message, null, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
     }
 
     private void updateUserData() {

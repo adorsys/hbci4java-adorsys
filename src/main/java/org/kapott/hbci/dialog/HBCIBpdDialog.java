@@ -201,7 +201,7 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
 
     private HBCIMsgStatus anonymousDialogInit() {
         Message dialogInitMessage = MessageFactory.createAnonymousDialogInit(passport);
-        return kernel.rawDoIt(dialogInitMessage, DONT_SIGNIT, DONT_CRYPTIT);
+        return kernel.rawDoIt(dialogInitMessage, null, DONT_SIGNIT, DONT_CRYPTIT);
     }
 
     @Override
