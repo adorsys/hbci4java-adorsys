@@ -29,6 +29,7 @@ import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 /* @brief Instances of this class represent a certain user in combination with
     a certain institute. */
@@ -46,7 +47,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
                 log.debug("registering user");
                 updateUserData();
                 if (close) {
-                    close();
+                    dialogEnd();
                 }
             } catch (Exception ex) {
                 throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
@@ -146,7 +147,11 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
     }
 
     private HBCIMsgStatus doDialogInitSync(String messageName, String syncMode) {
-        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport, true, "HKIDN");
+        boolean withHktan = Optional.ofNullable(passport.getCurrentSecMechInfo())
+            .map(twoStepMechanism ->  !twoStepMechanism.getId().equals("999"))
+            .orElse(false);
+
+        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport, withHktan, "HKIDN");
         return kernel.rawDoIt(message, null, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
     }
 

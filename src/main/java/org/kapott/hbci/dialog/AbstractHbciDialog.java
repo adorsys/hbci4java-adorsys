@@ -61,10 +61,8 @@ public abstract class AbstractHbciDialog {
         log.debug("start dialog");
 
         if (passport.getSysId().equals("0")) {
-            HBCIMsgStatus syncStatus = fetchSysId(withHktan);
-
-            passport.updateUPD(syncStatus.getData());
-            passport.setSysId(syncStatus.getData().get("SyncRes.sysid"));
+            HBCIUpdDialog updDialog = new HBCIUpdDialog(passport);
+            updDialog.execute(true);
         }
 
         log.debug(HBCIUtils.getLocMsg("STATUS_DIALOG_INIT"));
@@ -89,15 +87,7 @@ public abstract class AbstractHbciDialog {
         return msgStatus;
     }
 
-    private HBCIMsgStatus fetchSysId(boolean withHktan) {
-        Message message = MessageFactory.createDialogInit("Synch", "0", passport, withHktan, "HKIDN");
-        HBCIMsgStatus syncStatus = kernel.rawDoIt(message, null, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
-        if (!syncStatus.isOK())
-            throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
-        return syncStatus;
-    }
-
-    public HBCIMsgStatus close() {
+    public HBCIMsgStatus dialogEnd() {
         if (closed || dialogId == null) {
             return null;
         }

@@ -291,7 +291,7 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
             ret.addException(e);
         }
         if (close) {
-            close();
+            dialogEnd();
         }
         return ret;
     }

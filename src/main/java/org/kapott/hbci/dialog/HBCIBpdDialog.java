@@ -54,7 +54,7 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
             log.debug("registering institute");
             fetchBPDAnonymousInternal();
             if (close) {
-                close();
+                dialogEnd();
             }
         } catch (Exception ex) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_INST"), ex);
