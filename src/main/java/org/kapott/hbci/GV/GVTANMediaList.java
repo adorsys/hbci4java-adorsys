@@ -90,7 +90,7 @@ public class GVTANMediaList extends AbstractHBCIJob {
                 tanMedias.add(info);
             }
         }
-        passport.setTanMedias(tanMedias);
+        passport.setTanMedias(passport.getCurrentSecMechInfo().getSecfunc(), tanMedias);
     }
 
 }

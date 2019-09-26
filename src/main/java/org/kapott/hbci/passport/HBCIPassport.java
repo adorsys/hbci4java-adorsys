@@ -269,9 +269,9 @@ public interface HBCIPassport {
 
     byte[] decrypt(byte[] cryptedkey, byte[] cryptedstring);
 
-    List<GVRTANMediaList.TANMediaInfo> getTanMedias();
+    Map<String, List<GVRTANMediaList.TANMediaInfo>> getTanMedias();
 
-    void setTanMedias(List<GVRTANMediaList.TANMediaInfo> tanMedias);
+    void setTanMedias(String scaMethodId, List<GVRTANMediaList.TANMediaInfo> tanMedias);
 
     boolean jobSupported(String jobName);
 }

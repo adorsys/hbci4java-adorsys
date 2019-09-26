@@ -53,7 +53,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
     private Map<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
     private HBCITwoStepMechanism currentSecMechInfo;
     private List<String> userTwostepMechanisms = new ArrayList<>();
-    private List<GVRTANMediaList.TANMediaInfo> tanMedias;
+    private Map<String, List<GVRTANMediaList.TANMediaInfo>> tanMedias = new HashMap<>();
     private String pin;
 
     public PinTanPassport(String hbciversion, Map<String, String> properties, HBCICallback callback,
@@ -84,26 +84,13 @@ public class PinTanPassport extends AbstractHBCIPassport {
     }
 
     @Override
-    public List<GVRTANMediaList.TANMediaInfo> getTanMedias() {
+    public Map<String, List<GVRTANMediaList.TANMediaInfo>> getTanMedias() {
         return tanMedias;
     }
 
     @Override
-    public void setTanMedias(List<GVRTANMediaList.TANMediaInfo> tanMedias) {
-        this.tanMedias = tanMedias;
-    }
-
-    public GVRTANMediaList.TANMediaInfo getTanMedia(String name) {
-        if (tanMedias != null) {
-            Optional<GVRTANMediaList.TANMediaInfo> tanMediaInfoOptional = tanMedias.stream()
-                .filter(tanMediaInfo -> tanMediaInfo.mediaName.equals(name))
-                .findFirst();
-
-            if (tanMediaInfoOptional.isPresent()) {
-                return tanMediaInfoOptional.get();
-            }
-        }
-        return null;
+    public void setTanMedias(String scaMethodId, List<GVRTANMediaList.TANMediaInfo> tanMedias) {
+        this.tanMedias.put(scaMethodId, tanMedias);
     }
 
     public void setBPD(Map<String, String> newBPD) {
