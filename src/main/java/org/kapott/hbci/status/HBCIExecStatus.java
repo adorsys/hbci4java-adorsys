@@ -21,47 +21,33 @@
 package org.kapott.hbci.status;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Slf4j
 public class HBCIExecStatus {
 
     @Getter
-    @Setter
-    private List<HBCIMsgStatus> msgStatusList;
-    private ArrayList<Exception> exceptions;
+    private final List<HBCIMsgStatus> msgStatusList;
+    @Getter
+    private List<Exception> exceptions;
 
-    public HBCIExecStatus() {
-        exceptions = new ArrayList<>();
-    }
-
-    /**
-     * Wird von der <em>HBCI4Java</em>-Dialog-Engine aufgerufen
-     */
     public void addException(Exception e) {
         if (exceptions == null) {
             exceptions = new ArrayList<>();
         }
         exceptions.add(e);
-        log.error(e.getMessage(), e);
     }
 
-    /**
-     * Exceptions zurückgeben, die beim Ausführen eines bestimmten Dialoges aufgetreten sind.
-     * Dabei werden nur die Exceptions zurückgegeben, die Fehler in der Verwaltung der
-     * Kunden-IDs/Dialoge betreffen. Alle Exceptions, die während der eigentlichen
-     * Dialogausführung evtl. aufgetreten sind, sind im entsprechenden
-     * {@link HBCIDialogStatus}-Objekt des jeweiligen Dialoges enthalten.
-     *
-     * @return Liste mit aufgetretenen Exceptions
-     */
-    public List<Exception> getExceptions() {
-        return exceptions;
+    public boolean hasMessage(String messageCode) {
+        return msgStatusList.stream()
+            .anyMatch(hbciMsgStatus -> hbciMsgStatus.globStatus.getRetVals().stream()
+                .anyMatch(hbciRetVal -> hbciRetVal.code.equals(messageCode)));
     }
 
     /**
@@ -81,9 +67,7 @@ public class HBCIExecStatus {
         }
 
         if (msgStatusList != null) {
-            msgStatusList.forEach(hbciMsgStatus -> {
-                ret.addAll(hbciMsgStatus.getErrorList());
-            });
+            msgStatusList.forEach(hbciMsgStatus -> ret.addAll(hbciMsgStatus.getErrorList()));
 
         }
 

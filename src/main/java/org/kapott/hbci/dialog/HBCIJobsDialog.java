@@ -276,18 +276,19 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
      * <p>Ausführen aller bisher erzeugten Aufträge. Diese Methode veranlasst den HBCI-Kernel,
      * die Aufträge, die durch die Aufrufe auszuführen. </p>
      *
+     * @param close
      * @return ein Status-Objekt, anhand dessen der Erfolg oder das Fehlschlagen
      * der Dialoge festgestellt werden kann.
-     * @param close
      */
     @Override
     public HBCIExecStatus execute(boolean close) {
-        HBCIExecStatus ret = new HBCIExecStatus();
+        HBCIExecStatus ret;
 
         log.debug("executing dialog");
         try {
-            ret.setMsgStatusList(doJobs());
+            ret = new HBCIExecStatus(doJobs());
         } catch (Exception e) {
+            ret = new HBCIExecStatus(null);
             ret.addException(e);
         }
         if (close) {

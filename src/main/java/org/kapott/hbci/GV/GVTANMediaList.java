@@ -6,9 +6,7 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 @Slf4j
 public class GVTANMediaList extends AbstractHBCIJob {
@@ -24,6 +22,7 @@ public class GVTANMediaList extends AbstractHBCIJob {
         return "TANMediaList";
     }
 
+    @Override
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
 
@@ -31,8 +30,6 @@ public class GVTANMediaList extends AbstractHBCIJob {
         if (value != null) {
             ((GVRTANMediaList) jobResult).setTanOption(Integer.parseInt(value));
         }
-
-        List<GVRTANMediaList.TANMediaInfo> tanMedias = new ArrayList<>();
 
         for (int i = 0; ; i++) {
             String mediaheader = HBCIUtils.withCounter(header + ".MediaInfo", i);
@@ -87,10 +84,8 @@ public class GVTANMediaList extends AbstractHBCIJob {
 
             if (isActive && haveName) {
                 log.info("adding TAN media: " + info.mediaName);
-                tanMedias.add(info);
             }
         }
-        passport.setTanMedias(passport.getCurrentSecMechInfo().getSecfunc(), tanMedias);
     }
 
 }

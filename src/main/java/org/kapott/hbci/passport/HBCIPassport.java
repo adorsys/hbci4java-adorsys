@@ -20,8 +20,8 @@
 
 package org.kapott.hbci.passport;
 
-import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
+import org.kapott.hbci.dialog.AbstractHbciDialog;
 import org.kapott.hbci.dialog.HBCIJobsDialog;
 import org.kapott.hbci.structures.Konto;
 
@@ -202,7 +202,7 @@ public interface HBCIPassport {
     /**
      * Setzen der zu verwendenden Kunden-ID. Durch Aufruf dieser Methode wird die
      * Kunden-ID gesetzt, die beim nächsten Ausführen eines HBCI-Dialoges
-     * ({@link HBCIJobsDialog#execute(boolean)})
+     * ({@link AbstractHbciDialog#execute(boolean, boolean)})
      * benutzt wird. Diese neue Kunden-ID wird dann außerdem permanent im
      * jeweiligen Sicherheitsmedium gespeichert (sofern das von dem Medium
      * unterstützt wird).
@@ -268,10 +268,6 @@ public interface HBCIPassport {
     Object getCryptFunction();
 
     byte[] decrypt(byte[] cryptedkey, byte[] cryptedstring);
-
-    Map<String, List<GVRTANMediaList.TANMediaInfo>> getTanMedias();
-
-    void setTanMedias(String scaMethodId, List<GVRTANMediaList.TANMediaInfo> tanMedias);
 
     boolean jobSupported(String jobName);
 }

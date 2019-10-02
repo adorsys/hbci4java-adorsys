@@ -29,18 +29,17 @@ import org.kapott.hbci.status.HBCIExecStatus;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.kapott.hbci.manager.HBCIKernel.DONT_CRYPTIT;
 import static org.kapott.hbci.manager.HBCIKernel.DONT_SIGNIT;
+import static org.kapott.hbci.passport.PinTanPassport.BPD_KEY_HBCIVERSION;
+import static org.kapott.hbci.passport.PinTanPassport.BPD_KEY_LASTUPDATE;
 
 @Slf4j
 public final class HBCIBpdDialog extends AbstractHbciDialog {
-
-    private static final String BPD_KEY_LASTUPDATE = "_lastupdate";
-    private static final String BPD_KEY_HBCIVERSION = "_hbciversion";
 
     private static final String maxAge = "7";
 
@@ -51,43 +50,20 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
     @Override
     public HBCIExecStatus execute(boolean close) {
         try {
-            log.debug("registering institute");
-            fetchBPDAnonymousInternal();
+            log.debug("fetch bpd anonymous");
+            HBCIMsgStatus hbciMsgStatus = fetchBPDAnonymousInternal();
             if (close) {
                 dialogEnd();
             }
+            return new HBCIExecStatus(Collections.singletonList(hbciMsgStatus));
         } catch (Exception ex) {
             throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_INST"), ex);
         }
-        return null;
     }
 
     @Override
     public long getMsgnum() {
         return 2;
-    }
-
-    /**
-     * gets the BPD out of the result and store it in the
-     * passport field
-     */
-    void updateBPD(HashMap<String, String> result) {
-        log.debug("extracting BPD from results");
-        HashMap<String, String> newBPD = new HashMap<>();
-
-        result.keySet().forEach(key -> {
-            if (key.startsWith("BPD.")) {
-                newBPD.put(key.substring(("BPD.").length()), result.get(key));
-            }
-        });
-
-        if (newBPD.size() != 0) {
-            newBPD.put(BPD_KEY_HBCIVERSION, passport.getHBCIVersion());
-            newBPD.put(BPD_KEY_LASTUPDATE, String.valueOf(System.currentTimeMillis()));
-            passport.setBPD(newBPD);
-            log.info("installed new BPD with version " + passport.getBPDVersion());
-            passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT_DONE, passport.getBPD());
-        }
     }
 
     /**
@@ -138,7 +114,9 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
     /**
      * Aktualisiert die BPD bei Bedarf.
      */
-    private void fetchBPDAnonymousInternal() {
+    private HBCIMsgStatus fetchBPDAnonymousInternal() {
+        HBCIMsgStatus msgStatus = null;
+
         // BPD abholen, wenn nicht vorhanden oder HBCI-Version geaendert
         Map<String, String> bpd = passport.getBPD();
         String hbciVersionOfBPD = (bpd != null) ? bpd.get(BPD_KEY_HBCIVERSION) : null;
@@ -166,15 +144,16 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
                 passport.getCallback().status(HBCICallback.STATUS_INST_BPD_INIT, null);
                 log.info("fetching BPD");
 
-                HBCIMsgStatus msgStatus = anonymousDialogInit();
+                msgStatus = anonymousDialogInit();
                 this.dialogId = msgStatus.getData().get("MsgHead.dialogid");
 
-                updateBPD(msgStatus.getData());
+                passport.updateBPD(msgStatus.getData());
 
                 if (!msgStatus.isOK()) {
                     log.error("fetching BPD failed");
                     throw new ProcessException(HBCIUtils.getLocMsg("ERR_INST_BPDFAILED"), msgStatus);
                 }
+                return msgStatus;
             } catch (HBCI_Exception e) {
                 if (e.isFatal())
                     throw e;
@@ -197,6 +176,7 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
         } else {
             log.warn("can not check if requested parameters are supported");
         }
+        return msgStatus;
     }
 
     private HBCIMsgStatus anonymousDialogInit() {

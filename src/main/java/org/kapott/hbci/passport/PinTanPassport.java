@@ -43,6 +43,9 @@ import static org.kapott.hbci.security.Sig.SECFUNC_SIG_PT_1STEP;
 @Slf4j
 public class PinTanPassport extends AbstractHBCIPassport {
 
+    public static final String BPD_KEY_LASTUPDATE = "_lastupdate";
+    public static final String BPD_KEY_HBCIVERSION = "_hbciversion";
+
     static {
         Security.addProvider(new CryptAlgs4JavaProvider());
     }
@@ -53,7 +56,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
     private Map<String, HBCITwoStepMechanism> bankTwostepMechanisms = new HashMap<>();
     private HBCITwoStepMechanism currentSecMechInfo;
     private List<String> userTwostepMechanisms = new ArrayList<>();
-    private Map<String, List<GVRTANMediaList.TANMediaInfo>> tanMedias = new HashMap<>();
     private String pin;
 
     public PinTanPassport(String hbciversion, Map<String, String> properties, HBCICallback callback,
@@ -83,16 +85,30 @@ public class PinTanPassport extends AbstractHBCIPassport {
         }
     }
 
-    @Override
-    public Map<String, List<GVRTANMediaList.TANMediaInfo>> getTanMedias() {
-        return tanMedias;
+    /**
+     * gets the BPD out of the result and store it in the
+     * passport field
+     */
+    public void updateBPD(Map<String, String> result) {
+        log.debug("extracting BPD from results");
+        HashMap<String, String> newBPD = new HashMap<>();
+
+        result.keySet().forEach(key -> {
+            if (key.startsWith("BPD.")) {
+                newBPD.put(key.substring(("BPD.").length()), result.get(key));
+            }
+        });
+
+        if (newBPD.size() != 0) {
+            newBPD.put(BPD_KEY_HBCIVERSION, getHBCIVersion());
+            newBPD.put(BPD_KEY_LASTUPDATE, String.valueOf(System.currentTimeMillis()));
+            setBPD(newBPD);
+            log.info("installed new BPD with version " + getBPDVersion());
+            getCallback().status(HBCICallback.STATUS_INST_BPD_INIT_DONE, getBPD());
+        }
     }
 
     @Override
-    public void setTanMedias(String scaMethodId, List<GVRTANMediaList.TANMediaInfo> tanMedias) {
-        this.tanMedias.put(scaMethodId, tanMedias);
-    }
-
     public void setBPD(Map<String, String> newBPD) {
         super.setBPD(newBPD);
 
@@ -113,7 +129,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
             // wird.
             int maxAllowedVersion = 0;
 
-            for (String key : newBPD.keySet()) {
+            for (Map.Entry<String, String> bpdEntry : newBPD.entrySet()) {
+                String key = bpdEntry.getKey();
                 // newBPD.getProperty("Params_x.TAN2StepParY.ParTAN2StepZ.TAN2StepParamsX_z.*")
                 if (key.startsWith("Params")) {
                     String subkey = key.substring(key.indexOf('.') + 1);
@@ -133,7 +150,7 @@ public class PinTanPassport extends AbstractHBCIPassport {
                                 continue;
                             }
 
-                            String secfunc = newBPD.get(key);
+                            String secfunc = bpdEntry.getValue();
 
                             // willuhn 2011-05-13 Checken, ob wir das Verfahren schon aus einer aktuelleren
                             // Segment-Version haben
@@ -159,11 +176,11 @@ public class PinTanPassport extends AbstractHBCIPassport {
                             // alle properties durchlaufen und alle suchen, die mit dem
                             // paramheader beginnen, und die entsprechenden werte im
                             // entry abspeichern
-                            for (String key2 : newBPD.keySet()) {
-
+                            for (Map.Entry<String, String> newBPDEntry : newBPD.entrySet()) {
+                                String key2 = newBPDEntry.getKey();
                                 if (key2.startsWith(paramHeader + ".")) {
                                     int dotPos = key2.lastIndexOf('.');
-                                    entry.setValue(key2.substring(dotPos + 1), newBPD.get(key2));
+                                    entry.setValue(key2.substring(dotPos + 1), newBPDEntry.getValue());
                                 }
                             }
 

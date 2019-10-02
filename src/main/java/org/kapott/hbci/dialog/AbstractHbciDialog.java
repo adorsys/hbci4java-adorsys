@@ -19,7 +19,6 @@ package org.kapott.hbci.dialog;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.callback.HBCICallback;
-import org.kapott.hbci.exceptions.ProcessException;
 import org.kapott.hbci.manager.HBCIKernel;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.manager.MessageFactory;
@@ -61,7 +60,7 @@ public abstract class AbstractHbciDialog {
         log.debug("start dialog");
 
         if (passport.getSysId().equals("0")) {
-            HBCIUpdDialog updDialog = new HBCIUpdDialog(passport);
+            HBCIUpdDialog updDialog = new HBCIUpdDialog(passport, withHktan);
             updDialog.execute(true);
         }
 

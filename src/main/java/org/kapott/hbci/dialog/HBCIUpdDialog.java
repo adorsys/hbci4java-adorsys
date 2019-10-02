@@ -16,6 +16,7 @@
 
 package org.kapott.hbci.dialog;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -31,13 +32,15 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import java.util.HashMap;
 import java.util.Optional;
 
-/* @brief Instances of this class represent a certain user in combination with
-    a certain institute. */
 @Slf4j
-public final class HBCIUpdDialog extends AbstractHbciDialog {
+public class HBCIUpdDialog extends AbstractHbciDialog {
 
-    public HBCIUpdDialog(PinTanPassport passport) {
+    @Setter
+    private boolean withHktan;
+
+    public HBCIUpdDialog(PinTanPassport passport, boolean withHktan) {
         super(passport);
+        this.withHktan = withHktan;
     }
 
     @Override
@@ -70,11 +73,18 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
             passport.setSigId(1L);
             passport.setSysId("0");
 
-            syncStatus = doDialogInitSync("Synch", "0");
+            if (withHktan) {
+                withHktan = Optional.ofNullable(passport.getCurrentSecMechInfo())
+                    .map(twoStepMechanism -> !twoStepMechanism.getId().equals("999"))
+                    .orElse(false);
+            }
+
+            syncStatus = doDialogInitSync("Synch", "0", withHktan);
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
             passport.updateUPD(syncStatus.getData());
+            passport.updateBPD(syncStatus.getData());
 
             passport.setSysId(syncStatus.getData().get("SyncRes.sysid"));
             passport.getCallback().status(HBCICallback.STATUS_INIT_SYSID_DONE, new Object[]{syncStatus,
@@ -99,7 +109,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
 
             passport.setSigId(9999999999999999L);
 
-            msgStatus = doDialogInitSync("Synch", "2");
+            msgStatus = doDialogInitSync("Synch", "2", true);
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
 
@@ -125,32 +135,7 @@ public final class HBCIUpdDialog extends AbstractHbciDialog {
         }
     }
 
-    private void fetchUPD() {
-        try {
-            passport.getCallback().status(HBCICallback.STATUS_INIT_UPD, null);
-            log.info("fetching UPD (BPD-Version: " + passport.getBPDVersion() + ")");
-
-            HBCIMsgStatus msgStatus = doDialogInitSync("DialogInit", null);
-
-            if (!msgStatus.isOK())
-                throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), msgStatus);
-
-            HashMap<String, String> result = msgStatus.getData();
-
-            passport.postInitResponseHook(msgStatus);
-            passport.updateUPD(result);
-
-            this.dialogId = result.get("MsgHead.dialogid");
-        } catch (Exception e) {
-            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_GETUPDFAIL"), e);
-        }
-    }
-
-    private HBCIMsgStatus doDialogInitSync(String messageName, String syncMode) {
-        boolean withHktan = Optional.ofNullable(passport.getCurrentSecMechInfo())
-            .map(twoStepMechanism ->  !twoStepMechanism.getId().equals("999"))
-            .orElse(false);
-
+    private HBCIMsgStatus doDialogInitSync(String messageName, String syncMode, boolean withHktan) {
         Message message = MessageFactory.createDialogInit(messageName, syncMode, passport, withHktan, "HKIDN");
         return kernel.rawDoIt(message, null, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
     }
