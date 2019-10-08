@@ -27,6 +27,7 @@ import org.kapott.hbci.manager.HBCIUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -46,6 +47,7 @@ public class HBCIExecStatus {
 
     public boolean hasMessage(String messageCode) {
         return msgStatusList.stream()
+            .filter(Objects::nonNull)
             .anyMatch(hbciMsgStatus -> hbciMsgStatus.globStatus.getRetVals().stream()
                 .anyMatch(hbciRetVal -> hbciRetVal.code.equals(messageCode)));
     }
