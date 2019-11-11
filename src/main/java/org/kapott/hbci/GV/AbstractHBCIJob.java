@@ -79,7 +79,6 @@ public abstract class AbstractHBCIJob {
     private HashSet<String> indexedConstraints;
     private int loopCount = 0;
     private boolean skip = false;
-    private boolean needsTan = false;
 
     public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
         this.passport = passport;
@@ -106,14 +105,6 @@ public abstract class AbstractHBCIJob {
 
     public void setLlParams(Map<String, String> llParams) {
         this.llParams = llParams;
-    }
-
-    public boolean isNeedsTan() {
-        return needsTan;
-    }
-
-    void setNeedsTan(boolean needsTan) {
-        this.needsTan = needsTan;
     }
 
     public String getHBCICode() {

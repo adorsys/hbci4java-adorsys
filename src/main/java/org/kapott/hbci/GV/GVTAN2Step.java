@@ -119,7 +119,6 @@ public class GVTAN2Step extends AbstractHBCIJob {
             if (this.toInsCode(this.getHBCICode(false)).equals(segCode) && w3040 != null) {
                 log.debug("found status code 3040, need to repeat task " + this.scaJob.getHBCICode());
                 this.redo = this.scaJob;
-                this.redo.setNeedsTan(true);
                 this.redo.fillJobResult(msgstatus, msgstatus.findTaskSegment());
             }
 

@@ -253,23 +253,26 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
     }
 
     private void patchMessageForSca(HBCIMessage msg) {
-        AbstractHBCIJob tan2StepRequiredJob = msg.getTasks().stream()
-            .filter(AbstractHBCIJob::isNeedsTan)
-            .findAny()
-            .orElse(null);
-
-        if (tan2StepRequiredJob != null && msg.findTask("HKTAN") == null) {
-            final GVTAN2Step hktan = new GVTAN2Step(getPassport(), tan2StepRequiredJob);
-            hktan.setProcess(KnownTANProcess.PROCESS2_STEP1);
-            hktan.setSegVersion(getPassport().getCurrentSecMechInfo().getSegversion()); // muessen wir explizit
-            // setzen, damit wir das HKTAN in der gleichen Version schicken, in der das HITANS kam.
-
-            if (getPassport().tanMediaNeeded()) {
-                hktan.setParam("tanmedia", getPassport().getCurrentSecMechInfo().getMedium());
-            }
-
-            msg.append(hktan);
+        //patch offset jobs, append missing hktan task
+        if (msg.findTask("HKTAN") == null) {
+            msg.getTasks().stream()
+                .filter(passport::tan2StepRequired)
+                .findAny()
+                .map(this::createHktan)
+                .ifPresent(msg::append);
         }
+    }
+
+    private GVTAN2Step createHktan(AbstractHBCIJob tan2StepRequiredJob) {
+        final GVTAN2Step hktan = new GVTAN2Step(getPassport(), tan2StepRequiredJob);
+        hktan.setProcess(KnownTANProcess.PROCESS2_STEP1);
+        hktan.setSegVersion(getPassport().getCurrentSecMechInfo().getSegversion());
+
+        if (getPassport().tanMediaNeeded()) {
+            hktan.setParam("tanmedia", getPassport().getCurrentSecMechInfo().getMedium());
+        }
+
+        return hktan;
     }
 
     /**
