@@ -141,12 +141,10 @@ public class HBCIUpdDialog extends AbstractHbciDialog {
     }
 
     private void updateUserData() {
-        if (passport.getSysStatus().equals("1")) {
-            if (passport.getSysId().equals("0"))
-                fetchSysId();
-            if (passport.getSigId() == -1)
-                fetchSigId();
-        }
+        if (passport.getSysId().equals("0"))
+            fetchSysId();
+        if (passport.getSigId() == -1)
+            fetchSigId();
     }
 
     @Override

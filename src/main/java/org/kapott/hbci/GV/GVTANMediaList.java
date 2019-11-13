@@ -26,21 +26,21 @@ public class GVTANMediaList extends AbstractHBCIJob {
     public void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
 
-        String value = result.get(header + ".tanoption");
-        if (value != null) {
-            ((GVRTANMediaList) jobResult).setTanOption(Integer.parseInt(value));
+        String tanOption = result.get(header + ".tanoption");
+        if (tanOption != null) {
+            ((GVRTANMediaList) jobResult).setTanOption(Integer.parseInt(tanOption));
         }
 
         for (int i = 0; ; i++) {
             String mediaheader = HBCIUtils.withCounter(header + ".MediaInfo", i);
 
-            value = result.get(mediaheader + ".mediacategory");
-            if (value == null)
+            tanOption = result.get(mediaheader + ".mediacategory");
+            if (tanOption == null)
                 break;
 
             GVRTANMediaList.TANMediaInfo info = new GVRTANMediaList.TANMediaInfo();
 
-            info.mediaCategory = value;
+            info.mediaCategory = tanOption;
             info.cardNumber = result.get(mediaheader + ".cardnumber");
             info.cardSeqNumber = result.get(mediaheader + ".cardseqnumber");
             info.mediaName = result.get(mediaheader + ".medianame");
@@ -49,33 +49,32 @@ public class GVTANMediaList extends AbstractHBCIJob {
             info.status = result.get(mediaheader + ".status");
             info.tanListNumber = result.get(mediaheader + ".tanlistnumber");
 
-            value = result.get(mediaheader + ".freetans");
-            if (value != null) info.freeTans = Integer.parseInt(value);
+            tanOption = result.get(mediaheader + ".freetans");
+            if (tanOption != null) info.freeTans = Integer.parseInt(tanOption);
 
-            value = result.get(mediaheader + ".cardtype");
-            if (value != null) info.cardType = Integer.parseInt(value);
+            tanOption = result.get(mediaheader + ".cardtype");
+            if (tanOption != null) info.cardType = Integer.parseInt(tanOption);
 
-            value = result.get(mediaheader + ".validfrom");
-            if (value != null) {
-                info.validFrom = HBCIUtils.string2DateISO(value);
+            tanOption = result.get(mediaheader + ".validfrom");
+            if (tanOption != null) {
+                info.validFrom = HBCIUtils.string2DateISO(tanOption);
             }
 
-            value = result.get(mediaheader + ".validto");
-            if (value != null) {
-                info.validTo = HBCIUtils.string2DateISO(value);
+            tanOption = result.get(mediaheader + ".validto");
+            if (tanOption != null) {
+                info.validTo = HBCIUtils.string2DateISO(tanOption);
             }
 
-            value = result.get(mediaheader + ".lastuse");
-            if (value != null) {
-                info.lastUse = HBCIUtils.string2DateISO(value);
+            tanOption = result.get(mediaheader + ".lastuse");
+            if (tanOption != null) {
+                info.lastUse = HBCIUtils.string2DateISO(tanOption);
             }
 
-            value = result.get(mediaheader + ".activatedon");
-            if (value != null) {
-                info.activatedOn = HBCIUtils.string2DateISO(value);
+            tanOption = result.get(mediaheader + ".activatedon");
+            if (tanOption != null) {
+                info.activatedOn = HBCIUtils.string2DateISO(tanOption);
             }
 
-            ((GVRTANMediaList) jobResult).add(info);
 
             // Es gibt auch noch "verfuegbar", da muss das Medium aber erst noch freigeschaltet werden
             boolean isActive = info.status != null && info.status.equals("1");
@@ -84,6 +83,7 @@ public class GVTANMediaList extends AbstractHBCIJob {
 
             if (isActive && haveName) {
                 log.info("adding TAN media: " + info.mediaName);
+                ((GVRTANMediaList) jobResult).add(info);
             }
         }
     }
