@@ -25,7 +25,11 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Value;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Ergebnisse der Abfrage von bestehenden Daueraufträgen. In diesem Objekt
@@ -49,12 +53,13 @@ public final class GVRDauerList extends HBCIJobResultImpl {
      *
      * @return Array mit Dauerauftrags-Informationen
      */
-    public Dauer[] getEntries() {
-        return entries.toArray(new Dauer[entries.size()]);
+    public List<Dauer> getEntries() {
+        return entries;
     }
 
+    @Override
     public String toString() {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
 
         for (Iterator<Dauer> i = entries.iterator(); i.hasNext(); ) {
             ret.append(HBCIUtils.getLocMsg("STANDINGORDER")).append(" #").append(i).append(System.getProperty("line" +
@@ -93,11 +98,11 @@ public final class GVRDauerList extends HBCIJobResultImpl {
          * Verwendungszweckzeilen. Dieses Array ist niemals <code>null</code>,
          * kann aber die Länge <code>0</code> haben.
          */
-        public String[] usage;
+        public String usage;
         /**
          * Datum der nächsten Ausführung (optional)
          */
-        public Date nextdate;
+        public LocalDate nextdate;
         /**
          * Eindeutige Auftragsnummer, um diesen Dauerauftrag zu identifizieren (optional)
          */
@@ -183,18 +188,12 @@ public final class GVRDauerList extends HBCIJobResultImpl {
          */
         public String purposecode;
 
-        public Dauer() {
-            usage = new String[0];
-        }
-
-        public void addUsage(String line) {
-            ArrayList<String> a = new ArrayList<String>(Arrays.asList(usage));
-            a.add(line);
-            usage = (a.toArray(usage));
+        public void setUsage(String line) {
+            usage = line;
         }
 
         public String toString() {
-            StringBuffer ret = new StringBuffer();
+            StringBuilder ret = new StringBuilder();
             String linesep = System.getProperty("line.separator");
 
             ret.append("  ").append(HBCIUtils.getLocMsg("SRCACCOUNT")).append(": ").append(my.toString()).append(linesep);
@@ -202,15 +201,13 @@ public final class GVRDauerList extends HBCIJobResultImpl {
             ret.append("  ").append(HBCIUtils.getLocMsg("VALUE")).append(": ").append(value.toString()).append(linesep);
             ret.append("  ").append(HBCIUtils.getLocMsg("KEY")).append(": ").append(key).append("/").append(addkey).append(linesep);
             ret.append("  ").append(HBCIUtils.getLocMsg("USAGE")).append(":").append(linesep);
-            for (int i = 0; i < usage.length; i++) {
-                ret.append("    ").append(usage[i]).append(linesep);
-            }
+            ret.append("    ").append(usage).append(linesep);
             if (nextdate != null)
-                ret.append("  ").append(HBCIUtils.getLocMsg("NEXTEXECDATE")).append(": ").append(HBCIUtils.date2StringLocal(nextdate)).append(linesep);
+                ret.append("  ").append(HBCIUtils.getLocMsg("NEXTEXECDATE")).append(": ").append(nextdate).append(linesep);
             ret.append("  ").append(HBCIUtils.getLocMsg("ORDERID")).append(": ").append(orderid).append(linesep);
 
-            ret.append("  ").append(HBCIUtils.getLocMsg("FIRSTLASTEXEC")).append(": ").append(HBCIUtils.date2StringLocal(firstdate)).append(" / ");
-            ret.append((lastdate != null ? HBCIUtils.date2StringLocal(lastdate) : "N/A")).append(linesep);
+            ret.append("  ").append(HBCIUtils.getLocMsg("FIRSTLASTEXEC")).append(": ").append(firstdate).append(" / ");
+            ret.append((lastdate != null ? lastdate : "N/A")).append(linesep);
             ret.append("  ").append(HBCIUtils.getLocMsg("EXECDAY")).append(": ").append(execday).append(linesep);
             ret.append("  ").append(HBCIUtils.getLocMsg("UNITTURNUS")).append(": ").append(timeunit).append(" / ").append(turnus).append(linesep);
 

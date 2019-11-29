@@ -1422,6 +1422,16 @@
             <DE name="maxVorlZeitFRSTOOFF" type="Num" maxsize="4"/>
         </DEGdef>
 
+        <DEGdef id="ParInstantUebSepa1">
+            <DE name="PurposeCodes" type="AN" maxsize="4096" minnum="0" maxnum="1"/>
+            <DE name="suppformats" type="AN" maxsize="256" minnum="0" maxnum="9"/>
+        </DEGdef>
+
+        <DEGdef id="ParInstantUebSepaStatus1">
+            <DE name="minWarteZeit" type="Num" maxsize="2"/>
+            <DE name="suppformats" type="AN" maxsize="256" minnum="0" maxnum="9"/>
+        </DEGdef>
+
         <DEGdef id="ParSammelLastSEPA">
             <DE name="minVorlZeitFNALRCUR" type="Num" maxsize="4"/>
             <DE name="maxVorlZeitFNALRCUR" type="Num" maxsize="4"/>
@@ -1458,7 +1468,6 @@
             <DE name="PurposeCodes" type="AN" maxsize="4096" minnum="0" maxnum="1"/>
             <DE name="suppformats" type="AN" maxsize="256" minnum="0" maxnum="9"/>
         </DEGdef>
-
 
         <DEGdef id="ParTAN2Step1">
             <DE name="can1step" type="JN"/>
@@ -6337,6 +6346,40 @@
             <value path="SegHead.version">1</value>
         </SEGdef>
 
+        <SEGdef id="InstantUebSEPA1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DE name="sepadescr" type="AN" maxsize="256"/>
+            <DE name="sepapain" type="Bin" maxsize="0"/>
+
+            <value path="SegHead.code">HKIPZ</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="InstantUebSEPAPar1">
+            &GVP2;
+            <DEG type="ParInstantUebSepa1" name="ParInstantUebSEPA"/>
+            &SecClassValids;
+            <value path="SegHead.code">HIIPZS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+
+        <SEGdef id="InstantUebSEPAStatus1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DE name="sepadescr" type="AN" maxsize="256"/>
+            <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
+
+            <value path="SegHead.code">HKIPS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="InstantUebSEPAStatusPar1">
+            &GVP2;
+            <DEG type="ParInstantUebSepaStatus1" name="ParInstantUebSEPAStatus"/>
+            &SecClassValids;
+            <value path="SegHead.code">HIIPSS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+
         <!-- BEGIN SEPA-Umbuchung aka 'SEPA-Überweisung auf ein Empfängerkonto' -->
         <!-- Request -->
         <SEGdef id="UmbSEPA1">
@@ -7742,6 +7785,8 @@
             <SEG type="UebForeign2" minnum="0"/>
             <SEG type="UebGar1" minnum="0"/>
             <SEG type="UebSEPA1" minnum="0"/>
+            <SEG type="InstantUebSEPA1" minnum="0"/>
+            <SEG type="InstantUebSEPAStatus1" minnum="0"/>
             <SEG type="UmbSEPA1" minnum="0"/>
             <SEG type="Umb1" minnum="0"/>
             <SEG type="Umb2" minnum="0"/>
@@ -8046,6 +8091,8 @@
             <SEG type="UebForeignPar2" minnum="0"/>
             <SEG type="UebGarPar1" minnum="0"/>
             <SEG type="UebSEPAPar1" minnum="0"/>
+            <SEG type="InstantUebSEPAPar1" minnum="0"/>
+            <SEG type="InstantUebSEPAStatusPar1" minnum="0"/>
             <SEG type="UmbSEPAPar1" minnum="0"/>
             <SEG type="UmbPar1" minnum="0"/>
             <SEG type="UmbPar2" minnum="0"/>

@@ -132,7 +132,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         entry.value = new Value(
             separesult.get("value"),
             separesult.get("curr"));
-        entry.addUsage(separesult.get("usage"));
+        entry.setUsage(separesult.get("usage"));
 
         String st;
         entry.orderid = result.get(header + ".orderid");
@@ -176,8 +176,6 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
                         result.get(key));
                 }
             }
-
-//TODO            passport.setPersistentData("dauer_" + entry.orderid, p2);
         }
     }
 

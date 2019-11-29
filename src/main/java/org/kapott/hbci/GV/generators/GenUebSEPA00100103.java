@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * SEPA-Generator fuer pain.001.001.03.
@@ -90,6 +91,13 @@ public class GenUebSEPA00100103 extends AbstractSEPAGenerator<Map<String, String
 
         //Payment Information - ChargeBearer
         pmtInf.setChrgBr(ChargeBearerTypeSEPACode.SLEV);
+
+        //Instant Payment
+        Optional.ofNullable(sepaParams.get("type"))
+            .ifPresent(type -> {
+                pmtInf.getPmtTpInf().setLclInstrm(new LocalInstrumentSEPA());
+                pmtInf.getPmtTpInf().getLclInstrm().setCd(type);
+            });
 
         //Payment Information - Credit Transfer Transaction Information
         ArrayList<CreditTransferTransactionInformationSCT> cdtTrxTxInfs =
