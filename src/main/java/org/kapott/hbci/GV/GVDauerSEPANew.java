@@ -1,6 +1,6 @@
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.GV_Result.GVRDauerNew;
+import org.kapott.hbci.GV_Result.GVRPayment;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -16,7 +16,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
     private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVDauerSEPANew(HBCIPassportInternal passport) {
-        super(passport, getLowlevelName(), new GVRDauerNew(passport));
+        super(passport, getLowlevelName(), new GVRPayment(passport));
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -153,7 +153,7 @@ public class GVDauerSEPANew extends AbstractSEPAGV {
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         String orderid = result.get(header + ".orderid");
-        ((GVRDauerNew) (jobResult)).setOrderId(orderid);
+        ((GVRPayment) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {
             HashMap<String, String> p2 = new HashMap<>();

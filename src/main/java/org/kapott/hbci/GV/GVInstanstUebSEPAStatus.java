@@ -18,6 +18,10 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRInstantUebSEPAStatus;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.status.HBCIMsgStatus;
+
+import java.util.HashMap;
+import java.util.Optional;
 
 public class GVInstanstUebSEPAStatus extends AbstractHBCIJob {
 
@@ -32,6 +36,15 @@ public class GVInstanstUebSEPAStatus extends AbstractHBCIJob {
 
     public static String getLowlevelName() {
         return "InstantUebSEPAStatus";
+    }
+
+    @Override
+    protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        HashMap<String, String> result = msgstatus.getData();
+        Optional.ofNullable(result.get(header + ".status"))
+            .ifPresent(s -> ((GVRInstantUebSEPAStatus) jobResult).setStatus(Integer.parseInt(s)));
+        Optional.ofNullable(result.get(header + ".cancellationCode"))
+            .ifPresent(s -> ((GVRInstantUebSEPAStatus) jobResult).setCancellationCode(Integer.parseInt(s)));
     }
 
 }

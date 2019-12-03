@@ -5471,7 +5471,7 @@
         </SEGdef>
         <SEGdef id="TAN2StepRes6">
             <DEG type="SegHeadInst" name="SegHead"/>
-            <DE name="process" type="Code" maxsize="1"/>
+            <DE name="process" type="Code" maxsize="1" minnum="0"/>
             <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
             <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
             <DE name="challenge" type="AN" maxsize="2048" minnum="0"/>
@@ -6355,6 +6355,15 @@
             <value path="SegHead.code">HKIPZ</value>
             <value path="SegHead.version">1</value>
         </SEGdef>
+        <SEGdef id="InstantUebSEPARes1">
+            <DEG type="SegHeadInst" name="SegHead"/>
+            <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
+            <DE name="cancellationCode" type="Code" minsize="0"/>
+            <DE name="status" type="Code" minsize="0"/>
+
+            <value path="SegHead.code">HIIPZ</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
         <SEGdef id="InstantUebSEPAPar1">
             &GVP2;
             <DEG type="ParInstantUebSepa1" name="ParInstantUebSEPA"/>
@@ -6370,6 +6379,18 @@
             <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
 
             <value path="SegHead.code">HKIPS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="InstantUebSEPAStatusRes1">
+            <DEG type="SegHeadInst" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DE name="sepadescr" type="AN" maxsize="256"/>
+            <DE name="sepapain" type="Bin" maxsize="0"/>
+            <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
+            <DE name="cancellationCode" type="Code" minsize="0"/>
+            <DE name="status" type="Code" minsize="0"/>
+
+            <value path="SegHead.code">HIIPS</value>
             <value path="SegHead.version">1</value>
         </SEGdef>
         <SEGdef id="InstantUebSEPAStatusPar1">
@@ -7916,6 +7937,8 @@
             <SEG type="TermUebListRes3" minnum="0"/>
             <SEG type="TermUebSEPAListRes1" minnum="0"/>
             <SEG type="TermUebSEPAEditRes1" minnum="0"/>
+            <SEG type="InstantUebSEPARes1" minnum="0"/>
+            <SEG type="InstantUebSEPAStatusRes1" minnum="0"/>
             <SEG type="UebGarRes1" minnum="0"/>
             <SEG type="VormerkpostenRes1" minnum="0"/>
             <SEG type="WPDepotListRes2" minnum="0"/>

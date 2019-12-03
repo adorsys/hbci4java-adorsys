@@ -20,7 +20,7 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.GV_Result.GVRTermUeb;
+import org.kapott.hbci.GV_Result.GVRPayment;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -29,10 +29,10 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class GVTermUeb
-    extends AbstractHBCIJob {
+public final class GVTermUeb extends AbstractHBCIJob {
+
     public GVTermUeb(HBCIPassportInternal passport) {
-        super(passport, getLowlevelName(), new GVRTermUeb(passport));
+        super(passport, getLowlevelName(), new GVRPayment(passport));
 
         addConstraint("src.country", "My.KIK.country", "DE");
         addConstraint("src.blz", "My.KIK.blz", null);
@@ -66,14 +66,12 @@ public final class GVTermUeb
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         String orderid = result.get(header + ".orderid");
-        ((GVRTermUeb) (jobResult)).setOrderId(orderid);
+        ((GVRPayment) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {
             HashMap<String, String> p2 = new HashMap<>();
             getLowlevelParams().forEach((key, value) ->
                 p2.put(key.substring(key.indexOf(".") + 1), value));
-
-//TODO            passport.setPersistentData("termueb_" + orderid, p2);
         }
     }
 

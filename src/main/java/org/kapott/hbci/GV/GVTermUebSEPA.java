@@ -20,7 +20,7 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.GV_Result.GVRTermUeb;
+import org.kapott.hbci.GV_Result.GVRPayment;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.SepaVersion;
 import org.kapott.hbci.status.HBCIMsgStatus;
@@ -39,7 +39,7 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
     }
 
     public GVTermUebSEPA(HBCIPassportInternal passport, String name) {
-        super(passport, name, new GVRTermUeb(passport));
+        super(passport, name, new GVRPayment(passport));
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -104,7 +104,7 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
         HashMap<String, String> result = msgstatus.getData();
         String orderid = result.get(header + ".orderid");
 
-        ((GVRTermUeb) (jobResult)).setOrderId(orderid);
+        ((GVRPayment) (jobResult)).setOrderId(orderid);
     }
 
 }

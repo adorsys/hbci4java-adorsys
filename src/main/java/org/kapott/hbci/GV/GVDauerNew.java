@@ -20,7 +20,7 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.GV_Result.GVRDauerNew;
+import org.kapott.hbci.GV_Result.GVRPayment;
 import org.kapott.hbci.exceptions.InvalidUserDataException;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -33,7 +33,7 @@ import java.util.Map;
 public final class GVDauerNew extends AbstractHBCIJob {
 
     public GVDauerNew(HBCIPassportInternal passport) {
-        super(passport, getLowlevelName(), new GVRDauerNew(passport));
+        super(passport, getLowlevelName(), new GVRPayment(passport));
 
         addConstraint("src.number", "My.number", null);
         addConstraint("src.subnumber", "My.subnumber", "");
@@ -74,7 +74,7 @@ public final class GVDauerNew extends AbstractHBCIJob {
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         Map<String, String> result = msgstatus.getData();
         String orderid = result.get(header + ".orderid");
-        ((GVRDauerNew) (jobResult)).setOrderId(orderid);
+        ((GVRPayment) (jobResult)).setOrderId(orderid);
 
         if (orderid != null && orderid.length() != 0) {
             HashMap<String, String> p2 = new HashMap<>();

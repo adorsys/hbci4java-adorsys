@@ -16,18 +16,21 @@
 
 package org.kapott.hbci.GV_Result;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
 @Getter
 @Setter
-public class GVRInstantUebSEPAStatus extends HBCIJobResultImpl {
+@ToString
+@EqualsAndHashCode(callSuper = false)
+public class GVRPayment extends HBCIJobResultImpl {
 
-    private int cancellationCode;
-    private int status;
+    private String orderId;
 
-    public GVRInstantUebSEPAStatus(HBCIPassportInternal passport) {
+    public GVRPayment(HBCIPassportInternal passport) {
         super(passport);
     }
 }

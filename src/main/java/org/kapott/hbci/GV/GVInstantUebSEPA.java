@@ -20,9 +20,11 @@
 
 package org.kapott.hbci.GV;
 
-import org.kapott.hbci.GV_Result.HBCIJobResultImpl;
+import org.kapott.hbci.GV_Result.GVRPayment;
 import org.kapott.hbci.passport.HBCIPassportInternal;
-import org.kapott.hbci.sepa.SepaVersion;
+import org.kapott.hbci.status.HBCIMsgStatus;
+
+import java.util.HashMap;
 
 /**
  * Job-Implementierung fuer Instant SEPA-Ueberweisungen.
@@ -30,26 +32,23 @@ import org.kapott.hbci.sepa.SepaVersion;
 public class GVInstantUebSEPA extends GVUebSEPA {
 
     public GVInstantUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName(), null);
+        this(passport, getLowlevelName());
     }
 
     public GVInstantUebSEPA(HBCIPassportInternal passport, String name) {
-        this(passport, name, null);
+        super(passport, name, new GVRPayment(passport));
     }
 
-    public GVInstantUebSEPA(HBCIPassportInternal passport, String name, HBCIJobResultImpl jobResult) {
-        super(passport, name, jobResult);
-
-        setLowlevelParam(getName() + ".sepa.type", "INST");
-    }
-
-    /**
-     * Liefert den Lowlevel-Namen des Jobs.
-     *
-     * @return der Lowlevel-Namen des Jobs.
-     */
     public static String getLowlevelName() {
         return "InstantUebSEPA";
+    }
+
+    @Override
+    protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        HashMap<String, String> result = msgstatus.getData();
+        String orderid = result.get(header + ".orderid");
+
+        ((GVRPayment) (jobResult)).setOrderId(orderid);
     }
 
 }

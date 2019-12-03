@@ -20,7 +20,6 @@
 
 package org.kapott.hbci.GV_Result;
 
-import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 
 /**
@@ -29,26 +28,12 @@ import org.kapott.hbci.passport.HBCIPassportInternal;
  * Auftrag. Die neue und optional die alte Auftrags-ID können mit dieser Klasse
  * ermittelt werden.
  */
-public class GVRDauerEdit extends HBCIJobResultImpl {
+public class GVRDauerEdit extends GVRPayment {
 
-    private String orderid;
     private String orderidold;
 
     public GVRDauerEdit(HBCIPassportInternal passport) {
         super(passport);
-    }
-
-    /**
-     * Gibt die Auftrags-Identifikationsnummer des geänderten Auftrages zurück.
-     *
-     * @return neue Auftrags-ID
-     */
-    public String getOrderId() {
-        return orderid;
-    }
-
-    public void setOrderId(String orderid) {
-        this.orderid = orderid;
     }
 
     /**
@@ -66,7 +51,4 @@ public class GVRDauerEdit extends HBCIJobResultImpl {
         this.orderidold = orderidold;
     }
 
-    public String toString() {
-        return HBCIUtils.getLocMsg("ORDERID") + ": " + getOrderId();
-    }
 }
