@@ -585,11 +585,11 @@ public class GVRKUms extends HBCIJobResultImpl {
         }
     }
 
-    public List<String> getRaw() {
-        if (mt940raw != null && mt940raw.length() > 0) {
+    public List<String> getRaw(boolean pending) {
+        if (mt940raw != null && mt940raw.length() > 0 && !pending) {
             return Collections.singletonList(mt940raw.toString());
         }
-        if (mt942raw != null && mt942raw.length() > 0) {
+        if (mt942raw != null && mt942raw.length() > 0 && pending) {
             return Collections.singletonList(mt942raw.toString());
         }
 

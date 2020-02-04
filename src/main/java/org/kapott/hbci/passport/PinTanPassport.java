@@ -23,7 +23,6 @@ package org.kapott.hbci.passport;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.cryptalgs.CryptAlgs4JavaProvider;
 import org.kapott.hbci.GV.AbstractHBCIJob;
-import org.kapott.hbci.GV_Result.GVRTANMediaList;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.manager.HBCIKey;
