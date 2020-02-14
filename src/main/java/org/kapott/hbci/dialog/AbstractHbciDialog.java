@@ -59,7 +59,7 @@ public abstract class AbstractHbciDialog {
     public HBCIMsgStatus dialogInit(boolean withHktan, String orderSegCode) {
         log.debug("start dialog");
 
-        if (passport.getSysId().equals("0")) {
+        if (passport.getSysId().equals("0") || passport.getUPD() == null) {
             HBCIUpdDialog updDialog = new HBCIUpdDialog(passport, withHktan);
             updDialog.execute(true);
         }

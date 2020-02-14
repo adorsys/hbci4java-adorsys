@@ -133,10 +133,6 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         return getInstance(callback, properties, (Object) null);
     }
 
-    private static String pathWithDot(String path) {
-        return (path.length() == 0) ? path : (path + ".");
-    }
-
     /* Initialisieren eines Message-Generators. Der <syntaFileStream> ist ein
      * Stream, mit dem eine XML-Datei mit einer HBCI-Syntaxspezifikation
      * eingelesen wird */

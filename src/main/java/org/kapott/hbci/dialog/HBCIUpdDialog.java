@@ -45,16 +45,14 @@ public class HBCIUpdDialog extends AbstractHbciDialog {
 
     @Override
     public HBCIExecStatus execute(boolean close) {
-        if (passport.getUPD() == null) {
-            try {
-                log.debug("registering user");
-                updateUserData();
-                if (close) {
-                    dialogEnd();
-                }
-            } catch (Exception ex) {
-                throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
+        try {
+            log.debug("registering user");
+            updateUserData();
+            if (close) {
+                dialogEnd();
             }
+        } catch (Exception ex) {
+            throw new HBCI_Exception(HBCIUtils.getLocMsg("EXCMSG_CANT_REG_USER"), ex);
         }
         return null;
     }
