@@ -76,6 +76,17 @@ public class HBCIExecStatus {
         return ret;
     }
 
+    public List<String> getWarnMessages() {
+        List<String> ret = new ArrayList<>();
+
+        if (msgStatusList != null) {
+            msgStatusList.forEach(hbciMsgStatus -> ret.addAll(hbciMsgStatus.getWarningsList()));
+
+        }
+
+        return ret;
+    }
+
     public String toString() {
         StringBuilder ret = new StringBuilder();
         String linesep = System.getProperty("line.separator");

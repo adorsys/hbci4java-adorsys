@@ -268,6 +268,18 @@ public final class HBCIStatus {
         return ret;
     }
 
+    public List<String> getWarningsList() {
+        List<String> ret = new ArrayList<>();
+
+        if (hasWarnings()) {
+            for (HBCIRetVal hbciRetVal : getWarnings()) {
+                ret.add(hbciRetVal.toString());
+            }
+        }
+
+        return ret;
+    }
+
     /**
      * Gibt die Status-Informationen aller enthaltenen Exceptions und
      * HBCI-Rückgabewerte als ein String zurück.

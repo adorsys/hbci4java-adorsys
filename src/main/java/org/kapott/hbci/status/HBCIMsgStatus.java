@@ -191,6 +191,15 @@ public final class HBCIMsgStatus {
         return ret;
     }
 
+    public List<String> getWarningsList() {
+        List<String> ret = new ArrayList<>();
+
+        ret.addAll(globStatus.getWarningsList());
+        ret.addAll(segStatus.getWarningsList());
+
+        return ret;
+    }
+
     /**
      * Fasst alle Status-Informationen zu einem Nachrichtenaustausch in einem einzigen
      * String zusammen und gibt diesen zurück. Dazu gehören alle evtl.
