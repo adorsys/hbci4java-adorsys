@@ -248,7 +248,8 @@ public class PinTanPassport extends AbstractHBCIPassport {
             }
         });
 
-        if (newUpd.size() != 0) {
+        if (newUpd.size() != 0 && isUpdNotEmpty(newUpd)) {
+            newUpd.get("UPD.SegHead.code");
             newUpd.put("_hbciversion", getHBCIVersion());
 
             String oldVersion = getUPDVersion();
@@ -257,6 +258,11 @@ public class PinTanPassport extends AbstractHBCIPassport {
             log.info("installed new UPD [old version: " + oldVersion + ", new version: " + getUPDVersion() + "]");
             getCallback().status(HBCICallback.STATUS_INIT_UPD_DONE, getUPD());
         }
+    }
+
+    private boolean isUpdNotEmpty(Map<String, String> upd) {
+        return upd.keySet().stream()
+            .anyMatch(key -> key.startsWith("KInfo"));
     }
 
     public void postInitResponseHook(HBCIMsgStatus msgStatus) {
