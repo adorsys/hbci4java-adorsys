@@ -77,7 +77,7 @@ public class HBCIUpdDialog extends AbstractHbciDialog {
                     .orElse(false);
             }
 
-            syncStatus = doDialogInitSync("Synch", "0", withHktan);
+            syncStatus = doDialogInitSync("0", withHktan);
             if (!syncStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSYSIDFAIL"), syncStatus);
 
@@ -107,7 +107,7 @@ public class HBCIUpdDialog extends AbstractHbciDialog {
 
             passport.setSigId(9999999999999999L);
 
-            msgStatus = doDialogInitSync("Synch", "2", true);
+            msgStatus = doDialogInitSync("2", true);
             if (!msgStatus.isOK())
                 throw new ProcessException(HBCIUtils.getLocMsg("EXCMSG_SYNCSIGIDFAIL"), msgStatus);
 
@@ -115,7 +115,7 @@ public class HBCIUpdDialog extends AbstractHbciDialog {
 
             passport.updateUPD(syncResult);
             passport.setSigId(syncResult.get("SyncRes.sigid") != null
-                ? Long.valueOf(syncResult.get("SyncRes.sigid"))
+                ? Long.parseLong(syncResult.get("SyncRes.sigid"))
                 : 1L);
             passport.incSigId();
 
@@ -133,8 +133,8 @@ public class HBCIUpdDialog extends AbstractHbciDialog {
         }
     }
 
-    private HBCIMsgStatus doDialogInitSync(String messageName, String syncMode, boolean withHktan) {
-        Message message = MessageFactory.createDialogInit(messageName, syncMode, passport, withHktan, "HKIDN");
+    private HBCIMsgStatus doDialogInitSync(String syncMode, boolean withHktan) {
+        Message message = MessageFactory.createDialogInit("Synch", syncMode, passport, withHktan, "HKIDN");
         return kernel.rawDoIt(message, null, HBCIKernel.SIGNIT, HBCIKernel.CRYPTIT);
     }
 

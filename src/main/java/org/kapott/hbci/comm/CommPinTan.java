@@ -111,7 +111,7 @@ public final class CommPinTan {
         callback.status(HBCICallback.STATUS_MSG_RAW_RECV, rawMsg);
 
 //        try {
-//            FileOutputStream fileOutputStream = new FileOutputStream(new File(messageName));
+//            FileOutputStream fileOutputStream = new FileOutputStream(new File(messageName+System.currentTimeMillis()+".txt"));
 //            IOUtils.write(rawMsg, fileOutputStream, ENCODING);
 //            fileOutputStream.close();
 //        } catch (IOException e) {
@@ -137,11 +137,9 @@ public final class CommPinTan {
                     true);
             } catch (ParseErrorException e) {
                 // wenn das schiefgeht...
-                log.debug("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res " +
-                    "message");
+                log.debug("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res " + message);
 
                 // alle rewriter durchlaufen, um nachricht evtl. als unverschlüsselte rawMsg zu parsen
-//                message.set("_origSignedMsg", st);
                 for (Rewrite rewriter1 : rewriters) {
                     rawMsg = rewriter1.incomingClearText(rawMsg);
                 }
@@ -149,8 +147,13 @@ public final class CommPinTan {
                 log.trace(rawMsg);
                 // versuch, nachricht als unverschlüsselte rawMsg zu parsen
                 callback.status(HBCICallback.STATUS_MSG_PARSE, message.getName() + "Res");
-                responseMessage = new Message(message.getName() + "Res", rawMsg, message.getDocument(),
-                    Message.CHECK_SEQ, true);
+                try {
+                    responseMessage = new Message(message.getName() + "Res", rawMsg, message.getDocument(),
+                        Message.CHECK_SEQ, true);
+                } catch (ParseErrorException e2) {
+                    responseMessage = new Message("ErrorRes", rawMsg, message.getDocument(),
+                        Message.CHECK_SEQ, true);
+                }
             }
         } catch (Exception ex) {
             throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), rawMsg, ex);

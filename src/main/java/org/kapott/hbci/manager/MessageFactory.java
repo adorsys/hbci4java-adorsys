@@ -20,28 +20,14 @@
 
 package org.kapott.hbci.manager;
 
+import lombok.experimental.UtilityClass;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.protocol.Message;
 import org.w3c.dom.Document;
 
 import java.util.Optional;
 
-/* Message-Generator-Klasse. Diese Klasse verwaltet die Syntax-Spezifikation
- * für die zu verwendende HBCI-Version. Hiermit wird das Erzeugen von
- * HBCI-Nachrichten gekapselt.
- * Dazu wird eine Hashtable verwaltet, die die Daten enthält, die in die
- * jeweilige Nachricht aufgenommen werden sollen. Die Hashtable enthält als
- * Key den "Pfad" zum Datenelement (DialogInit.MsgHead.hbciversion), als
- * Value den einzustellenden Wert im Klartext.
- * Das Erzeugen einer Nachricht geschieht in drei Schritten:
- *   1) MsgGen.reset() -- vollständiges Leeren der Daten-Hashtable
- *   2) MsgGen.set(key,value) -- speichern eines Datums für die Nachricht
- *      in der Hashtable
- *   3) MsgGen.createMessage(msgName) -- erzeugen der Nachricht mit dem Namen
- *      <msgName>. Dabei werden auch nur die Daten aus der Hashtable
- *      verwendet, dir mit "<msgName>." beginnen (so dass in der Datenhashtable
- *      auch zusätzliche Daten gespeichert werden können, solange sie nicht
- *      mit "<msgName>." beginnen).*/
+@UtilityClass
 public final class MessageFactory {
 
     private static final HBCIProduct HBCI_PRODUCT = new HBCIProduct("36792786FA12F235F04647689", "3.2");

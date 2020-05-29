@@ -8322,6 +8322,12 @@
             &MsgSigTailInst;
         </MSGdef>
 
+        <MSGdef id="ErrorRes" dontsign="1" dontcrypt="1">
+            <SEG type="MsgHeadInst" name="MsgHead"/>
+            <SEG type="RetGlob" minnum="0" maxnum="0"/>
+            <SEG type="MsgTailInst" name="MsgTail"/>
+        </MSGdef>
+
         <MSGdef id="ChangeKeys">
             &MsgSigHeadUser;
             <SEG type="KeyChange" minnum="1" maxnum="3"/>

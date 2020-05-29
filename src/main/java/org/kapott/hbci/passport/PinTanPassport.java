@@ -249,7 +249,6 @@ public class PinTanPassport extends AbstractHBCIPassport {
         });
 
         if (newUpd.size() != 0 && isUpdNotEmpty(newUpd)) {
-            newUpd.get("UPD.SegHead.code");
             newUpd.put("_hbciversion", getHBCIVersion());
 
             String oldVersion = getUPDVersion();
