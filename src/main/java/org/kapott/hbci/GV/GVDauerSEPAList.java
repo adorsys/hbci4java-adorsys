@@ -128,6 +128,7 @@ public final class GVDauerSEPAList extends AbstractSEPAGV {
         entry.other.name = separesult.get("dst.name");
         entry.pmtinfid = separesult.get("pmtinfid");
         entry.purposecode = separesult.get("purposecode");
+        entry.endToEndId = separesult.get("endtoendid");
 
         entry.value = new Value(
             separesult.get("value"),

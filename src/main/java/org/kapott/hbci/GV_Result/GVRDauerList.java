@@ -188,6 +188,8 @@ public final class GVRDauerList extends HBCIJobResultImpl {
          */
         public String purposecode;
 
+        public String endToEndId;
+
         public void setUsage(String line) {
             usage = line;
         }
