@@ -51,6 +51,13 @@ public class GVRawSEPA extends AbstractSEPAGV {
             setPainVersion(SepaVersion.autodetect(pain).getURN());
             setPainXml("B" + pain);
         }
+
+        // DauerDetails
+        addConstraint("firstdate", "DauerDetails.firstdate", null);
+        addConstraint("timeunit", "DauerDetails.timeunit", null);
+        addConstraint("turnus", "DauerDetails.turnus", null);
+        addConstraint("execday", "DauerDetails.execday", null);
+        addConstraint("lastdate", "DauerDetails.lastdate", "");
     }
 
     /**
