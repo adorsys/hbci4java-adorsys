@@ -53,10 +53,10 @@ public class GVRawSEPA extends AbstractSEPAGV {
         }
 
         // DauerDetails
-        addConstraint("firstdate", "DauerDetails.firstdate", null);
-        addConstraint("timeunit", "DauerDetails.timeunit", null);
-        addConstraint("turnus", "DauerDetails.turnus", null);
-        addConstraint("execday", "DauerDetails.execday", null);
+        addConstraint("firstdate", "DauerDetails.firstdate", "");
+        addConstraint("timeunit", "DauerDetails.timeunit", "");
+        addConstraint("turnus", "DauerDetails.turnus", "");
+        addConstraint("execday", "DauerDetails.execday", "");
         addConstraint("lastdate", "DauerDetails.lastdate", "");
     }
 
