@@ -68,9 +68,11 @@ public class HBCIMessage {
      * Fuegt einen neuen Job zur Nachricht hinzu.
      *
      * @param task der neue Job.
+     * @return HBCIMessage
      */
-    public void append(AbstractHBCIJob task) {
+    public HBCIMessage append(AbstractHBCIJob task) {
         this.tasks.add(task);
+        return this;
     }
 }
 

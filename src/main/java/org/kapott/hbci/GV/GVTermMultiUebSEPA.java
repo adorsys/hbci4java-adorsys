@@ -66,7 +66,7 @@ public class GVTermMultiUebSEPA extends GVUebSEPA {
 
     @Override
     public void verifyConstraints() {
-        setParam("Total", SepaUtil.sumBtgValueObject(painParams));
+        setParam("Total", SepaUtil.sumBtgValueObject(getPainParams()));
 
         super.verifyConstraints();
     }

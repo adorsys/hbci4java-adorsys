@@ -38,6 +38,6 @@ public class GVMultiLastSEPA extends GVLastSEPA {
     @Override
     protected void createPainXml() {
         super.createPainXml();
-        setParam("Total", SepaUtil.sumBtgValueObject(painParams));
+        setParam("Total", SepaUtil.sumBtgValueObject(getPainParams()));
     }
 }

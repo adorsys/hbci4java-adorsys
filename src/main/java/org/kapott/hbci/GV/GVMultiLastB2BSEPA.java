@@ -38,6 +38,6 @@ public class GVMultiLastB2BSEPA extends GVLastB2BSEPA {
     @Override
     protected void createPainXml() {
         super.createPainXml();
-        setParam("Total", SepaUtil.sumBtgValueObject(painParams));
+        setParam("Total", SepaUtil.sumBtgValueObject(getPainParams()));
     }
 }

@@ -800,7 +800,7 @@
         </DEGdef>
         <DEGdef id="SegHeadUser">
             <DE name="code" type="AN" maxsize="6"/>
-            <DE name="seq" type="Num" maxsize="3"/>
+            <DE name="seq" type="Num" maxsize="3" minnum="0"/>
             <DE name="version" type="Num" maxsize="3"/>
             <DE name="ref" type="Num" maxsize="3" minnum="0"/>
         </DEGdef>
@@ -870,7 +870,7 @@
         </DEGdef>
 
         <DEGdef id="UserSig">
-            <DE name="pin" type="AN" maxsize="99"/>               <!-- Einige Banken unterstützen mehr als 6 Stellen  -->
+            <DE name="pin" type="AN" maxsize="99"/><!-- Einige Banken unterstützen mehr als 6 Stellen  -->
             <DE name="tan" type="AN" maxsize="99" minnum="0"/>
         </DEGdef>
 
@@ -989,11 +989,11 @@
         </DEGdef>
 
         <DEGdef id="HHDUCAnswer">
-            <DE name="atc" type="AN" maxsize="5" />
-            <DE name="appcrypto_ac" type="Bin" maxsize="256" />
-            <DE name="ef_id_data" type="Bin" maxsize="256" />
-            <DE name="cvr" type="Bin" maxsize="256" />
-            <DE name="versioninfo" type="Bin" maxsize="256" />
+            <DE name="atc" type="AN" maxsize="5"/>
+            <DE name="appcrypto_ac" type="Bin" maxsize="256"/>
+            <DE name="ef_id_data" type="Bin" maxsize="256"/>
+            <DE name="cvr" type="Bin" maxsize="256"/>
+            <DE name="versioninfo" type="Bin" maxsize="256"/>
         </DEGdef>
 
         <DEGdef id="ChallengeValidity">
@@ -1318,12 +1318,12 @@
             <DE name="timerange" type="Num" maxsize="4"/>
             <DE name="canmaxentries" type="JN"/>
             <DE name="canallaccounts" type="JN"/>
-            <DE name="suppformats" type="AN" maxsize="256" maxnum="99" />
+            <DE name="suppformats" type="AN" maxsize="256" maxnum="99"/>
         </DEGdef>
 
         <DEGdef id="CamtBooked">
             <!-- Die erlaubte Maximalanzahl ist nicht spezifiziert. Da steht nur "n" als Anzahl -->
-            <DE name="message" type="Bin" minnum="1" maxnum="999" />
+            <DE name="message" type="Bin" minnum="1" maxnum="999"/>
         </DEGdef>
 
         <DEGdef id="CamtFormats">
@@ -1379,17 +1379,17 @@
         </DEGdef>
 
         <DEGdef id="ParSammelUebSEPA">
-            <DE name="maxnum" type="Num" maxsize="7" />
-            <DE name="needtotal" type="JN" />
-            <DE name="cansingletransfer" type="JN" />
+            <DE name="maxnum" type="Num" maxsize="7"/>
+            <DE name="needtotal" type="JN"/>
+            <DE name="cansingletransfer" type="JN"/>
         </DEGdef>
 
         <DEGdef id="ParTermSammelUebSEPA">
             <DE name="minVorlZeit" type="Num" maxsize="4"/>
             <DE name="maxVorlZeit" type="Num" maxsize="4"/>
-            <DE name="maxnum" type="Num" maxsize="7" />
-            <DE name="needtotal" type="JN" />
-            <DE name="cansingletransfer" type="JN" />
+            <DE name="maxnum" type="Num" maxsize="7"/>
+            <DE name="needtotal" type="JN"/>
+            <DE name="cansingletransfer" type="JN"/>
         </DEGdef>
 
         <DEGdef id="ParSEPAInfo">
@@ -1438,8 +1438,8 @@
             <DE name="minVorlZeitFRSTOOFF" type="Num" maxsize="4"/>
             <DE name="maxVorlZeitFRSTOOFF" type="Num" maxsize="4"/>
             <DE name="maxnum" type="Num" maxsize="7"/>
-            <DE name="needtotal" type="JN" />
-            <DE name="cansingletransfer" type="JN" />
+            <DE name="needtotal" type="JN"/>
+            <DE name="cansingletransfer" type="JN"/>
         </DEGdef>
 
         <DEGdef id="ParSammelLastCOR1SEPA">
@@ -1460,8 +1460,8 @@
             <DE name="minVorlZeitFRSTOOFF" type="Num" maxsize="4"/>
             <DE name="maxVorlZeitFRSTOOFF" type="Num" maxsize="4"/>
             <DE name="maxnum" type="Num" maxsize="7"/>
-            <DE name="needtotal" type="JN" />
-            <DE name="cansingletransfer" type="JN" />
+            <DE name="needtotal" type="JN"/>
+            <DE name="cansingletransfer" type="JN"/>
         </DEGdef>
 
         <DEGdef id="ParUmbSepa">
@@ -1811,8 +1811,8 @@
             <DE name="secfunc" type="Code" maxsize="3"/>
             <DE name="process" type="Code" maxsize="1"/>
             <DE name="id" type="ID"/>
-            <DE name="zkamethod_name" type="AN" maxsize="32" minnum="0" />
-            <DE name="zkamethod_version" type="AN" maxsize="10" minnum="0" />
+            <DE name="zkamethod_name" type="AN" maxsize="32" minnum="0"/>
+            <DE name="zkamethod_version" type="AN" maxsize="10" minnum="0"/>
             <DE name="name" type="AN" maxsize="30"/>
             <DE name="maxlentan2step" type="Num" maxsize="2"/>
             <DE name="tanformat" type="Code" maxsize="1"/>
@@ -1823,10 +1823,10 @@
             <DE name="cantandelay" type="Code" maxsize="1"/>
             <DE name="needtanlistidx" type="Code" maxsize="1"/>
             <DE name="canstorno" type="JN"/>
-            <DE name="needsmsaccount" type="JN" />
+            <DE name="needsmsaccount" type="JN"/>
             <DE name="needchallengeklass" type="JN"/>
             <DE name="needchallengevalue" type="JN"/>
-            <DE name="ischallengestructured" type="JN" />
+            <DE name="ischallengestructured" type="JN"/>
             <DE name="initmode" type="Code"/>
             <DE name="needtanmedia" type="Code"/>
             <DE name="nofactivetanmedia" type="Num" maxsize="1" minnum="0"/>
@@ -1845,8 +1845,8 @@
             <DE name="secfunc" type="Code" maxsize="3"/>
             <DE name="process" type="Code" maxsize="1"/>
             <DE name="id" type="ID"/>
-            <DE name="zkamethod_name" type="AN" maxsize="32" minnum="0" />
-            <DE name="zkamethod_version" type="AN" maxsize="10" minnum="0" />
+            <DE name="zkamethod_name" type="AN" maxsize="32" minnum="0"/>
+            <DE name="zkamethod_version" type="AN" maxsize="10" minnum="0"/>
             <DE name="name" type="AN" maxsize="30"/>
             <DE name="maxlentan2step" type="Num" maxsize="2"/>
             <DE name="tanformat" type="Code" maxsize="1"/>
@@ -1860,7 +1860,7 @@
             <DE name="needsmsaccount" type="Code" maxsize="1"/>
             <DE name="needorderaccount" type="Code" maxsize="1"/>
             <DE name="needchallengeklass" type="JN"/>
-            <DE name="ischallengestructured" type="JN" />
+            <DE name="ischallengestructured" type="JN"/>
             <DE name="initmode" type="Code"/>
             <DE name="needtanmedia" type="Code"/>
             <DE name="nofactivetanmedia" type="Num" maxsize="1" minnum="0"/>
@@ -1879,8 +1879,8 @@
             <DE name="secfunc" type="Code" maxsize="3"/>
             <DE name="process" type="Code" maxsize="1"/>
             <DE name="id" type="ID"/>
-            <DE name="zkamethod_name" type="AN" maxsize="32" minnum="0" />
-            <DE name="zkamethod_version" type="AN" maxsize="10" minnum="0" />
+            <DE name="zkamethod_name" type="AN" maxsize="32" minnum="0"/>
+            <DE name="zkamethod_version" type="AN" maxsize="10" minnum="0"/>
             <DE name="name" type="AN" maxsize="30"/>
             <DE name="maxlentan2step" type="Num" maxsize="2"/>
             <DE name="tanformat" type="Code" maxsize="1"/>
@@ -1892,7 +1892,7 @@
             <DE name="needsmsaccount" type="Code" maxsize="1"/>
             <DE name="needorderaccount" type="Code" maxsize="1"/>
             <DE name="needchallengeklass" type="JN"/>
-            <DE name="ischallengestructured" type="JN" />
+            <DE name="ischallengestructured" type="JN"/>
             <DE name="initmode" type="Code"/>
             <DE name="needtanmedia" type="Code"/>
             <DE name="need_hhducresponse" type="JN"/>
@@ -2239,6 +2239,11 @@
 
         <DEGdef id="WPZinsTermine">
             <DE name="termin" type="Dig" minsize="4" maxsize="4" maxnum="99"/>
+        </DEGdef>
+
+        <DEGdef id="VeuListParams">
+            <DE name="save_period" type="Num" maxsize="2"/>
+            <DE name="segcode" type="AN" maxsize="6" maxnum="99"/>
         </DEGdef>
     </DEGs>
 
@@ -2911,8 +2916,8 @@
         </SEGdef>
 
         <SEGdef id="ChangePIN1" needsRequestTag="1">
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DE name="newpin" type="AN" maxsize="99" minnum="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DE name="newpin" type="AN" maxsize="99" minnum="0"/>
 
             <value path="SegHead.code">HKPAE</value>
             <value path="SegHead.version">1</value>
@@ -2927,8 +2932,8 @@
         </SEGdef>
 
         <SEGdef id="ChangePINOld1" needsRequestTag="1">
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DE name="newpin" type="AN" maxsize="6" minnum="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DE name="newpin" type="AN" maxsize="6" minnum="0"/>
 
             <value path="SegHead.code">DKPAE</value>
             <value path="SegHead.version">1</value>
@@ -4408,8 +4413,8 @@
 
         <SEGdef id="KUmsZeitCamt1">
             <DEG name="SegHead" type="SegHeadUser"/>
-            <DEG name="KTV" type="KTVInt" />
-            <DEG name="formats" type="CamtFormats" />
+            <DEG name="KTV" type="KTVInt"/>
+            <DEG name="formats" type="CamtFormats"/>
             <DE name="allaccounts" type="JN"/>
             <DE name="startdate" type="Date" minnum="0"/>
             <DE name="enddate" type="Date" minnum="0"/>
@@ -4422,8 +4427,8 @@
         <SEGdef id="KUmsZeitCamtRes1">
             <DEG type="SegHeadInst" name="SegHead"/>
             <DEG type="KTVInt" name="KTV"/>
-            <DE name="format" type="AN" maxsize="256" />
-            <DEG name="booked" type="CamtBooked" />
+            <DE name="format" type="AN" maxsize="256"/>
+            <DEG name="booked" type="CamtBooked"/>
             <DE name="notbooked" type="Bin" maxsize="0" minnum="0"/>
 
             <value path="SegHead.code">HICAZ</value>
@@ -4590,8 +4595,8 @@
         </SEGdef>
 
         <SEGdef id="Receipt1" needsRequestTag="1">
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DE name="receipt" type="Bin" maxsize="0" minnum="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DE name="receipt" type="Bin" maxsize="0" minnum="0"/>
 
             <value path="SegHead.code">HKQTG</value>
             <value path="SegHead.version">1</value>
@@ -4908,12 +4913,12 @@
         </SEGdef>
 
         <SEGdef id="SammelUebSEPA1"> <!-- 3.0 -->
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DEG type="KTVInt" name="My" />
-            <DEG type="BTG" name="Total" minnum="0" />
-            <DE type="JN" name="singletransfers" minnum="0" />
-            <DE type="AN" name="sepadescr" maxsize="256" />
-            <DE type="Bin" name="sepapain" maxsize="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DEG type="BTG" name="Total" minnum="0"/>
+            <DE type="JN" name="singletransfers" minnum="0"/>
+            <DE type="AN" name="sepadescr" maxsize="256"/>
+            <DE type="Bin" name="sepapain" maxsize="0"/>
 
             <value path="SegHead.code">HKCCM</value>
             <value path="SegHead.version">1</value>
@@ -4929,12 +4934,12 @@
         </SEGdef>
 
         <SEGdef id="TermSammelUebSEPA1"> <!-- 3.0 -->
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DEG type="KTVInt" name="My" />
-            <DEG type="BTG" name="Total" minnum="0" />
-            <DE type="JN" name="singletransfers" minnum="0" />
-            <DE type="AN" name="sepadescr" maxsize="256" />
-            <DE type="Bin" name="sepapain" maxsize="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DEG type="BTG" name="Total" minnum="0"/>
+            <DE type="JN" name="singletransfers" minnum="0"/>
+            <DE type="AN" name="sepadescr" maxsize="256"/>
+            <DE type="Bin" name="sepapain" maxsize="0"/>
 
             <value path="SegHead.code">HKCME</value>
             <value path="SegHead.version">1</value>
@@ -4979,12 +4984,12 @@
         </SEGdef>
 
         <SEGdef id="SammelLastSEPA1"> <!-- 3.0 -->
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DEG type="KTVInt" name="My" />
-            <DEG type="BTG" name="Total" minnum="0" />
-            <DE type="JN" name="singletransfers" minnum="0" />
-            <DE type="AN" name="sepadescr" maxsize="256" />
-            <DE type="Bin" name="sepapain" maxsize="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DEG type="BTG" name="Total" minnum="0"/>
+            <DE type="JN" name="singletransfers" minnum="0"/>
+            <DE type="AN" name="sepadescr" maxsize="256"/>
+            <DE type="Bin" name="sepapain" maxsize="0"/>
 
             <value path="SegHead.code">HKDME</value>
             <value path="SegHead.version">1</value>
@@ -5007,12 +5012,12 @@
         </SEGdef>
 
         <SEGdef id="SammelLastCOR1SEPA1"> <!-- 3.0 -->
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DEG type="KTVInt" name="My" />
-            <DEG type="BTG" name="Total" minnum="0" />
-            <DE type="JN" name="singletransfers" minnum="0" />
-            <DE type="AN" name="sepadescr" maxsize="256" />
-            <DE type="Bin" name="sepapain" maxsize="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DEG type="BTG" name="Total" minnum="0"/>
+            <DE type="JN" name="singletransfers" minnum="0"/>
+            <DE type="AN" name="sepadescr" maxsize="256"/>
+            <DE type="Bin" name="sepapain" maxsize="0"/>
 
             <value path="SegHead.code">HKDMC</value>
             <value path="SegHead.version">1</value>
@@ -5035,12 +5040,12 @@
         </SEGdef>
 
         <SEGdef id="SammelLastB2BSEPA1"> <!-- 3.0 -->
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DEG type="KTVInt" name="My" />
-            <DEG type="BTG" name="Total" minnum="0" />
-            <DE type="JN" name="singletransfers" minnum="0" />
-            <DE type="AN" name="sepadescr" maxsize="256" />
-            <DE type="Bin" name="sepapain" maxsize="0" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTVInt" name="My"/>
+            <DEG type="BTG" name="Total" minnum="0"/>
+            <DE type="JN" name="singletransfers" minnum="0"/>
+            <DE type="AN" name="sepadescr" maxsize="256"/>
+            <DE type="Bin" name="sepapain" maxsize="0"/>
 
             <value path="SegHead.code">HKBME</value>
             <value path="SegHead.version">1</value>
@@ -5332,7 +5337,7 @@
             <DE name="listidx" type="AN" maxsize="20" minnum="0"/>
             <DE name="notlasttan" type="JN" minnum="0"/>
             <DE name="storno" type="JN" minnum="0"/>
-            <DEG name="SMSAccount" type="KTV3" minnum="0" />
+            <DEG name="SMSAccount" type="KTV3" minnum="0"/>
             <DE name="challengeklass" type="Num" maxsize="2" minnum="0"/>
             <DEG name="ChallengeKlassParams" type="ChallengeKlassParams" minnum="0"/>
             <DE name="tanmedia" type="AN" maxsize="32" minnum="0"/>
@@ -5353,7 +5358,7 @@
             <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
             <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
             <DE name="challenge" type="AN" maxsize="2048" minnum="0"/>
-            <DE name="challenge_hhd_uc" type="Bin" maxsize="0" minnum="0" />
+            <DE name="challenge_hhd_uc" type="Bin" maxsize="0" minnum="0"/>
             <DEG type="ChallengeValidity" minnum="0"/>
             <DE name="listidx" type="AN" maxsize="20" minnum="0"/>
             <DE name="ben" type="AN" maxsize="99" minnum="0"/>
@@ -5385,15 +5390,15 @@
             <DEG type="SegHeadUser" name="SegHead"/>
             <DE name="process" type="Code" maxsize="1"/>
             <DE name="ordersegcode" type="AN" maxsize="6" minnum="0"/>
-            <DEG name="OrderAccount" type="KTVInt" minnum="0" />
+            <DEG name="OrderAccount" type="KTVInt" minnum="0"/>
             <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
             <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
             <DE name="listidx" type="AN" maxsize="20" minnum="0"/>
             <DE name="notlasttan" type="JN" minnum="0"/>
             <DE name="storno" type="JN" minnum="0"/>
-            <DEG name="SMSAccount" type="KTV3" minnum="0" />
+            <DEG name="SMSAccount" type="KTV3" minnum="0"/>
             <DE name="challengeklass" type="Num" maxsize="2" minnum="0"/>
-            <DEG name="ChallengeKlassParams" type="ChallengeKlassParams" minnum="0" />
+            <DEG name="ChallengeKlassParams" type="ChallengeKlassParams" minnum="0"/>
             <DE name="tanmedia" type="AN" maxsize="32" minnum="0"/>
 
             <valids path="process">
@@ -5413,7 +5418,7 @@
             <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
             <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
             <DE name="challenge" type="AN" maxsize="2048" minnum="0"/>
-            <DE name="challenge_hhd_uc" type="Bin" maxsize="0" minnum="0" />
+            <DE name="challenge_hhd_uc" type="Bin" maxsize="0" minnum="0"/>
             <DEG type="ChallengeValidity" minnum="0"/>
             <DE name="listidx" type="AN" maxsize="20" minnum="0"/>
             <DE name="ben" type="AN" maxsize="99" minnum="0"/>
@@ -5447,16 +5452,16 @@
             <DEG type="SegHeadUser" name="SegHead"/>
             <DE name="process" type="Code" maxsize="1"/>
             <DE name="ordersegcode" type="AN" maxsize="6" minnum="0"/>
-            <DEG name="OrderAccount" type="KTVInt" minnum="0" />
+            <DEG name="OrderAccount" type="KTVInt" minnum="0"/>
             <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
             <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
             <DE name="notlasttan" type="JN" minnum="0"/>
             <DE name="storno" type="JN" minnum="0"/>
-            <DEG name="SMSAccount" type="KTV3" minnum="0" />
+            <DEG name="SMSAccount" type="KTV3" minnum="0"/>
             <DE name="challengeklass" type="Num" maxsize="2" minnum="0"/>
-            <DEG name="ChallengeKlassParams" type="ChallengeKlassParams" minnum="0" />
+            <DEG name="ChallengeKlassParams" type="ChallengeKlassParams" minnum="0"/>
             <DE name="tanmedia" type="AN" maxsize="32" minnum="0"/>
-            <DEG name="HHDUCAnswer" type="HHDUCAnswer" minnum="0" />
+            <DEG name="HHDUCAnswer" type="HHDUCAnswer" minnum="0"/>
 
             <valids path="process">
                 <validvalue>1</validvalue>
@@ -5475,7 +5480,7 @@
             <DE name="orderhash" type="Bin" maxsize="256" minnum="0"/>
             <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
             <DE name="challenge" type="AN" maxsize="2048" minnum="0"/>
-            <DE name="challenge_hhd_uc" type="Bin" maxsize="0" minnum="0" />
+            <DE name="challenge_hhd_uc" type="Bin" maxsize="0" minnum="0"/>
             <DEG type="ChallengeValidity" minnum="0"/>
             <DE name="tanmedia" type="AN" maxsize="32" minnum="0"/>
 
@@ -5705,7 +5710,6 @@
             <value path="SegHead.code">HITABS</value>
             <value path="SegHead.version">5</value>
         </SEGdef>
-
 
 
         <!--  macemmi 2012-02-20 END HKTAB -->
@@ -6562,7 +6566,7 @@
             <DE name="sepadescr" type="AN" maxsize="256" minnum="0"/>
             <DE name="sepapain" type="Bin" maxsize="0"/>
             <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
-            <DE name="candel" type="JN" minnum="0"/>
+            <DE name="cancel" type="JN" minnum="0"/>
             <DE name="canchange" type="JN" minnum="0"/>
 
             <value path="SegHead.code">HICSB</value>
@@ -6779,9 +6783,9 @@
         </SEGdef>
 
         <SEGdef id="Vormerkposten1">
-            <DEG type="SegHeadUser" name="SegHead" />
-            <DEG type="KTV3" name="My" />
-            <DE name="allaccounts" type="JN" />
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTV3" name="My"/>
+            <DE name="allaccounts" type="JN"/>
             <DE name="maxentries" type="Num" maxsize="4" minnum="0"/>
             <DE name="offset" type="AN" maxsize="35" minnum="0"/>
 
@@ -6789,8 +6793,8 @@
             <value path="SegHead.version">1</value>
         </SEGdef>
         <SEGdef id="VormerkpostenRes1">
-            <DEG type="SegHeadInst" name="SegHead" />
-            <DE name="mt942" type="Bin" maxsize="0" />
+            <DEG type="SegHeadInst" name="SegHead"/>
+            <DE name="mt942" type="Bin" maxsize="0"/>
 
             <value path="SegHead.code">HIVMK</value>
             <value path="SegHead.version">1</value>
@@ -7636,6 +7640,63 @@
             <value path="SegHead.code">HIWSDS</value>
             <value path="SegHead.version">3</value>
         </SEGdef>
+
+        <!-- Verteilte Elektronische Unterschrift (VEU) Multilevel SCA -->
+        <!-- Request -->
+        <SEGdef id="VeuStep1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTO" name="my"/>
+            <DE name="orderref" type="AN" maxsize="35" minnum="0"/>
+            <DE name="sig" type="Bin" maxsize="2560"/>
+
+            <value path="SegHead.code">BKTAS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuStepPar1">
+            &GVP;
+
+            <value path="SegHead.code">BITASS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+
+        <SEGdef id="VeuList1">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <DEG type="KTO" name="my"/>
+            <DE name="gv" type="AN" maxsize="6" minnum="0"/>
+            <DE name="sign_status" type="AN" maxsize="5" minnum="0"/>
+            <DE name="offset_idx" type="AN" maxsize="35" minnum="0"/>
+
+            <value path="SegHead.code">BKTAB</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuListPar1">
+            &GVP;
+            <DEG type="VeuListParams" name="params"/>
+            <value path="SegHead.code">BITABS</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+        <SEGdef id="VeuListRes1">
+            <DEG type="SegHeadInst" name="SegHead"/>
+            <DE name="orderid" type="AN" maxsize="256" minnum="0"/>
+            <DE name="temp" type="AN" maxsize="256" minnum="0"/>
+            <DE name="order" type="Bin" maxsize="0"/>
+            <DE name="desc" type="AN" maxsize="0"/>
+
+            <value path="SegHead.code">BITAB</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+
+        <SEGdef id="VeuEmptySignatureHeader">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <value path="SegHead.code">BNLSK</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
+
+        <SEGdef id="VeuEmptySignatureCloser">
+            <DEG type="SegHeadUser" name="SegHead"/>
+            <value path="SegHead.code">BNLSA</value>
+            <value path="SegHead.version">1</value>
+        </SEGdef>
     </SEGs>
 
     <SFs>
@@ -7834,6 +7895,8 @@
             <SEG type="WPStammList1" minnum="0"/>
             <SEG type="WPStammList2" minnum="0"/>
             <SEG type="WPStammList3" minnum="0"/>
+            <SEG type="VeuStep1" minnum="0"/>
+            <SEG type="VeuList1" minnum="0"/>
         </SFdef>
 
         <SFdef id="GVRes">
@@ -7963,6 +8026,7 @@
             <SEG type="WPStammListRes1" minnum="0"/>
             <SEG type="WPStammListRes2" minnum="0"/>
             <SEG type="WPStammListRes3" minnum="0"/>
+            <SEG type="VeuListRes1" minnum="0"/>
         </SFdef>
 
         <SFdef id="Params">
@@ -7971,8 +8035,8 @@
             <SEG type="AccInfoPar2" minnum="0"/>
             <SEG type="CardListPar1" minnum="0"/>
             <SEG type="CardListPar2" minnum="0"/>
-            <SEG type="ChangePINPar1" minnum="0" />
-            <SEG type="ChangePINOldPar1" minnum="0" />
+            <SEG type="ChangePINPar1" minnum="0"/>
+            <SEG type="ChangePINOldPar1" minnum="0"/>
             <SEG type="CommListPar2" minnum="0"/>
             <SEG type="CommListPar3" minnum="0"/>
             <SEG type="CommListPar4" minnum="0"/>
@@ -8142,6 +8206,8 @@
             <SEG type="WPStammListPar1" minnum="0"/>
             <SEG type="WPStammListPar2" minnum="0"/>
             <SEG type="WPStammListPar3" minnum="0"/>
+            <SEG type="VeuListPar1" minnum="0"/>
+            <SEG type="VeuStepPar1" minnum="0"/>
             <SEG type="Template2DPar" minnum="0"/>
             <SEG type="TemplateDPar" minnum="0"/>
             <SEG type="Template2Par" minnum="0"/>
@@ -8151,11 +8217,28 @@
 
     <MSGs>
         <MSGdef id="CustomMsg">
-            &MsgSigHeadUser;
+            &MsgSigHeadUser; <!-- HNHBK+HNSHK -->
             <SF type="GV" maxnum="0"/>
-            &MsgSigTailUser;
+            &MsgSigTailUser; <!-- HNSHA+HNHBS -->
+        </MSGdef>
+        <MSGdef id="CustomMsgVeu">
+            &MsgSigHeadUser; <!-- HNHBK+HNSHK -->
+            <SEG type="VeuEmptySignatureHeader" name="VeuEmptySignatureHead"/><!-- BNLSK -->
+            <SF type="GV" maxnum="0"/>
+            <SEG type="VeuEmptySignatureCloser" name="VeuEmptySignatureClose"/> <!-- BNLSA -->
+            &MsgSigTailUser; <!-- HNSHA+HNHBS -->
         </MSGdef>
         <MSGdef id="CustomMsgRes">
+            &MsgSigHeadInst;
+            <SEG type="RetGlob"/>
+            <SEG type="RetSeg" minnum="0" maxnum="0"/>
+            <SF type="GVRes" minnum="0" maxnum="0"/>
+            <SF type="BPD" minnum="0"/>
+            <SF type="UPD" minnum="0" maxnum="0"/>
+            <SEG type="TAN2StepRes6" minnum="0" maxnum="0"/>
+            &MsgSigTailInst;
+        </MSGdef>
+        <MSGdef id="CustomMsgVeuRes">
             &MsgSigHeadInst;
             <SEG type="RetGlob"/>
             <SEG type="RetSeg" minnum="0" maxnum="0"/>
@@ -8197,11 +8280,11 @@
         </MSGdef>
 
         <MSGdef id="DialogInitAnon" dontsign="1" dontcrypt="1">
-            <!-- HNHBK --> <SEG type="MsgHeadUser" name="MsgHead"/>
-            <!-- HKIDN --> <SEG type="Idn"/>
-            <!-- HKVVB --> <SEG type="ProcPrep"/>
-            <!-- HKTAN --> <SEG type="TAN2Step6" minnum="0" maxnum="1"/> <!-- Ja, auch bei der anonymen Initialisierung darf HKTAN6 gesendet werden -->
-            <!-- HNHBS --> <SEG type="MsgTailUser" name="MsgTail"/>
+            <SEG type="MsgHeadUser" name="MsgHead"/> <!-- HNHBK -->
+            <SEG type="Idn"/><!-- HKIDN -->
+            <SEG type="ProcPrep"/><!-- HKVVB -->
+            <SEG type="TAN2Step6" minnum="0" maxnum="1"/> <!-- HKTAN -->
+            <SEG type="MsgTailUser" name="MsgTail"/><!-- HNHBS -->
         </MSGdef>
 
         <MSGdef id="DialogInitAnonRes" dontsign="1" dontcrypt="1">
@@ -8220,12 +8303,12 @@
         </MSGdef>
 
         <MSGdef id="DialogInit">
-            <!-- HNHBK+HNSHK --> &MsgSigHeadUser;
-            <!-- HKIDN --> <SEG type="Idn"/>
-            <!-- HKVVB --> <SEG type="ProcPrep"/>
-            <!-- HKTAN --> <SEG type="TAN2Step6" minnum="0" maxnum="1"/>
-            <!-- HKISA --> <SEG type="KeyReq" minnum="0" maxnum="3"/>
-            <!-- HNSHA+HNHBS --> &MsgSigTailUser;
+            &MsgSigHeadUser; <!-- HNHBK+HNSHK -->
+            <SEG type="Idn"/><!-- HKIDN -->
+            <SEG type="ProcPrep"/><!-- HKVVB -->
+            <SEG type="TAN2Step6" minnum="0" maxnum="1"/><!-- HKTAN -->
+            <SEG type="KeyReq" minnum="0" maxnum="3"/><!-- HKISA -->
+            &MsgSigTailUser;<!-- HNSHA+HNHBS -->
         </MSGdef>
         <MSGdef id="DialogInitRes">
             &MsgSigHeadInst;
@@ -8245,13 +8328,13 @@
         </MSGdef>
 
         <MSGdef id="Synch">
-            <!-- HNHBK+HNSHK --> &MsgSigHeadUser;
-            <!-- HKIDN --> <SEG type="Idn"/>
-            <!-- HKVVB --> <SEG type="ProcPrep"/>
-            <!-- HKTAN --> <SEG type="TAN2Step6" minnum="0" maxnum="1"/>
-            <!-- HKISA --> <SEG type="KeyReq" minnum="0" maxnum="3"/>
-            <!-- HKSYN --> <SEG type="Sync"/>
-            <!-- HNSHA+HNHBS --> &MsgSigTailUser;
+            &MsgSigHeadUser;<!-- HNHBK+HNSHK -->
+            <SEG type="Idn"/><!-- HKIDN -->
+            <SEG type="ProcPrep"/><!-- HKVVB -->
+            <SEG type="TAN2Step6" minnum="0" maxnum="1"/><!-- HKTAN -->
+            <SEG type="KeyReq" minnum="0" maxnum="3"/><!-- HKISA -->
+            <SEG type="Sync"/><!-- HKSYN -->
+            &MsgSigTailUser;<!-- HNSHA+HNHBS -->
         </MSGdef>
         <MSGdef id="SynchRes">
             &MsgSigHeadInst;
@@ -8372,10 +8455,10 @@
         </MSGdef>
 
         <MSGdef id="Crypted" dontsign="1" dontcrypt="1">
-            <SEG type="MsgHeadUser" name="MsgHead"/>
-            <SEG type="CryptHeadUser" name="CryptHead"/>
-            <SEG type="CryptDataUser" name="CryptData"/>
-            <SEG type="MsgTailUser" name="MsgTail"/>
+            <SEG type="MsgHeadUser" name="MsgHead"/> <!-- HNHBK -->
+            <SEG type="CryptHeadUser" name="CryptHead"/> <!-- HNVSK -->
+            <SEG type="CryptDataUser" name="CryptData"/> <!-- HNVSD -->
+            <SEG type="MsgTailUser" name="MsgTail"/> <!-- HNHBS -->
         </MSGdef>
         <MSGdef id="CryptedRes" dontsign="1" dontcrypt="1">
             <SEG type="MsgHeadInst" name="MsgHead"/>

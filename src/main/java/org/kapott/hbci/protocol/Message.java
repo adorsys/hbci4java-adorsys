@@ -21,6 +21,8 @@
 package org.kapott.hbci.protocol;
 
 import lombok.extern.slf4j.Slf4j;
+import org.kapott.hbci.comm.CommPinTan;
+import org.kapott.hbci.exceptions.HBCI_Exception;
 import org.kapott.hbci.exceptions.NoSuchPathException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -28,6 +30,7 @@ import org.w3c.dom.Node;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -222,6 +225,32 @@ public final class Message extends SyntaxElement {
             }
         }
         return false;
+    }
+
+    public byte[] getPlainString() {
+        try {
+            // remove msghead and msgtail first
+            StringBuilder ret = new StringBuilder(1024);
+            List<MultipleSyntaxElements> childs = getChildContainers();
+            int len = childs.size();
+
+            /* skip one segment at start and one segment at end of message
+               (msghead and msgtail), the rest will be encrypted */
+            for (int i = 1; i < len - 1; i++) {
+                ret.append(childs.get(i).toString(0));
+            }
+
+            // pad message
+            int padLength = 8 - (ret.length() % 8);
+            for (int i = 0; i < padLength - 1; i++) {
+                ret.append((char) (0));
+            }
+            ret.append((char) (padLength));
+
+            return ret.toString().getBytes(CommPinTan.ENCODING);
+        } catch (Exception ex) {
+            throw new HBCI_Exception("*** error while extracting plain message string", ex);
+        }
     }
 
     public Document getDocument() {

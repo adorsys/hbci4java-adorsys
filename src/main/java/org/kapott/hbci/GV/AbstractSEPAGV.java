@@ -1,5 +1,7 @@
 package org.kapott.hbci.GV;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.kapott.hbci.GV.generators.PainGeneratorFactory;
 import org.kapott.hbci.GV.generators.PainGeneratorIf;
@@ -28,7 +30,9 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      */
     public static final String ENDTOEND_ID_NOTPROVIDED = "NOTPROVIDED";
 
-    final HashMap<String, String> painParams = new HashMap<>();
+    @Getter
+    @Setter
+    private Map<String, String> painParams = new HashMap<>();
     private SepaVersion painVersion;
     private PainGeneratorIf generator = null;
 
@@ -269,7 +273,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
             throw new HBCI_Exception("*** the _sepapain segment for this job can not be created");
 
         try {
-            String xml = o.toString(CommPinTan.ENCODING);
+            String xml = o.toString(CommPinTan.ENCODING.toString());
             log.debug("generated XML:\n" + xml);
             setParam("_sepapain", "B" + xml);
         } catch (UnsupportedEncodingException e) {

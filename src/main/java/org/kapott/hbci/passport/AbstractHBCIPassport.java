@@ -21,6 +21,8 @@
 package org.kapott.hbci.passport;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.kapott.hbci.GV.AbstractHBCIJob;
 import org.kapott.hbci.callback.HBCICallback;
 import org.kapott.hbci.exceptions.HBCI_Exception;
@@ -199,6 +201,32 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
         }
 
         return ret;
+    }
+
+    public final int getRequiredSigsCount(String accountNumber, String gvCode) {
+        if (upd != null) {
+            for (int i = 0; ; i++) {
+                String header = HBCIUtils.withCounter("KInfo", i);
+                String number = upd.get(header + ".KTV.number");
+                if (number == null)
+                    break;
+
+                if (StringUtils.equals(number, accountNumber)) {
+                    for (int j = 0; ; j++) {
+                        String gvHeader = HBCIUtils.withCounter(header + ".AllowedGV", j);
+                        String code = upd.get(gvHeader + ".code");
+                        if (code == null)
+                            break;
+
+                        if (StringUtils.equalsIgnoreCase(code, gvCode)) {
+                            return NumberUtils.toInt(upd.get(gvHeader + ".reqSigs"));
+                        }
+                    }
+                }
+            }
+        }
+
+        return 0;
     }
 
     public final void fillAccountInfo(Konto account) {

@@ -38,16 +38,16 @@ import java.util.List;
 
 @Slf4j
 public final class Crypt {
-    public final static String SECFUNC_ENC_3DES = "4";
-    public final static String SECFUNC_ENC_PLAIN = "998";
+    public static final String SECFUNC_ENC_3DES = "4";
+    public static final String SECFUNC_ENC_PLAIN = "998";
 
-    public final static String ENCALG_2K3DES = "13";
+    public static final String ENCALG_2K3DES = "13";
 
-    public final static String ENCMODE_CBC = "2";
-    public final static String ENCMODE_PKCS1 = "18";
+    public static final String ENCMODE_CBC = "2";
+    public static final String ENCMODE_PKCS1 = "18";
 
-    public final static String ENC_KEYTYPE_RSA = "6";
-    public final static String ENC_KEYTYPE_DDV = "5";
+    public static final String ENC_KEYTYPE_RSA = "6";
+    public static final String ENC_KEYTYPE_DDV = "5";
 
     private HBCIPassportInternal passport;
 
@@ -86,31 +86,6 @@ public final class Crypt {
         u_compfunc = "0";// TODO: spaeter kompression implementieren
     }
 
-    private byte[] getPlainString(Message msg) {
-        try {
-            // remove msghead and msgtail first
-            StringBuffer ret = new StringBuffer(1024);
-            List<MultipleSyntaxElements> childs = msg.getChildContainers();
-            int len = childs.size();
-
-            /* skip one segment at start and one segment at end of message
-               (msghead and msgtail), the rest will be encrypted */
-            for (int i = 1; i < len - 1; i++) {
-                ret.append(childs.get(i).toString(0));
-            }
-
-            // pad message
-            int padLength = 8 - (ret.length() % 8);
-            for (int i = 0; i < padLength - 1; i++) {
-                ret.append((char) (0));
-            }
-            ret.append((char) (padLength));
-
-            return ret.toString().getBytes(CommPinTan.ENCODING);
-        } catch (Exception ex) {
-            throw new HBCI_Exception("*** error while extracting plain message string", ex);
-        }
-    }
 
     public Message cryptIt(Message msg) {
         Message newmsg = msg;
@@ -122,7 +97,7 @@ public final class Crypt {
             if (dontcryptAttr.length() == 0) {
                 newmsg = MessageFactory.createMessage("Crypted", passport.getSyntaxDocument());
                 try {
-                    byte[][] crypteds = passport.encrypt(getPlainString(msg));
+                    byte[][] crypteds = passport.encrypt(msg.getPlainString());
 
                     String msgPath = msg.getPath();
                     String dialogid = msg.getValueOfDE(msgPath + ".MsgHead.dialogid");

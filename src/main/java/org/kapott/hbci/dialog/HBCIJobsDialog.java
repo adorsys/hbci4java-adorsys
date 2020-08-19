@@ -155,6 +155,7 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
                 break;
             }
             patchMessageForSca(msg);
+            boolean veu = msg.getTasks().stream().anyMatch(AbstractHBCIJob::isVeu);
 
             HBCIMsgStatus msgstatus = new HBCIMsgStatus();
 
@@ -163,7 +164,7 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
             try {
                 int taskNum = 0;
 
-                Message message = MessageFactory.createMessage("CustomMsg", passport.getSyntaxDocument());
+                Message message = MessageFactory.createMessage(veu ? "CustomMsgVeu" : "CustomMsg", passport.getSyntaxDocument());
 
                 // durch alle jobs loopen, die eigentlich in der aktuellen
                 // nachricht abgearbeitet werden müssten
@@ -300,6 +301,7 @@ public final class HBCIJobsDialog extends AbstractHbciDialog {
         return ret;
     }
 
+    @Override
     public long getMsgnum() {
         return msgnum;
     }

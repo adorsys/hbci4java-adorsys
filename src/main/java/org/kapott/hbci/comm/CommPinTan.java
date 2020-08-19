@@ -38,6 +38,8 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -45,7 +47,7 @@ import java.util.Properties;
 @Slf4j
 public final class CommPinTan {
 
-    public static final String ENCODING = "ISO-8859-1";
+    public static final Charset ENCODING = StandardCharsets.ISO_8859_1;
     /**
      * Timeout fuer HTTP connect in Millisekunden.
      */

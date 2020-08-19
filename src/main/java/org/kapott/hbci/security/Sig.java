@@ -29,43 +29,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 @Slf4j
 public final class Sig {
 
-    public final static String SECFUNC_HBCI_SIG_RDH = "1";
-    public final static String SECFUNC_HBCI_SIG_DDV = "2";
-
-    public final static String SECFUNC_FINTS_SIG_DIG = "1";
-    public final static String SECFUNC_FINTS_SIG_SIG = "2";
-
-    public final static String SECFUNC_SIG_PT_1STEP = "999";
-    public final static String SECFUNC_SIG_PT_2STEP_MIN = "900";
-    public final static String SECFUNC_SIG_PT_2STEP_MAX = "997";
-
-    public final static String HASHALG_SHA1 = "1";
-    public final static String HASHALG_SHA256 = "3";
-    public final static String HASHALG_SHA384 = "4";
-    public final static String HASHALG_SHA512 = "5";
-    public final static String HASHALG_SHA256_SHA256 = "6";
-    public final static String HASHALG_RIPEMD160 = "999";
-
-    public final static String SIGALG_DES = "1";
-    public final static String SIGALG_RSA = "10";
-
-    public final static String SIGMODE_ISO9796_1 = "16";
-    public final static String SIGMODE_ISO9796_2 = "17";
-    public final static String SIGMODE_PKCS1 = "18";
-    public final static String SIGMODE_PSS = "19";
-    public final static String SIGMODE_RETAIL_MAC = "999";
+    public static final String SECFUNC_SIG_PT_1STEP = "999";
+    public static final String HASHALG_RIPEMD160 = "999";
+    public static final String SIGALG_RSA = "10";
+    public static final String SIGMODE_ISO9796_1 = "16";
 
     private String u_secfunc;
     private String u_cid;
     private String u_role;
-    private String u_range;
     private String u_keyblz;
     private String u_keycountry;
     private String u_keyuserid;
@@ -76,7 +53,6 @@ public final class Sig {
     private String u_sigalg;
     private String u_sigmode;
     private String u_hashalg;
-    private String sigstring;
 
     public boolean signIt(Message msg, HBCIPassportInternal passport) {
         Node msgNode = msg.getSyntaxDef(msg.getName(), passport.getSyntaxDocument());
@@ -96,7 +72,6 @@ public final class Sig {
                 u_secfunc = passport.getSigFunction();
                 u_cid = "";
                 u_role = "1";
-                u_range = "1";
                 u_keyblz = passport.getBLZ();
                 u_keycountry = passport.getCountry();
                 u_keyuserid = passport.getMySigKeyName();
@@ -230,12 +205,11 @@ public final class Sig {
             SyntaxElement.DONT_ALLOW_OVERWRITE);
     }
 
-    private void readSigHead(Message msg, HBCIPassportInternal passport) {
+    private void readSigHead(Message msg) {
         String sigheadName = msg.getName() + ".SigHead";
 
         u_secfunc = msg.getValueOfDE(sigheadName + ".secfunc");
         u_role = msg.getValueOfDE(sigheadName + ".role");
-        u_range = msg.getValueOfDE(sigheadName + ".range");
         u_keycountry = msg.getValueOfDE(sigheadName + ".KeyName.KIK.country");
         u_keyuserid = msg.getValueOfDE(sigheadName + ".KeyName.userid");
         u_keynum = msg.getValueOfDE(sigheadName + ".KeyName.keynum");
@@ -253,23 +227,10 @@ public final class Sig {
             log.warn("missing bank code in message signature, ignoring...");
         }
 
-        if (passport.needUserSig()) {
-            // TODO: bei anderen user-signaturen hier allgemeineren code schreiben
-            HashMap<String, String> values = new HashMap<>();
-            msg.extractValues(values);
-
-            String pin = values.get(msg.getName() + ".SigTail.UserSig.pin");
-            String tan = values.get(msg.getName() + ".SigTail.UserSig.tan");
-
-            sigstring = ((pin != null) ? pin : "") + "|" + ((tan != null) ? tan : "");
-        } else {
-            sigstring = msg.getValueOfDE(msg.getName() + ".SigTail.sig");
-        }
-
         String checkref = msg.getValueOfDE(msg.getName() + ".SigHead.seccheckref");
         String checkref2 = msg.getValueOfDE(msg.getName() + ".SigTail.seccheckref");
 
-        if (checkref == null || !checkref.equals(checkref2)) {
+        if (!checkref.equals(checkref2)) {
             String errmsg = HBCIUtils.getLocMsg("EXCMSG_SIGREFFAIL");
             throw new HBCI_Exception(errmsg);
         }
@@ -307,7 +268,7 @@ public final class Sig {
 
             if (dontsignAttr.length() == 0) {
                 if (hasSig(msg)) {
-                    readSigHead(msg, passport);
+                    readSigHead(msg);
                     return true;
                 } else {
                     log.warn("message has no signature");

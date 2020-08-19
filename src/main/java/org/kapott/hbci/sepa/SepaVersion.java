@@ -19,7 +19,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -321,33 +320,28 @@ public class SepaVersion implements Comparable<SepaVersion> {
             return null;
         }
 
-        try {
-            final SepaVersion versionDesc = haveDesc ? SepaVersion.byURN(sepadesc) : null;
-            final SepaVersion versionData = haveData ?
-                SepaVersion.autodetect(new ByteArrayInputStream(sepadata.getBytes(ENCODING))) : null;
+        final SepaVersion versionDesc = haveDesc ? SepaVersion.byURN(sepadesc) : null;
+        final SepaVersion versionData = haveData ?
+            SepaVersion.autodetect(new ByteArrayInputStream(sepadata.getBytes(ENCODING))) : null;
 
-            log.debug("sepa version given in sepadescr: " + versionDesc);
-            log.debug("sepa version according to data: " + versionData);
+        log.debug("sepa version given in sepadescr: " + versionDesc);
+        log.debug("sepa version according to data: " + versionData);
 
-            // Wir haben keine Version im Deskriptor, dann bleibt nur die aus den Daten
-            if (versionDesc == null)
-                return versionData;
-
-            // Wir haben keine Version in den Daten, dann bleibt nur die im Deskriptor
-            if (versionData == null)
-                return versionDesc;
-
-            // Wir geben noch eine Warnung aus, wenn unterschiedliche Versionen angegeben sind
-            if (!versionDesc.equals(versionData))
-                log.warn("sepa version mismatch. sepadesc: " + versionDesc + " vs. data: " + versionData);
-
-            // Wir geben priorisiert die Version aus den Daten zurueck, damit ist sicherer, dass die
-            // Daten gelesen werden koennen
+        // Wir haben keine Version im Deskriptor, dann bleibt nur die aus den Daten
+        if (versionDesc == null)
             return versionData;
-        } catch (UnsupportedEncodingException e) {
-            log.error(e.getMessage(), e);
-        }
-        return null;
+
+        // Wir haben keine Version in den Daten, dann bleibt nur die im Deskriptor
+        if (versionData == null)
+            return versionDesc;
+
+        // Wir geben noch eine Warnung aus, wenn unterschiedliche Versionen angegeben sind
+        if (!versionDesc.equals(versionData))
+            log.warn("sepa version mismatch. sepadesc: " + versionDesc + " vs. data: " + versionData);
+
+        // Wir geben priorisiert die Version aus den Daten zurueck, damit ist sicherer, dass die
+        // Daten gelesen werden koennen
+        return versionData;
     }
 
     /**

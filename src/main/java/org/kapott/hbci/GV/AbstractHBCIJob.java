@@ -79,6 +79,7 @@ public abstract class AbstractHBCIJob {
     private HashSet<String> indexedConstraints;
     private int loopCount = 0;
     private boolean skip = false;
+    private boolean veu = false;
 
     public AbstractHBCIJob(HBCIPassportInternal passport, String jobnameLL, HBCIJobResultImpl jobResult) {
         this.passport = passport;
@@ -1023,5 +1024,13 @@ public abstract class AbstractHBCIJob {
      */
     public boolean skipped() {
         return this.skip;
+    }
+
+    public void setVeu(boolean veu) {
+        this.veu = veu;
+    }
+
+    public boolean isVeu() {
+        return this.veu;
     }
 }

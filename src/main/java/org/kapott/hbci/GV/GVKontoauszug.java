@@ -97,17 +97,10 @@ public class GVKontoauszug extends AbstractHBCIJob {
         String data = result.get(header + ".booked");
 
         if (data != null && data.length() > 0) {
-            if (format != null && format == Format.MT940)
+            if (format == Format.MT940)
                 data = Swift.decodeUmlauts(data);
 
-            try {
-                auszug.setData(data.getBytes(CommPinTan.ENCODING));
-            } catch (UnsupportedEncodingException e) {
-                log.error(e.getMessage(), e);
-
-                // Wir versuchen es als Fallback ohne explizites Encoding
-                auszug.setData(data.getBytes());
-            }
+            auszug.setData(data.getBytes(CommPinTan.ENCODING));
         }
 
         String date = result.get(header + ".date");
@@ -134,14 +127,7 @@ public class GVKontoauszug extends AbstractHBCIJob {
 
         String receipt = result.get(header + ".receipt");
         if (receipt != null) {
-            try {
-                auszug.setReceipt(receipt.getBytes(CommPinTan.ENCODING));
-            } catch (UnsupportedEncodingException e) {
-                log.error(e.getMessage(), e);
-
-                // Wir versuchen es als Fallback ohne explizites Encoding
-                auszug.setReceipt(receipt.getBytes());
-            }
+            auszug.setReceipt(receipt.getBytes(CommPinTan.ENCODING));
         }
 
     }

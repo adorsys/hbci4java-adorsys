@@ -17,7 +17,6 @@ import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -60,9 +59,7 @@ public class GVKontoauszugPdf extends AbstractHBCIJob {
         return "KontoauszugPdf";
     }
 
-    /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#extractResults(org.kapott.hbci.status.HBCIMsgStatus, java.lang.String, int)
-     */
+    @Override
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         GVRKontoauszug list = (GVRKontoauszug) jobResult;
@@ -123,37 +120,23 @@ public class GVKontoauszugPdf extends AbstractHBCIJob {
         String data = result.get(header + ".booked");
 
         if (data != null && data.length() > 0) {
-            try {
-                if (data.startsWith("%PDF-")) {
-                    // Ist Bin
-                    auszug.setData(data.getBytes(CommPinTan.ENCODING));
+            if (data.startsWith("%PDF-")) {
+                // Ist Bin
+                auszug.setData(data.getBytes(CommPinTan.ENCODING));
 
-                } else {
-                    // Ist Base64
-                    auszug.setData(Base64.getDecoder().decode(data.getBytes(CommPinTan.ENCODING)));
-                }
-            } catch (UnsupportedEncodingException e) {
-                // Kann eigentlich nicht passieren
-                log.warn(e.getMessage(), e);
+            } else {
+                // Ist Base64
+                auszug.setData(Base64.getDecoder().decode(data.getBytes(CommPinTan.ENCODING)));
             }
         }
 
         String receipt = result.get(header + ".receipt");
         if (receipt != null) {
-            try {
-                auszug.setReceipt(receipt.getBytes(CommPinTan.ENCODING));
-            } catch (UnsupportedEncodingException e) {
-                log.warn(e.getMessage(), e);
-
-                // Wir versuchen es als Fallback ohne explizites Encoding
-                auszug.setReceipt(receipt.getBytes());
-            }
+            auszug.setReceipt(receipt.getBytes(CommPinTan.ENCODING));
         }
     }
 
-    /**
-     * @see org.kapott.hbci.GV.HBCIJobImpl#verifyConstraints()
-     */
+    @Override
     public void verifyConstraints() {
         super.verifyConstraints();
         checkAccountCRC("my");
