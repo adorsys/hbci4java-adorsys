@@ -6388,9 +6388,9 @@
         <SEGdef id="InstantUebSEPAStatusRes1">
             <DEG type="SegHeadInst" name="SegHead"/>
             <DEG type="KTVInt" name="My"/>
-            <DE name="sepadescr" type="AN" maxsize="256"/>
-            <DE name="sepapain" type="Bin" maxsize="0"/>
-            <DE name="orderid" type="AN" maxsize="99" minnum="0"/>
+            <DE name="sepadescr" type="AN" maxsize="256" minnum="0"/>
+            <DE name="sepapain" type="Bin" maxsize="0" minnum="0"/>
+            <DE name="orderid" type="AN" maxsize="99"/>
             <DE name="cancellationCode" type="Code" minsize="0"/>
             <DE name="status" type="Code" minsize="0"/>
 
