@@ -42,8 +42,11 @@ public class GVInstanstUebSEPAStatus extends AbstractHBCIJob {
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
         HashMap<String, String> result = msgstatus.getData();
         Optional.ofNullable(result.get(header + ".status"))
+            .filter(status -> !status.isEmpty())
             .ifPresent(s -> ((GVRInstantUebSEPAStatus) jobResult).setStatus(Integer.parseInt(s)));
+
         Optional.ofNullable(result.get(header + ".cancellationCode"))
+            .filter(cancellationCode -> !cancellationCode.isEmpty())
             .ifPresent(s -> ((GVRInstantUebSEPAStatus) jobResult).setCancellationCode(Integer.parseInt(s)));
     }
 

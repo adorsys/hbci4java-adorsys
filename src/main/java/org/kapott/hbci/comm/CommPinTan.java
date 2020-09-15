@@ -125,40 +125,45 @@ public final class CommPinTan {
             Arrays.stream(rawMsg.split("'")).forEach(log::trace);
         }
 
-        Message responseMessage;
         try {
             // alle rewriter für verschlüsselte nachricht durchlaufen
             for (Rewrite rewriter1 : rewriters) {
                 rawMsg = rewriter1.incomingCrypted(rawMsg, msgStatus, messageName);
             }
-            // versuche, nachricht als verschlüsselte nachricht zu parsen
-            callback.status(HBCICallback.STATUS_MSG_PARSE, "CryptedRes");
-            try {
-                log.debug("trying to parse message as crypted message");
-                responseMessage = new Message("CryptedRes", rawMsg, message.getDocument(), Message.DONT_CHECK_SEQ,
-                    true);
-            } catch (ParseErrorException e) {
-                // wenn das schiefgeht...
-                log.debug("message seems not to be encrypted; tring to parse it as " + message.getName() + "Res " + message);
-
-                // alle rewriter durchlaufen, um nachricht evtl. als unverschlüsselte rawMsg zu parsen
-                for (Rewrite rewriter1 : rewriters) {
-                    rawMsg = rewriter1.incomingClearText(rawMsg);
-                }
-
-                log.trace(rawMsg);
-                // versuch, nachricht als unverschlüsselte rawMsg zu parsen
-                callback.status(HBCICallback.STATUS_MSG_PARSE, message.getName() + "Res");
-                try {
-                    responseMessage = new Message(message.getName() + "Res", rawMsg, message.getDocument(),
-                        Message.CHECK_SEQ, true);
-                } catch (ParseErrorException e2) {
-                    responseMessage = new Message("ErrorRes", rawMsg, message.getDocument(),
-                        Message.CHECK_SEQ, true);
-                }
-            }
+            return parseResponseMessage(message, rawMsg, rewriters);
         } catch (Exception ex) {
             throw new CanNotParseMessageException(HBCIUtils.getLocMsg("EXCMSG_CANTPARSE"), rawMsg, ex);
+        }
+    }
+
+    private Message parseResponseMessage(Message inputMessage, String rawResponse, List<Rewrite> rewriters) {
+        Message responseMessage;
+
+        // versuche, nachricht als verschlüsselte nachricht zu parsen
+        callback.status(HBCICallback.STATUS_MSG_PARSE, "CryptedRes");
+        try {
+            log.trace("trying to parse message as crypted message");
+            responseMessage = new Message("CryptedRes", rawResponse, inputMessage.getDocument(), Message.DONT_CHECK_SEQ,
+                true);
+        } catch (ParseErrorException e) {
+            // wenn das schiefgeht...
+            log.trace("message seems not to be encrypted; tring to parse it as " + inputMessage.getName() + "Res " + inputMessage);
+
+            // alle rewriter durchlaufen, um nachricht evtl. als unverschlüsselte rawMsg zu parsen
+            for (Rewrite rewriter1 : rewriters) {
+                rawResponse = rewriter1.incomingClearText(rawResponse);
+            }
+
+            log.trace(rawResponse);
+            // versuch, nachricht als unverschlüsselte rawMsg zu parsen
+            callback.status(HBCICallback.STATUS_MSG_PARSE, inputMessage.getName() + "Res");
+            try {
+                responseMessage = new Message(inputMessage.getName() + "Res", rawResponse, inputMessage.getDocument(),
+                    Message.CHECK_SEQ, true);
+            } catch (ParseErrorException e2) {
+                responseMessage = new Message("ErrorRes", rawResponse, inputMessage.getDocument(),
+                    Message.CHECK_SEQ, true);
+            }
         }
 
         return responseMessage;
