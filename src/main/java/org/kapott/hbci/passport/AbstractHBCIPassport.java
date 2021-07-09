@@ -173,7 +173,7 @@ public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Seri
                 entry.name = upd.get(header + ".name1");
                 entry.name2 = upd.get(header + ".name2");
                 entry.bic = upd.get(header + ".KTV.bic");
-                entry.iban = upd.get(header + ".KTV.iban");
+                entry.iban = Optional.ofNullable(upd.get(header+".iban")).orElseGet(() -> upd.get(header + ".KTV.iban"));
                 entry.acctype = upd.get(header + ".acctype");
 
                 String st;
