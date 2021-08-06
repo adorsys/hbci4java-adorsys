@@ -20,6 +20,8 @@
 
 package org.kapott.hbci.passport;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -53,6 +55,10 @@ import java.util.*;
  */
 @Slf4j
 public abstract class AbstractHBCIPassport implements HBCIPassportInternal, Serializable {
+
+    @Getter
+    @Setter
+    private int bpdMaxAgeMinutes = Integer.MAX_VALUE;
 
     protected HBCICallback callback;
     protected Map<String, String> properties;

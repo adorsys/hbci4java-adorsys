@@ -30,7 +30,6 @@ import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 
 import static org.kapott.hbci.manager.HBCIKernel.DONT_CRYPTIT;
@@ -40,8 +39,6 @@ import static org.kapott.hbci.passport.PinTanPassport.BPD_KEY_LASTUPDATE;
 
 @Slf4j
 public final class HBCIBpdDialog extends AbstractHbciDialog {
-
-    private static final String maxAge = "7";
 
     public HBCIBpdDialog(PinTanPassport passport) {
         super(passport);
@@ -73,37 +70,22 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
      */
     private boolean isBPDExpired() {
         Map<String, String> bpd = passport.getBPD();
-        log.info("[BPD] max age: " + maxAge + " days");
+        log.info("[BPD] max age: " + passport.getBpdMaxAgeMinutes() + " minutes");
 
-        long maxMillis = -1L;
-        try {
-            int days = Integer.parseInt(maxAge);
-            if (days == 0) {
-                log.info("[BPD] auto-expiry disabled");
-                return false;
-            }
-
-            if (days > 0)
-                maxMillis = days * 24 * 60 * 60 * 1000L;
-        } catch (NumberFormatException e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
+        long maxMillis = passport.getBpdMaxAgeMinutes() * 60 * 1000L;
 
         long lastUpdate = 0L;
         if (bpd != null) {
             String lastUpdateProperty = bpd.get(BPD_KEY_LASTUPDATE);
             try {
-                lastUpdate = lastUpdateProperty != null ? Long.parseLong(lastUpdateProperty) : lastUpdate;
+                lastUpdate = lastUpdateProperty != null ? Long.parseLong(lastUpdateProperty) : 0L;
             } catch (NumberFormatException e) {
                 log.error(e.getMessage(), e);
-                return false;
+                return true;
             }
-            log.info("[BPD] last update: " + (lastUpdate == 0 ? "never" : new Date(lastUpdate)));
         }
 
-        long now = System.currentTimeMillis();
-        if (maxMillis < 0 || (now - lastUpdate) > maxMillis) {
+        if (maxMillis < 0 || (System.currentTimeMillis() - lastUpdate) > maxMillis) {
             log.info("[BPD] expired, will be updated now");
             return true;
         }
