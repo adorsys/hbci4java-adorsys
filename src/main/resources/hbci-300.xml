@@ -1557,7 +1557,7 @@
             <DE name="can1step" type="JN"/>
             <DE name="canmultitangvs" type="JN"/>
             <DE name="orderhashmode" type="Code" maxsize="1"/>
-            <DEG type="TAN2StepParams6" name="TAN2StepParams" maxnum="98"/>
+            <DEG type="TAN2StepParams7" name="TAN2StepParams" maxnum="98"/>
 
             <valids path="orderhashmode">
                 <validvalue>0</validvalue>
@@ -1910,6 +1910,43 @@
             <DE name="needtanmedia" type="Code"/>
             <DE name="need_hhducresponse" type="JN"/>
             <DE name="nofactivetanmedia" type="Num" maxsize="1" minnum="0"/>
+
+            <valids path="process">
+                <validvalue>1</validvalue>
+                <validvalue>2</validvalue>
+            </valids>
+            <valids path="tanformat">
+                <validvalue>1</validvalue>
+                <validvalue>2</validvalue>
+            </valids>
+        </DEGdef>
+
+        <DEGdef id="TAN2StepParams7">
+            <DE name="secfunc" type="Code" maxsize="3"/>
+            <DE name="process" type="Code" maxsize="1"/>
+            <DE name="id" type="ID"/>
+            <DE name="zkamethod_name" type="AN" maxsize="32" minnum="0"/>
+            <DE name="zkamethod_version" type="AN" maxsize="10" minnum="0"/>
+            <DE name="name" type="AN" maxsize="30"/>
+            <DE name="maxlentan2step" type="Num" maxsize="2"/>
+            <DE name="tanformat" type="Code" maxsize="1"/>
+            <DE name="inputinfo" type="AN" maxsize="30"/>
+            <DE name="maxleninput2step" type="Num" maxsize="4"/>
+            <DE name="canmultitan" type="JN"/>
+            <DE name="cantandelay" type="Code" maxsize="1"/>
+            <DE name="canstorno" type="JN"/>
+            <DE name="needsmsaccount" type="Code" maxsize="1"/>
+            <DE name="needorderaccount" type="Code" maxsize="1"/>
+            <DE name="needchallengeklass" type="JN"/>
+            <DE name="ischallengestructured" type="JN"/>
+            <DE name="initmode" type="Code"/>
+            <DE name="needtanmedia" type="Code"/>
+            <DE name="need_hhducresponse" type="JN"/>
+            <DE name="nofactivetanmedia" type="Num" maxsize="1" minnum="0"/>
+            <DE name="maxDecoupledStatusRequests" type="Num" maxsize="3" minnum="0"/>
+            <DE name="timeoutDecoupledFirstStatusRequest" type="Num" maxsize="3" minnum="0"/>
+            <DE name="allowedManualConfirmation" type="Num" maxsize="3" minnum="0"/>
+            <DE name="allowedAutomaticallyStatusRequests" type="JN"/>
 
             <valids path="process">
                 <validvalue>1</validvalue>
