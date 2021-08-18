@@ -1945,8 +1945,9 @@
             <DE name="nofactivetanmedia" type="Num" maxsize="1" minnum="0"/>
             <DE name="maxDecoupledStatusRequests" type="Num" maxsize="3" minnum="0"/>
             <DE name="timeoutDecoupledFirstStatusRequest" type="Num" maxsize="3" minnum="0"/>
-            <DE name="allowedManualConfirmation" type="Num" maxsize="3" minnum="0"/>
-            <DE name="allowedAutomaticallyStatusRequests" type="JN"/>
+            <DE name="timeoutNextStatusRequest" type="Num" maxsize="3" minnum="0"/>
+            <DE name="allowedManualConfirmation" type="JN" minnum="0"/>
+            <DE name="allowedAutomaticallyStatusRequests" type="JN" minnum="0"/>
 
             <valids path="process">
                 <validvalue>1</validvalue>
