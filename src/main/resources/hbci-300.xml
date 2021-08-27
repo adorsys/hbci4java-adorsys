@@ -8348,6 +8348,7 @@
             <SF type="BPD" minnum="0"/>
             <SF type="UPD" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="0"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             &MsgSigTailInst;
         </MSGdef>
         <MSGdef id="CustomMsgVeuRes">
@@ -8358,6 +8359,7 @@
             <SF type="BPD" minnum="0"/>
             <SF type="UPD" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="0"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             &MsgSigTailInst;
         </MSGdef>
 
@@ -8407,11 +8409,14 @@
             <SEG type="RetGlob"/>
             <SEG type="RetSeg" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SF type="BPD" minnum="0"/>
             <SF type="UPD" minnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SEG type="KIMsg" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             &MsgSigTailInst;
         </MSGdef>
 
@@ -8431,13 +8436,17 @@
             <SEG type="RetGlob"/>
             <SEG type="RetSeg" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SF type="BPD" minnum="0"/>
             <SF type="UPD" minnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SEG type="SendPubKey" minnum="0" maxnum="3"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SEG type="KIMsg" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             &MsgSigTailInst;
         </MSGdef>
 
@@ -8458,15 +8467,19 @@
             <SEG type="RetGlob"/>
             <SEG type="RetSeg" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SF type="BPD" minnum="0"/>
             <SF type="UPD" minnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SEG type="SendPubKey" minnum="0" maxnum="3"/>
             <SEG type="SyncRes3" name="SyncRes" minnum="0"/>
             <SEG type="SyncRes4" name="SyncRes" minnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SEG type="KIMsg" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             &MsgSigTailInst;
         </MSGdef>
 
@@ -8483,17 +8496,21 @@
             <SEG type="RetGlob"/>
             <SEG type="RetSeg" minnum="0" maxnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SF type="BPD" minnum="0"/>
             <SF type="UPD" minnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SEG type="SendPubKey" minnum="0" maxnum="3"/>
             <SEG type="SyncRes3" name="SyncRes" minnum="0"/>
             <SEG type="SyncRes4" name="SyncRes" minnum="0"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             <SEG type="KIMsg" minnum="0" maxnum="0"/>
             <SEG type="TANMediaListRes4" minnum="0" maxnum="1"/> <!-- degussa response :( -->
             <SEG type="TANMediaListRes5" minnum="0" maxnum="1"/>
             <SEG type="TAN2StepRes6" minnum="0" maxnum="1"/>
+            <SEG type="TAN2StepRes7" minnum="0" maxnum="0"/>
             &MsgSigTailInst;
         </MSGdef>
 
