@@ -72,7 +72,7 @@ public final class HBCIBpdDialog extends AbstractHbciDialog {
         Map<String, String> bpd = passport.getBPD();
         log.info("[BPD] max age: " + passport.getBpdMaxAgeMinutes() + " minutes");
 
-        long maxMillis = passport.getBpdMaxAgeMinutes() * 60 * 1000L;
+        long maxMillis = passport.getBpdMaxAgeMinutes() * 60L * 1000L;
 
         long lastUpdate = 0L;
         if (bpd != null) {

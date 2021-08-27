@@ -53,10 +53,12 @@ public final class MessageFactory {
         message.rawSet("ProcPrep.prodVersion", hbciProduct.getVersion());
 
         if (withHktan) {
-            message.rawSet("TAN2Step6.process", "4");
-            message.rawSet("TAN2Step6.ordersegcode", orderSegCode);
+            int hktanVersion = passport.getCurrentSecMechInfo().getSegversion();
+
+            message.rawSet("TAN2Step" + hktanVersion + ".process", "4");
+            message.rawSet("TAN2Step" + hktanVersion + ".ordersegcode", orderSegCode);
             Optional.ofNullable(passport.getCurrentSecMechInfo().getMedium())
-                .ifPresent(medium -> message.rawSet("TAN2Step6.tanmedia", medium));
+                .ifPresent(medium -> message.rawSet("TAN2Step" + hktanVersion + ".tanmedia", medium));
         }
 
         if (syncMode != null) {

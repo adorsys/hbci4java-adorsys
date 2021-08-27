@@ -20,11 +20,23 @@ public class HBCITwoStepMechanism {
     private String zkamethod_name;
     private String zkamethod_version;
     private String medium;
+    private int timeoutDecoupledFirstStatusRequest;
+    private int timeoutDecoupledNextStatusRequest;
+    private int maxDecoupledStatusRequests;
 
     public void setValue(String key, String value) {
         switch (key) {
             case "segversion":
                 setSegversion(Integer.parseInt(value));
+                break;
+            case "timeoutDecoupledFirstStatusRequest":
+                setTimeoutDecoupledFirstStatusRequest(Integer.parseInt(value));
+                break;
+            case "timeoutDecoupledNextStatusRequest":
+                setTimeoutDecoupledNextStatusRequest(Integer.parseInt(value));
+                break;
+            case "maxDecoupledStatusRequests":
+                setMaxDecoupledStatusRequests(Integer.parseInt(value));
                 break;
             case "process":
                 setProcess(Integer.parseInt(value));

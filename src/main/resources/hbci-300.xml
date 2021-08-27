@@ -1945,7 +1945,7 @@
             <DE name="nofactivetanmedia" type="Num" maxsize="1" minnum="0"/>
             <DE name="maxDecoupledStatusRequests" type="Num" maxsize="3" minnum="0"/>
             <DE name="timeoutDecoupledFirstStatusRequest" type="Num" maxsize="3" minnum="0"/>
-            <DE name="timeoutNextStatusRequest" type="Num" maxsize="3" minnum="0"/>
+            <DE name="timeoutDecoupledNextStatusRequest" type="Num" maxsize="3" minnum="0"/>
             <DE name="allowedManualConfirmation" type="JN" minnum="0"/>
             <DE name="allowedAutomaticallyStatusRequests" type="JN" minnum="0"/>
 
@@ -8396,6 +8396,7 @@
             <SEG type="Idn"/><!-- HKIDN -->
             <SEG type="ProcPrep"/><!-- HKVVB -->
             <SEG type="TAN2Step6" minnum="0" maxnum="1"/> <!-- HKTAN -->
+            <SEG type="TAN2Step7" minnum="0" maxnum="1"/> <!-- HKTAN -->
             <SEG type="MsgTailUser" name="MsgTail"/><!-- HNHBS -->
         </MSGdef>
 
@@ -8419,6 +8420,7 @@
             <SEG type="Idn"/><!-- HKIDN -->
             <SEG type="ProcPrep"/><!-- HKVVB -->
             <SEG type="TAN2Step6" minnum="0" maxnum="1"/><!-- HKTAN -->
+            <SEG type="TAN2Step7" minnum="0" maxnum="1"/><!-- HKTAN -->
             <SEG type="KeyReq" minnum="0" maxnum="3"/><!-- HKISA -->
             &MsgSigTailUser;<!-- HNSHA+HNHBS -->
         </MSGdef>
@@ -8444,6 +8446,7 @@
             <SEG type="Idn"/><!-- HKIDN -->
             <SEG type="ProcPrep"/><!-- HKVVB -->
             <SEG type="TAN2Step6" minnum="0" maxnum="1"/><!-- HKTAN -->
+            <SEG type="TAN2Step7" minnum="0" maxnum="1"/><!-- HKTAN -->
             <SEG type="KeyReq" minnum="0" maxnum="3"/><!-- HKISA -->
             <SEG type="Sync"/><!-- HKSYN -->
             &MsgSigTailUser;<!-- HNSHA+HNHBS -->
@@ -8470,6 +8473,7 @@
         <MSGdef id="DialogInitSCA">
             &MsgSigHeadUser;
             <SEG type="TAN2Step6"/>
+            <SEG type="TAN2Step7"/>
             &MsgSigTailUser;
         </MSGdef>
         <MSGdef id="DialogInitSCARes">
