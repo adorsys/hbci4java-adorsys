@@ -7,6 +7,8 @@ import javax.xml.bind.JAXB;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Parser-Implementierung fuer Pain 001.001.09.
@@ -61,7 +63,10 @@ public class ParsePain00100109 extends AbstractSepaParser<List<HashMap<String, S
 
                 DateAndDateTimeChoice date = pmtInf.getReqdExctnDt();
                 if (date != null) {
-                    put(prop, Names.DATE, SepaUtil.format(date.getDt(), null));
+                    Stream.of(date.getDt(), date.getDtTm())
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .ifPresent( calendar -> put(prop, Names.DATE, SepaUtil.format(calendar, null)));
                 }
 
                 PaymentIdentification6 pmtId = tx.getPmtId();
