@@ -86,6 +86,19 @@
                       Vorherige Versionen von https://www.iso20022.org/message_archive.page#sixth_b2c
                     -->
                     <execution>
+                        <id>camt.052.001.08</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>camt.052.001.08.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.kapott.hbci.sepa.jaxb.camt_052_001_08</generatePackage>
+                            <produces>org/kapott/hbci/sepa/jaxb/camt_052_001_08/*.java</produces>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>camt.052.001.07</id>
                         <goals>
                             <goal>generate</goal>

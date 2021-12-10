@@ -117,6 +117,10 @@ public class SepaVersion implements Comparable<SepaVersion> {
         ":tech:xsd" +
         ":camt.052.001.07", "camt.052.001.07.xsd", true);
     @SuppressWarnings("javadoc")
+    public static final SepaVersion CAMT_052_001_08 = new SepaVersion(SupportType.PARSE, 8, "urn:iso:std:iso:20022" +
+        ":tech:xsd" +
+        ":camt.052.001.08", "camt.052.001.08.xsd", true);
+    @SuppressWarnings("javadoc")
     public static final SepaVersion CAMT_053_001_02 = new SepaVersion(SupportType.PARSE, 8, "urn:iso:std:iso:20022" +
         ":tech:xsd" +
         ":camt.053.001.02", "camt.053.001.02.xsd", true);
