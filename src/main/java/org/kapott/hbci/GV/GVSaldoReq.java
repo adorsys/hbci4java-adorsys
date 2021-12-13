@@ -28,7 +28,11 @@ import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Saldo;
 import org.kapott.hbci.structures.Value;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class GVSaldoReq extends AbstractHBCIJob {
 
@@ -112,7 +116,36 @@ public class GVSaldoReq extends AbstractHBCIJob {
                 result.get(header + ".used.curr"));
         }
 
+        retrieveReservedBalanceInfoFromUPD().ifPresent( reservedBalanceInfo -> {
+            String reservedAmount = reservedBalanceInfo.get("Balance.VOR.Amount").replace(",",".");
+            if(reservedAmount != null){
+                info.reserved = new Saldo();
+                info.reserved.value = new Value(
+                    reservedAmount,
+                    reservedBalanceInfo.get("Balance.VOR.Currency")
+                );
+                info.reserved.timestamp = HBCIUtils.string2DateISO(reservedBalanceInfo.get("Balance.VOR.Date"), "yyyyMMdd");
+            }
+        });
+
         ((GVRSaldoReq) (jobResult)).store(info);
+    }
+
+    private Optional<Map<String,String>> retrieveReservedBalanceInfoFromUPD(){
+        return Optional.ofNullable(passport.getUPD().get("KInfo.accountdata")).map( accountData -> {
+                final var reservedBalancePattern = Pattern.compile("(Balance\\.VOR\\..*?)=(.*?(?=;))");
+                final var matcher = reservedBalancePattern.matcher(accountData);
+
+                Map<String,String> reservedBalanceInfo = new HashMap<>();
+                while(matcher.find()){
+                    final var key = matcher.group(1);
+                    final var value = matcher.group(2);
+                    reservedBalanceInfo.put(key, value);
+                }
+
+                return reservedBalanceInfo;
+            }
+        );
     }
 
     public void verifyConstraints() {

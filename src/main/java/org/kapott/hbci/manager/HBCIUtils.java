@@ -455,8 +455,12 @@ public final class HBCIUtils {
      * Wandelt einen String der Form YYYY-MM-DD in ein <code>Date</code>-Objekt um.
      */
     public static Date string2DateISO(String st) {
+        return string2DateISO(st, "yyyy-MM-dd");
+    }
+
+    public static Date string2DateISO(String st, String format){
         try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(st);
+            return new SimpleDateFormat(format).parse(st);
         } catch (ParseException e) {
             throw new InvalidArgumentException(st);
         }
