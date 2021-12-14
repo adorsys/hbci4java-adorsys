@@ -42,7 +42,7 @@ public class GVSaldoReq extends AbstractHBCIJob {
     static {
         typeToRawResponseValueMapper = new HashMap<>();
 
-        Function<String, String> mappingForCurrencyAndAmount = (type) -> {
+        final Function<String, String> mappingForCurrencyAndAmount = (type) -> {
             switch (type) {
                 case "ready":
                     return "booked.BTG";
@@ -52,7 +52,7 @@ public class GVSaldoReq extends AbstractHBCIJob {
                     return type;
             }
         };
-        Function<String, String> mappingForRest = (type) -> {
+        final Function<String, String> mappingForRest = (type) -> {
             switch (type) {
                 case "ready":
                     return "booked";
@@ -97,8 +97,8 @@ public class GVSaldoReq extends AbstractHBCIJob {
     }
 
     protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
-        HashMap<String, String> result = msgstatus.getData();
-        GVRSaldoReq.Info info = new GVRSaldoReq.Info();
+        final HashMap<String, String> result = msgstatus.getData();
+        final GVRSaldoReq.Info info = new GVRSaldoReq.Info();
 
         info.konto = new Konto();
         info.konto.country = result.get(header + ".KTV.KIK.country");
@@ -141,7 +141,6 @@ public class GVSaldoReq extends AbstractHBCIJob {
             false);
 
         retrieveReservedBalanceInfoFromUPD().ifPresent(reservedBalanceInfo -> {
-            //TODO: Edge case check if amount is number
             Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Amount")).ifPresent(
                 amount -> {
                     amount = amount.replace(",", ".");
@@ -149,9 +148,8 @@ public class GVSaldoReq extends AbstractHBCIJob {
                     info.reserved = new Saldo();
                     info.reserved.value = new Value(amount, reservedBalanceInfo.getOrDefault("Balance.VOR.Currency", "EUR"));
 
-                    //TODO: Shouldn't be in the past
                     Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Date")).ifPresent(
-                        date -> info.reserved.timestamp = HBCIUtils.string2DateISO(reservedBalanceInfo.get("Balance.VOR.Date"), "yyyyMMdd")
+                        date -> info.reserved.timestamp = HBCIUtils.string2DateISO(date, "yyyyMMdd")
                     );
                 }
             );
@@ -165,7 +163,7 @@ public class GVSaldoReq extends AbstractHBCIJob {
     }
 
     private Saldo createSaldo(Map<String, String> result, String amountKey, String currencyKey, String creditDebitKey, String dateKey, String timeKey) {
-        Saldo saldo = new Saldo();
+        final Saldo saldo = new Saldo();
         saldo.value = createValue(result, amountKey, currencyKey, negativeSaldo(result, creditDebitKey));
         saldo.timestamp = HBCIUtils.strings2DateTimeISO(result.get(dateKey), result.get(timeKey));
         return saldo;
@@ -173,8 +171,8 @@ public class GVSaldoReq extends AbstractHBCIJob {
 
     private Value createValue(Map<String, String> result, String amountKey, String currencyKey, boolean negative) {
         return Optional.ofNullable(result.get(amountKey)).map(amount -> {
-            String currencyValue = result.get(currencyKey);
-            String possibleNegativeAmount = (negative ? "-" : "") + amount;
+            final String currencyValue = result.get(currencyKey);
+            final String possibleNegativeAmount = (negative ? "-" : "") + amount;
             if (checkCurrency(currencyValue)) {
                 return new Value(possibleNegativeAmount, currencyValue);
             }
