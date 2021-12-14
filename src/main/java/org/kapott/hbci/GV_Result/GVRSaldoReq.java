@@ -84,6 +84,10 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
          */
         public Saldo unready;
         /**
+         * Saldo für vorgemerkte Umsätze (optional)
+         */
+        public Saldo reserved;
+        /**
          * Kreditlinie (optional)
          */
         public Value kredit;
@@ -104,13 +108,15 @@ public final class GVRSaldoReq extends HBCIJobResultImpl {
             ret.append("  Gebucht: ").append(ready.toString()).append(linesep);
 
             if (unready != null)
-                ret.append("  Pending: ").append(unready.toString()).append(linesep);
+                ret.append("  Pending: ").append(unready).append(linesep);
             if (kredit != null)
-                ret.append("  Kredit: ").append(kredit.toString()).append(linesep);
+                ret.append("  Kredit: ").append(kredit).append(linesep);
+            if(reserved != null)
+                ret.append("  Vorgemerkt:").append(reserved).append(linesep);
             if (available != null)
-                ret.append("  Verfügbar: ").append(available.toString()).append(linesep);
+                ret.append("  Verfügbar: ").append(available).append(linesep);
             if (used != null)
-                ret.append("  Benutzt: ").append(used.toString());
+                ret.append("  Benutzt: ").append(used);
 
             return ret.toString().trim();
         }
