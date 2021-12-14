@@ -116,16 +116,21 @@ public class GVSaldoReq extends AbstractHBCIJob {
                 result.get(header + ".used.curr"));
         }
 
-        retrieveReservedBalanceInfoFromUPD().ifPresent( reservedBalanceInfo -> {
-            String reservedAmount = reservedBalanceInfo.get("Balance.VOR.Amount").replace(",",".");
-            if(reservedAmount != null){
-                info.reserved = new Saldo();
-                info.reserved.value = new Value(
-                    reservedAmount,
-                    reservedBalanceInfo.get("Balance.VOR.Currency")
-                );
-                info.reserved.timestamp = HBCIUtils.string2DateISO(reservedBalanceInfo.get("Balance.VOR.Date"), "yyyyMMdd");
-            }
+        retrieveReservedBalanceInfoFromUPD().ifPresent(reservedBalanceInfo -> {
+            //TODO: Edge case check if amount is number
+            Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Amount")).ifPresent(
+                amount -> {
+                    amount = amount.replace(",", ".");
+
+                    info.reserved = new Saldo();
+                    info.reserved.value = new Value(amount, reservedBalanceInfo.getOrDefault("Balance.VOR.Currency", "EUR"));
+
+                    //TODO: Shouldn't be in the past
+                    Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Date")).ifPresent(
+                        date -> info.reserved.timestamp = HBCIUtils.string2DateISO(reservedBalanceInfo.get("Balance.VOR.Date"), "yyyyMMdd")
+                    );
+                }
+            );
         });
 
         ((GVRSaldoReq) (jobResult)).store(info);
