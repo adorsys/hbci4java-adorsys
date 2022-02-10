@@ -20,6 +20,7 @@
 
 package org.kapott.hbci.GV;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kapott.hbci.GV_Result.GVRSaldoReq;
 import org.kapott.hbci.manager.HBCIUtils;
 import org.kapott.hbci.passport.HBCIPassportInternal;
@@ -28,13 +29,14 @@ import org.kapott.hbci.structures.Konto;
 import org.kapott.hbci.structures.Saldo;
 import org.kapott.hbci.structures.Value;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class GVSaldoReq extends AbstractHBCIJob {
+
+    private static final Pattern reservedBalancePattern = Pattern.compile("(Balance\\.VOR\\..*?)=(.*?(?=;))");
 
     public GVSaldoReq(HBCIPassportInternal passport, String name) {
         super(passport, name, new GVRSaldoReq(passport));
@@ -117,40 +119,39 @@ public class GVSaldoReq extends AbstractHBCIJob {
         }
 
         retrieveReservedBalanceInfoFromUPD().ifPresent(reservedBalanceInfo -> {
-            //TODO: Edge case check if amount is number
-            Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Amount")).ifPresent(
-                amount -> {
-                    amount = amount.replace(",", ".");
+            Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Amount"))
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(amount -> {
+                        amount = amount.replace(",", ".");
 
-                    info.reserved = new Saldo();
-                    info.reserved.value = new Value(amount, reservedBalanceInfo.getOrDefault("Balance.VOR.Currency", "EUR"));
+                        info.reserved = new Saldo();
+                        info.reserved.value = new Value(amount, reservedBalanceInfo.getOrDefault("Balance.VOR.Currency", "EUR"));
 
-                    //TODO: Shouldn't be in the past
-                    Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Date")).ifPresent(
-                        date -> info.reserved.timestamp = HBCIUtils.string2DateISO(reservedBalanceInfo.get("Balance.VOR.Date"), "yyyyMMdd")
-                    );
-                }
-            );
+                        Optional.ofNullable(reservedBalanceInfo.get("Balance.VOR.Date")).ifPresent(
+                            date -> info.reserved.timestamp = HBCIUtils.string2DateISO(reservedBalanceInfo.get("Balance.VOR.Date"), "yyyyMMdd")
+                        );
+                    }
+                );
         });
 
         ((GVRSaldoReq) (jobResult)).store(info);
     }
 
-    private Optional<Map<String,String>> retrieveReservedBalanceInfoFromUPD(){
-        return Optional.ofNullable(passport.getUPD().get("KInfo.accountdata")).map( accountData -> {
-                final var reservedBalancePattern = Pattern.compile("(Balance\\.VOR\\..*?)=(.*?(?=;))");
-                final var matcher = reservedBalancePattern.matcher(accountData);
+    private Optional<Map<String, String>> retrieveReservedBalanceInfoFromUPD() {
+        return Optional.ofNullable(passport.getUPD().get("KInfo.accountdata"))
+            .map(accountData -> {
+                    final var matcher = reservedBalancePattern.matcher(accountData);
 
-                Map<String,String> reservedBalanceInfo = new HashMap<>();
-                while(matcher.find()){
-                    final var key = matcher.group(1);
-                    final var value = matcher.group(2);
-                    reservedBalanceInfo.put(key, value);
+                    Map<String, String> reservedBalanceInfo = new HashMap<>();
+                    while (matcher.find()) {
+                        final var key = matcher.group(1);
+                        final var value = matcher.group(2);
+                        reservedBalanceInfo.put(key, value);
+                    }
+
+                    return reservedBalanceInfo;
                 }
-
-                return reservedBalanceInfo;
-            }
-        );
+            );
     }
 
     public void verifyConstraints() {
