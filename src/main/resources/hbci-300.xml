@@ -5746,6 +5746,7 @@
                 <validvalue>G</validvalue>
                 <validvalue>M</validvalue>
                 <validvalue>S</validvalue>
+                <validvalue>B</validvalue>
             </valids>
 
             <value path="SegHead.code">HKTAB</value>
