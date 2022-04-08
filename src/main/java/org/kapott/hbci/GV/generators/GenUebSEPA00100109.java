@@ -52,6 +52,9 @@ public class GenUebSEPA00100109 extends AbstractSEPAGenerator<Map<String, String
         pmtInf.getPmtTpInf().setSvcLvl(new ServiceLevel8Choice());
         pmtInf.getPmtTpInf().getSvcLvl().setCd("SEPA");
 
+        pmtInf.getPmtTpInf().setLclInstrm(new LocalInstrumentSEPA());
+        pmtInf.getPmtTpInf().getLclInstrm().setCd(sepaParams.get("LclInstrm"));
+
         String date = sepaParams.get("date");
         if (date == null) date = SepaUtil.DATE_UNDEFINED;
         DateAndDateTimeChoice dateAndDateTimeChoice = new DateAndDateTimeChoice();

@@ -18,6 +18,9 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
 import org.kapott.hbci.sepa.SepaVersion;
+import org.kapott.hbci.status.HBCIMsgStatus;
+
+import java.util.Optional;
 
 /**
  * Job-Implementierung fuer SEPA-Ueberweisungen.
@@ -58,6 +61,12 @@ public class GVRawSEPA extends AbstractSEPAGV {
         addConstraint("turnus", "DauerDetails.turnus", "");
         addConstraint("execday", "DauerDetails.execday", "");
         addConstraint("lastdate", "DauerDetails.lastdate", "");
+    }
+
+    @Override
+    protected void extractResults(HBCIMsgStatus msgstatus, String header, int idx) {
+        Optional.ofNullable(msgstatus.getData().get(header + ".orderid"))
+            .ifPresent(orderid -> jobResult.getResultData().put("orderid", orderid));
     }
 
     /**

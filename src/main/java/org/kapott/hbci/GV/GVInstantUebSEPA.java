@@ -39,6 +39,12 @@ public class GVInstantUebSEPA extends GVUebSEPA {
         super(passport, name, new GVRPayment(passport));
     }
 
+    @Override
+    public void verifyConstraints() {
+        setLowlevelParam(getName()+".sepa.LclInstrm", "INST");
+        super.verifyConstraints();
+    }
+
     public static String getLowlevelName() {
         return "InstantUebSEPA";
     }
