@@ -30,7 +30,7 @@ public class GVInstanstUebSEPAStatus extends AbstractHBCIJob {
 
         addConstraint("my.bic", "My.bic", null);
         addConstraint("my.iban", "My.iban", null);
-        addConstraint("sepadescriptor", "sepadescr", new GVInstantUebSEPA(passport).getPainVersion().getURN());
+        addConstraint("sepadescriptor", "sepadescr", new GVInstantUebSEPA(passport).getSepaVersion().getURN());
         addConstraint("orderid", "orderid", null);
     }
 

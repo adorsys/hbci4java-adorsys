@@ -21,18 +21,19 @@
 package org.kapott.hbci.GV;
 
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.sepa.SepaVersion;
 
 /**
  * Job-Implementierung fuer SEPA-Multi-Ueberweisungen.
  */
 public class GVMultiUebSEPA extends GVUebSEPA {
 
-    public GVMultiUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName());
+    public GVMultiUebSEPA(HBCIPassportInternal passport, SepaVersion sepaVersion) {
+        this(passport, getLowlevelName(), sepaVersion);
     }
 
-    public GVMultiUebSEPA(HBCIPassportInternal passport, String name) {
-        super(passport, name);
+    public GVMultiUebSEPA(HBCIPassportInternal passport, String name, SepaVersion sepaVersion) {
+        super(passport, name, sepaVersion);
 
         addConstraint("batchbook", "sepa.batchbook", "");
         addConstraint("Total.value", "Total.value", null);

@@ -35,11 +35,11 @@ public class GVTermMultiUebSEPA extends GVUebSEPA {
     private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
     public GVTermMultiUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName());
+        this(passport, getLowlevelName(), null);
     }
 
-    public GVTermMultiUebSEPA(HBCIPassportInternal passport, String name) {
-        super(passport, name, new GVRPayment(passport));
+    public GVTermMultiUebSEPA(HBCIPassportInternal passport, String name, SepaVersion sepaVersion) {
+        super(passport, name, sepaVersion, new GVRPayment(passport));
 
         addConstraint("batchbook", "sepa.batchbook", "");
         addConstraint("Total.value", "Total.value", null);

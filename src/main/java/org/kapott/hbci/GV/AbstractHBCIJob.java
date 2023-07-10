@@ -1013,7 +1013,7 @@ public abstract class AbstractHBCIJob {
         return null;
     }
 
-    public SepaVersion getPainVersion() {
+    public SepaVersion getSepaVersion() {
         return null;
     }
 

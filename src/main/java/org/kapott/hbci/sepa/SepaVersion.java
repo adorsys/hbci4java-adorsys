@@ -61,6 +61,15 @@ public class SepaVersion implements Comparable<SepaVersion> {
     public static final SepaVersion PAIN_001_001_09 = new SepaVersion(SupportType.GENERATE, 6, "urn:iso:std:iso:20022" +
         ":tech" +
         ":xsd:pain.001.001.09", "pain.001.001.09.xsd", true);
+    public static final SepaVersion PAIN_001_001_09_AXZ_GBIC_4 = new SepaVersion(SupportType.GENERATE, 7, "urn:iso:std:iso:20022" +
+        ":tech" +
+        ":xsd:pain.001.001.09", "pain.001.001.09_AXZ_GBIC_4.xsd", true);
+    public static final SepaVersion PAIN_001_001_09_CCU_GBIC_4 = new SepaVersion(SupportType.GENERATE, 8, "urn:iso:std:iso:20022" +
+        ":tech" +
+        ":xsd:pain.001.001.09", "pain.001.001.09_CCU_GBIC_4.xsd", true);
+    public static final SepaVersion PAIN_001_001_09_GBIC_4 = new SepaVersion(SupportType.GENERATE, 9, "urn:iso:std:iso:20022" +
+        ":tech" +
+        ":xsd:pain.001.001.09", "pain.001.001.09_GBIC_4.xsd", true);
     public static final SepaVersion PAIN_002_002_02 = new SepaVersion(SupportType.GENERATE, 1, "urn:swift:xsd:$pain" +
         ".002.002" +
         ".02", "pain.002.002.02.xsd", true);
@@ -191,6 +200,15 @@ public class SepaVersion implements Comparable<SepaVersion> {
 
         // keine passende Version gefunden. Dann erzeugen wir selbst eine
         return test;
+    }
+
+    public static SepaVersion byFileName(String fileName) {
+        return knownVersions.values().stream()
+            .flatMap(Collection::stream)
+            .filter(sepaVersion -> sepaVersion.getFile().equals(fileName))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("unknown sepa schema file name: " + fileName));
+
     }
 
     /**

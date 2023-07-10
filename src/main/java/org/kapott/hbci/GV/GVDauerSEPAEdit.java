@@ -15,8 +15,8 @@ public class GVDauerSEPAEdit extends AbstractSEPAGV {
 
     private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
-    public GVDauerSEPAEdit(HBCIPassportInternal passport) {
-        super(passport, getLowlevelName(), new GVRDauerEdit(passport));
+    public GVDauerSEPAEdit(HBCIPassportInternal passport, SepaVersion sepaVersion) {
+        super(passport, getLowlevelName(), sepaVersion, new GVRDauerEdit(passport));
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -29,7 +29,7 @@ public class GVDauerSEPAEdit extends AbstractSEPAGV {
             addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("_sepadescriptor", "sepadescr", this.getSepaVersion().getURN());
         addConstraint("_sepapain", "sepapain", null);
         addConstraint("orderid", "orderid", null);
 

@@ -35,12 +35,12 @@ public class GVKUmsAllCamt extends AbstractSEPAGV {
 
     private boolean rawResponse;
 
-    public GVKUmsAllCamt(HBCIPassportInternal passport, String name) {
-        super(passport, name, new GVRKUms(passport));
+    public GVKUmsAllCamt(HBCIPassportInternal passport, String name, SepaVersion sepaVersion) {
+        super(passport, name, sepaVersion, new GVRKUms(passport));
     }
 
-    public GVKUmsAllCamt(HBCIPassportInternal passport, boolean rawResponse) {
-        this(passport, getLowlevelName());
+    public GVKUmsAllCamt(HBCIPassportInternal passport, SepaVersion sepaVersion, boolean rawResponse) {
+        this(passport, getLowlevelName(), sepaVersion);
 
         this.rawResponse = rawResponse;
 
@@ -59,7 +59,7 @@ public class GVKUmsAllCamt extends AbstractSEPAGV {
         // damit aber nicht klar. Deswegen schicken wir immer genau eine Version
         // mit. Und zwar genau die hoechste, die die Bank in den GV-spezifischen BPD
         // mitgeteilt hat
-        addConstraint("suppformat", "formats.suppformat", this.getPainVersion().getURN());
+        addConstraint("suppformat", "formats.suppformat", this.getSepaVersion().getURN());
         addConstraint("dummy", "allaccounts", "N");
 
         addConstraint("startdate", "startdate", this.getStartdate());

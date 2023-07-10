@@ -22,6 +22,7 @@ package org.kapott.hbci.GV;
 
 import org.kapott.hbci.GV_Result.GVRPayment;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.sepa.SepaVersion;
 import org.kapott.hbci.status.HBCIMsgStatus;
 
 import java.util.HashMap;
@@ -32,11 +33,11 @@ import java.util.HashMap;
 public class GVInstantUebSEPA extends GVUebSEPA {
 
     public GVInstantUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName());
+        this(passport, getLowlevelName(), null);
     }
 
-    public GVInstantUebSEPA(HBCIPassportInternal passport, String name) {
-        super(passport, name, new GVRPayment(passport));
+    public GVInstantUebSEPA(HBCIPassportInternal passport, String name, SepaVersion sepaVersion) {
+        super(passport, name, sepaVersion, new GVRPayment(passport));
     }
 
     @Override

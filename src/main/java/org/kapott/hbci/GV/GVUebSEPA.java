@@ -35,12 +35,12 @@ public class GVUebSEPA extends AbstractSEPAGV {
         this(passport, getLowlevelName(), null);
     }
 
-    public GVUebSEPA(HBCIPassportInternal passport, String name) {
-        this(passport, name, null);
+    public GVUebSEPA(HBCIPassportInternal passport, String name, SepaVersion sepaVersion) {
+        this(passport, name, sepaVersion, null);
     }
 
-    public GVUebSEPA(HBCIPassportInternal passport, String name, HBCIJobResultImpl jobResult) {
-        super(passport, name, jobResult);
+    public GVUebSEPA(HBCIPassportInternal passport, String name, SepaVersion sepaVersion, HBCIJobResultImpl jobResult) {
+        super(passport, name, sepaVersion, jobResult);
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -53,7 +53,7 @@ public class GVUebSEPA extends AbstractSEPAGV {
             addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("_sepadescriptor", "sepadescr", this.getSepaVersion().getURN());
         addConstraint("_sepapain", "sepapain", null);
 
         /* dummy constraints to allow an application to set these values. the

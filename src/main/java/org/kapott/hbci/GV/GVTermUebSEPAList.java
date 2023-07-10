@@ -39,8 +39,8 @@ import java.util.HashMap;
 public final class GVTermUebSEPAList extends AbstractSEPAGV {
     private final static SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
-    public GVTermUebSEPAList(HBCIPassportInternal passport) {
-        super(passport, getLowlevelName(), new GVRTermUebList(passport));
+    public GVTermUebSEPAList(HBCIPassportInternal passport, SepaVersion sepaVersion) {
+        super(passport, getLowlevelName(), sepaVersion, new GVRTermUebList(passport));
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -53,7 +53,7 @@ public final class GVTermUebSEPAList extends AbstractSEPAGV {
             addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("_sepadescriptor", "sepadescr", this.getSepaVersion().getURN());
         addConstraint("startdate", "startdate", "");
         addConstraint("enddate", "enddate", "");
         addConstraint("maxentries", "maxentries", "");

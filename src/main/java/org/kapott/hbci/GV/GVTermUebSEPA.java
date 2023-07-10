@@ -34,12 +34,12 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
 
     private static final SepaVersion DEFAULT = SepaVersion.PAIN_001_001_02;
 
-    public GVTermUebSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName());
+    public GVTermUebSEPA(HBCIPassportInternal passport, SepaVersion sepaVersion) {
+        this(passport, getLowlevelName(), sepaVersion);
     }
 
-    public GVTermUebSEPA(HBCIPassportInternal passport, String name) {
-        super(passport, name, new GVRPayment(passport));
+    public GVTermUebSEPA(HBCIPassportInternal passport, String name, SepaVersion sepaVersion) {
+        super(passport, name, sepaVersion, new GVRPayment(passport));
 
         addConstraint("src.bic", "My.bic", null);
         addConstraint("src.iban", "My.iban", null);
@@ -52,7 +52,7 @@ public class GVTermUebSEPA extends AbstractSEPAGV {
             addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("_sepadescriptor", "sepadescr", this.getSepaVersion().getURN());
         addConstraint("_sepapain", "sepapain", null);
 
         /* dummy constraints to allow an application to set these values. the

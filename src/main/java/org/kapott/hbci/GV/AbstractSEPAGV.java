@@ -33,17 +33,12 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     @Getter
     @Setter
     private Map<String, String> painParams = new HashMap<>();
-    private SepaVersion painVersion;
+    private final SepaVersion sepaVersion;
     private PainGeneratorIf generator = null;
 
-    public AbstractSEPAGV(HBCIPassportInternal passport, String name) {
-        super(passport, name, new HBCIJobResultImpl(passport));
-        this.painVersion = this.determinePainVersion(passport, name);
-    }
-
-    public AbstractSEPAGV(HBCIPassportInternal passport, String name, HBCIJobResultImpl jobResult) {
-        super(passport, name, jobResult);
-        this.painVersion = this.determinePainVersion(passport, name);
+    public AbstractSEPAGV(HBCIPassportInternal passport, String name, SepaVersion sepaVersion, HBCIJobResultImpl jobResult) {
+        super(passport, name, jobResult != null ? jobResult : new HBCIJobResultImpl(passport));
+        this.sepaVersion = sepaVersion != null ? sepaVersion : this.determinePainVersion(passport, name);
     }
 
     /**
@@ -224,7 +219,7 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
     private PainGeneratorIf getPainGenerator() {
         if (this.generator == null) {
             try {
-                this.generator = PainGeneratorFactory.get(this, this.getPainVersion());
+                this.generator = PainGeneratorFactory.get(this, this.getSepaVersion());
             } catch (Exception e) {
                 String msg = HBCIUtils.getLocMsg("EXCMSG_JOB_CREATE_ERR", this.getPainJobName());
                 throw new HBCI_Exception(msg, e);
@@ -239,12 +234,11 @@ public abstract class AbstractSEPAGV extends AbstractHBCIJob {
      *
      * @return der zu verwendende PAIN-Version fuer die HBCI-Nachricht.
      */
-    @Override
-    public SepaVersion getPainVersion() {
-        return this.painVersion;
+    public SepaVersion getSepaVersion() {
+        return this.sepaVersion;
     }
 
-    void setPainVersion(String version) {
+    void setSepaVersion(String version) {
         setLowlevelParam(getName() + ".sepadescr", version);
     }
 

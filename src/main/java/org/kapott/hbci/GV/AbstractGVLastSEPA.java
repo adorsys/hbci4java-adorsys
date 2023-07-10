@@ -13,8 +13,8 @@ import java.util.HashMap;
 public abstract class AbstractGVLastSEPA extends AbstractSEPAGV {
     private final static SepaVersion DEFAULT = SepaVersion.PAIN_008_001_01;
 
-    public AbstractGVLastSEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
-        super(passport, lowlevelName, result);
+    public AbstractGVLastSEPA(HBCIPassportInternal passport, String lowlevelName, SepaVersion sepaVersion, AbstractGVRLastSEPA result) {
+        super(passport, lowlevelName, sepaVersion, result);
 
         // My bzw. src ist das Konto des Ausführenden. Dst ist das Konto des
         // Belasteten.
@@ -29,7 +29,7 @@ public abstract class AbstractGVLastSEPA extends AbstractSEPAGV {
             addConstraint("src.subnumber", "My.subnumber", "");
         }
 
-        addConstraint("_sepadescriptor", "sepadescr", this.getPainVersion().getURN());
+        addConstraint("_sepadescriptor", "sepadescr", this.getSepaVersion().getURN());
         addConstraint("_sepapain", "sepapain", null);
 
         addConstraint("src.bic", "sepa.src.bic", null);

@@ -9,17 +9,18 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.AbstractGVRLastSEPA;
 import org.kapott.hbci.GV_Result.GVRLastCOR1SEPA;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.sepa.SepaVersion;
 
 /**
  * Implementierung des HBCI-Jobs fuer die SEPA-COR1-Lastschrift.
  */
 public class GVLastCOR1SEPA extends AbstractGVLastSEPA {
-    public GVLastCOR1SEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName(), new GVRLastCOR1SEPA(passport));
+    public GVLastCOR1SEPA(HBCIPassportInternal passport, SepaVersion sepaVersion) {
+        this(passport, getLowlevelName(), sepaVersion, new GVRLastCOR1SEPA(passport));
     }
 
-    public GVLastCOR1SEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
-        super(passport, lowlevelName, result);
+    public GVLastCOR1SEPA(HBCIPassportInternal passport, String lowlevelName, SepaVersion sepaVersion, AbstractGVRLastSEPA result) {
+        super(passport, lowlevelName, sepaVersion, result);
 
         // Typ der Lastschrift. Moegliche Werte:
         // CORE = Basis-Lastschrift (Default)

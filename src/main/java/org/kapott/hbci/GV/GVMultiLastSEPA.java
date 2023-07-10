@@ -9,17 +9,18 @@ package org.kapott.hbci.GV;
 import org.kapott.hbci.GV_Result.AbstractGVRLastSEPA;
 import org.kapott.hbci.GV_Result.GVRLastSEPA;
 import org.kapott.hbci.passport.HBCIPassportInternal;
+import org.kapott.hbci.sepa.SepaVersion;
 
 /**
  * Implementierung des HBCI-Jobs fuer die SEPA-Basis-Multi-Lastschrift.
  */
 public class GVMultiLastSEPA extends GVLastSEPA {
-    public GVMultiLastSEPA(HBCIPassportInternal passport) {
-        this(passport, getLowlevelName(), new GVRLastSEPA(passport));
+    public GVMultiLastSEPA(HBCIPassportInternal passport, SepaVersion sepaVersion) {
+        this(passport, getLowlevelName(), sepaVersion, new GVRLastSEPA(passport));
     }
 
-    public GVMultiLastSEPA(HBCIPassportInternal passport, String lowlevelName, AbstractGVRLastSEPA result) {
-        super(passport, lowlevelName, result);
+    public GVMultiLastSEPA(HBCIPassportInternal passport, String lowlevelName, SepaVersion sepaVersion, AbstractGVRLastSEPA result) {
+        super(passport, lowlevelName, sepaVersion, result);
 
         addConstraint("batchbook", "sepa.batchbook", "");
         addConstraint("Total.value", "Total.value", null);
